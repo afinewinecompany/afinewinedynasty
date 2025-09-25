@@ -1,0 +1,85 @@
+schema: 1
+story: '1.2'
+story_title: 'User Authentication System'
+gate: FAIL
+status_reason: 'Critical issue - using in-memory storage instead of persistent database, blocking production deployment.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2025-09-25T10:00:00Z'
+
+top_issues:
+  - id: 'ARCH-001'
+    severity: high
+    finding: 'Using in-memory fake_users_db instead of persistent database storage'
+    suggested_action: 'Implement proper database persistence with user and user_sessions tables'
+    suggested_owner: 'dev'
+  - id: 'SEC-001'
+    severity: high
+    finding: 'No token revocation mechanism for logout functionality'
+    suggested_action: 'Implement user_sessions table with token revocation on logout'
+    suggested_owner: 'dev'
+  - id: 'ARCH-002'
+    severity: medium
+    finding: 'Missing database schema implementation as specified in architecture'
+    suggested_action: 'Add database migration scripts for user management schema'
+    suggested_owner: 'dev'
+  - id: 'SEC-002'
+    severity: medium
+    finding: 'OAuth service hardcodes Google URLs without configuration'
+    suggested_action: 'Move Google OAuth URLs to environment configuration'
+    suggested_owner: 'dev'
+
+waiver: { active: false }
+
+quality_score: 40
+expires: '2025-10-09T10:00:00Z'
+
+evidence:
+  tests_reviewed: 359
+  risks_identified: 4
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    ac_gaps: []
+
+nfr_validation:
+  _assessed: [security, performance, reliability, maintainability]
+  security:
+    status: FAIL
+    notes: 'Critical gaps: No database persistence, incomplete logout with token revocation missing'
+  performance:
+    status: PASS
+    notes: 'Rate limiting implemented, JWT stateless design, async OAuth integration'
+  reliability:
+    status: FAIL
+    notes: 'In-memory storage causes complete data loss on restart'
+  maintainability:
+    status: CONCERNS
+    notes: 'Good test coverage (359 tests) but missing database layer increases technical debt'
+
+risk_summary:
+  totals:
+    critical: 0
+    high: 2
+    medium: 2
+    low: 0
+  highest:
+    id: ARCH-001
+    score: 6
+    title: 'In-memory storage blocks production deployment'
+  recommendations:
+    must_fix:
+      - 'Implement database persistence layer'
+      - 'Add token revocation for logout'
+    monitor:
+      - 'OAuth error rates and failed authentication attempts'
+
+recommendations:
+  immediate:
+    - action: 'Replace fake_users_db with PostgreSQL database'
+      refs: ['apps/api/app/services/auth_service.py']
+    - action: 'Implement user_sessions table with token revocation'
+      refs: ['apps/api/app/core/security.py', 'apps/api/app/api/api_v1/endpoints/auth.py']
+  future:
+    - action: 'Add OAuth URL configuration via environment variables'
+      refs: ['apps/api/app/services/oauth_service.py']
+    - action: 'Add monitoring for authentication failures'
+      refs: ['apps/api/app/api/api_v1/endpoints/auth.py']

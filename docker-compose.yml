@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database with TimescaleDB
+  postgres:
+    image: timescale/timescaledb:latest-pg15
+    container_name: afwd_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: afinewinedynasty
+      TIMESCALEDB_TELEMETRY: 'off'
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    networks:
+      - afwd_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis Cache and Task Queue
+  redis:
+    image: redis:7-alpine
+    container_name: afwd_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - afwd_network
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # FastAPI Backend Service
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: afwd_api
+    environment:
+      POSTGRES_SERVER: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: afinewinedynasty
+      POSTGRES_PORT: "5432"
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      BACKEND_CORS_ORIGINS: "http://localhost:3000,http://web:3000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - afwd_network
+    volumes:
+      - ./apps/api:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Next.js Frontend Service
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: afwd_web
+    environment:
+      NEXT_PUBLIC_API_URL: "http://localhost:8000"
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    networks:
+      - afwd_network
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules
+      - /app/.next
+
+  # ML Pipeline Service (placeholder for future implementation)
+  ml-pipeline:
+    image: python:3.11-slim
+    container_name: afwd_ml_pipeline
+    working_dir: /app
+    volumes:
+      - ./apps/ml-pipeline:/app
+    networks:
+      - afwd_network
+    command: ["sleep", "infinity"]  # Placeholder - will be replaced with actual ML service
+
+networks:
+  afwd_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

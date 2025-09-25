@@ -1,0 +1,80 @@
+# Epic 1: Foundation & Core Infrastructure
+
+**Goal:** Establish foundational project infrastructure including authentication, database setup, and basic data pipeline while delivering an initial deployable application that displays prospect data. This epic creates the technical foundation for all future development while providing immediate user value through basic prospect information display.
+
+## Story 1.1: Project Setup and Development Environment
+As a developer,
+I want a properly configured development environment with CI/CD pipeline,
+so that I can develop, test, and deploy code efficiently throughout the project.
+
+**Acceptance Criteria:**
+1. Monorepo structure created with apps/ and packages/ directories following Project Brief architecture
+2. Next.js 14 frontend application initialized with TypeScript 5.0+ configuration
+3. FastAPI 0.100+ backend service setup with async capabilities
+4. Docker containerization for both frontend and backend services
+5. GitHub Actions CI/CD pipeline configured for automated testing and deployment
+6. PostgreSQL 15+ database with TimescaleDB extension configured locally and in staging
+7. Redis instance setup for caching and task queue functionality
+8. Basic environment configuration management (.env files, secrets handling)
+
+## Story 1.2: User Authentication System
+As a potential user,
+I want to register an account and login securely using email/password or Google OAuth,
+so that I can access prospect evaluation features and maintain my preferences.
+
+**Acceptance Criteria:**
+1. User registration endpoint with email validation and password hashing
+2. Google OAuth 2.0 integration for registration and login
+3. JWT-based authentication with 15-minute access tokens and 7-day refresh tokens
+4. Login/logout functionality with secure token storage for both auth methods
+5. Password reset flow via email verification (email/password users only)
+6. Basic user profile management (email, password updates)
+7. Account linking capability (connect Google account to existing email account)
+8. Rate limiting implemented (100 requests/minute baseline)
+9. GDPR compliance endpoints for data export and deletion
+10. Frontend registration and login forms with Google Sign-In button integration
+
+## Story 1.3: Database Schema and Core Models
+As a system,
+I need properly structured database schemas for prospects and performance data,
+so that future features can efficiently store and query baseball statistics.
+
+**Acceptance Criteria:**
+1. Prospects table with core fields (name, position, organization, age, MLB ID)
+2. Prospect_stats table with TimescaleDB partitioning for time-series data
+3. Scouting_grades table with support for multiple sources (Fangraphs, MLB Pipeline)
+4. Users table with subscription tier and integration status tracking
+5. Database migrations system setup with version control
+6. Proper indexing strategy for query performance
+7. Foreign key relationships and data integrity constraints
+8. Basic database seeding scripts for development data
+
+## Story 1.4: MLB Stats API Integration
+As a user,
+I want to see current minor league prospect data,
+so that I can begin evaluating players even before advanced features are available.
+
+**Acceptance Criteria:**
+1. MLB Stats API integration with error handling and rate limiting
+2. Daily data ingestion job for prospect basic information and current season stats
+3. Data validation and cleaning pipeline for incoming API responses
+4. Duplicate detection and merging logic for prospect records
+5. Basic prospect profile API endpoint returning structured data
+6. Error monitoring and alerting for failed data ingestion
+7. Data freshness tracking (last updated timestamps)
+8. Manual data refresh capability for development and testing
+
+## Story 1.5: Basic Prospect Display Interface
+As a dynasty fantasy player,
+I want to view a list of prospects with their basic information,
+so that I can start using the platform for prospect research immediately.
+
+**Acceptance Criteria:**
+1. Responsive prospect list page displaying top 100 prospects
+2. Basic filtering by position and organization
+3. Sortable columns for key metrics (age, level, organization)
+4. Individual prospect profile pages with stats and basic information
+5. Mobile-responsive design following UI design goals
+6. Loading states and error handling for API failures
+7. Basic search functionality for prospect names
+8. Pagination for large prospect lists
