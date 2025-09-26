@@ -1,0 +1,20 @@
+{{ name }} projects as a defense-first {{ position }} at {{ age }} years old, showcasing his glove skills at {{ level }} with {{ organization }}.
+{%- if top_features %}
+{%- set primary_feature = top_features[0] %}
+{%- if primary_feature.name in ['defense', 'fielding', 'arm strength'] %}
+His exceptional defensive skills serve as his calling card and primary path to MLB value.
+{%- elif primary_feature.impact == 'positive' %}
+While {{ primary_feature.name | lower }} adds to his profile, defense remains his standout tool.
+{%- else %}
+Questions about {{ primary_feature.name | lower }} make his defensive excellence even more crucial.
+{%- endif %}
+{%- endif %}
+{%- if top_features | length > 1 %}
+{%- set secondary_feature = top_features[1] %}
+{%- if secondary_feature.impact == 'positive' %}
+His {{ secondary_feature.name | lower }} provides additional value beyond his premier glove work.
+{%- else %}
+Limited {{ secondary_feature.name | lower }} emphasizes his need to excel defensively to reach the majors.
+{%- endif %}
+{%- endif %}
+The projection model shows {{ success_probability | format_probability }} success chance with {{ risk_level | lower }} risk, expecting {{ timeline }} with {{ confidence_level | format_probability }} confidence in his defensive-based path.

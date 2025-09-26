@@ -5,7 +5,18 @@
       "Bash(cmd /c \"copy \"\"C:\\Installers\\timescaledb\\*.dll\"\" \"\"C:\\Program Files\\PostgreSQL\\17\\lib\"\"\")",
       "Bash(xcopy:*)",
       "Bash(powershell:*)",
-      "Read(//c/Program Files/PostgreSQL/17/data/**)"
+      "Read(//c/Program Files/PostgreSQL/17/data/**)",
+      "Bash(npm test:*)",
+      "Bash(timeout 60 npm test -- --watchAll=false --testTimeout=15000 --silent --verbose)",
+      "Bash(findstr:*)",
+      "Bash(dir \"docs/stories\" /b)",
+      "Bash(dir:*)",
+      "Bash(python -m pytest tests/data_processing/test_data_ingestion.py -v)",
+      "Bash(pip install:*)",
+      "Bash(python -m pip install:*)",
+      "Bash(python -m pytest tests/ml/test_feature_engineering.py::TestFeatureEngineeringPipeline::test_complete_pipeline_processing -v)",
+      "Bash(python:*)",
+      "Bash(timeout 10 python:*)"
     ],
     "deny": [],
     "ask": []

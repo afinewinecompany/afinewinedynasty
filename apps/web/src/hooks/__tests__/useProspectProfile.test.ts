@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor, act } from '@testing-library/react';
 import { useProspectProfile } from '../useProspectProfile';
 import { apiClient } from '@/lib/api/client';
 
@@ -97,7 +97,9 @@ describe('useProspectProfile', () => {
     });
 
     // Call refetch
-    result.current.refetch();
+    act(() => {
+      result.current.refetch();
+    });
 
     await waitFor(() => {
       expect(mockApiClient.get).toHaveBeenCalledTimes(2);

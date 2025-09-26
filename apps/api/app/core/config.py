@@ -44,6 +44,7 @@ class Settings(BaseSettings):
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
     REDIS_DB: int = 0
+    REDIS_URL: str = "redis://localhost:6379/0"
 
     # JWT
     SECRET_KEY: str = "6xt6IjjwkEH4lIQiiW-lS5PX7GXYd-YBNp3PF5Jls64"
@@ -74,6 +75,14 @@ class Settings(BaseSettings):
     MLB_STATS_API_BASE_URL: str = "https://statsapi.mlb.com/api/v1"
     MLB_STATS_API_RATE_LIMIT: int = 1000  # requests per day
     MLB_STATS_API_REQUEST_DELAY: float = 0.1  # seconds between requests
+
+    # Fangraphs Configuration
+    FANGRAPHS_BASE_URL: str = "https://www.fangraphs.com"
+    FANGRAPHS_RATE_LIMIT_CALLS: int = 1  # requests per period
+    FANGRAPHS_RATE_LIMIT_PERIOD: float = 1.0  # seconds
+    FANGRAPHS_REQUEST_TIMEOUT: int = 30  # seconds
+    FANGRAPHS_MAX_RETRIES: int = 3
+    FANGRAPHS_USER_AGENT: str = "A Fine Wine Dynasty Bot 1.0"
 
     class Config:
         case_sensitive = True

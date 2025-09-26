@@ -62,3 +62,75 @@ export interface ProspectListResponse {
   limit: number;
   total_pages: number;
 }
+
+// New interfaces for rankings dashboard
+export interface ProspectRanking {
+  id: number;
+  mlbId: string;
+  name: string;
+  position: string;
+  organization: string | null;
+  level: string | null;
+  age: number | null;
+  etaYear: number | null;
+  dynastyRank: number;
+  dynastyScore: number;
+  mlScore: number;
+  scoutingScore: number;
+  confidenceLevel: 'High' | 'Medium' | 'Low';
+  battingAvg?: number | null;
+  onBasePct?: number | null;
+  sluggingPct?: number | null;
+  era?: number | null;
+  whip?: number | null;
+  overallGrade?: number | null;
+  futureValue?: number | null;
+}
+
+export interface ProspectRankingsResponse {
+  prospects: ProspectRanking[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+export interface ProspectRankingsParams {
+  page?: number;
+  pageSize?: number;
+  position?: string[];
+  organization?: string[];
+  level?: string[];
+  etaMin?: number;
+  etaMax?: number;
+  ageMin?: number;
+  ageMax?: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface ProspectSearchSuggestion {
+  name: string;
+  organization: string | null;
+  position: string;
+  display: string;
+}
+
+export interface ScoutingGrade {
+  source: 'Fangraphs' | 'MLB Pipeline' | 'Baseball America' | 'Baseball Prospectus';
+  overall?: number;
+  hit?: number;
+  power?: number;
+  run?: number;
+  field?: number;
+  throw?: number;
+  fastball?: number;
+  curveball?: number;
+  slider?: number;
+  changeup?: number;
+  control?: number;
+  futureValue?: number;
+  risk?: 'Safe' | 'Moderate' | 'High' | 'Extreme';
+  updatedAt: string;
+}

@@ -102,8 +102,13 @@ describe('ProspectsList', () => {
 
     expect(screen.getByText('John Smith')).toBeInTheDocument();
     expect(screen.getByText('Mike Johnson')).toBeInTheDocument();
-    expect(screen.getByText('New York Yankees')).toBeInTheDocument();
-    expect(screen.getByText('Boston Red Sox')).toBeInTheDocument();
+
+    // Use getAllByText to handle multiple instances of team names
+    const yankees = screen.getAllByText('New York Yankees');
+    expect(yankees.length).toBeGreaterThan(0);
+
+    const redSox = screen.getAllByText('Boston Red Sox');
+    expect(redSox.length).toBeGreaterThan(0);
   });
 
   it('displays loading state correctly', () => {
@@ -155,11 +160,17 @@ describe('ProspectsList', () => {
   });
 
   it('handles filter changes correctly', () => {
+    // Force desktop view
+    Object.defineProperty(window, 'innerWidth', {
+      writable: true,
+      configurable: true,
+      value: 1024,
+    });
+
     render(<ProspectsList />);
 
-    // Test position filter - use getAllByDisplayValue and take the first one
-    const positionSelects = screen.getAllByDisplayValue('All Positions');
-    const positionSelect = positionSelects[0];
+    // Test position filter - target the desktop position selector
+    const positionSelect = screen.getByLabelText('Position');
     fireEvent.change(positionSelect, { target: { value: 'SS' } });
 
     expect(useProspects).toHaveBeenCalledWith(
@@ -188,7 +199,9 @@ describe('ProspectsList', () => {
   it('handles pagination correctly', () => {
     render(<ProspectsList />);
 
-    const nextButton = screen.getByText('Next');
+    // Use getAllByText to handle multiple "Next" instances and pick the first (visible button)
+    const nextButtons = screen.getAllByText('Next');
+    const nextButton = nextButtons[0]; // The visible button
     fireEvent.click(nextButton);
 
     expect(useProspects).toHaveBeenCalledWith(
@@ -228,11 +241,17 @@ describe('ProspectsList', () => {
   });
 
   it('handles clear filters correctly', () => {
+    // Force desktop view by mocking window.innerWidth
+    Object.defineProperty(window, 'innerWidth', {
+      writable: true,
+      configurable: true,
+      value: 1024,
+    });
+
     render(<ProspectsList />);
 
-    // First set some filters - use getAllByDisplayValue and take the first one
-    const positionSelects = screen.getAllByDisplayValue('All Positions');
-    const positionSelect = positionSelects[0];
+    // First set some filters - target the desktop filter panel select
+    const positionSelect = screen.getByLabelText('Position');
     fireEvent.change(positionSelect, { target: { value: 'SS' } });
 
     // Then clear them

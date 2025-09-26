@@ -11,6 +11,52 @@ jest.mock('next/navigation', () => ({
 // Mock the useProspectProfile hook
 jest.mock('@/hooks/useProspectProfile');
 
+// Mock the new components
+jest.mock('../MLPredictionExplanation', () => {
+  return {
+    MLPredictionExplanation: ({ prediction, prospectName }: any) => (
+      <div data-testid="ml-prediction-explanation">
+        <div>ML Analysis for {prospectName}</div>
+        <div>Probability: {(prediction.success_probability * 100).toFixed(1)}%</div>
+        <div>Confidence: {prediction.confidence_level}</div>
+      </div>
+    )
+  };
+});
+
+jest.mock('../ScoutingRadar', () => {
+  return {
+    ScoutingRadar: ({ scoutingGrades, prospectName }: any) => (
+      <div data-testid="scouting-radar">
+        <div>Scouting for {prospectName}</div>
+        <div>Grades: {scoutingGrades.length} sources</div>
+      </div>
+    )
+  };
+});
+
+jest.mock('../PerformanceTrends', () => {
+  return {
+    PerformanceTrends: ({ prospectName, position }: any) => (
+      <div data-testid="performance-trends">
+        <div>Performance trends for {prospectName}</div>
+        <div>Position: {position}</div>
+      </div>
+    )
+  };
+});
+
+jest.mock('@/components/ui/SocialShare', () => {
+  return {
+    SocialShare: ({ title, url }: any) => (
+      <div data-testid="social-share">
+        <div>Share: {title}</div>
+        <div>URL: {url}</div>
+      </div>
+    )
+  };
+});
+
 const mockRouter = {
   push: jest.fn(),
   replace: jest.fn(),
@@ -26,6 +72,11 @@ const mockProspectData = {
   level: 'AAA',
   age: 22,
   eta_year: 2025,
+  dynasty_rank: 15,
+  dynasty_score: 87.5,
+  ml_score: 82.3,
+  scouting_score: 75.8,
+  confidence_level: 'High' as const,
   scouting_grade: 85,
   stats: [
     {
@@ -47,8 +98,21 @@ const mockProspectData = {
     prospect_id: '1',
     success_probability: 0.75,
     confidence_level: 'High' as const,
-    explanation: 'Strong offensive profile with good plate discipline',
-    generated_at: '2024-01-01T00:00:00Z',
+    prediction_date: '2024-01-01T00:00:00Z',
+    shap_explanation: {
+      top_positive_features: [
+        { feature: 'batting_avg', shap_value: 0.12, feature_value: 0.300 },
+        { feature: 'age', shap_value: 0.08, feature_value: 22 }
+      ],
+      top_negative_features: [
+        { feature: 'strikeout_rate', shap_value: -0.05, feature_value: 22.5 }
+      ],
+      expected_value: 0.45,
+      total_shap_contribution: 0.30,
+      prediction_score: 0.75
+    },
+    narrative: 'Strong offensive profile with good plate discipline',
+    model_version: 'v2.1.0'
   },
 };
 
@@ -246,5 +310,191 @@ describe('ProspectProfile', () => {
     render(<ProspectProfile id="1" />);
 
     expect(screen.getByText(/Generated on/)).toBeInTheDocument();
+  });
+
+  // Enhanced feature tests
+  it('renders enhanced ML prediction explanation', () => {
+    render(<ProspectProfile id="1" />);
+
+    const mlExplanation = screen.getByTestId('ml-prediction-explanation');
+    expect(mlExplanation).toBeInTheDocument();
+    expect(screen.getByText('ML Analysis for John Smith')).toBeInTheDocument();
+    expect(screen.getByText('Probability: 75.0%')).toBeInTheDocument();
+    expect(screen.getByText('Confidence: High')).toBeInTheDocument();
+  });
+
+  it('renders dynasty metrics card correctly', () => {
+    render(<ProspectProfile id="1" />);
+
+    expect(screen.getByText('Dynasty Metrics')).toBeInTheDocument();
+    expect(screen.getByText('87.5')).toBeInTheDocument(); // Dynasty score
+    expect(screen.getByText('82.3')).toBeInTheDocument(); // ML score
+    expect(screen.getByText('75.8')).toBeInTheDocument(); // Scouting score
+    expect(screen.getByText('#15')).toBeInTheDocument(); // Dynasty rank
+  });
+
+  it('renders social sharing component', () => {
+    render(<ProspectProfile id="1" />);
+
+    const socialShare = screen.getByTestId('social-share');
+    expect(socialShare).toBeInTheDocument();
+    expect(screen.getByText('Share: John Smith - SS Prospect Profile')).toBeInTheDocument();
+    expect(screen.getByText('URL: /prospects/1')).toBeInTheDocument();
+  });
+
+  it('renders quick actions correctly', () => {
+    render(<ProspectProfile id="1" />);
+
+    expect(screen.getByText('Add to Watchlist')).toBeInTheDocument();
+    expect(screen.getByText('View on MLB.com')).toBeInTheDocument();
+    expect(screen.getByText('Compare Players')).toBeInTheDocument();
+  });
+
+  it('handles enhanced scouting tab', () => {
+    render(<ProspectProfile id="1" />);
+
+    const scoutingTab = screen.getByRole('button', { name: /scouting/i });
+    fireEvent.click(scoutingTab);
+
+    const scoutingRadar = screen.getByTestId('scouting-radar');
+    expect(scoutingRadar).toBeInTheDocument();
+    expect(screen.getByText('Scouting for John Smith')).toBeInTheDocument();
+  });
+
+  it('handles enhanced statistics tab with performance trends', () => {
+    render(<ProspectProfile id="1" />);
+
+    const statisticsTab = screen.getByRole('button', { name: /statistics/i });
+    fireEvent.click(statisticsTab);
+
+    expect(screen.getByText('Current Season Summary')).toBeInTheDocument();
+
+    const performanceTrends = screen.getByTestId('performance-trends');
+    expect(performanceTrends).toBeInTheDocument();
+    expect(screen.getByText('Performance trends for John Smith')).toBeInTheDocument();
+    expect(screen.getByText('Position: SS')).toBeInTheDocument();
+  });
+
+  it('handles comparisons tab', () => {
+    render(<ProspectProfile id="1" />);
+
+    const comparisonsTab = screen.getByRole('button', { name: /comparisons/i });
+    fireEvent.click(comparisonsTab);
+
+    expect(screen.getByText('Current Prospect Comparisons')).toBeInTheDocument();
+    expect(screen.getByText('Historical MLB Comparisons')).toBeInTheDocument();
+  });
+
+  it('handles history tab', () => {
+    render(<ProspectProfile id="1" />);
+
+    const historyTab = screen.getByRole('button', { name: /history/i });
+    fireEvent.click(historyTab);
+
+    expect(screen.getByText('Career Timeline')).toBeInTheDocument();
+    expect(screen.getByText('Injury History')).toBeInTheDocument();
+    expect(screen.getByText('Development Notes')).toBeInTheDocument();
+  });
+
+  it('displays all available tabs', () => {
+    render(<ProspectProfile id="1" />);
+
+    expect(screen.getByRole('button', { name: /overview/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /statistics/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /scouting/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /comparisons/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /history/i })).toBeInTheDocument();
+  });
+
+  it('maintains responsive layout structure', () => {
+    render(<ProspectProfile id="1" />);
+
+    // Check that the grid layout exists
+    const gridLayout = screen.getByText('Dynasty Metrics').closest('.grid');
+    expect(gridLayout).toHaveClass('grid-cols-1', 'lg:grid-cols-3');
+  });
+
+  it('handles confidence level badge variants correctly', () => {
+    render(<ProspectProfile id="1" />);
+
+    const confidenceBadge = screen.getByText('High Confidence');
+    expect(confidenceBadge.closest('.inline-flex')).toHaveClass('inline-flex');
+  });
+
+  it('renders dynasty rank badge correctly', () => {
+    render(<ProspectProfile id="1" />);
+
+    const rankBadge = screen.getByText('#15');
+    expect(rankBadge).toBeInTheDocument();
+  });
+
+  it('handles prospect without dynasty metrics gracefully', () => {
+    (useProspectProfile as jest.Mock).mockReturnValue({
+      data: {
+        ...mockProspectData,
+        dynasty_score: undefined,
+        ml_score: undefined,
+        scouting_score: undefined,
+        confidence_level: undefined
+      },
+      loading: false,
+      error: null,
+      refetch: jest.fn(),
+    });
+
+    render(<ProspectProfile id="1" />);
+
+    expect(screen.getByText('Dynasty Metrics')).toBeInTheDocument();
+    expect(screen.getByText('N/A')).toBeInTheDocument();
+  });
+
+  it('handles medium and low confidence levels', () => {
+    (useProspectProfile as jest.Mock).mockReturnValue({
+      data: { ...mockProspectData, confidence_level: 'Medium' },
+      loading: false,
+      error: null,
+      refetch: jest.fn(),
+    });
+
+    render(<ProspectProfile id="1" />);
+
+    const mediumBadge = screen.getByText('Medium Confidence');
+    expect(mediumBadge).toBeInTheDocument();
+  });
+
+  it('displays current season summary with OPS calculation', () => {
+    render(<ProspectProfile id="1" />);
+
+    const statisticsTab = screen.getByRole('button', { name: /statistics/i });
+    fireEvent.click(statisticsTab);
+
+    expect(screen.getByText('0.900')).toBeInTheDocument(); // OPS = OBP + SLG
+  });
+
+  it('passes correct props to PerformanceTrends component', () => {
+    render(<ProspectProfile id="1" />);
+
+    const statisticsTab = screen.getByRole('button', { name: /statistics/i });
+    fireEvent.click(statisticsTab);
+
+    const performanceTrends = screen.getByTestId('performance-trends');
+    expect(performanceTrends).toBeInTheDocument();
+    // Props are verified in the mock component
+  });
+
+  it('handles empty stats array for enhanced statistics', () => {
+    (useProspectProfile as jest.Mock).mockReturnValue({
+      data: { ...mockProspectData, stats: [] },
+      loading: false,
+      error: null,
+      refetch: jest.fn(),
+    });
+
+    render(<ProspectProfile id="1" />);
+
+    const statisticsTab = screen.getByRole('button', { name: /statistics/i });
+    fireEvent.click(statisticsTab);
+
+    expect(screen.getByText('No statistics available')).toBeInTheDocument();
   });
 });

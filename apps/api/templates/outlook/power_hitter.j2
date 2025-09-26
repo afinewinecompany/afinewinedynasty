@@ -1,0 +1,20 @@
+{{ name }}, a {{ age }}-year-old {{ position }} with the {{ organization }}, is developing into a power-first prospect at {{ level }}.
+{%- if top_features %}
+{%- set primary_feature = top_features[0] %}
+{%- if primary_feature.name in ['power potential', 'exit velocity', 'home run ability'] %}
+His raw power potential is the standout tool, generating significant upside despite questions elsewhere.
+{%- elif primary_feature.impact == 'positive' %}
+While {{ primary_feature.name | lower }} provides a strong foundation, the power ceiling drives his appeal.
+{%- else %}
+Concerns about {{ primary_feature.name | lower }} create risk, but the power tool offers significant upside.
+{%- endif %}
+{%- endif %}
+{%- if top_features | length > 1 %}
+{%- set secondary_feature = top_features[1] %}
+{%- if secondary_feature.impact == 'positive' %}
+Complementing this is {{ secondary_feature.name | lower }}, adding another dimension to his offensive profile.
+{%- else %}
+The challenge will be improving {{ secondary_feature.name | lower }} to maximize his power-hitting potential.
+{%- endif %}
+{%- endif %}
+The projection model sees {{ success_probability | format_probability }} success odds with {{ risk_level | lower }} risk, estimating {{ timeline }} for impact with {{ confidence_level | format_probability }} confidence.

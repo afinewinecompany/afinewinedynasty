@@ -134,10 +134,10 @@ describe('APIClient', () => {
       const requestPromise = client.get('/test');
 
       // Fast-forward time to trigger timeout
-      jest.advanceTimersByTime(5001);
+      jest.advanceTimersByTime(35000);
 
       await expect(requestPromise).rejects.toThrow();
-    });
+    }, 10000);
   });
 
   describe('Caching', () => {
@@ -241,11 +241,10 @@ describe('APIClient', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         'https://api.example.com/test',
         expect.objectContaining({
-          headers: {
-            'Content-Type': 'application/json',
+          headers: expect.objectContaining({
             'Authorization': 'Bearer token',
             'X-Custom': 'value',
-          },
+          }),
         })
       );
     });

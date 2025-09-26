@@ -1,0 +1,18 @@
+{{ name }} represents potential sleeper value as a {{ age }}-year-old {{ position }} quietly developing at {{ level }} with {{ organization }}.
+{%- if top_features %}
+{%- set primary_feature = top_features[0] %}
+{%- if primary_feature.impact == 'positive' %}
+His underrated {{ primary_feature.name | lower }} could be the key that unlocks his breakout potential.
+{%- else %}
+While {{ primary_feature.name | lower }} presents challenges, there's hidden upside in his overall profile.
+{%- endif %}
+{%- endif %}
+{%- if top_features | length > 1 %}
+{%- set secondary_feature = top_features[1] %}
+{%- if secondary_feature.impact == 'positive' %}
+His {{ secondary_feature.name | lower }} provides additional under-the-radar appeal for astute evaluators.
+{%- else %}
+Improving {{ secondary_feature.name | lower }} could catalyze significant prospect ranking advancement.
+{%- endif %}
+{%- endif %}
+With {{ success_probability | format_probability }} success probability and {{ risk_level | lower }} risk, he offers intriguing upside {{ timeline }} with {{ confidence_level | format_probability }} model confidence.

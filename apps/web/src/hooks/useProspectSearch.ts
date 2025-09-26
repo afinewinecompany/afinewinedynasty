@@ -1,49 +1,55 @@
 import { useState, useCallback } from 'react';
-import { Prospect } from '@/types/prospect';
 import { apiClient } from '@/lib/api/client';
+import debounce from 'lodash/debounce';
 
-export interface ProspectSearchResult {
-  prospects: Prospect[];
-  total: number;
+export interface ProspectSearchSuggestion {
+  name: string;
+  organization: string | null;
+  position: string;
+  display: string;
 }
 
 export function useProspectSearch() {
-  const [results, setResults] = useState<ProspectSearchResult | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [suggestions, setSuggestions] = useState<ProspectSearchSuggestion[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const search = useCallback(async (query: string) => {
-    if (!query.trim()) {
-      setResults(null);
+  const fetchSuggestions = useCallback(async (query: string) => {
+    if (!query || query.length < 1) {
+      setSuggestions([]);
       return;
     }
 
+    setIsLoading(true);
     try {
-      setLoading(true);
-      setError(null);
-
-      const endpoint = `/api/prospects/search?q=${encodeURIComponent(
-        query
-      )}&limit=10`;
-
-      // Cache search results for 10 minutes
-      const result = await apiClient.get<ProspectSearchResult>(endpoint, 10);
-
-      setResults(result);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to search prospects'
-      );
-      setResults(null);
+      const response = await apiClient.get('/api/v1/prospects/search/autocomplete', {
+        params: { q: query, limit: 5 }
+      });
+      setSuggestions(response.data);
+    } catch (error) {
+      console.error('Failed to fetch suggestions:', error);
+      setSuggestions([]);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }, []);
 
-  const clearSearch = useCallback(() => {
-    setResults(null);
-    setError(null);
+  const debouncedFetch = useCallback(
+    debounce(fetchSuggestions, 300),
+    []
+  );
+
+  const getSuggestions = useCallback((query: string) => {
+    debouncedFetch(query);
+  }, [debouncedFetch]);
+
+  const clearSuggestions = useCallback(() => {
+    setSuggestions([]);
   }, []);
 
-  return { results, loading, error, search, clearSearch };
+  return {
+    suggestions,
+    isLoading,
+    getSuggestions,
+    clearSuggestions
+  };
 }

@@ -1,0 +1,20 @@
+{{ name }} profiles as a contact-oriented {{ position }} at {{ age }} years old, currently developing his skills at {{ level }} with {{ organization }}.
+{%- if top_features %}
+{%- set primary_feature = top_features[0] %}
+{%- if primary_feature.name in ['hitting ability', 'contact rate', 'plate discipline'] %}
+His ability to make consistent contact stands as his premier skill and forms the foundation of his value.
+{%- elif primary_feature.impact == 'positive' %}
+Strong {{ primary_feature.name | lower }} enhances his contact-first approach and overall offensive ceiling.
+{%- else %}
+Developing {{ primary_feature.name | lower }} remains crucial for maximizing his contact-hitting profile.
+{%- endif %}
+{%- endif %}
+{%- if top_features | length > 1 %}
+{%- set secondary_feature = top_features[1] %}
+{%- if secondary_feature.impact == 'positive' %}
+His {{ secondary_feature.name | lower }} adds another layer to his hit-over-power approach.
+{%- else %}
+Inconsistencies with {{ secondary_feature.name | lower }} represent the primary developmental focus.
+{%- endif %}
+{%- endif %}
+The model projects {{ success_probability | format_probability }} success probability with {{ risk_level | lower }} risk profile, expecting arrival {{ timeline }} with {{ confidence_level | format_probability }} confidence in the assessment.

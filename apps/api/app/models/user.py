@@ -12,6 +12,7 @@ class User(BaseModel):
     updated_at: datetime
     google_id: Optional[str] = None
     profile_picture: Optional[str] = None
+    subscription_tier: str = "free"  # free, premium, enterprise
 
 
 class UserCreate(BaseModel):
@@ -30,6 +31,8 @@ class UserAuth(BaseModel):
 
 
 class UserLogin(BaseModel):
+    id: int
     email: EmailStr
     hashed_password: str
     is_active: bool
+    subscription_tier: str = "free"

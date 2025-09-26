@@ -1,0 +1,18 @@
+{{ name }} appears MLB-ready as a {{ age }}-year-old {{ position }} who has dominated at {{ level }} with {{ organization }}.
+{%- if top_features %}
+{%- set primary_feature = top_features[0] %}
+{%- if primary_feature.impact == 'positive' %}
+His elite {{ primary_feature.name | lower }} has been the catalyst for his rapid ascension and MLB readiness.
+{%- else %}
+Despite concerns about {{ primary_feature.name | lower }}, his overall performance suggests immediate MLB capability.
+{%- endif %}
+{%- endif %}
+{%- if top_features | length > 1 %}
+{%- set secondary_feature = top_features[1] %}
+{%- if secondary_feature.impact == 'positive' %}
+His {{ secondary_feature.name | lower }} adds another pro-ready dimension to his skill set.
+{%- else %}
+While {{ secondary_feature.name | lower }} remains a work in progress, his other tools compensate effectively.
+{%- endif %}
+{%- endif %}
+With a {{ success_probability | format_probability }} success projection and {{ risk_level | lower }} risk profile, he should contribute {{ timeline }} with {{ confidence_level | format_probability }} model confidence.

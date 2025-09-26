@@ -48,6 +48,7 @@ class DuplicateDetectionService:
             "name_medium": 0.75,
             "name_low": 0.60,
             "organization_match": 0.85,
+            "cross_source_match": 0.80,  # For matching across MLB/Fangraphs
             "position_match": 1.0
         }
 
@@ -417,6 +418,135 @@ class DuplicateDetectionService:
 
         else:
             return primary_value  # Default to primary
+
+    async def detect_cross_source_duplicates(
+        self,
+        session: AsyncSession,
+        source_precedence: List[str] = None
+    ) -> List[DuplicateMatch]:
+        """
+        Detect duplicates across different data sources (MLB API vs Fangraphs).
+
+        Args:
+            session: Database session
+            source_precedence: Order of source preference for conflict resolution
+
+        Returns:
+            List of potential cross-source duplicate matches
+        """
+        if source_precedence is None:
+            source_precedence = ['mlb', 'fangraphs']
+
+        duplicates = []
+
+        try:
+            # Query prospects grouped by source
+            mlb_prospects = await session.execute(
+                select(Prospect).where(
+                    or_(
+                        Prospect.data_source == 'mlb',
+                        Prospect.mlb_id.isnot(None)
+                    )
+                )
+            )
+            mlb_list = mlb_prospects.scalars().all()
+
+            fangraphs_prospects = await session.execute(
+                select(Prospect).where(
+                    Prospect.last_fangraphs_update.isnot(None)
+                )
+            )
+            fangraphs_list = fangraphs_prospects.scalars().all()
+
+            # Cross-compare prospects
+            for mlb_prospect in mlb_list:
+                for fg_prospect in fangraphs_list:
+                    # Skip if already same record
+                    if mlb_prospect.id == fg_prospect.id:
+                        continue
+
+                    # Calculate similarity
+                    name_sim = self._calculate_name_similarity(
+                        mlb_prospect.name,
+                        fg_prospect.name
+                    )
+
+                    if name_sim >= self.similarity_thresholds["cross_source_match"]:
+                        # Additional checks
+                        matching_fields = ["name"]
+                        conflicting_fields = []
+
+                        # Check organization match
+                        if mlb_prospect.organization and fg_prospect.organization:
+                            org_sim = self._calculate_text_similarity(
+                                mlb_prospect.organization,
+                                fg_prospect.organization
+                            )
+                            if org_sim >= self.similarity_thresholds["organization_match"]:
+                                matching_fields.append("organization")
+                            else:
+                                conflicting_fields.append("organization")
+
+                        # Check position match
+                        if mlb_prospect.position and fg_prospect.position:
+                            if self._positions_match(mlb_prospect.position, fg_prospect.position):
+                                matching_fields.append("position")
+                            else:
+                                conflicting_fields.append("position")
+
+                        # Determine primary based on precedence
+                        if source_precedence.index('mlb') < source_precedence.index('fangraphs'):
+                            primary_id = mlb_prospect.id
+                            duplicate_id = fg_prospect.id
+                        else:
+                            primary_id = fg_prospect.id
+                            duplicate_id = mlb_prospect.id
+
+                        duplicates.append(DuplicateMatch(
+                            prospect1_id=primary_id,
+                            prospect2_id=duplicate_id,
+                            match_type='cross_source',
+                            confidence_score=name_sim,
+                            matching_fields=matching_fields,
+                            conflicting_fields=conflicting_fields,
+                            merge_recommendation='review' if conflicting_fields else 'merge'
+                        ))
+
+            logger.info(f"Found {len(duplicates)} potential cross-source duplicates")
+            return duplicates
+
+        except Exception as e:
+            logger.error(f"Error detecting cross-source duplicates: {str(e)}")
+            return []
+
+    def _positions_match(self, pos1: str, pos2: str) -> bool:
+        """Check if two position strings represent the same position."""
+        # Normalize positions
+        position_groups = {
+            'pitcher': ['P', 'RHP', 'LHP', 'SP', 'RP'],
+            'catcher': ['C'],
+            'first': ['1B'],
+            'second': ['2B'],
+            'third': ['3B'],
+            'short': ['SS'],
+            'outfield': ['OF', 'LF', 'CF', 'RF'],
+            'infield': ['INF', 'IF'],
+            'utility': ['UTIL', 'UTL']
+        }
+
+        pos1_upper = pos1.upper().strip()
+        pos2_upper = pos2.upper().strip()
+
+        # Exact match
+        if pos1_upper == pos2_upper:
+            return True
+
+        # Check if in same position group
+        for group, positions in position_groups.items():
+            if pos1_upper in positions and pos2_upper in positions:
+                return True
+
+        return False
 
     async def _merge_prospect_stats(
         self,

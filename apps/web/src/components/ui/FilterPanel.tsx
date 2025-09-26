@@ -125,10 +125,11 @@ export default function FilterPanel({
                 </div>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="position-select" className="block text-sm font-medium text-gray-700 mb-2">
                       Position
                     </label>
                     <select
+                      id="position-select"
                       value={selectedPosition}
                       onChange={(e) => onPositionChange(e.target.value)}
                       className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -141,10 +142,11 @@ export default function FilterPanel({
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="organization-select" className="block text-sm font-medium text-gray-700 mb-2">
                       Organization
                     </label>
                     <select
+                      id="organization-select"
                       value={selectedOrganization}
                       onChange={(e) => onOrganizationChange(e.target.value)}
                       className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -191,10 +193,11 @@ export default function FilterPanel({
       <h3 className="mb-4 text-lg font-medium text-gray-900">Filters</h3>
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="desktop-position-select" className="block text-sm font-medium text-gray-700 mb-2">
             Position
           </label>
           <select
+            id="desktop-position-select"
             value={selectedPosition}
             onChange={(e) => onPositionChange(e.target.value)}
             className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -207,10 +210,11 @@ export default function FilterPanel({
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="desktop-organization-select" className="block text-sm font-medium text-gray-700 mb-2">
             Organization
           </label>
           <select
+            id="desktop-organization-select"
             value={selectedOrganization}
             onChange={(e) => onOrganizationChange(e.target.value)}
             className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"

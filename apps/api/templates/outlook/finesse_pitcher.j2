@@ -1,0 +1,22 @@
+{{ name }} operates as a finesse-oriented {{ position }} at {{ age }} years old, refining his craft at {{ level }} in the {{ organization }} organization.
+{%- if top_features %}
+{%- set primary_feature = top_features[0] %}
+{%- if primary_feature.name in ['command', 'control', 'location'] %}
+His exceptional command and control form the backbone of his pitching philosophy and effectiveness.
+{%- elif primary_feature.name in ['breaking ball', 'changeup', 'secondary pitches'] %}
+His advanced {{ primary_feature.name | lower }} provides the separation needed for his finesse approach.
+{%- elif primary_feature.impact == 'positive' %}
+Strong {{ primary_feature.name | lower }} enhances his ability to execute his command-based style.
+{%- else %}
+Struggles with {{ primary_feature.name | lower }} create challenges for his finesse-dependent approach.
+{%- endif %}
+{%- endif %}
+{%- if top_features | length > 1 %}
+{%- set secondary_feature = top_features[1] %}
+{%- if secondary_feature.impact == 'positive' %}
+Additionally, his {{ secondary_feature.name | lower }} adds another dimension to his repertoire.
+{%- else %}
+Improving {{ secondary_feature.name | lower }} would strengthen his overall effectiveness on the mound.
+{%- endif %}
+{%- endif %}
+The model assigns {{ success_probability | format_probability }} success probability with {{ risk_level | lower }} risk factor, estimating {{ timeline }} for contribution with {{ confidence_level | format_probability }} confidence.

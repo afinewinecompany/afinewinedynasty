@@ -1,0 +1,20 @@
+{{ name }} brings a power arm profile as a {{ age }}-year-old {{ position }} in the {{ organization }} system, currently showcasing his stuff at {{ level }}.
+{%- if top_features %}
+{%- set primary_feature = top_features[0] %}
+{%- if primary_feature.name in ['fastball velocity', 'power', 'strikeout ability'] %}
+His explosive fastball velocity serves as the foundation of his power arsenal and drives strikeout upside.
+{%- elif primary_feature.impact == 'positive' %}
+Excellent {{ primary_feature.name | lower }} amplifies his power-pitching profile and strikeout potential.
+{%- else %}
+Questions about {{ primary_feature.name | lower }} create uncertainty despite his power stuff.
+{%- endif %}
+{%- endif %}
+{%- if top_features | length > 1 %}
+{%- set secondary_feature = top_features[1] %}
+{%- if secondary_feature.impact == 'positive' %}
+Supporting this is quality {{ secondary_feature.name | lower }}, giving him multiple weapons in his arsenal.
+{%- else %}
+Developing {{ secondary_feature.name | lower }} will be key to realizing his power-arm potential.
+{%- endif %}
+{%- endif %}
+The projection shows {{ success_probability | format_probability }} success likelihood with {{ risk_level | lower }} risk, projecting {{ timeline }} for MLB impact with {{ confidence_level | format_probability }} model confidence.

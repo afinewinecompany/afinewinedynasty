@@ -1,0 +1,11 @@
+At just {{ age }} years old, {{ name }} represents significant long-term potential as a {{ position }} in the {{ organization }} system.
+{%- if top_features %}
+{%- set primary_feature = top_features[0] %}
+{%- if primary_feature.impact == 'positive' %}
+Early indicators show promising {{ primary_feature.name | lower }}, suggesting strong foundational tools.
+{%- else %}
+Development questions around {{ primary_feature.name | lower }} highlight the volatility inherent in young prospects.
+{%- endif %}
+{%- endif %}
+Given his age, there's substantial time for growth and refinement of his skills at {{ level }}.
+The projection model sees {{ success_probability | format_probability }} upside with inherently {{ risk_level | lower }} risk given his youth, estimating {{ timeline }} for potential impact with {{ confidence_level | format_probability }} model confidence.

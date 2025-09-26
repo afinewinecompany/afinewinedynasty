@@ -1,0 +1,15 @@
+{{ name }}, {{ age }}, has advanced quickly through the {{ organization }} system and currently plays at {{ level }}.
+{%- if top_features %}
+{%- set primary_feature = top_features[0] %}
+{%- if primary_feature.impact == 'positive' %}
+His proven {{ primary_feature.name | lower }} has been the catalyst for his rapid ascension.
+{%- else %}
+Despite his level, concerns about {{ primary_feature.name | lower }} could slow his trajectory.
+{%- endif %}
+{%- endif %}
+{%- if age >= 23 %}
+At his age, the development window is narrowing, making current performance more predictive.
+{%- else %}
+With time still on his side, there's room for continued improvement and adjustment.
+{%- endif %}
+The model projects {{ success_probability | format_probability }} success probability with {{ risk_level | lower }} risk, expecting arrival {{ timeline }} with {{ confidence_level | format_probability }} confidence in the assessment.

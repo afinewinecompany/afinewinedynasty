@@ -1,0 +1,17 @@
+{{ name }} is a {{ age }}-year-old {{ position }} in the {{ organization }} system currently at {{ level }}.
+{%- if top_features %}
+{%- set primary_feature = top_features[0] %}
+{%- if primary_feature.impact == 'positive' %}
+His strongest asset is {{ primary_feature.name | lower }}, which significantly boosts his projection.
+{%- else %}
+The main concern is {{ primary_feature.name | lower }}, which creates some uncertainty in his outlook.
+{%- endif %}
+{%- endif %}
+{%- if top_features | length > 1 %}
+{%- set secondary_feature = top_features[1] %}
+Additionally, {{ secondary_feature.name | lower }}
+{%- if secondary_feature.impact == 'positive' %} adds to his appeal
+{%- else %} presents another challenge
+{%- endif %} in his development path.
+{%- endif %}
+With a {{ success_probability | format_probability }} success probability and {{ risk_level | lower }} risk profile, he projects as {{ timeline }} with {{ confidence_level | format_probability }} confidence.
