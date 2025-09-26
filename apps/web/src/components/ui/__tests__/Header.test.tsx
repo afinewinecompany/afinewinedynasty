@@ -24,10 +24,21 @@ describe('Header Component', () => {
 
   it('has correct link hrefs', () => {
     render(<Header />);
-    expect(screen.getByText('A Fine Wine Dynasty').closest('a')).toHaveAttribute('href', '/');
-    expect(screen.getByText('Prospects').closest('a')).toHaveAttribute('href', '/prospects');
-    expect(screen.getByText('Analysis').closest('a')).toHaveAttribute('href', '/analysis');
-    expect(screen.getByText('Dashboard').closest('a')).toHaveAttribute('href', '/dashboard');
+    expect(
+      screen.getByText('A Fine Wine Dynasty').closest('a')
+    ).toHaveAttribute('href', '/');
+    expect(screen.getByText('Prospects').closest('a')).toHaveAttribute(
+      'href',
+      '/prospects'
+    );
+    expect(screen.getByText('Analysis').closest('a')).toHaveAttribute(
+      'href',
+      '/analysis'
+    );
+    expect(screen.getByText('Dashboard').closest('a')).toHaveAttribute(
+      'href',
+      '/dashboard'
+    );
   });
 
   it('applies correct CSS classes', () => {

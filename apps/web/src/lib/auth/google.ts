@@ -44,7 +44,9 @@ class GoogleOAuth {
   static getInstance(config?: GoogleOAuthConfig): GoogleOAuth {
     if (!GoogleOAuth.instance) {
       if (!config) {
-        throw new Error('GoogleOAuth configuration is required for the first initialization');
+        throw new Error(
+          'GoogleOAuth configuration is required for the first initialization'
+        );
       }
       GoogleOAuth.instance = new GoogleOAuth(config);
     }
@@ -77,7 +79,8 @@ class GoogleOAuth {
       script.src = 'https://accounts.google.com/gsi/client';
       script.async = true;
       script.onload = () => resolve();
-      script.onerror = () => reject(new Error('Failed to load Google Identity Services'));
+      script.onerror = () =>
+        reject(new Error('Failed to load Google Identity Services'));
       document.head.appendChild(script);
     });
   }

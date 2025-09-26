@@ -22,7 +22,12 @@ interface FormErrors {
   general?: string;
 }
 
-export function LoginForm({ onSuccess, onError, switchToRegister, onForgotPassword }: LoginFormProps) {
+export function LoginForm({
+  onSuccess,
+  onError,
+  switchToRegister,
+  onForgotPassword,
+}: LoginFormProps) {
   const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
@@ -42,16 +47,19 @@ export function LoginForm({ onSuccess, onError, switchToRegister, onForgotPasswo
         redirectUri: googleRedirectUri,
       });
 
-      googleOAuth.initialize().then(() => {
-        if (googleButtonRef.current) {
-          googleOAuth.renderSignInButton(googleButtonRef.current, {
-            text: 'signin_with',
-            theme: 'outline',
-            size: 'large',
-            width: 320,
-          });
-        }
-      }).catch(console.error);
+      googleOAuth
+        .initialize()
+        .then(() => {
+          if (googleButtonRef.current) {
+            googleOAuth.renderSignInButton(googleButtonRef.current, {
+              text: 'signin_with',
+              theme: 'outline',
+              size: 'large',
+              width: 320,
+            });
+          }
+        })
+        .catch(console.error);
     }
   }, [googleClientId, googleRedirectUri]);
 
@@ -76,11 +84,11 @@ export function LoginForm({ onSuccess, onError, switchToRegister, onForgotPasswo
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
 
     // Clear specific field error when user starts typing
     if (errors[name as keyof FormErrors]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
@@ -101,7 +109,8 @@ export function LoginForm({ onSuccess, onError, switchToRegister, onForgotPasswo
 
       onSuccess?.();
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Login failed';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Login failed';
       setErrors({ general: errorMessage });
       onError?.(errorMessage);
     } finally {
@@ -124,7 +133,8 @@ export function LoginForm({ onSuccess, onError, switchToRegister, onForgotPasswo
 
       onSuccess?.();
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Google login failed';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Google login failed';
       setErrors({ general: errorMessage });
       onError?.(errorMessage);
     } finally {
@@ -144,7 +154,10 @@ export function LoginForm({ onSuccess, onError, switchToRegister, onForgotPasswo
       alert('Password reset link sent to your email address');
       onForgotPassword?.();
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Password reset request failed';
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Password reset request failed';
       setErrors({ general: errorMessage });
     } finally {
       setIsLoading(false);
@@ -165,7 +178,10 @@ export function LoginForm({ onSuccess, onError, switchToRegister, onForgotPasswo
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Email Address
           </label>
           <input
@@ -185,7 +201,10 @@ export function LoginForm({ onSuccess, onError, switchToRegister, onForgotPasswo
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Password
           </label>
           <input

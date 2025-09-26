@@ -25,7 +25,11 @@ interface FormErrors {
   general?: string;
 }
 
-export function RegisterForm({ onSuccess, onError, switchToLogin }: RegisterFormProps) {
+export function RegisterForm({
+  onSuccess,
+  onError,
+  switchToLogin,
+}: RegisterFormProps) {
   const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
@@ -47,16 +51,19 @@ export function RegisterForm({ onSuccess, onError, switchToLogin }: RegisterForm
         redirectUri: googleRedirectUri,
       });
 
-      googleOAuth.initialize().then(() => {
-        if (googleButtonRef.current) {
-          googleOAuth.renderSignInButton(googleButtonRef.current, {
-            text: 'signup_with',
-            theme: 'outline',
-            size: 'large',
-            width: 320,
-          });
-        }
-      }).catch(console.error);
+      googleOAuth
+        .initialize()
+        .then(() => {
+          if (googleButtonRef.current) {
+            googleOAuth.renderSignInButton(googleButtonRef.current, {
+              text: 'signup_with',
+              theme: 'outline',
+              size: 'large',
+              width: 320,
+            });
+          }
+        })
+        .catch(console.error);
     }
   }, [googleClientId, googleRedirectUri]);
 
@@ -82,8 +89,13 @@ export function RegisterForm({ onSuccess, onError, switchToLogin }: RegisterForm
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 8) {
       newErrors.password = 'Password must be at least 8 characters';
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':\",./<>?])/.test(formData.password)) {
-      newErrors.password = 'Password must contain uppercase, lowercase, number, and special character';
+    } else if (
+      !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':\",./<>?])/.test(
+        formData.password
+      )
+    ) {
+      newErrors.password =
+        'Password must contain uppercase, lowercase, number, and special character';
     }
 
     // Confirm password validation
@@ -99,11 +111,11 @@ export function RegisterForm({ onSuccess, onError, switchToLogin }: RegisterForm
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
 
     // Clear specific field error when user starts typing
     if (errors[name as keyof FormErrors]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
@@ -125,7 +137,8 @@ export function RegisterForm({ onSuccess, onError, switchToLogin }: RegisterForm
 
       onSuccess?.(response.user_id);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Registration failed';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Registration failed';
       setErrors({ general: errorMessage });
       onError?.(errorMessage);
     } finally {
@@ -147,7 +160,8 @@ export function RegisterForm({ onSuccess, onError, switchToLogin }: RegisterForm
 
       onSuccess?.(authResponse.user_id || 0);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Google registration failed';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Google registration failed';
       setErrors({ general: errorMessage });
       onError?.(errorMessage);
     }
@@ -167,7 +181,10 @@ export function RegisterForm({ onSuccess, onError, switchToLogin }: RegisterForm
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="full_name" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="full_name"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Full Name
           </label>
           <input
@@ -187,7 +204,10 @@ export function RegisterForm({ onSuccess, onError, switchToLogin }: RegisterForm
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Email Address
           </label>
           <input
@@ -207,7 +227,10 @@ export function RegisterForm({ onSuccess, onError, switchToLogin }: RegisterForm
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Password
           </label>
           <input
@@ -227,7 +250,10 @@ export function RegisterForm({ onSuccess, onError, switchToLogin }: RegisterForm
         </div>
 
         <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="confirmPassword"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Confirm Password
           </label>
           <input
@@ -242,7 +268,9 @@ export function RegisterForm({ onSuccess, onError, switchToLogin }: RegisterForm
             disabled={isLoading}
           />
           {errors.confirmPassword && (
-            <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
+            <p className="text-red-500 text-sm mt-1">
+              {errors.confirmPassword}
+            </p>
           )}
         </div>
 

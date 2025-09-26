@@ -69,7 +69,9 @@ class AuthAPI {
     return data;
   }
 
-  static async register(credentials: RegisterCredentials): Promise<{ message: string; user_id: number }> {
+  static async register(
+    credentials: RegisterCredentials
+  ): Promise<{ message: string; user_id: number }> {
     const response = await fetch(`${API_BASE_URL}/api/v1/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -84,7 +86,9 @@ class AuthAPI {
     return response.json();
   }
 
-  static async googleLogin(oauthRequest: GoogleOAuthRequest): Promise<AuthResponse> {
+  static async googleLogin(
+    oauthRequest: GoogleOAuthRequest
+  ): Promise<AuthResponse> {
     const response = await fetch(`${API_BASE_URL}/api/v1/auth/google/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -157,9 +161,12 @@ class AuthAPI {
         // Try to refresh token
         await this.refreshToken();
         // Retry the request
-        const retryResponse = await fetch(`${API_BASE_URL}/api/v1/users/profile`, {
-          headers: this.getAuthHeaders(),
-        });
+        const retryResponse = await fetch(
+          `${API_BASE_URL}/api/v1/users/profile`,
+          {
+            headers: this.getAuthHeaders(),
+          }
+        );
         if (!retryResponse.ok) {
           throw new Error('Failed to get user profile');
         }
@@ -171,7 +178,10 @@ class AuthAPI {
     return response.json();
   }
 
-  static async updateProfile(data: { full_name?: string; preferences?: Record<string, any> }): Promise<UserProfile> {
+  static async updateProfile(data: {
+    full_name?: string;
+    preferences?: Record<string, any>;
+  }): Promise<UserProfile> {
     const response = await fetch(`${API_BASE_URL}/api/v1/users/profile`, {
       method: 'PUT',
       headers: this.getAuthHeaders(),

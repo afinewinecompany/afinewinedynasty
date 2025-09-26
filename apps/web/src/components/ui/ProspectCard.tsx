@@ -1,0 +1,52 @@
+import Link from 'next/link';
+import { Prospect } from '@/types/prospect';
+
+interface ProspectCardProps {
+  prospect: Prospect;
+  rank: number;
+}
+
+export default function ProspectCard({ prospect, rank }: ProspectCardProps) {
+  return (
+    <Link
+      href={`/prospects/${prospect.id}`}
+      className="block rounded-lg border border-gray-200 bg-white p-4 hover:border-gray-300 hover:shadow-md transition-all duration-200"
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center space-x-3">
+            <div className="flex-shrink-0">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-800">
+                #{rank}
+              </div>
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-gray-900">
+                {prospect.name}
+              </p>
+              <div className="flex items-center space-x-2 text-xs text-gray-500">
+                <span>{prospect.position}</span>
+                <span>•</span>
+                <span className="truncate">{prospect.organization}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="flex-shrink-0 text-right">
+          <div className="text-xs text-gray-500 mb-1">Age {prospect.age}</div>
+          <div className="flex items-center space-x-1">
+            <span className="text-xs text-gray-500">{prospect.level}</span>
+            {prospect.eta_year && (
+              <>
+                <span className="text-xs text-gray-300">•</span>
+                <span className="text-xs text-gray-500">
+                  ETA {prospect.eta_year}
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+}

@@ -82,6 +82,26 @@ CREATE TABLE ml_predictions (
 CREATE INDEX idx_predictions_latest ON ml_predictions(prospect_id, generated_at DESC);
 ```
 
+**Scouting Grades (Multi-Source):**
+```sql
+CREATE TABLE scouting_grades (
+    id SERIAL PRIMARY KEY,
+    prospect_id INTEGER REFERENCES prospects(id),
+    source VARCHAR(50) NOT NULL, -- 'fangraphs', 'mlb_pipeline', etc.
+    overall_grade INTEGER, -- 20-80 scale
+    hit_grade INTEGER,
+    power_grade INTEGER,
+    speed_grade INTEGER,
+    field_grade INTEGER,
+    arm_grade INTEGER,
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Index for efficient source-based queries
+CREATE INDEX idx_scouting_grades_prospect ON scouting_grades(prospect_id);
+CREATE INDEX idx_scouting_grades_source ON scouting_grades(source, updated_at);
+```
+
 **User Management:**
 ```sql
 CREATE TABLE users (

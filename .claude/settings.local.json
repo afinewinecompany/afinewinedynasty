@@ -1,33 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "WebSearch",
-      "Bash(md-tree:*)",
-      "Read(//c/Users/lilra/Downloads/**)",
-      "Bash(dir)",
-      "Bash(echo:*)",
-      "Bash(dir apps)",
-      "Bash(npx create-next-app:*)",
-      "Bash(npm install:*)",
-      "Bash(npm run build:*)",
-      "Bash(npx prettier:*)",
-      "Bash(npm run lint)",
-      "Bash(python:*)",
-      "Bash(py --version)",
-      "Bash(where python)",
-      "Bash(where py)",
-      "Bash(npm test)",
-      "Bash(npm test:*)",
-      "Bash(py -m pytest tests/ -v --tb=short)",
-      "Bash(dir \"C:\\Users\\lilra\\myprojects\\afinewinedynasty\\docs\\technical-architecture\")",
-      "Bash(dir:*)",
-      "Bash(find:*)",
-      "Bash(alembic init:*)",
-      "Bash(pip install:*)",
-      "Bash(rustc --version)",
-      "Bash(cargo --version)",
-      "Bash(where rustc)",
-      "Bash(where cargo)"
+      "Bash(cmd /c 'copy \"\"C:\\Installers\\timescaledb\\*.dll\"\" \"\"C:\\Program Files\\PostgreSQL\\17\\lib\\\"\"')",
+      "Bash(cmd /c \"copy \"\"C:\\Installers\\timescaledb\\*.dll\"\" \"\"C:\\Program Files\\PostgreSQL\\17\\lib\"\"\")",
+      "Bash(xcopy:*)",
+      "Bash(powershell:*)",
+      "Read(//c/Program Files/PostgreSQL/17/data/**)"
     ],
     "deny": [],
     "ask": []

@@ -54,7 +54,8 @@ export function ProfileForm({ onSuccess, onError }: ProfileFormProps) {
         },
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to load profile';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to load profile';
       setErrors({ general: errorMessage });
       onError?.(errorMessage);
     } finally {
@@ -75,25 +76,30 @@ export function ProfileForm({ onSuccess, onError }: ProfileFormProps) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value, type } = e.target;
 
     if (name.startsWith('preferences.')) {
       const prefKey = name.split('.')[1];
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         preferences: {
           ...prev.preferences,
-          [prefKey]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
+          [prefKey]:
+            type === 'checkbox'
+              ? (e.target as HTMLInputElement).checked
+              : value,
         },
       }));
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
 
     // Clear specific field error when user starts typing
     if (errors[name as keyof FormErrors]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
@@ -101,7 +107,7 @@ export function ProfileForm({ onSuccess, onError }: ProfileFormProps) {
     const { name, checked } = e.target;
     const prefKey = name.split('.')[1];
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       preferences: {
         ...prev.preferences,
@@ -132,7 +138,8 @@ export function ProfileForm({ onSuccess, onError }: ProfileFormProps) {
       setErrors({ general: undefined });
       alert('Profile updated successfully!');
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Profile update failed';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Profile update failed';
       setErrors({ general: errorMessage });
       onError?.(errorMessage);
     } finally {
@@ -186,13 +193,16 @@ export function ProfileForm({ onSuccess, onError }: ProfileFormProps) {
               <strong>Email:</strong> {profile.email}
             </div>
             <div>
-              <strong>Account Type:</strong> {profile.google_id ? 'Google Account' : 'Email Account'}
+              <strong>Account Type:</strong>{' '}
+              {profile.google_id ? 'Google Account' : 'Email Account'}
             </div>
             <div>
-              <strong>Member Since:</strong> {new Date(profile.created_at).toLocaleDateString()}
+              <strong>Member Since:</strong>{' '}
+              {new Date(profile.created_at).toLocaleDateString()}
             </div>
             <div>
-              <strong>Last Updated:</strong> {new Date(profile.updated_at).toLocaleDateString()}
+              <strong>Last Updated:</strong>{' '}
+              {new Date(profile.updated_at).toLocaleDateString()}
             </div>
           </div>
           {profile.profile_picture && (
@@ -215,7 +225,10 @@ export function ProfileForm({ onSuccess, onError }: ProfileFormProps) {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="full_name" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="full_name"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Full Name
           </label>
           <input
@@ -235,11 +248,16 @@ export function ProfileForm({ onSuccess, onError }: ProfileFormProps) {
         </div>
 
         <div>
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Preferences</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">
+            Preferences
+          </h3>
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="preferences.theme" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="preferences.theme"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Theme
               </label>
               <select
@@ -266,7 +284,10 @@ export function ProfileForm({ onSuccess, onError }: ProfileFormProps) {
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 disabled={isLoading}
               />
-              <label htmlFor="preferences.notifications" className="ml-2 block text-sm text-gray-700">
+              <label
+                htmlFor="preferences.notifications"
+                className="ml-2 block text-sm text-gray-700"
+              >
                 Enable push notifications
               </label>
             </div>
@@ -281,7 +302,10 @@ export function ProfileForm({ onSuccess, onError }: ProfileFormProps) {
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 disabled={isLoading}
               />
-              <label htmlFor="preferences.marketing_emails" className="ml-2 block text-sm text-gray-700">
+              <label
+                htmlFor="preferences.marketing_emails"
+                className="ml-2 block text-sm text-gray-700"
+              >
                 Receive marketing emails
               </label>
             </div>

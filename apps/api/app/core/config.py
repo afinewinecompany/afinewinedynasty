@@ -70,6 +70,11 @@ class Settings(BaseSettings):
     GOOGLE_TOKEN_URL: str = "https://oauth2.googleapis.com/token"
     GOOGLE_USERINFO_URL: str = "https://www.googleapis.com/oauth2/v2/userinfo"
 
+    # MLB Stats API
+    MLB_STATS_API_BASE_URL: str = "https://statsapi.mlb.com/api/v1"
+    MLB_STATS_API_RATE_LIMIT: int = 1000  # requests per day
+    MLB_STATS_API_REQUEST_DELAY: float = 0.1  # seconds between requests
+
     class Config:
         case_sensitive = True
         env_file = ".env"
