@@ -5,7 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   LineChart,
   Line,
@@ -21,7 +27,7 @@ import {
   ScatterChart,
   Scatter,
   BarChart,
-  Bar
+  Bar,
 } from 'recharts';
 import {
   TrendingUp,
@@ -34,7 +40,7 @@ import {
   AlertTriangle,
   ArrowUp,
   ArrowDown,
-  Minus
+  Minus,
 } from 'lucide-react';
 
 interface StatRecord {
@@ -72,8 +78,14 @@ interface StatRecord {
 
 interface PerformanceTrendsProps {
   statsHistory: {
-    by_level: Record<string, { aggregation: any; latest: StatRecord; count: number }>;
-    by_season: Record<string, { aggregation: any; count: number; levels: string[] }>;
+    by_level: Record<
+      string,
+      { aggregation: any; latest: StatRecord; count: number }
+    >;
+    by_season: Record<
+      string,
+      { aggregation: any; count: number; levels: string[] }
+    >;
     progression: any;
     latest_stats: StatRecord;
   };
@@ -86,13 +98,14 @@ export function PerformanceTrends({
   statsHistory,
   prospectName,
   position,
-  className = ''
+  className = '',
 }: PerformanceTrendsProps) {
   const [selectedMetric, setSelectedMetric] = useState('ops');
   const [selectedTimeframe, setSelectedTimeframe] = useState('all');
   const [activeTab, setActiveTab] = useState('trends');
 
-  const isPitcher = position === 'SP' || position === 'RP' || position.includes('P');
+  const isPitcher =
+    position === 'SP' || position === 'RP' || position.includes('P');
 
   // Available metrics based on position
   const battingMetrics = [
@@ -102,7 +115,7 @@ export function PerformanceTrends({
     { value: 'slg', label: 'Slugging %', format: 'decimal3' },
     { value: 'wrc_plus', label: 'wRC+', format: 'integer' },
     { value: 'k_rate', label: 'K%', format: 'decimal1' },
-    { value: 'bb_rate', label: 'BB%', format: 'decimal1' }
+    { value: 'bb_rate', label: 'BB%', format: 'decimal1' },
   ];
 
   const pitchingMetrics = [
@@ -111,7 +124,7 @@ export function PerformanceTrends({
     { value: 'k_rate', label: 'K%', format: 'decimal1' },
     { value: 'bb_rate', label: 'BB%', format: 'decimal1' },
     { value: 'k_9', label: 'K/9', format: 'decimal1' },
-    { value: 'fip', label: 'FIP', format: 'decimal2' }
+    { value: 'fip', label: 'FIP', format: 'decimal2' },
   ];
 
   const availableMetrics = isPitcher ? pitchingMetrics : battingMetrics;
@@ -152,8 +165,8 @@ export function PerformanceTrends({
           whip: aggregation.pitching.whip,
           k_rate: aggregation.pitching.k_rate,
           bb_rate: aggregation.pitching.bb_rate,
-          k_9: aggregation.pitching.k_rate * 9 / 100, // Approximate
-          fip: aggregation.pitching.fip || aggregation.pitching.era
+          k_9: (aggregation.pitching.k_rate * 9) / 100, // Approximate
+          fip: aggregation.pitching.fip || aggregation.pitching.era,
         });
       } else if (!isPitcher && aggregation.batting) {
         data.push({
@@ -167,7 +180,7 @@ export function PerformanceTrends({
           ops: aggregation.batting.ops,
           wrc_plus: aggregation.batting.wrc_plus || 100,
           k_rate: aggregation.batting.k_rate || 20,
-          bb_rate: aggregation.batting.bb_rate || 8
+          bb_rate: aggregation.batting.bb_rate || 8,
         });
       }
     });
@@ -194,8 +207,8 @@ export function PerformanceTrends({
             whip: aggregation.pitching.whip,
             k_rate: aggregation.pitching.k_rate,
             bb_rate: aggregation.pitching.bb_rate,
-            k_9: aggregation.pitching.k_rate * 9 / 100,
-            fip: aggregation.pitching.fip || aggregation.pitching.era
+            k_9: (aggregation.pitching.k_rate * 9) / 100,
+            fip: aggregation.pitching.fip || aggregation.pitching.era,
           });
         } else if (!isPitcher && aggregation.batting) {
           data.push({
@@ -208,7 +221,7 @@ export function PerformanceTrends({
             ops: aggregation.batting.ops,
             wrc_plus: aggregation.batting.wrc_plus || 100,
             k_rate: aggregation.batting.k_rate || 20,
-            bb_rate: aggregation.batting.bb_rate || 8
+            bb_rate: aggregation.batting.bb_rate || 8,
           });
         }
       }
@@ -218,22 +231,24 @@ export function PerformanceTrends({
   }, [statsHistory, isPitcher]);
 
   // Calculate league averages (placeholder values)
-  const leagueAverages: Record<string, number> = isPitcher ? {
-    era: 4.00,
-    whip: 1.30,
-    k_rate: 22.0,
-    bb_rate: 9.0,
-    k_9: 8.5,
-    fip: 4.20
-  } : {
-    avg: 0.250,
-    obp: 0.320,
-    slg: 0.400,
-    ops: 0.720,
-    wrc_plus: 100,
-    k_rate: 23.0,
-    bb_rate: 8.5
-  };
+  const leagueAverages: Record<string, number> = isPitcher
+    ? {
+        era: 4.0,
+        whip: 1.3,
+        k_rate: 22.0,
+        bb_rate: 9.0,
+        k_9: 8.5,
+        fip: 4.2,
+      }
+    : {
+        avg: 0.25,
+        obp: 0.32,
+        slg: 0.4,
+        ops: 0.72,
+        wrc_plus: 100,
+        k_rate: 23.0,
+        bb_rate: 8.5,
+      };
 
   // Get trend direction
   const getTrendDirection = (data: any[], metric: string) => {
@@ -272,19 +287,28 @@ export function PerformanceTrends({
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
-      const selectedMetricData = availableMetrics.find(m => m.value === selectedMetric);
+      const selectedMetricData = availableMetrics.find(
+        (m) => m.value === selectedMetric
+      );
 
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="font-semibold mb-2">{label}</p>
-          {data.level && <p className="text-sm text-gray-600">Level: {data.level}</p>}
+          {data.level && (
+            <p className="text-sm text-gray-600">Level: {data.level}</p>
+          )}
           <p className="text-sm">
             <span className="font-medium">{selectedMetricData?.label}: </span>
             <span className="font-bold text-blue-600">
-              {formatValue(payload[0].value, selectedMetricData?.format || 'decimal2')}
+              {formatValue(
+                payload[0].value,
+                selectedMetricData?.format || 'decimal2'
+              )}
             </span>
           </p>
-          {data.games && <p className="text-xs text-gray-500">{data.games} games</p>}
+          {data.games && (
+            <p className="text-xs text-gray-500">{data.games} games</p>
+          )}
         </div>
       );
     }
@@ -318,7 +342,7 @@ export function PerformanceTrends({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {availableMetrics.map(metric => (
+                {availableMetrics.map((metric) => (
                   <SelectItem key={metric.value} value={metric.value}>
                     {metric.label}
                   </SelectItem>
@@ -357,7 +381,7 @@ export function PerformanceTrends({
                         y={leagueAverages[selectedMetric]}
                         stroke="#ef4444"
                         strokeDasharray="5 5"
-                        label={{ value: "League Avg", position: "topRight" }}
+                        label={{ value: 'League Avg', position: 'topRight' }}
                       />
                     )}
                   </LineChart>
@@ -367,9 +391,16 @@ export function PerformanceTrends({
                 <div className="bg-gray-50 rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      {getTrendIcon(getTrendDirection(trendData, selectedMetric))}
+                      {getTrendIcon(
+                        getTrendDirection(trendData, selectedMetric)
+                      )}
                       <span className="font-medium">
-                        {availableMetrics.find(m => m.value === selectedMetric)?.label} Trend
+                        {
+                          availableMetrics.find(
+                            (m) => m.value === selectedMetric
+                          )?.label
+                        }{' '}
+                        Trend
                       </span>
                     </div>
                     <div className="text-sm text-gray-600">
@@ -404,7 +435,7 @@ export function PerformanceTrends({
                         y={leagueAverages[selectedMetric]}
                         stroke="#ef4444"
                         strokeDasharray="5 5"
-                        label={{ value: "League Avg", position: "topRight" }}
+                        label={{ value: 'League Avg', position: 'topRight' }}
                       />
                     )}
                   </BarChart>
@@ -413,31 +444,57 @@ export function PerformanceTrends({
                 {/* Level Summary */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {levelData.map((level, index) => {
-                    const selectedMetricData = availableMetrics.find(m => m.value === selectedMetric);
+                    const selectedMetricData = availableMetrics.find(
+                      (m) => m.value === selectedMetric
+                    );
                     const value = level[selectedMetric];
                     const leagueAvg = leagueAverages[selectedMetric];
 
                     let performance = 'average';
                     if (leagueAvg) {
-                      const isLowerBetter = ['era', 'whip', 'bb_rate'].includes(selectedMetric);
+                      const isLowerBetter = ['era', 'whip', 'bb_rate'].includes(
+                        selectedMetric
+                      );
                       if (isLowerBetter) {
-                        performance = value < leagueAvg * 0.9 ? 'above' : value > leagueAvg * 1.1 ? 'below' : 'average';
+                        performance =
+                          value < leagueAvg * 0.9
+                            ? 'above'
+                            : value > leagueAvg * 1.1
+                              ? 'below'
+                              : 'average';
                       } else {
-                        performance = value > leagueAvg * 1.1 ? 'above' : value < leagueAvg * 0.9 ? 'below' : 'average';
+                        performance =
+                          value > leagueAvg * 1.1
+                            ? 'above'
+                            : value < leagueAvg * 0.9
+                              ? 'below'
+                              : 'average';
                       }
                     }
 
                     return (
                       <div key={index} className="bg-gray-50 rounded-lg p-4">
                         <div className="text-center">
-                          <div className="font-semibold text-gray-900">{level.level}</div>
-                          <div className={`text-xl font-bold ${
-                            performance === 'above' ? 'text-green-600' :
-                            performance === 'below' ? 'text-red-600' : 'text-gray-600'
-                          }`}>
-                            {formatValue(value, selectedMetricData?.format || 'decimal2')}
+                          <div className="font-semibold text-gray-900">
+                            {level.level}
                           </div>
-                          <div className="text-xs text-gray-500">{level.games} games</div>
+                          <div
+                            className={`text-xl font-bold ${
+                              performance === 'above'
+                                ? 'text-green-600'
+                                : performance === 'below'
+                                  ? 'text-red-600'
+                                  : 'text-gray-600'
+                            }`}
+                          >
+                            {formatValue(
+                              value,
+                              selectedMetricData?.format || 'decimal2'
+                            )}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {level.games} games
+                          </div>
                         </div>
                       </div>
                     );
@@ -463,36 +520,66 @@ export function PerformanceTrends({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {availableMetrics.slice(0, 4).map(metric => {
+                  {availableMetrics.slice(0, 4).map((metric) => {
                     const latest = statsHistory.latest_stats;
                     const value = isPitcher
-                      ? latest?.pitching?.[metric.value as keyof typeof latest.pitching]
-                      : latest?.batting?.[metric.value as keyof typeof latest.batting];
+                      ? latest?.pitching?.[
+                          metric.value as keyof typeof latest.pitching
+                        ]
+                      : latest?.batting?.[
+                          metric.value as keyof typeof latest.batting
+                        ];
 
                     const leagueAvg = leagueAverages[metric.value];
                     let performance = 'average';
 
                     if (value && leagueAvg) {
-                      const isLowerBetter = ['era', 'whip', 'bb_rate'].includes(metric.value);
+                      const isLowerBetter = ['era', 'whip', 'bb_rate'].includes(
+                        metric.value
+                      );
                       if (isLowerBetter) {
-                        performance = value < leagueAvg * 0.9 ? 'above' : value > leagueAvg * 1.1 ? 'below' : 'average';
+                        performance =
+                          value < leagueAvg * 0.9
+                            ? 'above'
+                            : value > leagueAvg * 1.1
+                              ? 'below'
+                              : 'average';
                       } else {
-                        performance = value > leagueAvg * 1.1 ? 'above' : value < leagueAvg * 0.9 ? 'below' : 'average';
+                        performance =
+                          value > leagueAvg * 1.1
+                            ? 'above'
+                            : value < leagueAvg * 0.9
+                              ? 'below'
+                              : 'average';
                       }
                     }
 
                     return (
-                      <div key={metric.value} className="flex items-center justify-between">
-                        <span className="text-sm font-medium">{metric.label}</span>
+                      <div
+                        key={metric.value}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="text-sm font-medium">
+                          {metric.label}
+                        </span>
                         <div className="flex items-center space-x-2">
-                          <span className={`font-semibold ${
-                            performance === 'above' ? 'text-green-600' :
-                            performance === 'below' ? 'text-red-600' : 'text-gray-600'
-                          }`}>
+                          <span
+                            className={`font-semibold ${
+                              performance === 'above'
+                                ? 'text-green-600'
+                                : performance === 'below'
+                                  ? 'text-red-600'
+                                  : 'text-gray-600'
+                            }`}
+                          >
                             {value ? formatValue(value, metric.format) : 'N/A'}
                           </span>
-                          {performance === 'above' && <ArrowUp className="h-3 w-3 text-green-600" />}
-                          {performance === 'below' && <ArrowDown className="h-3 w-3 text-red-600" />}
+                          {performance === 'above' && (
+                            <ArrowUp className="h-3 w-3 text-green-600" />
+                          )}
+                          {performance === 'below' && (
+                            <ArrowDown className="h-3 w-3 text-red-600" />
+                          )}
                         </div>
                       </div>
                     );
@@ -513,32 +600,64 @@ export function PerformanceTrends({
                     <>
                       <div className="flex items-center justify-between">
                         <span className="text-sm">Total Games</span>
-                        <span className="font-semibold">{statsHistory.progression.total_games}</span>
+                        <span className="font-semibold">
+                          {statsHistory.progression.total_games}
+                        </span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm">Time Span</span>
-                        <span className="font-semibold">{statsHistory.progression.time_span_days} days</span>
+                        <span className="font-semibold">
+                          {statsHistory.progression.time_span_days} days
+                        </span>
                       </div>
                       {!isPitcher && statsHistory.progression.batting && (
                         <>
                           <div className="flex items-center justify-between">
                             <span className="text-sm">AVG Change</span>
-                            <span className={`font-semibold ${
-                              statsHistory.progression.batting.avg_change > 0 ? 'text-green-600' :
-                              statsHistory.progression.batting.avg_change < 0 ? 'text-red-600' : 'text-gray-600'
-                            }`}>
-                              {statsHistory.progression.batting.avg_change > 0 ? '+' : ''}
-                              {statsHistory.progression.batting.avg_change.toFixed(3)}
+                            <span
+                              className={`font-semibold ${
+                                statsHistory.progression.batting.avg_change > 0
+                                  ? 'text-green-600'
+                                  : statsHistory.progression.batting
+                                        .avg_change < 0
+                                    ? 'text-red-600'
+                                    : 'text-gray-600'
+                              }`}
+                            >
+                              {statsHistory.progression.batting.avg_change > 0
+                                ? '+'
+                                : ''}
+                              {statsHistory.progression.batting.avg_change.toFixed(
+                                3
+                              )}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-sm">OPS Change</span>
-                            <span className={`font-semibold ${
-                              (statsHistory.progression.batting.obp_change + statsHistory.progression.batting.slg_change) > 0 ? 'text-green-600' :
-                              (statsHistory.progression.batting.obp_change + statsHistory.progression.batting.slg_change) < 0 ? 'text-red-600' : 'text-gray-600'
-                            }`}>
-                              {(statsHistory.progression.batting.obp_change + statsHistory.progression.batting.slg_change) > 0 ? '+' : ''}
-                              {(statsHistory.progression.batting.obp_change + statsHistory.progression.batting.slg_change).toFixed(3)}
+                            <span
+                              className={`font-semibold ${
+                                statsHistory.progression.batting.obp_change +
+                                  statsHistory.progression.batting.slg_change >
+                                0
+                                  ? 'text-green-600'
+                                  : statsHistory.progression.batting
+                                        .obp_change +
+                                        statsHistory.progression.batting
+                                          .slg_change <
+                                      0
+                                    ? 'text-red-600'
+                                    : 'text-gray-600'
+                              }`}
+                            >
+                              {statsHistory.progression.batting.obp_change +
+                                statsHistory.progression.batting.slg_change >
+                              0
+                                ? '+'
+                                : ''}
+                              {(
+                                statsHistory.progression.batting.obp_change +
+                                statsHistory.progression.batting.slg_change
+                              ).toFixed(3)}
                             </span>
                           </div>
                         </>
@@ -547,22 +666,45 @@ export function PerformanceTrends({
                         <>
                           <div className="flex items-center justify-between">
                             <span className="text-sm">ERA Change</span>
-                            <span className={`font-semibold ${
-                              statsHistory.progression.pitching.era_change < 0 ? 'text-green-600' :
-                              statsHistory.progression.pitching.era_change > 0 ? 'text-red-600' : 'text-gray-600'
-                            }`}>
-                              {statsHistory.progression.pitching.era_change > 0 ? '+' : ''}
-                              {statsHistory.progression.pitching.era_change.toFixed(2)}
+                            <span
+                              className={`font-semibold ${
+                                statsHistory.progression.pitching.era_change < 0
+                                  ? 'text-green-600'
+                                  : statsHistory.progression.pitching
+                                        .era_change > 0
+                                    ? 'text-red-600'
+                                    : 'text-gray-600'
+                              }`}
+                            >
+                              {statsHistory.progression.pitching.era_change > 0
+                                ? '+'
+                                : ''}
+                              {statsHistory.progression.pitching.era_change.toFixed(
+                                2
+                              )}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-sm">K% Change</span>
-                            <span className={`font-semibold ${
-                              statsHistory.progression.pitching.k_rate_change > 0 ? 'text-green-600' :
-                              statsHistory.progression.pitching.k_rate_change < 0 ? 'text-red-600' : 'text-gray-600'
-                            }`}>
-                              {statsHistory.progression.pitching.k_rate_change > 0 ? '+' : ''}
-                              {statsHistory.progression.pitching.k_rate_change.toFixed(1)}%
+                            <span
+                              className={`font-semibold ${
+                                statsHistory.progression.pitching
+                                  .k_rate_change > 0
+                                  ? 'text-green-600'
+                                  : statsHistory.progression.pitching
+                                        .k_rate_change < 0
+                                    ? 'text-red-600'
+                                    : 'text-gray-600'
+                              }`}
+                            >
+                              {statsHistory.progression.pitching.k_rate_change >
+                              0
+                                ? '+'
+                                : ''}
+                              {statsHistory.progression.pitching.k_rate_change.toFixed(
+                                1
+                              )}
+                              %
                             </span>
                           </div>
                         </>
@@ -578,11 +720,15 @@ export function PerformanceTrends({
               <div className="flex items-start space-x-2">
                 <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
                 <div>
-                  <h4 className="font-semibold text-blue-900 mb-2">Performance Analysis</h4>
+                  <h4 className="font-semibold text-blue-900 mb-2">
+                    Performance Analysis
+                  </h4>
                   <p className="text-blue-800 text-sm">
-                    Track {prospectName}'s statistical development across different levels and timeframes.
-                    Green indicates above-average performance, red indicates below-average, based on typical
-                    minor league benchmarks. Use the timeline and level views to identify development patterns.
+                    Track {prospectName}&apos;s statistical development across
+                    different levels and timeframes. Green indicates
+                    above-average performance, red indicates below-average,
+                    based on typical minor league benchmarks. Use the timeline
+                    and level views to identify development patterns.
                   </p>
                 </div>
               </div>

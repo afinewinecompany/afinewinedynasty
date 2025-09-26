@@ -14,9 +14,13 @@ import {
   Brain,
   ChevronDown,
   ChevronUp,
-  AlertCircle
+  AlertCircle,
 } from 'lucide-react';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 
 interface SHAPFeature {
   feature: string;
@@ -49,7 +53,7 @@ interface MLPredictionExplanationProps {
 export function MLPredictionExplanation({
   prediction,
   prospectName,
-  className = ''
+  className = '',
 }: MLPredictionExplanationProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
@@ -76,7 +80,7 @@ export function MLPredictionExplanation({
   const formatFeatureName = (feature: string) => {
     return feature
       .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
   };
 
@@ -93,14 +97,18 @@ export function MLPredictionExplanation({
 
   const SHAPFeatureItem = ({
     feature,
-    isPositive
+    isPositive,
   }: {
     feature: SHAPFeature;
-    isPositive: boolean
+    isPositive: boolean;
   }) => {
     const maxAbsValue = Math.max(
-      ...prediction.shap_explanation.top_positive_features.map(f => Math.abs(f.shap_value)),
-      ...prediction.shap_explanation.top_negative_features.map(f => Math.abs(f.shap_value))
+      ...prediction.shap_explanation.top_positive_features.map((f) =>
+        Math.abs(f.shap_value)
+      ),
+      ...prediction.shap_explanation.top_negative_features.map((f) =>
+        Math.abs(f.shap_value)
+      )
     );
 
     const barWidth = (Math.abs(feature.shap_value) / maxAbsValue) * 100;
@@ -115,11 +123,15 @@ export function MLPredictionExplanation({
             <div className="flex items-center space-x-2">
               {feature.feature_value !== undefined && (
                 <span className="text-xs text-gray-500">
-                  Value: {formatFeatureValue(feature.feature_value, feature.feature)}
+                  Value:{' '}
+                  {formatFeatureValue(feature.feature_value, feature.feature)}
                 </span>
               )}
-              <span className={`text-sm font-semibold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                {isPositive ? '+' : ''}{feature.shap_value.toFixed(3)}
+              <span
+                className={`text-sm font-semibold ${isPositive ? 'text-green-600' : 'text-red-600'}`}
+              >
+                {isPositive ? '+' : ''}
+                {feature.shap_value.toFixed(3)}
               </span>
             </div>
           </div>
@@ -154,12 +166,12 @@ export function MLPredictionExplanation({
         {/* Main Prediction Display */}
         <div className="text-center space-y-4">
           <div className="space-y-2">
-            <div className={`text-4xl font-bold ${getProbabilityColor(prediction.success_probability)}`}>
+            <div
+              className={`text-4xl font-bold ${getProbabilityColor(prediction.success_probability)}`}
+            >
               {(prediction.success_probability * 100).toFixed(1)}%
             </div>
-            <p className="text-gray-600">
-              Probability of MLB Success
-            </p>
+            <p className="text-gray-600">Probability of MLB Success</p>
           </div>
 
           <Progress
@@ -168,7 +180,8 @@ export function MLPredictionExplanation({
           />
 
           <p className="text-sm text-gray-500">
-            Prediction generated on {new Date(prediction.prediction_date).toLocaleDateString()}
+            Prediction generated on{' '}
+            {new Date(prediction.prediction_date).toLocaleDateString()}
           </p>
         </div>
 
@@ -178,7 +191,9 @@ export function MLPredictionExplanation({
             <div className="flex items-start space-x-2">
               <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
               <div>
-                <h4 className="font-semibold text-blue-900 mb-2">AI Analysis Summary</h4>
+                <h4 className="font-semibold text-blue-900 mb-2">
+                  AI Analysis Summary
+                </h4>
                 <p className="text-blue-800 text-sm leading-relaxed">
                   {prediction.narrative}
                 </p>
@@ -204,7 +219,11 @@ export function MLPredictionExplanation({
           </CollapsibleTrigger>
 
           <CollapsibleContent className="space-y-4 mt-4">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-full"
+            >
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="positive">Positive Factors</TabsTrigger>
@@ -221,7 +240,9 @@ export function MLPredictionExplanation({
                   </div>
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
                     <div className="text-lg font-semibold text-gray-900">
-                      {prediction.shap_explanation.total_shap_contribution.toFixed(3)}
+                      {prediction.shap_explanation.total_shap_contribution.toFixed(
+                        3
+                      )}
                     </div>
                     <div className="text-sm text-gray-600">Feature Impact</div>
                   </div>
@@ -237,11 +258,16 @@ export function MLPredictionExplanation({
                   <div className="flex items-start space-x-2">
                     <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
                     <div>
-                      <h4 className="font-semibold text-yellow-900 mb-1">How to Read This Analysis</h4>
+                      <h4 className="font-semibold text-yellow-900 mb-1">
+                        How to Read This Analysis
+                      </h4>
                       <p className="text-yellow-800 text-sm">
-                        The model starts with a base prediction, then adjusts up or down based on {prospectName}'s
-                        specific features. Green bars show factors that increase success probability, while red bars
-                        show factors that decrease it. The length of each bar represents the magnitude of impact.
+                        The model starts with a base prediction, then adjusts up
+                        or down based on {prospectName}&apos;s specific features.
+                        Green bars show factors that increase success
+                        probability, while red bars show factors that decrease
+                        it. The length of each bar represents the magnitude of
+                        impact.
                       </p>
                     </div>
                   </div>
@@ -252,21 +278,27 @@ export function MLPredictionExplanation({
                 <div className="flex items-center space-x-2 mb-4">
                   <TrendingUp className="h-5 w-5 text-green-600" />
                   <h3 className="font-semibold text-green-900">
-                    Positive Contributing Factors ({prediction.shap_explanation.top_positive_features.length})
+                    Positive Contributing Factors (
+                    {prediction.shap_explanation.top_positive_features.length})
                   </h3>
                 </div>
-                {prediction.shap_explanation.top_positive_features.length > 0 ? (
+                {prediction.shap_explanation.top_positive_features.length >
+                0 ? (
                   <div className="space-y-2">
-                    {prediction.shap_explanation.top_positive_features.map((feature, index) => (
-                      <SHAPFeatureItem
-                        key={`positive-${index}`}
-                        feature={feature}
-                        isPositive={true}
-                      />
-                    ))}
+                    {prediction.shap_explanation.top_positive_features.map(
+                      (feature, index) => (
+                        <SHAPFeatureItem
+                          key={`positive-${index}`}
+                          feature={feature}
+                          isPositive={true}
+                        />
+                      )
+                    )}
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-sm">No significant positive contributing factors identified.</p>
+                  <p className="text-gray-500 text-sm">
+                    No significant positive contributing factors identified.
+                  </p>
                 )}
               </TabsContent>
 
@@ -274,21 +306,27 @@ export function MLPredictionExplanation({
                 <div className="flex items-center space-x-2 mb-4">
                   <TrendingDown className="h-5 w-5 text-red-600" />
                   <h3 className="font-semibold text-red-900">
-                    Risk Factors ({prediction.shap_explanation.top_negative_features.length})
+                    Risk Factors (
+                    {prediction.shap_explanation.top_negative_features.length})
                   </h3>
                 </div>
-                {prediction.shap_explanation.top_negative_features.length > 0 ? (
+                {prediction.shap_explanation.top_negative_features.length >
+                0 ? (
                   <div className="space-y-2">
-                    {prediction.shap_explanation.top_negative_features.map((feature, index) => (
-                      <SHAPFeatureItem
-                        key={`negative-${index}`}
-                        feature={feature}
-                        isPositive={false}
-                      />
-                    ))}
+                    {prediction.shap_explanation.top_negative_features.map(
+                      (feature, index) => (
+                        <SHAPFeatureItem
+                          key={`negative-${index}`}
+                          feature={feature}
+                          isPositive={false}
+                        />
+                      )
+                    )}
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-sm">No significant risk factors identified.</p>
+                  <p className="text-gray-500 text-sm">
+                    No significant risk factors identified.
+                  </p>
                 )}
               </TabsContent>
             </Tabs>
@@ -296,8 +334,8 @@ export function MLPredictionExplanation({
             {/* Model Information */}
             <div className="pt-4 border-t border-gray-200">
               <p className="text-xs text-gray-500">
-                Model Version: {prediction.model_version} |
-                Analysis uses SHAP (SHapley Additive exPlanations) for feature importance
+                Model Version: {prediction.model_version} | Analysis uses SHAP
+                (SHapley Additive exPlanations) for feature importance
               </p>
             </div>
           </CollapsibleContent>
