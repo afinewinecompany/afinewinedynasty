@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { AuthAPI, type UserProfile } from '@/lib/auth/api';
 
 interface ProfileFormProps {
@@ -207,9 +208,11 @@ export function ProfileForm({ onSuccess, onError }: ProfileFormProps) {
           </div>
           {profile.profile_picture && (
             <div className="mt-4">
-              <img
+              <Image
                 src={profile.profile_picture}
                 alt="Profile"
+                width={64}
+                height={64}
                 className="w-16 h-16 rounded-full"
               />
             </div>

@@ -511,6 +511,143 @@ class ProspectComparisonsService:
         return formatted
 
     @staticmethod
+    async def compare_multiple_prospects(
+        db: AsyncSession,
+        prospect_ids: List[int],
+        include_analytics: bool = True
+    ) -> Dict[str, Any]:
+        """
+        Compare multiple prospects with advanced analytics.
+
+        Args:
+            db: Database session
+            prospect_ids: List of prospect IDs to compare (2-4 prospects)
+            include_analytics: Include advanced comparative analytics
+
+        Returns:
+            Comprehensive comparison data with analytics
+        """
+        if len(prospect_ids) < 2 or len(prospect_ids) > 4:
+            raise ValueError("Must compare between 2-4 prospects")
+
+        cache_key = f"multi_compare_service:{':'.join(map(str, sorted(prospect_ids)))}:{include_analytics}"
+        cached = await cache_manager.get_cached_features(cache_key)
+        if cached:
+            return cached
+
+        # Get all prospects with features
+        prospects_data = []
+        for prospect_id in prospect_ids:
+            prospect_data = await ProspectComparisonsService._get_prospect_with_features(db, prospect_id)
+            if not prospect_data:
+                continue
+            prospects_data.append(prospect_data)
+
+        if len(prospects_data) < 2:
+            return {"error": "Insufficient prospects found for comparison"}
+
+        # Build comparison matrix
+        comparison_matrix = []
+        for i, prospect_a in enumerate(prospects_data):
+            for j, prospect_b in enumerate(prospects_data[i+1:], i+1):
+                similarity = ProspectComparisonsService._calculate_similarity(
+                    prospect_a["features"], prospect_b["features"]
+                )
+
+                comparison_matrix.append({
+                    "prospect_a_id": prospect_a["prospect"].id,
+                    "prospect_a_name": prospect_a["prospect"].name,
+                    "prospect_b_id": prospect_b["prospect"].id,
+                    "prospect_b_name": prospect_b["prospect"].name,
+                    "similarity_score": round(similarity, 3),
+                    "matching_features": ProspectComparisonsService._get_matching_features(
+                        prospect_a["features"], prospect_b["features"]
+                    )
+                })
+
+        result = {
+            "prospect_ids": prospect_ids,
+            "comparison_matrix": comparison_matrix,
+            "prospects_data": prospects_data,
+            "group_analytics": {}
+        }
+
+        if include_analytics:
+            result["group_analytics"] = await ProspectComparisonsService._generate_group_analytics(
+                prospects_data, comparison_matrix
+            )
+
+        # Cache for 15 minutes
+        await cache_manager.cache_prospect_features(
+            cache_key, result, ttl=900
+        )
+
+        return result
+
+    @staticmethod
+    async def _generate_group_analytics(
+        prospects_data: List[Dict[str, Any]],
+        comparison_matrix: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """Generate advanced analytics for prospect group comparison."""
+        analytics = {
+            "similarity_analysis": {},
+            "position_analysis": {},
+            "development_stage_analysis": {},
+            "organizational_distribution": {}
+        }
+
+        # Similarity analysis
+        similarities = [comp["similarity_score"] for comp in comparison_matrix]
+        analytics["similarity_analysis"] = {
+            "average_similarity": round(sum(similarities) / len(similarities), 3),
+            "max_similarity": max(similarities),
+            "min_similarity": min(similarities),
+            "most_similar_pair": max(comparison_matrix, key=lambda x: x["similarity_score"]),
+            "least_similar_pair": min(comparison_matrix, key=lambda x: x["similarity_score"])
+        }
+
+        # Position analysis
+        positions = [p["prospect"].position for p in prospects_data]
+        from collections import Counter
+        position_counts = Counter(positions)
+        analytics["position_analysis"] = {
+            "position_distribution": dict(position_counts),
+            "position_diversity": len(position_counts),
+            "is_homogeneous": len(position_counts) == 1
+        }
+
+        # Development stage analysis
+        eta_years = [p["prospect"].eta_year for p in prospects_data if p["prospect"].eta_year]
+        ages = [p["prospect"].age for p in prospects_data if p["prospect"].age]
+
+        if eta_years:
+            analytics["development_stage_analysis"]["eta_range"] = {
+                "min_eta": min(eta_years),
+                "max_eta": max(eta_years),
+                "eta_spread": max(eta_years) - min(eta_years)
+            }
+
+        if ages:
+            analytics["development_stage_analysis"]["age_range"] = {
+                "min_age": min(ages),
+                "max_age": max(ages),
+                "age_spread": max(ages) - min(ages),
+                "average_age": round(sum(ages) / len(ages), 1)
+            }
+
+        # Organizational distribution
+        organizations = [p["prospect"].organization for p in prospects_data if p["prospect"].organization]
+        org_counts = Counter(organizations)
+        analytics["organizational_distribution"] = {
+            "organizations": dict(org_counts),
+            "cross_organizational": len(org_counts) > 1,
+            "same_system_prospects": max(org_counts.values()) if org_counts else 0
+        }
+
+        return analytics
+
+    @staticmethod
     def _get_feature_list() -> List[str]:
         """Get list of features used for comparison."""
         return [

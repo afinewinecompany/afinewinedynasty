@@ -8,29 +8,15 @@ import {
   TrendingDown,
   Minus,
 } from 'lucide-react';
+import { ComparisonData, ComparisonProspect } from '@/types/prospect';
 import MLPredictionComparison from './MLPredictionComparison';
 import StatisticalTrendComparison from './StatisticalTrendComparison';
 import ScoutingRadarComparison from './ScoutingRadarComparison';
 import HistoricalAnalogComparison from './HistoricalAnalogComparison';
 
-interface ComparisonData {
-  prospects: any[];
-  comparison_metadata: {
-    generated_at: string;
-  };
-  statistical_comparison?: {
-    performance_gaps?: Array<{
-      leader: string;
-      metric: string;
-      percentage_gap: string;
-      trailing_prospect: string;
-    }>;
-  };
-}
-
 interface ComparisonTableProps {
   comparisonData: ComparisonData;
-  selectedProspects: any[];
+  selectedProspects: ComparisonProspect[];
 }
 
 interface MetricRow {
@@ -239,7 +225,7 @@ export default function ComparisonTable({
     });
   };
 
-  const getValue = (prospect: Record<string, any>, key: string): any => {
+  const getValue = (prospect: ComparisonProspect, key: string): unknown => {
     const keys = key.split('.');
     let value = prospect;
     for (const k of keys) {
@@ -266,7 +252,10 @@ export default function ComparisonTable({
     }
   };
 
-  const getAdvantageIndicator = (values: unknown[], reverse = false): (string | null)[] => {
+  const getAdvantageIndicator = (
+    values: unknown[],
+    reverse = false
+  ): (string | null)[] => {
     const numericValues = values
       .map((v) => (typeof v === 'number' ? v : null))
       .filter((v) => v !== null);
@@ -399,7 +388,7 @@ export default function ComparisonTable({
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Metric
                         </th>
-                        {prospects.map((prospect, index) => (
+                        {prospects.map((prospect) => (
                           <th
                             key={prospect.id}
                             className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"

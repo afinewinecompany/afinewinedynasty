@@ -43,6 +43,21 @@ export interface ProspectProfile extends Prospect {
   stats?: ProspectStats[];
   ml_prediction?: MLPrediction;
   scouting_grade?: number;
+  dynasty_metrics?: {
+    dynasty_score?: number;
+    ml_score?: number;
+    scouting_score?: number;
+    confidence_level?: string;
+  };
+  scouting_grades?: {
+    overall?: number;
+    future_value?: number;
+    hit?: number;
+    power?: number;
+    speed?: number;
+    field?: number;
+    arm?: number;
+  };
 }
 
 export interface ProspectListParams {
@@ -118,7 +133,11 @@ export interface ProspectSearchSuggestion {
 }
 
 export interface ScoutingGrade {
-  source: 'Fangraphs' | 'MLB Pipeline' | 'Baseball America' | 'Baseball Prospectus';
+  source:
+    | 'Fangraphs'
+    | 'MLB Pipeline'
+    | 'Baseball America'
+    | 'Baseball Prospectus';
   overall?: number;
   hit?: number;
   power?: number;
@@ -133,4 +152,63 @@ export interface ScoutingGrade {
   futureValue?: number;
   risk?: 'Safe' | 'Moderate' | 'High' | 'Extreme';
   updatedAt: string;
+}
+
+// Comparison interfaces
+export interface ComparisonProspect {
+  id: string;
+  name: string;
+  position: string;
+  organization: string;
+  level?: string;
+  age?: number;
+  eta_year?: number;
+  dynasty_metrics?: {
+    dynasty_score?: number;
+    ml_score?: number;
+    scouting_score?: number;
+    confidence_level?: string;
+  };
+  stats?: {
+    batting_avg?: number;
+    on_base_pct?: number;
+    slugging_pct?: number;
+    ops?: number;
+    wrc_plus?: number;
+    walk_rate?: number;
+    strikeout_rate?: number;
+    era?: number;
+    whip?: number;
+    k_per_9?: number;
+    bb_per_9?: number;
+    fip?: number;
+  };
+  scouting_grades?: {
+    overall?: number;
+    future_value?: number;
+    hit?: number;
+    power?: number;
+    speed?: number;
+    field?: number;
+    arm?: number;
+  };
+  ml_prediction?: {
+    success_probability?: number;
+    confidence_level?: string;
+  };
+}
+
+export interface ComparisonData {
+  prospects: ComparisonProspect[];
+  comparison_metadata: {
+    generated_at: string;
+  };
+  statistical_comparison?: {
+    performance_gaps?: Array<{
+      leader: string;
+      metric: string;
+      percentage_gap: string;
+      trailing_prospect: string;
+    }>;
+  };
 }

@@ -18,17 +18,11 @@ import {
   ChevronDown,
   ChevronRight,
 } from 'lucide-react';
+import { ComparisonProspect } from '@/types/prospect';
 
 interface MLPredictionComparisonProps {
   comparisonData: {
-    prospects?: Array<{
-      id: string;
-      name: string;
-      ml_prediction?: {
-        success_probability: number;
-        confidence_level: string;
-      };
-    }>;
+    prospects?: ComparisonProspect[];
     ml_comparison?: {
       prediction_comparison?: Array<{
         prospect_a: { name: string; probability: number };
@@ -44,7 +38,7 @@ interface MLPredictionComparisonProps {
       }>;
     };
   };
-  selectedProspects: any[]; // eslint-disable-line @typescript-eslint/no-unused-vars
+  selectedProspects: ComparisonProspect[];
 }
 
 interface ShapFeature {
@@ -83,7 +77,6 @@ const SHAP_FEATURE_LABELS = {
 
 export default function MLPredictionComparison({
   comparisonData,
-  selectedProspects,
 }: MLPredictionComparisonProps) {
   const [expandedPredictions, setExpandedPredictions] = useState(true);
   const [expandedShap, setExpandedShap] = useState(false);
@@ -137,8 +130,14 @@ export default function MLPredictionComparison({
     return <TrendingDown className="w-4 h-4 text-red-600" />;
   };
 
-  const getShapDifferentials = (comparison: any): ShapFeature[] => {
-    return (comparison.key_differentiators || []).map((diff: any) => ({
+  const getShapDifferentials = (comparison: {
+    key_differentiators?: Array<{
+      feature: string;
+      difference: number;
+      favors: string;
+    }>;
+  }): ShapFeature[] => {
+    return (comparison.key_differentiators || []).map((diff) => ({
       feature: SHAP_FEATURE_LABELS[diff.feature] || diff.feature,
       difference: Math.abs(diff.difference),
       favors: diff.favors,

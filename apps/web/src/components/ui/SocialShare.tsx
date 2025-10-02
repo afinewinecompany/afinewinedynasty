@@ -16,7 +16,7 @@ import {
   Linkedin,
   Copy,
   ExternalLink,
-  Check
+  Check,
 } from 'lucide-react';
 
 interface SocialShareProps {
@@ -40,16 +40,19 @@ export function SocialShare({
   description,
   hashtags = [],
   className = '',
-  size = 'md'
+  size = 'md',
 }: SocialShareProps) {
   const [copied, setCopied] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
   // Ensure URL is absolute
-  const shareUrl = url.startsWith('http') ? url : `${window.location.origin}${url}`;
+  const shareUrl = url.startsWith('http')
+    ? url
+    : `${window.location.origin}${url}`;
 
   const shareText = description || title;
-  const hashtagString = hashtags.length > 0 ? hashtags.map(tag => `#${tag}`).join(' ') : '';
+  const hashtagString =
+    hashtags.length > 0 ? hashtags.map((tag) => `#${tag}`).join(' ') : '';
 
   // Check if native Web Share API is available
   const canNativeShare = typeof navigator !== 'undefined' && navigator.share;
@@ -60,7 +63,7 @@ export function SocialShare({
     const shareData: ShareData = {
       title,
       text: shareText,
-      url: shareUrl
+      url: shareUrl,
     };
 
     try {
@@ -77,8 +80,8 @@ export function SocialShare({
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
       toast({
-        title: "Link copied!",
-        description: "Profile link has been copied to your clipboard.",
+        title: 'Link copied!',
+        description: 'Profile link has been copied to your clipboard.',
         duration: 3000,
       });
 
@@ -86,9 +89,9 @@ export function SocialShare({
     } catch (error) {
       console.error('Failed to copy link:', error);
       toast({
-        title: "Copy failed",
-        description: "Unable to copy link to clipboard.",
-        variant: "destructive",
+        title: 'Copy failed',
+        description: 'Unable to copy link to clipboard.',
+        variant: 'destructive',
         duration: 3000,
       });
     }
@@ -98,7 +101,7 @@ export function SocialShare({
     const params = new URLSearchParams({
       url: shareUrl,
       text: `${shareText} ${hashtagString}`.trim(),
-      via: 'afinewinedynasty'
+      via: 'afinewinedynasty',
     });
     return `https://twitter.com/intent/tweet?${params.toString()}`;
   };
@@ -107,7 +110,7 @@ export function SocialShare({
     const params = new URLSearchParams({
       url: shareUrl,
       title: title,
-      summary: shareText
+      summary: shareText,
     });
     return `https://www.linkedin.com/sharing/share-offsite/?${params.toString()}`;
   };
@@ -115,7 +118,7 @@ export function SocialShare({
   const getRedditUrl = () => {
     const params = new URLSearchParams({
       url: shareUrl,
-      title: title
+      title: title,
     });
     return `https://www.reddit.com/submit?${params.toString()}`;
   };
@@ -132,13 +135,13 @@ export function SocialShare({
   const buttonSize = {
     sm: 'h-8 px-3 text-sm',
     md: 'h-9 px-4',
-    lg: 'h-10 px-6'
+    lg: 'h-10 px-6',
   }[size];
 
   const iconSize = {
     sm: 'h-3 w-3',
     md: 'h-4 w-4',
-    lg: 'h-5 w-5'
+    lg: 'h-5 w-5',
   }[size];
 
   return (
@@ -157,7 +160,9 @@ export function SocialShare({
         <Card className="border-0 shadow-none">
           <CardContent className="p-0 space-y-4">
             <div>
-              <h4 className="font-semibold text-gray-900 mb-1">Share this profile</h4>
+              <h4 className="font-semibold text-gray-900 mb-1">
+                Share this profile
+              </h4>
               <p className="text-sm text-gray-600">{title}</p>
             </div>
 
@@ -227,7 +232,9 @@ export function SocialShare({
             {/* Hashtags */}
             {hashtags.length > 0 && (
               <div className="border-t pt-4">
-                <p className="text-xs text-gray-500 mb-2">Suggested hashtags:</p>
+                <p className="text-xs text-gray-500 mb-2">
+                  Suggested hashtags:
+                </p>
                 <div className="flex flex-wrap gap-1">
                   {hashtags.map((tag, index) => (
                     <Badge key={index} variant="secondary" className="text-xs">

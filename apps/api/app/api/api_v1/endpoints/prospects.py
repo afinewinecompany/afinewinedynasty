@@ -7,6 +7,7 @@ from sqlalchemy.orm import selectinload
 import json
 import logging
 import io
+from datetime import datetime
 
 from app.api.deps import get_current_user
 from app.db.database import get_db
@@ -696,6 +697,435 @@ async def get_prospect_injury_history(
         "data_source": "placeholder",
         "last_updated": datetime.utcnow().isoformat()
     }
+
+
+@router.get("/compare")
+@limiter.limit("50/minute")
+async def compare_prospects(
+    prospect_ids: str = Query(..., description="Comma-separated prospect IDs (2-4 prospects)"),
+    include_stats: bool = Query(True, description="Include statistical comparison"),
+    include_predictions: bool = Query(True, description="Include ML prediction comparison"),
+    include_analogs: bool = Query(True, description="Include historical analog comparison"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+) -> Dict[str, Any]:
+    """
+    Compare multiple prospects side-by-side with comprehensive analytics.
+
+    Features:
+    - Multi-prospect comparison supporting 2-4 prospects simultaneously
+    - ML prediction differential analysis with SHAP explanations
+    - Historical analog comparison using feature similarity
+    - Statistical aggregation and comparative metrics
+    - 15-minute Redis caching for comparison data
+    """
+    # Parse and validate prospect IDs
+    try:
+        prospect_id_list = [int(pid.strip()) for pid in prospect_ids.split(',')]
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid prospect ID format. Use comma-separated integers."
+        )
+
+    if len(prospect_id_list) < 2 or len(prospect_id_list) > 4:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Must compare between 2-4 prospects"
+        )
+
+    # Generate cache key
+    cache_key = f"multi_compare:{':'.join(map(str, sorted(prospect_id_list)))}:{include_stats}:{include_predictions}:{include_analogs}"
+    cached_result = await cache_manager.get_cached_features(cache_key)
+    if cached_result:
+        logger.info(f"Cache hit for comparison: {cache_key}")
+        return cached_result
+
+    # Get all prospects with comprehensive data
+    prospects_data = []
+    for prospect_id in prospect_id_list:
+        prospect_data = await ProspectComparisonsService._get_prospect_with_features(db, prospect_id)
+        if not prospect_data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Prospect with ID {prospect_id} not found"
+            )
+        prospects_data.append(prospect_data)
+
+    # Build comparison result
+    comparison_result = {
+        "prospect_ids": prospect_id_list,
+        "prospects": [],
+        "comparison_metadata": {
+            "generated_at": datetime.utcnow().isoformat(),
+            "prospects_count": len(prospect_id_list)
+        }
+    }
+
+    # Add individual prospect data
+    for i, data in enumerate(prospects_data):
+        prospect = data["prospect"]
+        prospect_info = {
+            "id": prospect.id,
+            "name": prospect.name,
+            "position": prospect.position,
+            "organization": prospect.organization,
+            "level": prospect.level,
+            "age": prospect.age,
+            "eta_year": prospect.eta_year,
+            "draft_year": prospect.draft_year,
+            "draft_round": prospect.draft_round
+        }
+
+        # Add dynasty score calculation
+        ml_prediction = data.get("ml_prediction")
+        latest_stats = data.get("latest_stats")
+        scouting_grade = data.get("scouting_grade")
+
+        score_components = DynastyRankingService.calculate_dynasty_score(
+            prospect=prospect,
+            ml_prediction=ml_prediction,
+            latest_stats=latest_stats,
+            scouting_grade=scouting_grade
+        )
+
+        prospect_info["dynasty_metrics"] = {
+            "dynasty_score": round(score_components['total_score'], 2),
+            "ml_score": round(score_components['ml_score'], 2),
+            "scouting_score": round(score_components['scouting_score'], 2),
+            "confidence_level": score_components['confidence_level']
+        }
+
+        if include_stats and latest_stats:
+            if prospect.position not in ['SP', 'RP']:
+                prospect_info["stats"] = {
+                    "batting_avg": latest_stats.batting_avg,
+                    "on_base_pct": latest_stats.on_base_pct,
+                    "slugging_pct": latest_stats.slugging_pct,
+                    "ops": round((latest_stats.on_base_pct or 0) + (latest_stats.slugging_pct or 0), 3),
+                    "wrc_plus": latest_stats.wrc_plus,
+                    "strikeout_rate": latest_stats.strikeout_rate,
+                    "walk_rate": latest_stats.walk_rate
+                }
+            else:
+                prospect_info["stats"] = {
+                    "era": latest_stats.era,
+                    "whip": latest_stats.whip,
+                    "k_per_9": latest_stats.k_per_9,
+                    "bb_per_9": latest_stats.bb_per_9,
+                    "fip": latest_stats.fip
+                }
+
+        if include_predictions and ml_prediction:
+            prospect_info["ml_prediction"] = {
+                "success_probability": ml_prediction.success_probability,
+                "confidence_level": ml_prediction.confidence_level,
+                "shap_values": ml_prediction.feature_importance
+            }
+
+        if scouting_grade:
+            prospect_info["scouting_grades"] = {
+                "overall": scouting_grade.overall,
+                "future_value": scouting_grade.future_value,
+                "hit": scouting_grade.hit,
+                "power": scouting_grade.power,
+                "speed": scouting_grade.speed,
+                "field": scouting_grade.field,
+                "arm": scouting_grade.arm,
+                "source": scouting_grade.source
+            }
+
+        comparison_result["prospects"].append(prospect_info)
+
+    # Add comparative analysis
+    if include_predictions and len([p for p in prospects_data if p.get("ml_prediction")]) >= 2:
+        comparison_result["ml_comparison"] = await _generate_ml_comparison_analysis(prospects_data)
+
+    if include_analogs:
+        comparison_result["historical_analogs"] = await _generate_comparative_analogs(db, prospects_data)
+
+    # Add statistical comparison metrics
+    if include_stats:
+        comparison_result["statistical_comparison"] = _generate_statistical_comparison(prospects_data)
+
+    # Cache for 15 minutes
+    await cache_manager.cache_prospect_features(
+        cache_key, comparison_result, ttl=900
+    )
+
+    return comparison_result
+
+
+@router.get("/compare/analogs")
+@limiter.limit("50/minute")
+async def get_comparison_analogs(
+    prospect_ids: str = Query(..., description="Comma-separated prospect IDs"),
+    limit: int = Query(3, ge=1, le=5, description="Number of analogs per prospect"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+) -> Dict[str, Any]:
+    """
+    Get historical analog prospects for a comparison group.
+
+    Returns historical prospects with similar profiles for each prospect
+    in the comparison, showing MLB career outcomes.
+    """
+    try:
+        prospect_id_list = [int(pid.strip()) for pid in prospect_ids.split(',')]
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid prospect ID format"
+        )
+
+    analogs_result = {
+        "prospect_analogs": [],
+        "metadata": {
+            "generated_at": datetime.utcnow().isoformat(),
+            "analogs_per_prospect": limit
+        }
+    }
+
+    for prospect_id in prospect_id_list:
+        prospect_data = await ProspectComparisonsService._get_prospect_with_features(db, prospect_id)
+        if prospect_data:
+            historical_comps = await ProspectComparisonsService._find_historical_similar(
+                db, prospect_data, limit
+            )
+            analogs_result["prospect_analogs"].append({
+                "prospect_id": prospect_id,
+                "prospect_name": prospect_data["prospect"].name,
+                "historical_analogs": historical_comps
+            })
+
+    return analogs_result
+
+
+@router.post("/compare/export")
+@limiter.limit("20/hour")
+async def export_comparison(
+    prospect_ids: str,
+    format: str = Query(..., regex="^(pdf|csv)$", description="Export format: 'pdf' or 'csv'"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+) -> Dict[str, Any]:
+    """
+    Generate and return comparison export in PDF or CSV format.
+
+    Premium users only. Limited to 20 exports per hour.
+    """
+    from app.services.export_service import ExportService
+
+    # Validate export access
+    ExportService.validate_export_access(current_user)
+
+    try:
+        prospect_id_list = [int(pid.strip()) for pid in prospect_ids.split(',')]
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid prospect ID format"
+        )
+
+    if len(prospect_id_list) < 2 or len(prospect_id_list) > 4:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Must export comparison for 2-4 prospects"
+        )
+
+    # Get comparison data
+    comparison_data = await compare_prospects(
+        prospect_ids=prospect_ids,
+        include_stats=True,
+        include_predictions=True,
+        include_analogs=True,
+        current_user=current_user,
+        db=db
+    )
+
+    # Generate export based on format
+    if format == "pdf":
+        export_content = await ExportService.generate_comparison_pdf(comparison_data)
+        media_type = "application/pdf"
+        filename = f"prospect_comparison_{'-'.join(map(str, prospect_id_list))}_{datetime.now().strftime('%Y%m%d')}.pdf"
+    else:  # csv
+        export_content = ExportService.generate_comparison_csv(comparison_data)
+        media_type = "text/csv"
+        filename = f"prospect_comparison_{'-'.join(map(str, prospect_id_list))}_{datetime.now().strftime('%Y%m%d')}.csv"
+
+    return {
+        "download_url": f"/api/exports/{filename}",
+        "filename": filename,
+        "format": format,
+        "generated_at": datetime.utcnow().isoformat()
+    }
+
+
+async def _generate_ml_comparison_analysis(prospects_data: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Generate ML prediction comparison analysis with SHAP differential."""
+    ml_prospects = [p for p in prospects_data if p.get("ml_prediction")]
+
+    if len(ml_prospects) < 2:
+        return {"error": "Insufficient ML predictions for comparison"}
+
+    analysis = {
+        "prediction_comparison": [],
+        "shap_differential": {},
+        "confidence_analysis": {}
+    }
+
+    # Compare predictions pairwise
+    for i, prospect_a in enumerate(ml_prospects):
+        for j, prospect_b in enumerate(ml_prospects[i+1:], i+1):
+            pred_a = prospect_a["ml_prediction"]
+            pred_b = prospect_b["ml_prediction"]
+
+            prob_diff = pred_a.success_probability - pred_b.success_probability
+
+            comparison = {
+                "prospect_a": {
+                    "id": prospect_a["prospect"].id,
+                    "name": prospect_a["prospect"].name,
+                    "probability": pred_a.success_probability
+                },
+                "prospect_b": {
+                    "id": prospect_b["prospect"].id,
+                    "name": prospect_b["prospect"].name,
+                    "probability": pred_b.success_probability
+                },
+                "probability_difference": round(prob_diff, 3),
+                "advantage": prospect_a["prospect"].name if prob_diff > 0 else prospect_b["prospect"].name,
+                "significance": "High" if abs(prob_diff) > 0.2 else "Medium" if abs(prob_diff) > 0.1 else "Low"
+            }
+
+            # SHAP value comparison if available
+            if (hasattr(pred_a, 'feature_importance') and hasattr(pred_b, 'feature_importance') and
+                pred_a.feature_importance and pred_b.feature_importance):
+
+                shap_a = pred_a.feature_importance
+                shap_b = pred_b.feature_importance
+
+                # Find features with largest differences
+                feature_diffs = {}
+                for feature in shap_a.keys():
+                    if feature in shap_b:
+                        diff = shap_a[feature] - shap_b[feature]
+                        feature_diffs[feature] = diff
+
+                # Get top 3 differential features
+                top_diffs = sorted(feature_diffs.items(), key=lambda x: abs(x[1]), reverse=True)[:3]
+                comparison["key_differentiators"] = [
+                    {
+                        "feature": feature,
+                        "difference": round(diff, 3),
+                        "favors": prospect_a["prospect"].name if diff > 0 else prospect_b["prospect"].name
+                    }
+                    for feature, diff in top_diffs
+                ]
+
+            analysis["prediction_comparison"].append(comparison)
+
+    return analysis
+
+
+async def _generate_comparative_analogs(db: AsyncSession, prospects_data: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Generate historical analog comparison for multiple prospects."""
+    analogs_by_prospect = {}
+
+    for prospect_data in prospects_data:
+        historical_comps = await ProspectComparisonsService._find_historical_similar(
+            db, prospect_data, limit=3
+        )
+
+        analogs_by_prospect[prospect_data["prospect"].id] = {
+            "prospect_name": prospect_data["prospect"].name,
+            "analogs": historical_comps
+        }
+
+    # Find common analog patterns
+    all_analog_names = []
+    for prospect_analogs in analogs_by_prospect.values():
+        for analog in prospect_analogs["analogs"]:
+            all_analog_names.append(analog.get("player_name"))
+
+    # Count frequency of analog appearances
+    from collections import Counter
+    analog_counts = Counter(all_analog_names)
+    common_analogs = [name for name, count in analog_counts.items() if count > 1]
+
+    return {
+        "prospect_analogs": analogs_by_prospect,
+        "common_analog_patterns": common_analogs,
+        "comparative_insights": "Multiple prospects share similar historical profiles" if common_analogs else "Distinct prospect profiles with unique analogs"
+    }
+
+
+def _generate_statistical_comparison(prospects_data: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Generate statistical comparison metrics between prospects."""
+    stats_prospects = [p for p in prospects_data if p.get("latest_stats")]
+
+    if len(stats_prospects) < 2:
+        return {"error": "Insufficient statistical data for comparison"}
+
+    comparison = {
+        "metric_leaders": {},
+        "performance_gaps": [],
+        "category_analysis": {}
+    }
+
+    # Define key metrics by position type
+    position_metrics = {
+        "hitting": ["batting_avg", "on_base_pct", "slugging_pct", "wrc_plus", "walk_rate"],
+        "pitching": ["era", "whip", "k_per_9", "bb_per_9", "fip"]
+    }
+
+    # Determine if we're comparing hitters or pitchers
+    first_prospect = stats_prospects[0]["prospect"]
+    is_pitcher = first_prospect.position in ['SP', 'RP']
+    metrics = position_metrics["pitching"] if is_pitcher else position_metrics["hitting"]
+
+    # Find leaders in each metric
+    for metric in metrics:
+        values = []
+        for prospect_data in stats_prospects:
+            stats = prospect_data.get("latest_stats")
+            if stats and hasattr(stats, metric):
+                value = getattr(stats, metric)
+                if value is not None:
+                    values.append({
+                        "prospect_id": prospect_data["prospect"].id,
+                        "prospect_name": prospect_data["prospect"].name,
+                        "value": value
+                    })
+
+        if values:
+            # Sort appropriately (lower is better for ERA, WHIP, higher for others)
+            reverse_sort = metric not in ["era", "whip", "bb_per_9", "strikeout_rate"]
+            sorted_values = sorted(values, key=lambda x: x["value"], reverse=reverse_sort)
+
+            comparison["metric_leaders"][metric] = {
+                "leader": sorted_values[0],
+                "all_values": sorted_values,
+                "range": round(sorted_values[0]["value"] - sorted_values[-1]["value"], 3) if len(sorted_values) > 1 else 0
+            }
+
+    # Calculate performance gaps
+    for metric, leader_data in comparison["metric_leaders"].items():
+        if len(leader_data["all_values"]) > 1:
+            leader_value = leader_data["leader"]["value"]
+            for prospect_data in leader_data["all_values"][1:]:
+                gap = abs(leader_value - prospect_data["value"])
+                gap_percentage = (gap / leader_value * 100) if leader_value != 0 else 0
+
+                comparison["performance_gaps"].append({
+                    "metric": metric,
+                    "leader": leader_data["leader"]["prospect_name"],
+                    "trailing_prospect": prospect_data["prospect_name"],
+                    "absolute_gap": round(gap, 3),
+                    "percentage_gap": round(gap_percentage, 1)
+                })
+
+    return comparison
 
 
 @router.get("/export/csv")

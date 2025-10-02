@@ -8,13 +8,15 @@ jest.mock('@/hooks/useProspectOutlook', () => ({
   useProspectOutlook: jest.fn(),
 }));
 
-const mockUseProspectOutlook = require('@/hooks/useProspectOutlook').useProspectOutlook as jest.MockedFunction<any>;
+const mockUseProspectOutlook = require('@/hooks/useProspectOutlook')
+  .useProspectOutlook as jest.MockedFunction<any>;
 
 // Mock fetch
 global.fetch = jest.fn();
 
 const mockOutlookData = {
-  narrative: "John Smith is a 21-year-old shortstop in the Yankees system currently at Double-A. His exceptional hitting ability stands out as his premier tool and drives much of his upside. Supporting this is solid plate discipline, adding depth to his offensive profile. The model projects 75.0% success probability with medium risk, expecting arrival within 2 years with 85.0% confidence.",
+  narrative:
+    'John Smith is a 21-year-old shortstop in the Yankees system currently at Double-A. His exceptional hitting ability stands out as his premier tool and drives much of his upside. Supporting this is solid plate discipline, adding depth to his offensive profile. The model projects 75.0% success probability with medium risk, expecting arrival within 2 years with 85.0% confidence.',
   quality_metrics: {
     quality_score: 85.0,
     readability_score: 78.0,
@@ -22,14 +24,14 @@ const mockOutlookData = {
     sentence_count: 4,
     word_count: 63,
     grammar_issues: [],
-    content_issues: []
+    content_issues: [],
   },
-  generated_at: "2024-01-15T10:30:00Z",
-  template_version: "v1.0",
-  model_version: "v1.0",
-  risk_level: "Medium",
-  timeline: "within 2 years",
-  prospect_id: "123"
+  generated_at: '2024-01-15T10:30:00Z',
+  template_version: 'v1.0',
+  model_version: 'v1.0',
+  risk_level: 'Medium',
+  timeline: 'within 2 years',
+  prospect_id: '123',
 };
 
 describe('ProspectOutlook', () => {
@@ -63,7 +65,9 @@ describe('ProspectOutlook', () => {
     render(<ProspectOutlook prospectId="123" />);
 
     expect(screen.getByText('AI Outlook')).toBeInTheDocument();
-    expect(screen.getByText('Failed to generate prospect outlook')).toBeInTheDocument();
+    expect(
+      screen.getByText('Failed to generate prospect outlook')
+    ).toBeInTheDocument();
 
     const retryButton = screen.getByRole('button', { name: /retry/i });
     fireEvent.click(retryButton);
@@ -82,7 +86,9 @@ describe('ProspectOutlook', () => {
     render(<ProspectOutlook prospectId="123" />);
 
     expect(screen.getByText('AI Outlook')).toBeInTheDocument();
-    expect(screen.getByText(/John Smith is a 21-year-old shortstop/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/John Smith is a 21-year-old shortstop/)
+    ).toBeInTheDocument();
     expect(screen.getByText('Medium Risk')).toBeInTheDocument();
     expect(screen.getByText('within 2 years')).toBeInTheDocument();
   });
@@ -98,7 +104,9 @@ describe('ProspectOutlook', () => {
     render(<ProspectOutlook prospectId="123" compact />);
 
     expect(screen.getByText('AI Outlook')).toBeInTheDocument();
-    expect(screen.getByText(/John Smith is a 21-year-old shortstop/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/John Smith is a 21-year-old shortstop/)
+    ).toBeInTheDocument();
 
     // Should not show quality metrics toggle in compact mode
     expect(screen.queryByText(/Quality Score:/)).not.toBeInTheDocument();
@@ -189,7 +197,9 @@ describe('ProspectOutlook', () => {
     render(<ProspectOutlook prospectId="123" />);
 
     expect(screen.getByText('AI Outlook')).toBeInTheDocument();
-    expect(screen.getByText('No outlook available for this prospect')).toBeInTheDocument();
+    expect(
+      screen.getByText('No outlook available for this prospect')
+    ).toBeInTheDocument();
   });
 
   it('displays metadata correctly', () => {
@@ -212,7 +222,9 @@ describe('ProspectOutlook', () => {
     mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
     // Mock console.error to avoid noise in tests
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
 
     mockUseProspectOutlook.mockReturnValue({
       data: mockOutlookData,
@@ -227,7 +239,10 @@ describe('ProspectOutlook', () => {
     fireEvent.click(thumbsUpButton);
 
     await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to submit feedback:', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to submit feedback:',
+        expect.any(Error)
+      );
     });
 
     consoleSpy.mockRestore();
@@ -246,7 +261,10 @@ describe('ProspectOutlook', () => {
     });
 
     const { rerender } = render(<ProspectOutlook prospectId="123" />);
-    expect(screen.getByText('Low Risk')).toHaveClass('bg-green-100', 'text-green-800');
+    expect(screen.getByText('Low Risk')).toHaveClass(
+      'bg-green-100',
+      'text-green-800'
+    );
 
     // Test High risk
     mockUseProspectOutlook.mockReturnValue({
@@ -257,6 +275,9 @@ describe('ProspectOutlook', () => {
     });
 
     rerender(<ProspectOutlook prospectId="123" />);
-    expect(screen.getByText('High Risk')).toHaveClass('bg-red-100', 'text-red-800');
+    expect(screen.getByText('High Risk')).toHaveClass(
+      'bg-red-100',
+      'text-red-800'
+    );
   });
 });

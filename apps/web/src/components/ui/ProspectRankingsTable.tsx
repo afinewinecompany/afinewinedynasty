@@ -22,7 +22,7 @@ export default function ProspectRankingsTable({
   prospects,
   sortBy,
   sortOrder,
-  onSort
+  onSort,
 }: ProspectRankingsTableProps) {
   const renderSortIcon = (column: string) => {
     if (sortBy !== column) {
@@ -48,7 +48,10 @@ export default function ProspectRankingsTable({
     }
   };
 
-  const formatNumber = (value: number | null | undefined, decimals: number = 3) => {
+  const formatNumber = (
+    value: number | null | undefined,
+    decimals: number = 3
+  ) => {
     if (value === null || value === undefined) return '-';
     return value.toFixed(decimals);
   };
@@ -131,8 +134,9 @@ export default function ProspectRankingsTable({
                     </TooltipTrigger>
                     <TooltipContent>
                       <p className="max-w-xs">
-                        Dynasty Score combines ML predictions (35%), scouting grades (25%),
-                        age factor (20%), performance (15%), and ETA (5%)
+                        Dynasty Score combines ML predictions (35%), scouting
+                        grades (25%), age factor (20%), performance (15%), and
+                        ETA (5%)
                       </p>
                     </TooltipContent>
                   </Tooltip>

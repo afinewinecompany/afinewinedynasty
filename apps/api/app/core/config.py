@@ -84,6 +84,14 @@ class Settings(BaseSettings):
     FANGRAPHS_MAX_RETRIES: int = 3
     FANGRAPHS_USER_AGENT: str = "A Fine Wine Dynasty Bot 1.0"
 
+    # Stripe Configuration
+    STRIPE_SECRET_KEY: str = ""
+    STRIPE_PUBLISHABLE_KEY: str = ""
+    STRIPE_WEBHOOK_SECRET: str = ""
+    STRIPE_PREMIUM_PRICE_ID: str = ""  # Monthly price ID for premium plan ($9.99)
+    STRIPE_SUCCESS_URL: str = "http://localhost:3000/subscription/success"
+    STRIPE_CANCEL_URL: str = "http://localhost:3000/subscription/cancel"
+
     class Config:
         case_sensitive = True
         env_file = ".env"

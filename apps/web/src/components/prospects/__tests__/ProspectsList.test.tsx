@@ -143,20 +143,25 @@ describe('ProspectsList', () => {
   it('handles search input correctly', async () => {
     render(<ProspectsList />);
 
-    const searchInput = screen.getByPlaceholderText('Search prospects by name...');
+    const searchInput = screen.getByPlaceholderText(
+      'Search prospects by name...'
+    );
     fireEvent.change(searchInput, { target: { value: 'John' } });
 
     expect(searchInput).toHaveValue('John');
 
     // Test debounced search
-    await waitFor(() => {
-      expect(useProspects).toHaveBeenCalledWith(
-        expect.objectContaining({
-          search: 'John',
-          page: 1,
-        })
-      );
-    }, { timeout: 500 });
+    await waitFor(
+      () => {
+        expect(useProspects).toHaveBeenCalledWith(
+          expect.objectContaining({
+            search: 'John',
+            page: 1,
+          })
+        );
+      },
+      { timeout: 500 }
+    );
   });
 
   it('handles filter changes correctly', () => {

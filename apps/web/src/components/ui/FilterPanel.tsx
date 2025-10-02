@@ -125,7 +125,10 @@ export default function FilterPanel({
                 </div>
                 <div className="space-y-4">
                   <div>
-                    <label htmlFor="position-select" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="position-select"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Position
                     </label>
                     <select
@@ -142,7 +145,10 @@ export default function FilterPanel({
                     </select>
                   </div>
                   <div>
-                    <label htmlFor="organization-select" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="organization-select"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Organization
                     </label>
                     <select
@@ -193,7 +199,10 @@ export default function FilterPanel({
       <h3 className="mb-4 text-lg font-medium text-gray-900">Filters</h3>
       <div className="space-y-4">
         <div>
-          <label htmlFor="desktop-position-select" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="desktop-position-select"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Position
           </label>
           <select
@@ -210,7 +219,10 @@ export default function FilterPanel({
           </select>
         </div>
         <div>
-          <label htmlFor="desktop-organization-select" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="desktop-organization-select"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Organization
           </label>
           <select

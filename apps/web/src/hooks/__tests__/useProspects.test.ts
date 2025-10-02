@@ -147,7 +147,10 @@ describe('useProspects', () => {
     rerender({ params: { page: 2 } });
 
     await waitFor(() => {
-      expect(mockApiClient.get).toHaveBeenCalledWith('/api/prospects?page=2', 30);
+      expect(mockApiClient.get).toHaveBeenCalledWith(
+        '/api/prospects?page=2',
+        30
+      );
     });
   });
 

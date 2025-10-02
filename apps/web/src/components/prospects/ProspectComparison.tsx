@@ -1,0 +1,291 @@
+'use client';
+
+import { useState, useCallback } from 'react';
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from 'react-beautiful-dnd';
+import { Plus, X, BarChart3, FileDown, Share2 } from 'lucide-react';
+import ProspectSelector from './ProspectSelector';
+import ComparisonTable from './ComparisonTable';
+import ComparisonExport from '../ui/ComparisonExport';
+import { useProspectComparison } from '@/hooks/useProspectComparison';
+
+interface SelectedProspect {
+  id: number;
+  name: string;
+  position: string;
+  organization: string;
+  level: string;
+  age: number;
+  eta_year: number;
+}
+
+const MAX_PROSPECTS = 4;
+const MIN_PROSPECTS = 2;
+
+export default function ProspectComparison() {
+  const [selectedProspects, setSelectedProspects] = useState<
+    SelectedProspect[]
+  >([]);
+  const [showSelector, setShowSelector] = useState(false);
+  const [showExport, setShowExport] = useState(false);
+  const [compareUrl, setCompareUrl] = useState('');
+
+  const { comparisonData, isLoading, error, fetchComparison } =
+    useProspectComparison();
+
+  const handleProspectAdd = useCallback(
+    (prospect: SelectedProspect) => {
+      if (selectedProspects.length < MAX_PROSPECTS) {
+        setSelectedProspects((prev) => [...prev, prospect]);
+        setShowSelector(false);
+
+        // If we have at least 2 prospects, fetch comparison
+        if (selectedProspects.length >= 1) {
+          const prospectIds = [...selectedProspects, prospect].map((p) => p.id);
+          fetchComparison(prospectIds);
+
+          // Generate shareable URL
+          const url = `${window.location.origin}/compare?ids=${prospectIds.join(',')}`;
+          setCompareUrl(url);
+        }
+      }
+    },
+    [selectedProspects, fetchComparison]
+  );
+
+  const handleProspectRemove = useCallback(
+    (prospectId: number) => {
+      const newProspects = selectedProspects.filter((p) => p.id !== prospectId);
+      setSelectedProspects(newProspects);
+
+      // Update comparison if we still have enough prospects
+      if (newProspects.length >= MIN_PROSPECTS) {
+        const prospectIds = newProspects.map((p) => p.id);
+        fetchComparison(prospectIds);
+
+        const url = `${window.location.origin}/compare?ids=${prospectIds.join(',')}`;
+        setCompareUrl(url);
+      } else {
+        setCompareUrl('');
+      }
+    },
+    [selectedProspects, fetchComparison]
+  );
+
+  const handleDragEnd = useCallback(
+    (result: DropResult) => {
+      if (!result.destination) return;
+
+      const items = Array.from(selectedProspects);
+      const [reorderedItem] = items.splice(result.source.index, 1);
+      items.splice(result.destination.index, 0, reorderedItem);
+
+      setSelectedProspects(items);
+    },
+    [selectedProspects]
+  );
+
+  const canAddProspect = selectedProspects.length < MAX_PROSPECTS;
+  const canCompare = selectedProspects.length >= MIN_PROSPECTS;
+
+  const handleShare = async () => {
+    if (compareUrl) {
+      try {
+        await navigator.clipboard.writeText(compareUrl);
+        // You could add a toast notification here
+        alert('Comparison URL copied to clipboard!');
+      } catch (err) {
+        console.error('Failed to copy URL:', err);
+      }
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header Controls */}
+      <div className="bg-white rounded-lg shadow-sm border p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Selected Prospects ({selectedProspects.length}/{MAX_PROSPECTS})
+          </h2>
+          <div className="flex items-center gap-3">
+            {canCompare && (
+              <>
+                <button
+                  onClick={() => setShowExport(true)}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                >
+                  <FileDown className="w-4 h-4" />
+                  Export
+                </button>
+                <button
+                  onClick={handleShare}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                >
+                  <Share2 className="w-4 h-4" />
+                  Share
+                </button>
+              </>
+            )}
+            {canAddProspect && (
+              <button
+                onClick={() => setShowSelector(true)}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Add Prospect
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Prospect Slots */}
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="prospects" direction="horizontal">
+            {(provided) => (
+              <div
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+              >
+                {selectedProspects.map((prospect, index) => (
+                  <Draggable
+                    key={prospect.id}
+                    draggableId={prospect.id.toString()}
+                    index={index}
+                  >
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        className={`relative p-4 bg-blue-50 border-2 border-blue-200 rounded-lg transition-shadow ${
+                          snapshot.isDragging ? 'shadow-lg' : ''
+                        }`}
+                      >
+                        <button
+                          onClick={() => handleProspectRemove(prospect.id)}
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+
+                        <div className="space-y-2">
+                          <h3 className="font-semibold text-gray-900 text-sm">
+                            {prospect.name}
+                          </h3>
+                          <div className="text-xs text-gray-600 space-y-1">
+                            <div>
+                              {prospect.position} • {prospect.organization}
+                            </div>
+                            <div>
+                              {prospect.level} • Age {prospect.age}
+                            </div>
+                            <div>ETA: {prospect.eta_year || 'TBD'}</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+
+                {/* Empty slots */}
+                {Array.from({
+                  length: MAX_PROSPECTS - selectedProspects.length,
+                }).map((_, index) => (
+                  <div
+                    key={`empty-${index}`}
+                    className="p-4 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center min-h-[120px]"
+                  >
+                    {index === 0 && selectedProspects.length === 0 ? (
+                      <div className="text-center">
+                        <BarChart3 className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                        <p className="text-sm text-gray-500">
+                          Add prospects to compare
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="text-center">
+                        <div className="w-8 h-8 bg-gray-200 rounded-full mx-auto mb-2" />
+                        <p className="text-xs text-gray-400">Empty slot</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+
+        {/* Helper Text */}
+        <div className="mt-4 text-sm text-gray-500">
+          {selectedProspects.length === 0 && (
+            <p>
+              Add 2-4 prospects to start comparing. Drag to reorder comparison
+              slots.
+            </p>
+          )}
+          {selectedProspects.length === 1 && (
+            <p>Add at least one more prospect to enable comparison.</p>
+          )}
+          {selectedProspects.length >= MIN_PROSPECTS && (
+            <p>
+              Comparison active! Add up to{' '}
+              {MAX_PROSPECTS - selectedProspects.length} more prospects or
+              remove prospects to adjust the comparison.
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Comparison Results */}
+      {canCompare && (
+        <div className="bg-white rounded-lg shadow-sm border">
+          {isLoading ? (
+            <div className="p-8 text-center">
+              <div className="animate-spin w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading comparison data...</p>
+            </div>
+          ) : error ? (
+            <div className="p-8 text-center">
+              <div className="text-red-500 mb-2">⚠️</div>
+              <p className="text-red-600 font-medium">
+                Failed to load comparison
+              </p>
+              <p className="text-sm text-gray-500 mt-1">{error}</p>
+            </div>
+          ) : comparisonData ? (
+            <ComparisonTable
+              comparisonData={comparisonData}
+              selectedProspects={selectedProspects}
+            />
+          ) : null}
+        </div>
+      )}
+
+      {/* Prospect Selector Modal */}
+      {showSelector && (
+        <ProspectSelector
+          onSelect={handleProspectAdd}
+          onClose={() => setShowSelector(false)}
+          excludeIds={selectedProspects.map((p) => p.id)}
+        />
+      )}
+
+      {/* Export Modal */}
+      {showExport && comparisonData && (
+        <ComparisonExport
+          comparisonData={comparisonData}
+          selectedProspects={selectedProspects}
+          onClose={() => setShowExport(false)}
+        />
+      )}
+    </div>
+  );
+}

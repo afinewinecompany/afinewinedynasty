@@ -10,7 +10,9 @@ export interface ProspectSearchSuggestion {
 }
 
 export function useProspectSearch() {
-  const [suggestions, setSuggestions] = useState<ProspectSearchSuggestion[]>([]);
+  const [suggestions, setSuggestions] = useState<ProspectSearchSuggestion[]>(
+    []
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchSuggestions = useCallback(async (query: string) => {
@@ -21,9 +23,12 @@ export function useProspectSearch() {
 
     setIsLoading(true);
     try {
-      const response = await apiClient.get('/api/v1/prospects/search/autocomplete', {
-        params: { q: query, limit: 5 }
-      });
+      const response = await apiClient.get(
+        '/api/v1/prospects/search/autocomplete',
+        {
+          params: { q: query, limit: 5 },
+        }
+      );
       setSuggestions(response.data);
     } catch (error) {
       console.error('Failed to fetch suggestions:', error);
@@ -33,14 +38,14 @@ export function useProspectSearch() {
     }
   }, []);
 
-  const debouncedFetch = useCallback(
-    debounce(fetchSuggestions, 300),
-    []
-  );
+  const debouncedFetch = useCallback(debounce(fetchSuggestions, 300), []);
 
-  const getSuggestions = useCallback((query: string) => {
-    debouncedFetch(query);
-  }, [debouncedFetch]);
+  const getSuggestions = useCallback(
+    (query: string) => {
+      debouncedFetch(query);
+    },
+    [debouncedFetch]
+  );
 
   const clearSuggestions = useCallback(() => {
     setSuggestions([]);
@@ -50,6 +55,6 @@ export function useProspectSearch() {
     suggestions,
     isLoading,
     getSuggestions,
-    clearSuggestions
+    clearSuggestions,
   };
 }

@@ -8,13 +8,14 @@ interface ProspectCardProps {
   showOutlook?: boolean;
 }
 
-export default function ProspectCard({ prospect, rank, showOutlook = false }: ProspectCardProps) {
+export default function ProspectCard({
+  prospect,
+  rank,
+  showOutlook = false,
+}: ProspectCardProps) {
   return (
     <div className="rounded-lg border border-gray-200 bg-white hover:border-gray-300 hover:shadow-md transition-all duration-200">
-      <Link
-        href={`/prospects/${prospect.id}`}
-        className="block p-4"
-      >
+      <Link href={`/prospects/${prospect.id}`} className="block p-4">
         <div className="flex items-center justify-between">
           <div className="flex-1 min-w-0">
             <div className="flex items-center space-x-3">

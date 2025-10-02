@@ -29,7 +29,9 @@ interface UseProspectOutlookResult {
   refetch: () => Promise<void>;
 }
 
-export function useProspectOutlook(prospectId: string): UseProspectOutlookResult {
+export function useProspectOutlook(
+  prospectId: string
+): UseProspectOutlookResult {
   const [data, setData] = useState<ProspectOutlook | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -62,7 +64,8 @@ export function useProspectOutlook(prospectId: string): UseProspectOutlookResult
       const outlook: ProspectOutlook = await response.json();
       setData(outlook);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      const errorMessage =
+        err instanceof Error ? err.message : 'An unknown error occurred';
       setError(errorMessage);
       console.error('Error fetching prospect outlook:', err);
     } finally {
@@ -96,7 +99,9 @@ interface UseBatchProspectOutlooksResult {
   refetch: () => Promise<void>;
 }
 
-export function useBatchProspectOutlooks(prospectIds: string[]): UseBatchProspectOutlooksResult {
+export function useBatchProspectOutlooks(
+  prospectIds: string[]
+): UseBatchProspectOutlooksResult {
   const [data, setData] = useState<Record<string, ProspectOutlook>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -135,14 +140,18 @@ export function useBatchProspectOutlooks(prospectIds: string[]): UseBatchProspec
       const outlooks: ProspectOutlook[] = await response.json();
 
       // Convert array to object keyed by prospect_id
-      const outlookMap = outlooks.reduce((acc, outlook) => {
-        acc[outlook.prospect_id] = outlook;
-        return acc;
-      }, {} as Record<string, ProspectOutlook>);
+      const outlookMap = outlooks.reduce(
+        (acc, outlook) => {
+          acc[outlook.prospect_id] = outlook;
+          return acc;
+        },
+        {} as Record<string, ProspectOutlook>
+      );
 
       setData(outlookMap);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      const errorMessage =
+        err instanceof Error ? err.message : 'An unknown error occurred';
       setError(errorMessage);
       console.error('Error fetching batch outlooks:', err);
     } finally {
@@ -170,38 +179,41 @@ export function useBatchProspectOutlooks(prospectIds: string[]): UseBatchProspec
 export function useOutlookFeedback() {
   const [submitting, setSubmitting] = useState(false);
 
-  const submitFeedback = useCallback(async (
-    prospectId: string,
-    helpful: boolean,
-    additionalFeedback?: string
-  ) => {
-    setSubmitting(true);
-    try {
-      const response = await fetch(`/api/ml/outlook/${prospectId}/feedback`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          helpful,
-          additional_feedback: additionalFeedback,
-          timestamp: new Date().toISOString(),
-        }),
-      });
+  const submitFeedback = useCallback(
+    async (
+      prospectId: string,
+      helpful: boolean,
+      additionalFeedback?: string
+    ) => {
+      setSubmitting(true);
+      try {
+        const response = await fetch(`/api/ml/outlook/${prospectId}/feedback`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            helpful,
+            additional_feedback: additionalFeedback,
+            timestamp: new Date().toISOString(),
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to submit feedback');
+        if (!response.ok) {
+          throw new Error('Failed to submit feedback');
+        }
+
+        return true;
+      } catch (error) {
+        console.error('Error submitting feedback:', error);
+        throw error;
+      } finally {
+        setSubmitting(false);
       }
-
-      return true;
-    } catch (error) {
-      console.error('Error submitting feedback:', error);
-      throw error;
-    } finally {
-      setSubmitting(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   return {
     submitFeedback,

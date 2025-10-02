@@ -16,7 +16,13 @@
       "Bash(python -m pip install:*)",
       "Bash(python -m pytest tests/ml/test_feature_engineering.py::TestFeatureEngineeringPipeline::test_complete_pipeline_processing -v)",
       "Bash(python:*)",
-      "Bash(timeout 10 python:*)"
+      "Bash(timeout 10 python:*)",
+      "Bash(npm install:*)",
+      "Bash(cmd /c \"dir apps\\web\\src\\components /b\")",
+      "Bash(cmd /c:*)",
+      "Bash(mkdir:*)",
+      "Bash(git rm:*)",
+      "Bash(xargs -d '\\n' git add)"
     ],
     "deny": [],
     "ask": []

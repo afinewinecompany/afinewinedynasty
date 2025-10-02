@@ -29,9 +29,9 @@ const mockProspectData = {
       scoutingScore: 22.5,
       confidenceLevel: 'High',
       battingAvg: 0.285,
-      onBasePct: 0.360,
-      sluggingPct: 0.450,
-      futureValue: 55
+      onBasePct: 0.36,
+      sluggingPct: 0.45,
+      futureValue: 55,
     },
     {
       id: 2,
@@ -49,13 +49,13 @@ const mockProspectData = {
       confidenceLevel: 'Medium',
       era: 3.25,
       whip: 1.15,
-      futureValue: 50
-    }
+      futureValue: 50,
+    },
   ],
   total: 100,
   page: 1,
   pageSize: 50,
-  totalPages: 2
+  totalPages: 2,
 };
 
 describe('ProspectRankingsDashboard', () => {
@@ -68,16 +68,16 @@ describe('ProspectRankingsDashboard', () => {
       data: mockProspectData,
       isLoading: false,
       error: null,
-      refetch: jest.fn()
+      refetch: jest.fn(),
     });
 
     (useProspectSearch as jest.Mock).mockReturnValue({
       suggestions: [],
-      getSuggestions: jest.fn()
+      getSuggestions: jest.fn(),
     });
 
     (useAuth as jest.Mock).mockReturnValue({
-      user: { id: 1, email: 'test@example.com', subscriptionTier: 'free' }
+      user: { id: 1, email: 'test@example.com', subscriptionTier: 'free' },
     });
   });
 
@@ -93,7 +93,7 @@ describe('ProspectRankingsDashboard', () => {
       data: null,
       isLoading: true,
       error: null,
-      refetch: jest.fn()
+      refetch: jest.fn(),
     });
 
     const { container } = render(<ProspectRankingsDashboard />);
@@ -107,7 +107,7 @@ describe('ProspectRankingsDashboard', () => {
       data: null,
       isLoading: false,
       error: new Error('Failed to load'),
-      refetch: refetchMock
+      refetch: refetchMock,
     });
 
     render(<ProspectRankingsDashboard />);
@@ -136,10 +136,10 @@ describe('ProspectRankingsDashboard', () => {
           name: 'Juan Soto',
           organization: 'San Diego Padres',
           position: 'RF',
-          display: 'Juan Soto (RF, San Diego Padres)'
-        }
+          display: 'Juan Soto (RF, San Diego Padres)',
+        },
       ],
-      getSuggestions: getSuggestionsMock
+      getSuggestions: getSuggestionsMock,
     });
 
     render(<ProspectRankingsDashboard />);
@@ -157,7 +157,11 @@ describe('ProspectRankingsDashboard', () => {
 
     // Test with premium user
     (useAuth as jest.Mock).mockReturnValue({
-      user: { id: 1, email: 'premium@example.com', subscriptionTier: 'premium' }
+      user: {
+        id: 1,
+        email: 'premium@example.com',
+        subscriptionTier: 'premium',
+      },
     });
 
     render(<ProspectRankingsDashboard />);
@@ -169,7 +173,7 @@ describe('ProspectRankingsDashboard', () => {
       data: mockProspectData,
       isLoading: false,
       error: null,
-      refetch: jest.fn()
+      refetch: jest.fn(),
     });
 
     const { rerender } = render(<ProspectRankingsDashboard />);
@@ -209,15 +213,17 @@ describe('ProspectRankingsDashboard', () => {
         total: 0,
         page: 1,
         pageSize: 50,
-        totalPages: 0
+        totalPages: 0,
       },
       isLoading: false,
       error: null,
-      refetch: jest.fn()
+      refetch: jest.fn(),
     });
 
     render(<ProspectRankingsDashboard />);
 
-    expect(screen.getByText(/No prospects found matching your criteria/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/No prospects found matching your criteria/)
+    ).toBeInTheDocument();
   });
 });

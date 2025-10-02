@@ -11,9 +11,9 @@ export async function exportProspectsCsv(params: ProspectRankingsParams) {
       eta_max: params.etaMax,
       age_min: params.ageMin,
       age_max: params.ageMax,
-      search: params.search
+      search: params.search,
     },
-    responseType: 'blob'
+    responseType: 'blob',
   });
 
   // Create a download link

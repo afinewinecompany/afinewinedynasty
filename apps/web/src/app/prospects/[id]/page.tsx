@@ -1,4 +1,4 @@
-import { Metadata, ResolvingMetadata } from 'next';
+import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import ProspectProfile from '@/components/prospects/ProspectProfile';
 
@@ -20,14 +20,13 @@ async function getProspectForMetadata(id: string) {
     level: 'AA',
     age: 21,
     eta_year: 2025,
-    dynasty_score: 75.5
+    dynasty_score: 75.5,
   };
 }
 
-export async function generateMetadata(
-  { params }: ProspectPageProps,
-  parent: ResolvingMetadata
-): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: ProspectPageProps): Promise<Metadata> {
   const { id } = params;
 
   try {
@@ -39,7 +38,8 @@ export async function generateMetadata(
     // Generate Open Graph image URL (this would point to a dynamic image generator)
     const ogImageUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://afinewinedynasty.com'}/api/og/prospect?id=${id}&name=${encodeURIComponent(prospect.name)}&position=${prospect.position}&organization=${encodeURIComponent(prospect.organization)}&score=${prospect.dynasty_score}`;
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://afinewinedynasty.com';
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL || 'https://afinewinedynasty.com';
     const prospectUrl = `${siteUrl}/prospects/${id}`;
 
     return {
@@ -55,11 +55,11 @@ export async function generateMetadata(
             url: ogImageUrl,
             width: 1200,
             height: 630,
-            alt: `${prospect.name} prospect profile`
-          }
+            alt: `${prospect.name} prospect profile`,
+          },
         ],
         siteName: 'A Fine Wine Dynasty',
-        locale: 'en_US'
+        locale: 'en_US',
       },
       twitter: {
         card: 'summary_large_image',
@@ -67,7 +67,7 @@ export async function generateMetadata(
         description,
         images: [ogImageUrl],
         creator: '@afinewinedynasty',
-        site: '@afinewinedynasty'
+        site: '@afinewinedynasty',
       },
       keywords: [
         prospect.name,
@@ -81,7 +81,7 @@ export async function generateMetadata(
         'minor league',
         prospect.level,
         'baseball analysis',
-        'prospect evaluation'
+        'prospect evaluation',
       ],
       authors: [{ name: 'A Fine Wine Dynasty' }],
       creator: 'A Fine Wine Dynasty',
@@ -99,14 +99,15 @@ export async function generateMetadata(
       },
       alternates: {
         canonical: prospectUrl,
-      }
+      },
     };
-  } catch (error) {
+  } catch {
     // Fallback metadata if prospect fetch fails
     return {
       title: `Prospect ${id} | A Fine Wine Dynasty`,
       description: `Detailed prospect profile with stats, ML predictions, and scouting analysis for dynasty fantasy baseball.`,
-      keywords: 'MLB prospect profile, dynasty fantasy baseball, prospect stats, baseball analysis',
+      keywords:
+        'MLB prospect profile, dynasty fantasy baseball, prospect stats, baseball analysis',
     };
   }
 }
@@ -123,11 +124,12 @@ export default async function ProspectPage({ params }: ProspectPageProps) {
   let prospectData;
   try {
     prospectData = await getProspectForMetadata(id);
-  } catch (error) {
+  } catch {
     prospectData = null;
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://afinewinedynasty.com';
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || 'https://afinewinedynasty.com';
 
   return (
     <>
@@ -137,60 +139,60 @@ export default async function ProspectPage({ params }: ProspectPageProps) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Person",
-              "name": prospectData.name,
-              "description": `Baseball prospect ${prospectData.name}, ${prospectData.position} in the ${prospectData.organization} organization`,
-              "jobTitle": "Baseball Player",
-              "memberOf": {
-                "@type": "SportsOrganization",
-                "name": prospectData.organization
+              '@context': 'https://schema.org',
+              '@type': 'Person',
+              name: prospectData.name,
+              description: `Baseball prospect ${prospectData.name}, ${prospectData.position} in the ${prospectData.organization} organization`,
+              jobTitle: 'Baseball Player',
+              memberOf: {
+                '@type': 'SportsOrganization',
+                name: prospectData.organization,
               },
-              "sport": "Baseball",
-              "url": `${siteUrl}/prospects/${id}`,
-              "image": `${siteUrl}/api/og/prospect?id=${id}`,
-              "additionalProperty": [
+              sport: 'Baseball',
+              url: `${siteUrl}/prospects/${id}`,
+              image: `${siteUrl}/api/og/prospect?id=${id}`,
+              additionalProperty: [
                 {
-                  "@type": "PropertyValue",
-                  "name": "Position",
-                  "value": prospectData.position
+                  '@type': 'PropertyValue',
+                  name: 'Position',
+                  value: prospectData.position,
                 },
                 {
-                  "@type": "PropertyValue",
-                  "name": "Organization",
-                  "value": prospectData.organization
+                  '@type': 'PropertyValue',
+                  name: 'Organization',
+                  value: prospectData.organization,
                 },
                 {
-                  "@type": "PropertyValue",
-                  "name": "Level",
-                  "value": prospectData.level
+                  '@type': 'PropertyValue',
+                  name: 'Level',
+                  value: prospectData.level,
                 },
                 {
-                  "@type": "PropertyValue",
-                  "name": "Age",
-                  "value": prospectData.age.toString()
+                  '@type': 'PropertyValue',
+                  name: 'Age',
+                  value: prospectData.age.toString(),
                 },
                 {
-                  "@type": "PropertyValue",
-                  "name": "ETA Year",
-                  "value": prospectData.eta_year.toString()
+                  '@type': 'PropertyValue',
+                  name: 'ETA Year',
+                  value: prospectData.eta_year.toString(),
                 },
                 {
-                  "@type": "PropertyValue",
-                  "name": "Dynasty Score",
-                  "value": prospectData.dynasty_score.toString()
-                }
+                  '@type': 'PropertyValue',
+                  name: 'Dynasty Score',
+                  value: prospectData.dynasty_score.toString(),
+                },
               ],
-              "mainEntityOfPage": {
-                "@type": "WebPage",
-                "@id": `${siteUrl}/prospects/${id}`
+              mainEntityOfPage: {
+                '@type': 'WebPage',
+                '@id': `${siteUrl}/prospects/${id}`,
               },
-              "publisher": {
-                "@type": "Organization",
-                "name": "A Fine Wine Dynasty",
-                "url": siteUrl
-              }
-            })
+              publisher: {
+                '@type': 'Organization',
+                name: 'A Fine Wine Dynasty',
+                url: siteUrl,
+              },
+            }),
           }}
         />
       )}

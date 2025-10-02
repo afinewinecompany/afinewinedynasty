@@ -10,17 +10,18 @@ import {
   ChevronDown,
   ChevronRight,
 } from 'lucide-react';
+import { ComparisonProspect } from '@/types/prospect';
 
 interface HistoricalAnalogComparisonProps {
   comparisonData: {
-    prospects?: any[];
+    prospects?: ComparisonProspect[];
     historical_analogs?: {
       prospect_analogs?: Record<string, { analogs: HistoricalAnalog[] }>;
       common_analog_patterns?: string[];
       comparative_insights?: string;
     };
   };
-  selectedProspects: any[]; // eslint-disable-line @typescript-eslint/no-unused-vars
+  selectedProspects: ComparisonProspect[];
 }
 
 interface AnalogOutcome {
@@ -56,7 +57,6 @@ const OUTCOME_COLORS = {
 
 export default function HistoricalAnalogComparison({
   comparisonData,
-  selectedProspects,
 }: HistoricalAnalogComparisonProps) {
   const [expandedAnalogs, setExpandedAnalogs] = useState(true);
   const [selectedProspectIndex, setSelectedProspectIndex] = useState(0);

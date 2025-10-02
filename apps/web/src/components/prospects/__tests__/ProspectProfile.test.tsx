@@ -17,10 +17,12 @@ jest.mock('../MLPredictionExplanation', () => {
     MLPredictionExplanation: ({ prediction, prospectName }: any) => (
       <div data-testid="ml-prediction-explanation">
         <div>ML Analysis for {prospectName}</div>
-        <div>Probability: {(prediction.success_probability * 100).toFixed(1)}%</div>
+        <div>
+          Probability: {(prediction.success_probability * 100).toFixed(1)}%
+        </div>
         <div>Confidence: {prediction.confidence_level}</div>
       </div>
-    )
+    ),
   };
 });
 
@@ -31,7 +33,7 @@ jest.mock('../ScoutingRadar', () => {
         <div>Scouting for {prospectName}</div>
         <div>Grades: {scoutingGrades.length} sources</div>
       </div>
-    )
+    ),
   };
 });
 
@@ -42,7 +44,7 @@ jest.mock('../PerformanceTrends', () => {
         <div>Performance trends for {prospectName}</div>
         <div>Position: {position}</div>
       </div>
-    )
+    ),
   };
 });
 
@@ -53,7 +55,7 @@ jest.mock('@/components/ui/SocialShare', () => {
         <div>Share: {title}</div>
         <div>URL: {url}</div>
       </div>
-    )
+    ),
   };
 });
 
@@ -87,9 +89,9 @@ const mockProspectData = {
       hits: 60,
       home_runs: 12,
       rbi: 45,
-      batting_avg: 0.300,
-      on_base_pct: 0.380,
-      slugging_pct: 0.520,
+      batting_avg: 0.3,
+      on_base_pct: 0.38,
+      slugging_pct: 0.52,
       woba: 0.365,
       wrc_plus: 125,
     },
@@ -101,18 +103,18 @@ const mockProspectData = {
     prediction_date: '2024-01-01T00:00:00Z',
     shap_explanation: {
       top_positive_features: [
-        { feature: 'batting_avg', shap_value: 0.12, feature_value: 0.300 },
-        { feature: 'age', shap_value: 0.08, feature_value: 22 }
+        { feature: 'batting_avg', shap_value: 0.12, feature_value: 0.3 },
+        { feature: 'age', shap_value: 0.08, feature_value: 22 },
       ],
       top_negative_features: [
-        { feature: 'strikeout_rate', shap_value: -0.05, feature_value: 22.5 }
+        { feature: 'strikeout_rate', shap_value: -0.05, feature_value: 22.5 },
       ],
       expected_value: 0.45,
-      total_shap_contribution: 0.30,
-      prediction_score: 0.75
+      total_shap_contribution: 0.3,
+      prediction_score: 0.75,
     },
     narrative: 'Strong offensive profile with good plate discipline',
-    model_version: 'v2.1.0'
+    model_version: 'v2.1.0',
   },
 };
 
@@ -171,7 +173,9 @@ describe('ProspectProfile', () => {
     });
 
     render(<ProspectProfile id="1" />);
-    expect(screen.getByText('Failed to fetch prospect profile')).toBeInTheDocument();
+    expect(
+      screen.getByText('Failed to fetch prospect profile')
+    ).toBeInTheDocument();
 
     const retryButton = screen.getByText('Try Again');
     fireEvent.click(retryButton);
@@ -197,7 +201,9 @@ describe('ProspectProfile', () => {
     expect(screen.getByText('ML Prediction')).toBeInTheDocument();
     expect(screen.getByText('75%')).toBeInTheDocument();
     expect(screen.getByText('High')).toBeInTheDocument();
-    expect(screen.getByText('Strong offensive profile with good plate discipline')).toBeInTheDocument();
+    expect(
+      screen.getByText('Strong offensive profile with good plate discipline')
+    ).toBeInTheDocument();
   });
 
   it('renders basic information correctly', () => {
@@ -288,7 +294,9 @@ describe('ProspectProfile', () => {
 
     render(<ProspectProfile id="1" />);
 
-    expect(screen.getByText('No prediction data available')).toBeInTheDocument();
+    expect(
+      screen.getByText('No prediction data available')
+    ).toBeInTheDocument();
   });
 
   it('renders tabs with correct counts', () => {
@@ -338,7 +346,9 @@ describe('ProspectProfile', () => {
 
     const socialShare = screen.getByTestId('social-share');
     expect(socialShare).toBeInTheDocument();
-    expect(screen.getByText('Share: John Smith - SS Prospect Profile')).toBeInTheDocument();
+    expect(
+      screen.getByText('Share: John Smith - SS Prospect Profile')
+    ).toBeInTheDocument();
     expect(screen.getByText('URL: /prospects/1')).toBeInTheDocument();
   });
 
@@ -371,7 +381,9 @@ describe('ProspectProfile', () => {
 
     const performanceTrends = screen.getByTestId('performance-trends');
     expect(performanceTrends).toBeInTheDocument();
-    expect(screen.getByText('Performance trends for John Smith')).toBeInTheDocument();
+    expect(
+      screen.getByText('Performance trends for John Smith')
+    ).toBeInTheDocument();
     expect(screen.getByText('Position: SS')).toBeInTheDocument();
   });
 
@@ -381,7 +393,9 @@ describe('ProspectProfile', () => {
     const comparisonsTab = screen.getByRole('button', { name: /comparisons/i });
     fireEvent.click(comparisonsTab);
 
-    expect(screen.getByText('Current Prospect Comparisons')).toBeInTheDocument();
+    expect(
+      screen.getByText('Current Prospect Comparisons')
+    ).toBeInTheDocument();
     expect(screen.getByText('Historical MLB Comparisons')).toBeInTheDocument();
   });
 
@@ -399,11 +413,21 @@ describe('ProspectProfile', () => {
   it('displays all available tabs', () => {
     render(<ProspectProfile id="1" />);
 
-    expect(screen.getByRole('button', { name: /overview/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /statistics/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /scouting/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /comparisons/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /history/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /overview/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /statistics/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /scouting/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /comparisons/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /history/i })
+    ).toBeInTheDocument();
   });
 
   it('maintains responsive layout structure', () => {
@@ -435,7 +459,7 @@ describe('ProspectProfile', () => {
         dynasty_score: undefined,
         ml_score: undefined,
         scouting_score: undefined,
-        confidence_level: undefined
+        confidence_level: undefined,
       },
       loading: false,
       error: null,

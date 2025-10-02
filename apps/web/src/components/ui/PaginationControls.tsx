@@ -1,7 +1,12 @@
 'use client';
 
 import React from 'react';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from 'lucide-react';
 
 interface PaginationControlsProps {
   page: number;
@@ -18,7 +23,7 @@ export default function PaginationControls({
   total,
   totalPages,
   onPageChange,
-  onPageSizeChange
+  onPageSizeChange,
 }: PaginationControlsProps) {
   const startItem = (page - 1) * pageSize + 1;
   const endItem = Math.min(page * pageSize, total);
@@ -31,7 +36,7 @@ export default function PaginationControls({
     const pages = [];
     const maxVisiblePages = 5;
     let startPage = Math.max(1, page - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
 
     if (endPage - startPage < maxVisiblePages - 1) {
       startPage = Math.max(1, endPage - maxVisiblePages + 1);
@@ -50,7 +55,10 @@ export default function PaginationControls({
 
       if (startPage > 2) {
         pages.push(
-          <span key="dots-start" className="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300">
+          <span
+            key="dots-start"
+            className="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300"
+          >
             ...
           </span>
         );
@@ -76,7 +84,10 @@ export default function PaginationControls({
     if (endPage < totalPages) {
       if (endPage < totalPages - 1) {
         pages.push(
-          <span key="dots-end" className="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300">
+          <span
+            key="dots-end"
+            className="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300"
+          >
             ...
           </span>
         );
@@ -141,7 +152,10 @@ export default function PaginationControls({
         </div>
 
         <div>
-          <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+          <nav
+            className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+            aria-label="Pagination"
+          >
             <button
               onClick={() => onPageChange(1)}
               disabled={page === 1}

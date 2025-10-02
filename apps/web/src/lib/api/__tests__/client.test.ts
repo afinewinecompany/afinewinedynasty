@@ -117,7 +117,9 @@ describe('APIClient', () => {
         status: 404,
       } as Response);
 
-      await expect(client.get('/test')).rejects.toThrow('HTTP error! status: 404');
+      await expect(client.get('/test')).rejects.toThrow(
+        'HTTP error! status: 404'
+      );
     });
 
     it('throws error for network failures', async () => {
@@ -225,7 +227,7 @@ describe('APIClient', () => {
       const clientWithHeaders = new APIClient({
         baseURL: 'https://api.example.com',
         headers: {
-          'Authorization': 'Bearer token',
+          Authorization: 'Bearer token',
           'X-Custom': 'value',
         },
       });
@@ -242,7 +244,7 @@ describe('APIClient', () => {
         'https://api.example.com/test',
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Authorization': 'Bearer token',
+            Authorization: 'Bearer token',
             'X-Custom': 'value',
           }),
         })

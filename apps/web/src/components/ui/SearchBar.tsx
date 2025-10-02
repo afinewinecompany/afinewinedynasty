@@ -17,7 +17,7 @@ export default function SearchBar({
   onChange,
   onSuggestionsFetch,
   suggestions,
-  placeholder = 'Search...'
+  placeholder = 'Search...',
 }: SearchBarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [localValue, setLocalValue] = useState(value);

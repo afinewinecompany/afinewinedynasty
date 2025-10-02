@@ -36,28 +36,23 @@ export default function ProspectRankingsDashboard() {
   const [filters, setFilters] = useState<FilterState>({
     position: [],
     organization: [],
-    level: []
+    level: [],
   });
   const [sortState, setSortState] = useState<SortState>({
     sortBy: 'dynasty_rank',
-    sortOrder: 'asc'
+    sortOrder: 'asc',
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
   // Fetch rankings data
-  const {
-    data,
-    isLoading,
-    error,
-    refetch
-  } = useProspectRankings({
+  const { data, isLoading, error, refetch } = useProspectRankings({
     page,
     pageSize,
     ...filters,
     search: searchQuery,
-    ...sortState
+    ...sortState,
   });
 
   // Search autocomplete hook
@@ -65,15 +60,16 @@ export default function ProspectRankingsDashboard() {
 
   // Handle filter changes
   const handleFilterChange = useCallback((newFilters: Partial<FilterState>) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
+    setFilters((prev) => ({ ...prev, ...newFilters }));
     setPage(1); // Reset to first page on filter change
   }, []);
 
   // Handle sort changes
   const handleSortChange = useCallback((column: string) => {
-    setSortState(prev => ({
+    setSortState((prev) => ({
       sortBy: column,
-      sortOrder: prev.sortBy === column && prev.sortOrder === 'asc' ? 'desc' : 'asc'
+      sortOrder:
+        prev.sortBy === column && prev.sortOrder === 'asc' ? 'desc' : 'asc',
     }));
   }, []);
 
@@ -88,7 +84,7 @@ export default function ProspectRankingsDashboard() {
     setFilters({
       position: [],
       organization: [],
-      level: []
+      level: [],
     });
     setSearchQuery('');
     setPage(1);
@@ -105,7 +101,7 @@ export default function ProspectRankingsDashboard() {
     try {
       await exportProspectsCsv({
         ...filters,
-        search: searchQuery
+        search: searchQuery,
       });
     } catch (error) {
       console.error('Export failed:', error);
@@ -138,7 +134,9 @@ export default function ProspectRankingsDashboard() {
       <div className="dashboard-header mb-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Prospect Rankings</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Prospect Rankings
+            </h1>
             <p className="mt-2 text-gray-600">
               Top 500 dynasty prospects with ML-powered rankings
             </p>
@@ -228,7 +226,9 @@ export default function ProspectRankingsDashboard() {
             </div>
           ) : error ? (
             <div className="text-center py-12">
-              <p className="text-red-600">Failed to load rankings. Please try again.</p>
+              <p className="text-red-600">
+                Failed to load rankings. Please try again.
+              </p>
               <Button onClick={() => refetch()} className="mt-4">
                 Retry
               </Button>
@@ -274,7 +274,9 @@ export default function ProspectRankingsDashboard() {
             </>
           ) : (
             <div className="text-center py-12">
-              <p className="text-gray-600">No prospects found matching your criteria.</p>
+              <p className="text-gray-600">
+                No prospects found matching your criteria.
+              </p>
             </div>
           )}
         </div>

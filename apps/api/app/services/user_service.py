@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Optional
 import json
+import stripe
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
@@ -8,6 +9,10 @@ from sqlalchemy.orm import selectinload
 from app.db.models import User, UserSession
 from app.models.user import UserInDB, UserLogin
 from app.core.security import verify_password, get_password_hash, is_password_complex
+from app.core.config import settings
+
+# Initialize Stripe
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 async def get_user_by_email(db: AsyncSession, email: str) -> Optional[UserLogin]:
@@ -54,11 +59,29 @@ async def create_user(db: AsyncSession, email: str, password: str, full_name: st
     hashed_password = get_password_hash(password)
     now = datetime.now()
 
+    # Create Stripe customer
+    stripe_customer_id = None
+    if settings.STRIPE_SECRET_KEY:  # Only create if Stripe is configured
+        try:
+            customer = stripe.Customer.create(
+                email=email,
+                name=full_name,
+                metadata={
+                    "platform": "afinewinedynasty",
+                    "created_at": now.isoformat()
+                }
+            )
+            stripe_customer_id = customer.id
+        except stripe.error.StripeError as e:
+            # Log error but don't fail user creation
+            print(f"Failed to create Stripe customer: {e}")
+
     user_db = User(
         email=email,
         hashed_password=hashed_password,
         full_name=full_name,
         is_active=True,
+        stripe_customer_id=stripe_customer_id,
         created_at=now,
         updated_at=now,
         preferences="{}",  # Default empty JSON

@@ -3,7 +3,6 @@
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
@@ -15,17 +14,12 @@ import {
 import {
   LineChart,
   Line,
-  AreaChart,
-  Area,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
   ReferenceLine,
-  ScatterChart,
-  Scatter,
   BarChart,
   Bar,
 } from 'recharts';
@@ -36,8 +30,6 @@ import {
   Target,
   Filter,
   Info,
-  Award,
-  AlertTriangle,
   ArrowUp,
   ArrowDown,
   Minus,
@@ -76,17 +68,38 @@ interface StatRecord {
   };
 }
 
+interface AggregationData {
+  batting?: {
+    games: number;
+    avg: number;
+    obp: number;
+    slg: number;
+    ops: number;
+    wrc_plus?: number;
+    k_rate?: number;
+    bb_rate?: number;
+  };
+  pitching?: {
+    games: number;
+    era: number;
+    whip: number;
+    k_rate: number;
+    bb_rate: number;
+    fip?: number;
+  };
+}
+
 interface PerformanceTrendsProps {
   statsHistory: {
     by_level: Record<
       string,
-      { aggregation: any; latest: StatRecord; count: number }
+      { aggregation: AggregationData; latest: StatRecord; count: number }
     >;
     by_season: Record<
       string,
-      { aggregation: any; count: number; levels: string[] }
+      { aggregation: AggregationData; count: number; levels: string[] }
     >;
-    progression: any;
+    progression: Record<string, unknown>;
     latest_stats: StatRecord;
   };
   prospectName: string;
@@ -101,7 +114,6 @@ export function PerformanceTrends({
   className = '',
 }: PerformanceTrendsProps) {
   const [selectedMetric, setSelectedMetric] = useState('ops');
-  const [selectedTimeframe, setSelectedTimeframe] = useState('all');
   const [activeTab, setActiveTab] = useState('trends');
 
   const isPitcher =
@@ -149,7 +161,7 @@ export function PerformanceTrends({
 
   // Prepare trend data
   const trendData = useMemo(() => {
-    const data: any[] = [];
+    const data: Array<Record<string, string | number>> = [];
 
     // Add data from by_season
     Object.entries(statsHistory.by_season).forEach(([year, seasonData]) => {
@@ -191,7 +203,7 @@ export function PerformanceTrends({
   // Prepare level progression data
   const levelData = useMemo(() => {
     const levels = ['Rookie', 'A', 'A+', 'AA', 'AAA'];
-    const data: any[] = [];
+    const data: Array<Record<string, string | number>> = [];
 
     Object.entries(statsHistory.by_level).forEach(([level, levelInfo]) => {
       const aggregation = levelInfo.aggregation;
@@ -251,7 +263,10 @@ export function PerformanceTrends({
       };
 
   // Get trend direction
-  const getTrendDirection = (data: any[], metric: string) => {
+  const getTrendDirection = (
+    data: Array<Record<string, string | number>>,
+    metric: string
+  ) => {
     if (data.length < 2) return null;
 
     const first = data[0][metric];
@@ -284,7 +299,18 @@ export function PerformanceTrends({
     }
   };
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({
+    active,
+    payload,
+    label,
+  }: {
+    active?: boolean;
+    payload?: Array<{
+      payload: Record<string, string | number>;
+      value: number;
+    }>;
+    label?: string;
+  }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       const selectedMetricData = availableMetrics.find(

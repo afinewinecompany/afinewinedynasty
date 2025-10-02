@@ -1,6 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api/client';
-import { ProspectRankingsResponse, ProspectRankingsParams } from '@/types/prospect';
+import {
+  ProspectRankingsResponse,
+  ProspectRankingsParams,
+} from '@/types/prospect';
 
 export function useProspectRankings(params: ProspectRankingsParams) {
   return useQuery<ProspectRankingsResponse>({
@@ -19,13 +22,13 @@ export function useProspectRankings(params: ProspectRankingsParams) {
           age_max: params.ageMax,
           search: params.search,
           sort_by: params.sortBy,
-          sort_order: params.sortOrder
-        }
+          sort_order: params.sortOrder,
+        },
       });
       return response.data;
     },
     staleTime: 30 * 60 * 1000, // 30 minutes
     cacheTime: 60 * 60 * 1000, // 1 hour
-    keepPreviousData: true
+    keepPreviousData: true,
   });
 }

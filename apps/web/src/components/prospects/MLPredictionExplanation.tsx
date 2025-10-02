@@ -263,8 +263,8 @@ export function MLPredictionExplanation({
                       </h4>
                       <p className="text-yellow-800 text-sm">
                         The model starts with a base prediction, then adjusts up
-                        or down based on {prospectName}&apos;s specific features.
-                        Green bars show factors that increase success
+                        or down based on {prospectName}&apos;s specific
+                        features. Green bars show factors that increase success
                         probability, while red bars show factors that decrease
                         it. The length of each bar represents the magnitude of
                         impact.
