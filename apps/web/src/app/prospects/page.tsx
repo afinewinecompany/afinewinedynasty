@@ -1,5 +1,7 @@
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 import ProspectsList from '@/components/prospects/ProspectsList';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 export const metadata: Metadata = {
   title: 'Prospect Rankings | A Fine Wine Dynasty',
@@ -10,5 +12,9 @@ export const metadata: Metadata = {
 };
 
 export default function ProspectsPage() {
-  return <ProspectsList />;
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <ProspectsList />
+    </Suspense>
+  );
 }
