@@ -56,13 +56,15 @@
 
 ```
 SECRET_KEY=YOUR_GENERATED_SECRET_KEY_FROM_STEP_1.1
-BACKEND_CORS_ORIGINS=https://temporary.com
+BACKEND_CORS_ORIGINS=["https://temporary.com"]
 ENVIRONMENT=production
 LOG_LEVEL=INFO
 PYTHONPATH=.
 ```
 
 3. Click "Update Variables"
+
+⚠️ **IMPORTANT**: `BACKEND_CORS_ORIGINS` must be a JSON array with brackets and quotes!
 
 ### 2.4 Generate Public URL
 1. Go to "Settings" → "Networking" section
@@ -91,8 +93,10 @@ PYTHONPATH=.
 1. Click on service → "Settings"
 2. Set **Service Name:** `web`
 3. Set **Root Directory:** `apps/web`
-4. **Build Command:** `npm install && npm run build`
-5. **Start Command:** `npm start`
+4. **Build Command:** `npm ci && npm run build`
+5. **Start Command:** `node .next/standalone/server.js`
+
+⚠️ **IMPORTANT**: Use `node .next/standalone/server.js` NOT `npm start` (standalone mode is configured)
 
 ### 3.3 Add Environment Variables
 1. Go to "Variables" tab
@@ -127,10 +131,12 @@ NODE_ENV=production
 2. Update `BACKEND_CORS_ORIGINS`:
 
 ```
-BACKEND_CORS_ORIGINS=https://YOUR-WEB-URL-FROM-STEP-3.4
+BACKEND_CORS_ORIGINS=["https://YOUR-WEB-URL-FROM-STEP-3.4"]
 ```
 
 3. Railway auto-redeploys API
+
+⚠️ **IMPORTANT**: Keep the JSON array format with brackets and quotes!
 
 ### 4.2 Verify
 1. Visit your frontend URL
