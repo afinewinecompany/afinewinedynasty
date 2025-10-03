@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Weekly Dynasty Prospect Update</title>
+    <style>
+        /* Reset styles */
+        body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+        table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+        img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+
+        /* Global styles */
+        body {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        /* Content sections */
+        .content {
+            padding: 40px 30px;
+        }
+
+        .greeting {
+            font-size: 18px;
+            color: #333333;
+            margin-bottom: 20px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        /* Prospect card */
+        .prospect-card {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .prospect-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333333;
+            margin-bottom: 5px;
+        }
+
+        .prospect-detail {
+            font-size: 14px;
+            color: #666666;
+            margin: 5px 0;
+        }
+
+        .stat-change {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .stat-up {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .stat-down {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        /* CTA Button */
+        .cta-button {
+            display: inline-block;
+            padding: 15px 30px;
+            background-color: #667eea;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 20px 0;
+        }
+
+        .cta-button:hover {
+            background-color: #5568d3;
+        }
+
+        /* Achievement progress */
+        .achievement-badge {
+            display: inline-block;
+            padding: 8px 12px;
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 6px;
+            margin: 5px;
+            font-size: 14px;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #f9f9f9;
+            padding: 30px;
+            text-align: center;
+            color: #666666;
+            font-size: 13px;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 20px 15px !important;
+            }
+
+            .header h1 {
+                font-size: 24px !important;
+            }
+
+            .section-title {
+                font-size: 18px !important;
+            }
+
+            .cta-button {
+                display: block;
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>⚾ A Fine Wine Dynasty</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px;">Your Weekly Prospect Update</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <div class="greeting">
+                Hi {{ user_name }}! 👋
+            </div>
+
+            <p style="color: #666666; line-height: 1.6;">
+                Here's your personalized dynasty prospect update for the week of {{ week_date }}.
+            </p>
+
+            <!-- Watchlist Updates Section -->
+            {% if watchlist_updates %}
+            <div class="section">
+                <div class="section-title">📋 Your Watchlist Updates</div>
+                {% for prospect in watchlist_updates %}
+                <div class="prospect-card">
+                    <div class="prospect-name">{{ prospect.name }}</div>
+                    <div class="prospect-detail">{{ prospect.position }} | {{ prospect.team }}</div>
+                    {% if prospect.stat_changes %}
+                    <div class="prospect-detail">
+                        {% for change in prospect.stat_changes %}
+                        <span class="stat-change {{ 'stat-up' if change.direction == 'up' else 'stat-down' }}">
+                            {{ change.stat }}: {{ change.value }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Top Movers Section -->
+            {% if top_movers %}
+            <div class="section">
+                <div class="section-title">🚀 This Week's Top Movers</div>
+                {% for prospect in top_movers %}
+                <div class="prospect-card">
+                    <div class="prospect-name">
+                        {{ prospect.name }}
+                        <span style="color: #667eea; font-size: 14px;">
+                            Rank #{{ prospect.current_rank }}
+                            ({{ '+' if prospect.rank_change > 0 else '' }}{{ prospect.rank_change }})
+                        </span>
+                    </div>
+                    <div class="prospect-detail">{{ prospect.position }} | {{ prospect.team }}</div>
+                    <div class="prospect-detail" style="color: #333; font-style: italic;">
+                        "{{ prospect.insight }}"
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Recommendations Section -->
+            {% if recommendations %}
+            <div class="section">
+                <div class="section-title">💡 Recommended for You</div>
+                <p style="color: #666666; font-size: 14px; margin-bottom: 15px;">
+                    Based on your preferences and watchlist, you might be interested in:
+                </p>
+                {% for prospect in recommendations %}
+                <div class="prospect-card">
+                    <div class="prospect-name">{{ prospect.name }}</div>
+                    <div class="prospect-detail">{{ prospect.position }} | {{ prospect.team }}</div>
+                    <div class="prospect-detail">{{ prospect.reason }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Achievement Progress Section -->
+            {% if achievement_progress %}
+            <div class="section">
+                <div class="section-title">🏆 Your Achievements</div>
+                <p style="color: #666666; font-size: 14px;">
+                    You've unlocked {{ achievement_progress.unlocked_count }} of {{ achievement_progress.total_count }} achievements!
+                </p>
+                {% if achievement_progress.next_achievement %}
+                <div class="achievement-badge">
+                    🎯 Next: {{ achievement_progress.next_achievement.name }}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- CTA -->
+            <div style="text-align: center; margin-top: 40px;">
+                <a href="https://afinewinedynasty.com/dashboard" class="cta-button">
+                    View Full Dashboard →
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p style="margin: 0 0 15px 0;">
+                <strong>A Fine Wine Dynasty</strong><br>
+                Aging prospects to perfection 🍷
+            </p>
+            <p style="margin: 15px 0;">
+                <a href="{{ unsubscribe_link }}">Unsubscribe</a> |
+                <a href="https://afinewinedynasty.com/settings/email">Manage Email Preferences</a> |
+                <a href="https://afinewinedynasty.com/privacy">Privacy Policy</a>
+            </p>
+            <p style="margin: 15px 0 0 0; color: #999999; font-size: 12px;">
+                You're receiving this email because you signed up for weekly prospect updates.<br>
+                © {{ current_year }} A Fine Wine Dynasty. All rights reserved.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -686,3 +686,23 @@ class UserEngagementMetrics(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
 
     user: Mapped['User'] = relationship('User')
+
+
+class EmailPreferences(Base):
+    """Email digest preferences for users"""
+    __tablename__ = 'email_preferences'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'), nullable=False, unique=True, index=True)
+    digest_enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    frequency: Mapped[str] = mapped_column(String(20), default='weekly', nullable=False)
+    last_sent: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True, index=True)
+    preferences: Mapped[dict] = mapped_column(JSONB, default={}, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
+
+    user: Mapped['User'] = relationship('User')
+
+    __table_args__ = (
+        CheckConstraint("frequency IN ('daily', 'weekly', 'monthly')", name='valid_email_frequency'),
+    )
