@@ -32,6 +32,7 @@ class User(Base):
     stripe_customer_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, unique=True)
     fantrax_user_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, unique=True)
     fantrax_refresh_token: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
+    fantrax_connected_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
     # User preferences (JSONB)
     preferences: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True, default={})
@@ -399,3 +400,159 @@ class PaymentAuditLog(Base):
 
     # Relationships
     user: Mapped["User"] = relationship("User")
+
+class FantraxLeague(Base):
+    """Fantrax league information and settings"""
+    __tablename__ = 'fantrax_leagues'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'), nullable=False)
+    league_id: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    league_name: Mapped[str] = mapped_column(String(200), nullable=False)
+    league_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    scoring_system: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
+    roster_settings: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    last_sync: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
+
+    user: Mapped['User'] = relationship('User')
+    rosters: Mapped[list['FantraxRoster']] = relationship('FantraxRoster', back_populates='league', cascade='all, delete-orphan')
+    sync_history: Mapped[list['FantraxSyncHistory']] = relationship('FantraxSyncHistory', back_populates='league', cascade='all, delete-orphan')
+
+    __table_args__ = (
+        CheckConstraint("league_type IN ('dynasty', 'keeper', 'redraft')", name='valid_league_type'),
+        Index('ix_fantrax_leagues_user_league', 'user_id', 'league_id', unique=True),
+    )
+
+
+class FantraxRoster(Base):
+    """Fantrax roster players"""
+    __tablename__ = 'fantrax_rosters'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    league_id: Mapped[int] = mapped_column(Integer, ForeignKey('fantrax_leagues.id'), nullable=False)
+    player_id: Mapped[str] = mapped_column(String(100), nullable=False)
+    player_name: Mapped[str] = mapped_column(String(200), nullable=False)
+    positions: Mapped[Optional[list]] = mapped_column(JSONB, nullable=True)
+    contract_years: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    contract_value: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    age: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    team: Mapped[str] = mapped_column(String(50), nullable=False)
+    status: Mapped[str] = mapped_column(String(50), nullable=False)
+    minor_league_eligible: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    synced_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
+
+    league: Mapped['FantraxLeague'] = relationship('FantraxLeague', back_populates='rosters')
+
+    __table_args__ = (
+        CheckConstraint("status IN ('active', 'injured', 'minors', 'suspended', 'il')", name='valid_player_status'),
+        CheckConstraint('age > 0 AND age < 60', name='valid_player_age'),
+        CheckConstraint('contract_years >= 0', name='valid_contract_years'),
+        Index('ix_fantrax_rosters_league_player', 'league_id', 'player_id', unique=True),
+    )
+
+
+class FantraxSyncHistory(Base):
+    """History of Fantrax roster synchronizations"""
+    __tablename__ = 'fantrax_sync_history'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    league_id: Mapped[int] = mapped_column(Integer, ForeignKey('fantrax_leagues.id'), nullable=False)
+    sync_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    players_synced: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    success: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    sync_duration_ms: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    synced_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False, index=True)
+
+    league: Mapped['FantraxLeague'] = relationship('FantraxLeague', back_populates='sync_history')
+
+    __table_args__ = (
+        CheckConstraint("sync_type IN ('roster', 'settings', 'transactions', 'full')", name='valid_sync_type'),
+        CheckConstraint('players_synced >= 0', name='valid_players_synced'),
+    )
+
+
+# Story 4.4: Personalized Recommendation Models
+
+class UserRecommendationPreference(Base):
+    """User preferences for personalized recommendations"""
+    __tablename__ = 'user_recommendation_preferences'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'), nullable=False, unique=True, index=True)
+
+    # Risk tolerance: 'conservative' (high floor), 'balanced', 'aggressive' (high ceiling)
+    risk_tolerance: Mapped[str] = mapped_column(String(20), default='balanced', nullable=False)
+
+    # Timeline preferences
+    prefer_win_now: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    prefer_rebuild: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
+    # Position preferences (JSON array of positions to prioritize)
+    position_priorities: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
+
+    # Trade preferences
+    prefer_buy_low: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    prefer_sell_high: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
+
+    # Relationships
+    user: Mapped['User'] = relationship('User')
+
+    __table_args__ = (
+        CheckConstraint("risk_tolerance IN ('conservative', 'balanced', 'aggressive')", name='valid_risk_tolerance'),
+    )
+
+
+class RecommendationHistory(Base):
+    """History of prospect recommendations"""
+    __tablename__ = 'recommendation_history'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'), nullable=False, index=True)
+    league_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('fantrax_leagues.id'), nullable=True, index=True)
+    prospect_id: Mapped[int] = mapped_column(Integer, ForeignKey('prospects.id'), nullable=False, index=True)
+
+    recommendation_type: Mapped[str] = mapped_column(String(20), nullable=False)  # 'fit', 'trade', 'draft', 'stash'
+    fit_score: Mapped[float] = mapped_column(Float, nullable=False)
+    reasoning: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False, index=True)
+
+    # Relationships
+    user: Mapped['User'] = relationship('User')
+    league: Mapped[Optional['FantraxLeague']] = relationship('FantraxLeague')
+    prospect: Mapped['Prospect'] = relationship('Prospect')
+    feedback: Mapped[list['RecommendationFeedback']] = relationship('RecommendationFeedback', back_populates='recommendation', cascade='all, delete-orphan')
+
+    __table_args__ = (
+        CheckConstraint("recommendation_type IN ('fit', 'trade', 'draft', 'stash')", name='valid_recommendation_type'),
+    )
+
+
+class RecommendationFeedback(Base):
+    """User feedback on recommendations"""
+    __tablename__ = 'recommendation_feedback'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    recommendation_id: Mapped[int] = mapped_column(Integer, ForeignKey('recommendation_history.id'), nullable=False, index=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'), nullable=False, index=True)
+
+    # Feedback: 'helpful', 'not_helpful', 'inaccurate'
+    feedback_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    comment: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
+
+    # Relationships
+    recommendation: Mapped['RecommendationHistory'] = relationship('RecommendationHistory', back_populates='feedback')
+    user: Mapped['User'] = relationship('User')
+
+    __table_args__ = (
+        CheckConstraint("feedback_type IN ('helpful', 'not_helpful', 'inaccurate')", name='valid_feedback_type'),
+    )

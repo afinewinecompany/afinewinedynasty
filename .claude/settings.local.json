@@ -27,9 +27,12 @@
       "Bash(npm run lint)",
       "Bash(npm run lint:*)",
       "Bash(git add:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(git commit:*)",
+      "Bash(alembic upgrade:*)"
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "model": "claude-sonnet-4-5"
 }

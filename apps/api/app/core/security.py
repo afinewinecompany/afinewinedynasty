@@ -2,9 +2,24 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Union, Optional
 from jose import jwt, JWTError
 from passlib.context import CryptContext
+from cryptography.fernet import Fernet
+import base64
+import os
 from app.core.config import settings
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# Initialize Fernet cipher for token encryption
+# Use a dedicated encryption key, fallback to SECRET_KEY if not set
+ENCRYPTION_KEY = getattr(settings, 'TOKEN_ENCRYPTION_KEY', None) or settings.SECRET_KEY
+# Ensure the key is properly formatted for Fernet
+if len(ENCRYPTION_KEY) < 32:
+    # Pad or hash the key to make it 32 bytes
+    ENCRYPTION_KEY = base64.urlsafe_b64encode(ENCRYPTION_KEY.encode().ljust(32)[:32]).decode()
+else:
+    ENCRYPTION_KEY = base64.urlsafe_b64encode(ENCRYPTION_KEY.encode()[:32]).decode()
+
+fernet = Fernet(ENCRYPTION_KEY.encode())
 
 
 def create_access_token(
@@ -90,3 +105,64 @@ def is_password_complex(password: str) -> tuple[bool, str]:
         return False, "Password must contain at least one special character"
 
     return True, "Password meets complexity requirements"
+
+
+def encrypt_value(value: str) -> str:
+    """
+    Encrypt sensitive data for storage
+
+    @param value - Plain text value to encrypt
+    @returns Base64 encoded encrypted value
+
+    @since 1.0.0
+    """
+    if not value:
+        return ""
+    return fernet.encrypt(value.encode()).decode()
+
+
+def decrypt_value(encrypted_value: str) -> str:
+    """
+    Decrypt sensitive data from storage
+
+    @param encrypted_value - Base64 encoded encrypted value
+    @returns Decrypted plain text value
+
+    @throws ValueError When decryption fails due to invalid token or corrupted data
+
+    @since 1.0.0
+    """
+    if not encrypted_value:
+        return ""
+    try:
+        return fernet.decrypt(encrypted_value.encode()).decode()
+    except Exception as e:
+        # Raise exception to surface decryption failures
+        raise ValueError(f"Failed to decrypt value: {str(e)}")
+
+
+def require_premium_tier(user: Any) -> None:
+    """
+    Verify user has premium tier subscription for accessing premium features
+
+    @param user - User object with subscription tier information
+
+    @throws HTTPException 403 Forbidden when user does not have premium access
+
+    @since 4.4.0
+    """
+    from fastapi import HTTPException, status
+
+    # Check if user has premium or pro subscription tier
+    if not hasattr(user, 'subscription_tier'):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Premium subscription required to access this feature"
+        )
+
+    allowed_tiers = ['premium', 'pro']
+    if user.subscription_tier not in allowed_tiers:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Premium subscription required. Your current tier: {user.subscription_tier}"
+        )
