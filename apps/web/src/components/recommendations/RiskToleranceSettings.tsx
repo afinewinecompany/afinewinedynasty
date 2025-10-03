@@ -11,13 +11,33 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Settings, TrendingUp, TrendingDown, Shield, Zap, Activity } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Loader2,
+  Settings,
+  TrendingUp,
+  TrendingDown,
+  Shield,
+  Zap,
+  Activity,
+} from 'lucide-react';
 import { useRecommendations } from '@/hooks/useRecommendations';
 import type { UserPreferences } from '@/types/recommendations';
 
@@ -47,8 +67,12 @@ interface RiskToleranceSettingsProps {
  *
  * @since 1.0.0
  */
-export function RiskToleranceSettings({ autoLoad = true, onSave }: RiskToleranceSettingsProps) {
-  const { preferences, loading, error, fetchPreferences, updatePreferences } = useRecommendations();
+export function RiskToleranceSettings({
+  autoLoad = true,
+  onSave,
+}: RiskToleranceSettingsProps) {
+  const { preferences, loading, error, fetchPreferences, updatePreferences } =
+    useRecommendations();
 
   // Local form state
   const [formData, setFormData] = useState<UserPreferences>({
@@ -81,7 +105,9 @@ export function RiskToleranceSettings({ autoLoad = true, onSave }: RiskTolerance
   /**
    * Get risk tolerance icon and description
    */
-  const getRiskToleranceInfo = (tolerance: UserPreferences['risk_tolerance']) => {
+  const getRiskToleranceInfo = (
+    tolerance: UserPreferences['risk_tolerance']
+  ) => {
     const info = {
       conservative: {
         icon: Shield,
@@ -185,7 +211,9 @@ export function RiskToleranceSettings({ autoLoad = true, onSave }: RiskTolerance
               <Settings className="h-5 w-5" />
               Recommendation Preferences
             </CardTitle>
-            <CardDescription>Customize how prospects are recommended to you</CardDescription>
+            <CardDescription>
+              Customize how prospects are recommended to you
+            </CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -209,11 +237,16 @@ export function RiskToleranceSettings({ autoLoad = true, onSave }: RiskTolerance
 
         {/* Risk Tolerance */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Risk Tolerance</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Risk Tolerance
+          </label>
           <Select
             value={formData.risk_tolerance}
             onValueChange={(value) =>
-              handleChange('risk_tolerance', value as UserPreferences['risk_tolerance'])
+              handleChange(
+                'risk_tolerance',
+                value as UserPreferences['risk_tolerance']
+              )
             }
           >
             <SelectTrigger>
@@ -228,7 +261,9 @@ export function RiskToleranceSettings({ autoLoad = true, onSave }: RiskTolerance
           <div className="mt-3 p-3 rounded-lg bg-gray-50 border border-gray-200">
             <div className="flex items-center gap-2 mb-1">
               <RiskIcon className={`h-4 w-4 ${riskInfo.color}`} />
-              <span className="text-sm font-medium text-gray-900">{riskInfo.label}</span>
+              <span className="text-sm font-medium text-gray-900">
+                {riskInfo.label}
+              </span>
             </div>
             <p className="text-xs text-gray-600">{riskInfo.description}</p>
           </div>
@@ -252,7 +287,8 @@ export function RiskToleranceSettings({ autoLoad = true, onSave }: RiskTolerance
             />
           </div>
           <p className="text-xs text-gray-500 mt-2">
-            Select your team's competitive window to receive more targeted recommendations
+            Select your team's competitive window to receive more targeted
+            recommendations
           </p>
         </div>
 
@@ -263,7 +299,8 @@ export function RiskToleranceSettings({ autoLoad = true, onSave }: RiskTolerance
           </label>
           <div className="flex flex-wrap gap-2">
             {positions.map((position) => {
-              const isSelected = formData.position_priorities.includes(position);
+              const isSelected =
+                formData.position_priorities.includes(position);
               return (
                 <Badge
                   key={position}
@@ -286,7 +323,9 @@ export function RiskToleranceSettings({ autoLoad = true, onSave }: RiskTolerance
 
         {/* Trade Preferences */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">Trade Preferences</label>
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            Trade Preferences
+          </label>
           <div className="space-y-2">
             <Checkbox
               checked={formData.prefer_buy_low}
@@ -300,7 +339,9 @@ export function RiskToleranceSettings({ autoLoad = true, onSave }: RiskTolerance
             />
             <Checkbox
               checked={formData.prefer_sell_high}
-              onChange={(e) => handleChange('prefer_sell_high', e.target.checked)}
+              onChange={(e) =>
+                handleChange('prefer_sell_high', e.target.checked)
+              }
               label={
                 <span className="flex items-center gap-1">
                   <TrendingUp className="h-3 w-3" />
@@ -327,7 +368,11 @@ export function RiskToleranceSettings({ autoLoad = true, onSave }: RiskTolerance
               'Save Preferences'
             )}
           </Button>
-          <Button variant="outline" onClick={handleReset} disabled={!hasChanges}>
+          <Button
+            variant="outline"
+            onClick={handleReset}
+            disabled={!hasChanges}
+          >
             Reset
           </Button>
         </div>
@@ -335,8 +380,9 @@ export function RiskToleranceSettings({ autoLoad = true, onSave }: RiskTolerance
         {/* Info Note */}
         <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
           <p className="text-xs text-blue-700">
-            These preferences will be used to personalize your prospect recommendations, trade
-            targets, and draft strategy across the platform.
+            These preferences will be used to personalize your prospect
+            recommendations, trade targets, and draft strategy across the
+            platform.
           </p>
         </div>
       </CardContent>

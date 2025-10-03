@@ -35,7 +35,9 @@ describe('RecommendationFilters Component', () => {
     );
 
     expect(screen.getByText('Filter Recommendations')).toBeInTheDocument();
-    expect(screen.getByText('Refine your prospect recommendations')).toBeInTheDocument();
+    expect(
+      screen.getByText('Refine your prospect recommendations')
+    ).toBeInTheDocument();
   });
 
   it('should display current filter values', () => {

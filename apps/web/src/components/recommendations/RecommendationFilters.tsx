@@ -11,11 +11,23 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { Filter, X } from 'lucide-react';
 import type { RecommendationFilters as FilterType } from '@/types/recommendations';
@@ -175,7 +187,9 @@ export function RecommendationFilters({
               <Filter className="h-5 w-5" />
               Filter Recommendations
             </CardTitle>
-            <CardDescription>Refine your prospect recommendations</CardDescription>
+            <CardDescription>
+              Refine your prospect recommendations
+            </CardDescription>
           </div>
           {hasActiveFilters() && (
             <Button variant="outline" size="sm" onClick={handleReset}>
@@ -189,7 +203,9 @@ export function RecommendationFilters({
       <CardContent className="space-y-6">
         {/* Risk Tolerance Filter */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Risk Tolerance</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Risk Tolerance
+          </label>
           <Select
             value={localFilters.risk_tolerance || 'all'}
             onValueChange={(value) => {
@@ -217,7 +233,9 @@ export function RecommendationFilters({
 
         {/* Position Filters */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">Positions</label>
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            Positions
+          </label>
           <div className="flex flex-wrap gap-2">
             {positions.map((position) => {
               const isSelected = localFilters.positions?.includes(position);
@@ -238,15 +256,17 @@ export function RecommendationFilters({
           </div>
           {localFilters.positions && localFilters.positions.length > 0 && (
             <p className="text-xs text-gray-500 mt-2">
-              {localFilters.positions.length} position{localFilters.positions.length > 1 ? 's' : ''}{' '}
-              selected
+              {localFilters.positions.length} position
+              {localFilters.positions.length > 1 ? 's' : ''} selected
             </p>
           )}
         </div>
 
         {/* ETA Year Range */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">ETA Year Range</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            ETA Year Range
+          </label>
           <div className="space-y-4">
             {/* Min Year */}
             <div>
@@ -287,7 +307,9 @@ export function RecommendationFilters({
 
         {/* Trade Value Filters */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">Trade Value</label>
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            Trade Value
+          </label>
           <div className="space-y-2">
             {tradeValues.map((value) => {
               const isSelected = localFilters.trade_values?.includes(value);
@@ -302,18 +324,21 @@ export function RecommendationFilters({
               );
             })}
           </div>
-          {localFilters.trade_values && localFilters.trade_values.length > 0 && (
-            <p className="text-xs text-gray-500 mt-2">
-              {localFilters.trade_values.length} value tier
-              {localFilters.trade_values.length > 1 ? 's' : ''} selected
-            </p>
-          )}
+          {localFilters.trade_values &&
+            localFilters.trade_values.length > 0 && (
+              <p className="text-xs text-gray-500 mt-2">
+                {localFilters.trade_values.length} value tier
+                {localFilters.trade_values.length > 1 ? 's' : ''} selected
+              </p>
+            )}
         </div>
 
         {/* Active Filters Summary */}
         {hasActiveFilters() && (
           <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
-            <h4 className="text-sm font-medium text-blue-900 mb-2">Active Filters</h4>
+            <h4 className="text-sm font-medium text-blue-900 mb-2">
+              Active Filters
+            </h4>
             <div className="flex flex-wrap gap-2">
               {localFilters.risk_tolerance && (
                 <Badge className="bg-blue-100 text-blue-800">
@@ -322,20 +347,23 @@ export function RecommendationFilters({
               )}
               {localFilters.positions && localFilters.positions.length > 0 && (
                 <Badge className="bg-blue-100 text-blue-800">
-                  {localFilters.positions.length} Position{localFilters.positions.length > 1 ? 's' : ''}
+                  {localFilters.positions.length} Position
+                  {localFilters.positions.length > 1 ? 's' : ''}
                 </Badge>
               )}
               {(localFilters.eta_min || localFilters.eta_max) && (
                 <Badge className="bg-blue-100 text-blue-800">
-                  ETA: {localFilters.eta_min || minYear}-{localFilters.eta_max || maxYear}
+                  ETA: {localFilters.eta_min || minYear}-
+                  {localFilters.eta_max || maxYear}
                 </Badge>
               )}
-              {localFilters.trade_values && localFilters.trade_values.length > 0 && (
-                <Badge className="bg-blue-100 text-blue-800">
-                  {localFilters.trade_values.length} Value Tier
-                  {localFilters.trade_values.length > 1 ? 's' : ''}
-                </Badge>
-              )}
+              {localFilters.trade_values &&
+                localFilters.trade_values.length > 0 && (
+                  <Badge className="bg-blue-100 text-blue-800">
+                    {localFilters.trade_values.length} Value Tier
+                    {localFilters.trade_values.length > 1 ? 's' : ''}
+                  </Badge>
+                )}
             </div>
           </div>
         )}

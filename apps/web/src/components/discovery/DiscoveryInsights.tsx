@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Lightbulb,
   TrendingUp,
@@ -17,6 +18,35 @@ import {
 import Link from 'next/link';
 
 /**
+ * Prospect data interface
+ */
+interface Prospect {
+  id: string;
+  name: string;
+  position?: string;
+  organization?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Organizational insight interface
+ */
+interface OrganizationalInsight {
+  organization: string;
+  count?: number;
+  [key: string]: unknown;
+}
+
+/**
+ * Position scarcity data interface
+ */
+interface PositionScarcityData {
+  position: string;
+  scarcityScore?: number;
+  [key: string]: unknown;
+}
+
+/**
  * Props for the DiscoveryInsights component
  *
  * @interface DiscoveryInsightsProps
@@ -24,19 +54,19 @@ import Link from 'next/link';
  */
 interface DiscoveryInsightsProps {
   /** Array of breakout candidate data */
-  breakoutCandidates?: any[];
+  breakoutCandidates?: Prospect[];
   /** Array of sleeper prospect data */
-  sleeperProspects?: any[];
+  sleeperProspects?: Prospect[];
   /** Array of organizational insight data */
-  organizationalInsights?: any[];
+  organizationalInsights?: OrganizationalInsight[];
   /** Array of position scarcity data */
-  positionScarcity?: any[];
+  positionScarcity?: PositionScarcityData[];
   /** Additional metadata about discovery analysis */
-  metadata?: any;
+  metadata?: Record<string, unknown>;
   /** Loading state indicator */
   isLoading?: boolean;
   /** Error object from failed operations */
-  error?: any;
+  error?: Error | null;
 }
 
 /**
@@ -82,7 +112,7 @@ export function DiscoveryInsights({
   sleeperProspects = [],
   organizationalInsights = [],
   positionScarcity = [],
-  metadata,
+  metadata: _metadata,
   isLoading = false,
   error,
 }: DiscoveryInsightsProps) {

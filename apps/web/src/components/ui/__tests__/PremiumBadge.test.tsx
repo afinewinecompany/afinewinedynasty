@@ -46,7 +46,11 @@ describe('PremiumBadge Component', () => {
       render(<PremiumBadge />);
 
       const badge = screen.getByText('Premium').parentElement;
-      expect(badge).toHaveClass('bg-gradient-to-r', 'from-amber-500', 'to-amber-600');
+      expect(badge).toHaveClass(
+        'bg-gradient-to-r',
+        'from-amber-500',
+        'to-amber-600'
+      );
     });
 
     it('has hover effects', () => {

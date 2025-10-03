@@ -21,10 +21,9 @@ import type {
 export async function createCheckoutSession(
   planId: string = 'premium'
 ): Promise<CheckoutSession> {
-  const response = await apiClient.post('/subscriptions/checkout-session', {
+  return apiClient.post<CheckoutSession>('/subscriptions/checkout-session', {
     plan_id: planId,
   });
-  return response.data;
 }
 
 /**
@@ -32,8 +31,7 @@ export async function createCheckoutSession(
  * @returns Promise with subscription status
  */
 export async function getSubscriptionStatus(): Promise<SubscriptionStatus> {
-  const response = await apiClient.get('/subscriptions/status');
-  return response.data;
+  return apiClient.get<SubscriptionStatus>('/subscriptions/status');
 }
 
 /**
@@ -47,8 +45,7 @@ export async function cancelSubscription(immediate: boolean = false): Promise<{
   current_period_end: string;
   message: string;
 }> {
-  const response = await apiClient.post('/subscriptions/cancel', { immediate });
-  return response.data;
+  return apiClient.post('/subscriptions/cancel', { immediate });
 }
 
 /**
@@ -61,8 +58,7 @@ export async function reactivateSubscription(): Promise<{
   current_period_end: string;
   message: string;
 }> {
-  const response = await apiClient.post('/subscriptions/reactivate');
-  return response.data;
+  return apiClient.post('/subscriptions/reactivate');
 }
 
 /**
@@ -73,10 +69,9 @@ export async function reactivateSubscription(): Promise<{
 export async function updatePaymentMethod(
   paymentMethodId: string
 ): Promise<PaymentMethod & { message: string }> {
-  const response = await apiClient.put('/subscriptions/payment-method', {
+  return apiClient.put('/subscriptions/payment-method', {
     payment_method_id: paymentMethodId,
   });
-  return response.data;
 }
 
 /**
@@ -86,10 +81,10 @@ export async function updatePaymentMethod(
  */
 export async function getUserInvoices(limit: number = 10): Promise<Invoice[]> {
   // This would be implemented when the endpoint is added
-  const response = await apiClient.get(
+  const data = await apiClient.get<{ invoices: Invoice[] }>(
     `/subscriptions/invoices?limit=${limit}`
   );
-  return response.data.invoices;
+  return data.invoices;
 }
 
 /**

@@ -71,7 +71,9 @@ export interface DigestPreview {
  * @since 1.0.0
  */
 export async function getEmailPreferences(): Promise<EmailPreferences> {
-  const response = await apiClient.get<EmailPreferences>('/users/email-preferences');
+  const response = await apiClient.get<EmailPreferences>(
+    '/users/email-preferences'
+  );
   return response.data;
 }
 

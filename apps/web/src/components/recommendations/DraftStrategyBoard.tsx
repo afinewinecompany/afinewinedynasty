@@ -11,7 +11,13 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -61,14 +67,22 @@ export function DraftStrategyBoard({
   onProspectClick,
   onRefresh,
 }: DraftStrategyBoardProps) {
-  const { draftStrategy, loading, error, fetchDraftStrategy } = useRecommendations();
-  const [pickNumber, setPickNumber] = useState<number | undefined>(initialPickNumber);
-  const [inputValue, setInputValue] = useState<string>(initialPickNumber?.toString() || '');
+  const { draftStrategy, loading, error, fetchDraftStrategy } =
+    useRecommendations();
+  const [pickNumber, setPickNumber] = useState<number | undefined>(
+    initialPickNumber
+  );
+  const [inputValue, setInputValue] = useState<string>(
+    initialPickNumber?.toString() || ''
+  );
 
   // Auto-load on mount
   useEffect(() => {
     if (autoLoad && leagueId) {
-      fetchDraftStrategy(leagueId, pickNumber ? { pick_number: pickNumber } : undefined);
+      fetchDraftStrategy(
+        leagueId,
+        pickNumber ? { pick_number: pickNumber } : undefined
+      );
     }
   }, [autoLoad, leagueId]); // Only run on mount
 
@@ -112,7 +126,10 @@ export function DraftStrategyBoard({
    * Handle refresh
    */
   const handleRefresh = () => {
-    fetchDraftStrategy(leagueId, pickNumber ? { pick_number: pickNumber } : undefined);
+    fetchDraftStrategy(
+      leagueId,
+      pickNumber ? { pick_number: pickNumber } : undefined
+    );
     onRefresh?.();
   };
 
@@ -130,11 +147,15 @@ export function DraftStrategyBoard({
           <h4 className="font-semibold text-gray-900">{prospect.name}</h4>
           <div className="flex items-center gap-2 mt-1">
             <Badge variant="outline">{prospect.position}</Badge>
-            <Badge className="bg-gray-100 text-gray-800">{prospect.draft_value}</Badge>
+            <Badge className="bg-gray-100 text-gray-800">
+              {prospect.draft_value}
+            </Badge>
           </div>
         </div>
         <div className={`text-right ${getNeedMatchColor(prospect.need_match)}`}>
-          <div className="text-lg font-bold">{prospect.need_match.toFixed(0)}%</div>
+          <div className="text-lg font-bold">
+            {prospect.need_match.toFixed(0)}%
+          </div>
           <div className="text-xs">Need Match</div>
         </div>
       </div>
@@ -146,7 +167,9 @@ export function DraftStrategyBoard({
       <Card>
         <CardContent className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-          <span className="ml-2 text-gray-600">Generating draft strategy...</span>
+          <span className="ml-2 text-gray-600">
+            Generating draft strategy...
+          </span>
         </CardContent>
       </Card>
     );
@@ -192,9 +215,16 @@ export function DraftStrategyBoard({
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Draft Strategy Board</CardTitle>
-            <CardDescription>Tiered prospects and draft recommendations</CardDescription>
+            <CardDescription>
+              Tiered prospects and draft recommendations
+            </CardDescription>
           </div>
-          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={loading.draftStrategy}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={loading.draftStrategy}
+          >
             Refresh
           </Button>
         </div>
@@ -235,8 +265,12 @@ export function DraftStrategyBoard({
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Trophy className="h-5 w-5 text-purple-600" />
-              <h3 className="font-semibold text-gray-900">{tier1Badge.label}</h3>
-              <Badge className={tier1Badge.color}>{draftStrategy.tier_1.length}</Badge>
+              <h3 className="font-semibold text-gray-900">
+                {tier1Badge.label}
+              </h3>
+              <Badge className={tier1Badge.color}>
+                {draftStrategy.tier_1.length}
+              </Badge>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {draftStrategy.tier_1.map(renderProspect)}
@@ -249,8 +283,12 @@ export function DraftStrategyBoard({
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Star className="h-5 w-5 text-blue-600" />
-              <h3 className="font-semibold text-gray-900">{tier2Badge.label}</h3>
-              <Badge className={tier2Badge.color}>{draftStrategy.tier_2.length}</Badge>
+              <h3 className="font-semibold text-gray-900">
+                {tier2Badge.label}
+              </h3>
+              <Badge className={tier2Badge.color}>
+                {draftStrategy.tier_2.length}
+              </Badge>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {draftStrategy.tier_2.map(renderProspect)}
@@ -263,8 +301,12 @@ export function DraftStrategyBoard({
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Target className="h-5 w-5 text-green-600" />
-              <h3 className="font-semibold text-gray-900">{tier3Badge.label}</h3>
-              <Badge className={tier3Badge.color}>{draftStrategy.tier_3.length}</Badge>
+              <h3 className="font-semibold text-gray-900">
+                {tier3Badge.label}
+              </h3>
+              <Badge className={tier3Badge.color}>
+                {draftStrategy.tier_3.length}
+              </Badge>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {draftStrategy.tier_3.map(renderProspect)}
@@ -277,8 +319,12 @@ export function DraftStrategyBoard({
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Zap className="h-5 w-5 text-orange-600" />
-              <h3 className="font-semibold text-gray-900">Sleeper Candidates</h3>
-              <Badge className="bg-orange-100 text-orange-800">{draftStrategy.sleepers.length}</Badge>
+              <h3 className="font-semibold text-gray-900">
+                Sleeper Candidates
+              </h3>
+              <Badge className="bg-orange-100 text-orange-800">
+                {draftStrategy.sleepers.length}
+              </Badge>
             </div>
             <div className="p-4 rounded-lg bg-orange-50 border border-orange-200">
               <p className="text-sm text-orange-700 mb-3">

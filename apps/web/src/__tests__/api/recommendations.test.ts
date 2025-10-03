@@ -36,7 +36,9 @@ describe('Recommendations API Client', () => {
   describe('getTeamNeeds', () => {
     it('should call apiClient.get with correct endpoint and cache TTL', async () => {
       const mockTeamNeeds: TeamNeeds = {
-        positional_needs: [{ position: 'SP', severity: 'critical', timeline: 'immediate' }],
+        positional_needs: [
+          { position: 'SP', severity: 'critical', timeline: 'immediate' },
+        ],
         depth_analysis: { SP: { starters: 2, depth: 1, gap_score: 75 } },
         competitive_window: 'contending',
         future_needs: { '2_year': ['C'], '3_year': ['SS'] },
@@ -56,7 +58,9 @@ describe('Recommendations API Client', () => {
     it('should handle API errors', async () => {
       mockApiClient.get.mockRejectedValue(new Error('Network error'));
 
-      await expect(getTeamNeeds('test-league-123')).rejects.toThrow('Network error');
+      await expect(getTeamNeeds('test-league-123')).rejects.toThrow(
+        'Network error'
+      );
     });
   });
 
@@ -119,7 +123,9 @@ describe('Recommendations API Client', () => {
     it('should handle risk_tolerance parameter only', async () => {
       mockApiClient.get.mockResolvedValue({ recommendations: [] });
 
-      await getProspectRecommendations('test-league-123', { risk_tolerance: 'aggressive' });
+      await getProspectRecommendations('test-league-123', {
+        risk_tolerance: 'aggressive',
+      });
 
       expect(mockApiClient.get).toHaveBeenCalledWith(
         '/api/recommendations/prospects/test-league-123?risk_tolerance=aggressive',
@@ -312,7 +318,9 @@ describe('Recommendations API Client', () => {
 
       const result = await getUserPreferences();
 
-      expect(mockApiClient.get).toHaveBeenCalledWith('/api/recommendations/preferences');
+      expect(mockApiClient.get).toHaveBeenCalledWith(
+        '/api/recommendations/preferences'
+      );
       expect(result).toEqual(mockPreferences);
     });
 
@@ -374,7 +382,9 @@ describe('Recommendations API Client', () => {
 
       mockApiClient.put.mockRejectedValue(new Error('Validation error'));
 
-      await expect(updateUserPreferences(preferences)).rejects.toThrow('Validation error');
+      await expect(updateUserPreferences(preferences)).rejects.toThrow(
+        'Validation error'
+      );
     });
 
     it('should handle empty position priorities', async () => {

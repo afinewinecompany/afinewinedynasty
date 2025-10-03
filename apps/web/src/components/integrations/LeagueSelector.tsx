@@ -12,7 +12,13 @@
 import React from 'react';
 import { useFantrax } from '@/hooks/useFantrax';
 import type { FantraxLeague } from '@/types/fantrax';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -44,7 +50,10 @@ interface LeagueSelectorProps {
  *
  * @since 1.0.0
  */
-export function LeagueSelector({ onLeagueSelect, autoLoadRoster = false }: LeagueSelectorProps) {
+export function LeagueSelector({
+  onLeagueSelect,
+  autoLoadRoster = false,
+}: LeagueSelectorProps) {
   const {
     leagues,
     selectedLeague,
@@ -95,7 +104,8 @@ export function LeagueSelector({ onLeagueSelect, autoLoadRoster = false }: Leagu
     if (diffMins < 60) return `${diffMins} min ago`;
 
     const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    if (diffHours < 24)
+      return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
 
     const diffDays = Math.floor(diffHours / 24);
     return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
@@ -161,7 +171,9 @@ export function LeagueSelector({ onLeagueSelect, autoLoadRoster = false }: Leagu
             onClick={refreshLeagues}
             disabled={loading.leagues}
           >
-            <RefreshCw className={`h-4 w-4 ${loading.leagues ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`h-4 w-4 ${loading.leagues ? 'animate-spin' : ''}`}
+            />
           </Button>
         </div>
       </CardHeader>

@@ -32,7 +32,7 @@ export const PremiumFeatureWrapper: React.FC<PremiumFeatureWrapperProps> = ({
   feature,
   fallback,
   showLock = true,
-  className
+  className,
 }) => {
   const access = useFeatureAccess();
 
@@ -57,7 +57,9 @@ export const PremiumFeatureWrapper: React.FC<PremiumFeatureWrapperProps> = ({
         <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 rounded-lg">
           <div className="text-center">
             <Lock className="w-8 h-8 mx-auto mb-2 text-gray-500" />
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Premium Feature</p>
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Premium Feature
+            </p>
             <UpgradePrompt feature={String(feature)} compact />
           </div>
         </div>

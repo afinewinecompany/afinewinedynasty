@@ -107,7 +107,9 @@ describe('useRecommendations Hook', () => {
 
   describe('fetchTeamNeeds', () => {
     it('should fetch team needs successfully', async () => {
-      (recommendationsApi.getTeamNeeds as jest.Mock).mockResolvedValue(mockTeamNeeds);
+      (recommendationsApi.getTeamNeeds as jest.Mock).mockResolvedValue(
+        mockTeamNeeds
+      );
 
       const { result } = renderHook(() => useRecommendations());
 
@@ -118,7 +120,9 @@ describe('useRecommendations Hook', () => {
         await result.current.fetchTeamNeeds(mockLeagueId);
       });
 
-      expect(recommendationsApi.getTeamNeeds).toHaveBeenCalledWith(mockLeagueId);
+      expect(recommendationsApi.getTeamNeeds).toHaveBeenCalledWith(
+        mockLeagueId
+      );
       expect(result.current.teamNeeds).toEqual(mockTeamNeeds);
       expect(result.current.loading.teamNeeds).toBe(false);
       expect(result.current.error.teamNeeds).toBeNull();
@@ -126,7 +130,9 @@ describe('useRecommendations Hook', () => {
 
     it('should handle error when fetching team needs', async () => {
       const errorMessage = 'Failed to fetch team needs';
-      (recommendationsApi.getTeamNeeds as jest.Mock).mockRejectedValue(new Error(errorMessage));
+      (recommendationsApi.getTeamNeeds as jest.Mock).mockRejectedValue(
+        new Error(errorMessage)
+      );
 
       const { result } = renderHook(() => useRecommendations());
 
@@ -141,9 +147,9 @@ describe('useRecommendations Hook', () => {
 
   describe('fetchProspectRecommendations', () => {
     it('should fetch prospect recommendations with query params', async () => {
-      (recommendationsApi.getProspectRecommendations as jest.Mock).mockResolvedValue(
-        mockProspectRecommendations
-      );
+      (
+        recommendationsApi.getProspectRecommendations as jest.Mock
+      ).mockResolvedValue(mockProspectRecommendations);
 
       const { result } = renderHook(() => useRecommendations());
 
@@ -154,10 +160,12 @@ describe('useRecommendations Hook', () => {
         });
       });
 
-      expect(recommendationsApi.getProspectRecommendations).toHaveBeenCalledWith(
-        mockLeagueId,
-        { limit: 20, risk_tolerance: 'aggressive' }
-      );
+      expect(
+        recommendationsApi.getProspectRecommendations
+      ).toHaveBeenCalledWith(mockLeagueId, {
+        limit: 20,
+        risk_tolerance: 'aggressive',
+      });
       expect(result.current.prospectRecommendations).toEqual(
         mockProspectRecommendations.recommendations
       );
@@ -166,7 +174,9 @@ describe('useRecommendations Hook', () => {
 
   describe('fetchTradeTargets', () => {
     it('should fetch trade targets successfully', async () => {
-      (recommendationsApi.getTradeTargets as jest.Mock).mockResolvedValue(mockTradeTargets);
+      (recommendationsApi.getTradeTargets as jest.Mock).mockResolvedValue(
+        mockTradeTargets
+      );
 
       const { result } = renderHook(() => useRecommendations());
 
@@ -180,17 +190,24 @@ describe('useRecommendations Hook', () => {
 
   describe('fetchDraftStrategy', () => {
     it('should fetch draft strategy with pick number', async () => {
-      (recommendationsApi.getDraftStrategy as jest.Mock).mockResolvedValue(mockDraftStrategy);
+      (recommendationsApi.getDraftStrategy as jest.Mock).mockResolvedValue(
+        mockDraftStrategy
+      );
 
       const { result } = renderHook(() => useRecommendations());
 
       await act(async () => {
-        await result.current.fetchDraftStrategy(mockLeagueId, { pick_number: 5 });
+        await result.current.fetchDraftStrategy(mockLeagueId, {
+          pick_number: 5,
+        });
       });
 
-      expect(recommendationsApi.getDraftStrategy).toHaveBeenCalledWith(mockLeagueId, {
-        pick_number: 5,
-      });
+      expect(recommendationsApi.getDraftStrategy).toHaveBeenCalledWith(
+        mockLeagueId,
+        {
+          pick_number: 5,
+        }
+      );
       expect(result.current.draftStrategy).toEqual(mockDraftStrategy);
     });
   });
@@ -213,7 +230,9 @@ describe('useRecommendations Hook', () => {
 
   describe('fetchPreferences', () => {
     it('should fetch user preferences successfully', async () => {
-      (recommendationsApi.getUserPreferences as jest.Mock).mockResolvedValue(mockPreferences);
+      (recommendationsApi.getUserPreferences as jest.Mock).mockResolvedValue(
+        mockPreferences
+      );
 
       const { result } = renderHook(() => useRecommendations());
 
@@ -227,7 +246,10 @@ describe('useRecommendations Hook', () => {
 
   describe('updatePreferences', () => {
     it('should update user preferences successfully', async () => {
-      const updatedPreferences = { ...mockPreferences, risk_tolerance: 'aggressive' as const };
+      const updatedPreferences = {
+        ...mockPreferences,
+        risk_tolerance: 'aggressive' as const,
+      };
       (recommendationsApi.updateUserPreferences as jest.Mock).mockResolvedValue(
         updatedPreferences
       );
@@ -238,7 +260,9 @@ describe('useRecommendations Hook', () => {
         await result.current.updatePreferences(updatedPreferences);
       });
 
-      expect(recommendationsApi.updateUserPreferences).toHaveBeenCalledWith(updatedPreferences);
+      expect(recommendationsApi.updateUserPreferences).toHaveBeenCalledWith(
+        updatedPreferences
+      );
       expect(result.current.preferences).toEqual(updatedPreferences);
     });
 
@@ -265,7 +289,9 @@ describe('useRecommendations Hook', () => {
 
   describe('clearAll', () => {
     it('should clear all data and errors', async () => {
-      (recommendationsApi.getTeamNeeds as jest.Mock).mockResolvedValue(mockTeamNeeds);
+      (recommendationsApi.getTeamNeeds as jest.Mock).mockResolvedValue(
+        mockTeamNeeds
+      );
 
       const { result } = renderHook(() => useRecommendations());
 

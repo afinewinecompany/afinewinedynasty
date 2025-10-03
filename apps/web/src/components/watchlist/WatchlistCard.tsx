@@ -20,7 +20,7 @@ interface WatchlistCardProps {
 export const WatchlistCard: React.FC<WatchlistCardProps> = ({
   entry,
   onRemove,
-  onUpdateNotes
+  onUpdateNotes,
 }) => {
   const [isEditing, setIsEditing] = React.useState(false);
   const [notes, setNotes] = React.useState(entry.notes || '');
@@ -61,8 +61,14 @@ export const WatchlistCard: React.FC<WatchlistCardProps> = ({
               rows={3}
             />
             <div className="flex gap-2 mt-2">
-              <Button size="sm" onClick={handleSaveNotes}>Save</Button>
-              <Button size="sm" variant="outline" onClick={() => setIsEditing(false)}>
+              <Button size="sm" onClick={handleSaveNotes}>
+                Save
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setIsEditing(false)}
+              >
                 Cancel
               </Button>
             </div>

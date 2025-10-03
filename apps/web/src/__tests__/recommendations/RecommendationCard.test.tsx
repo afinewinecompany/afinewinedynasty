@@ -94,7 +94,9 @@ describe('RecommendationCard Component', () => {
     const mockOnClick = jest.fn();
     render(<RecommendationCard {...defaultProps} onClick={mockOnClick} />);
 
-    const card = screen.getByText('Jackson Holliday').closest('.cursor-pointer');
+    const card = screen
+      .getByText('Jackson Holliday')
+      .closest('.cursor-pointer');
     if (card) {
       fireEvent.click(card);
     }

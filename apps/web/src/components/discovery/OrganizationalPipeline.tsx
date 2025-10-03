@@ -45,7 +45,7 @@ interface OrganizationalInsight {
 interface OrganizationalPipelineProps {
   insights?: OrganizationalInsight[];
   isLoading?: boolean;
-  error?: any;
+  error?: Error | null;
   onRefresh?: () => void;
 }
 

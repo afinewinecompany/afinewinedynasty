@@ -31,7 +31,7 @@ export const ExclusiveContent: React.FC<ExclusiveContentProps> = ({
   feature,
   requiresPremium = true,
   fallback,
-  className
+  className,
 }) => {
   const { user } = useAuth();
   const isPremium = user?.subscriptionTier === 'premium';
@@ -47,11 +47,7 @@ export const ExclusiveContent: React.FC<ExclusiveContentProps> = ({
   }
 
   // Show fallback or upgrade prompt
-  return fallback ? (
-    <>{fallback}</>
-  ) : (
-    <UpgradePrompt feature={feature} />
-  );
+  return fallback ? <>{fallback}</> : <UpgradePrompt feature={feature} />;
 };
 
 export default ExclusiveContent;

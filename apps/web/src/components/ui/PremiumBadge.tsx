@@ -25,18 +25,18 @@ interface PremiumBadgeProps {
 export const PremiumBadge: React.FC<PremiumBadgeProps> = ({
   size = 'md',
   className,
-  showText = true
+  showText = true,
 }) => {
   const sizeClasses = {
     sm: 'px-2 py-0.5 text-xs',
     md: 'px-3 py-1 text-sm',
-    lg: 'px-4 py-1.5 text-base'
+    lg: 'px-4 py-1.5 text-base',
   };
 
   const iconSizes = {
     sm: 'w-3 h-3',
     md: 'w-4 h-4',
-    lg: 'w-5 h-5'
+    lg: 'w-5 h-5',
   };
 
   return (

@@ -7,51 +7,8 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Eye, TrendingUp, AlertCircle, ExternalLink, Star } from 'lucide-react';
-
-/**
- * Represents a sleeper prospect with undervaluation metrics
- *
- * @interface SleeperProspect
- * @since 1.0.0
- */
-interface SleeperProspect {
-  /** Unique prospect identifier */
-  prospect_id: number;
-  /** Prospect's full name */
-  prospect_name: string;
-  /** Primary position */
-  position: string;
-  /** Parent organization */
-  organization: string;
-  /** Current age */
-  age: number;
-  /** ML model confidence score (0-1) */
-  ml_confidence: number;
-  /** Industry consensus ranking position */
-  consensus_ranking: number;
-  /** ML-predicted ranking position */
-  ml_ranking: number;
-  /** Gap between ML and consensus rankings */
-  ranking_differential: number;
-  /** Composite sleeper score (0-100) */
-  sleeper_score: number;
-  /** ML confidence level category */
-  confidence_level: 'High' | 'Medium' | 'Low';
-  /** Specific factors indicating undervaluation */
-  undervaluation_factors: string[];
-  /** Recent performance trending data */
-  recent_performance: {
-    /** Type of statistical metric */
-    stat_type: string;
-    /** Current value of the metric */
-    value: number;
-    /** Performance trend direction */
-    trend: 'up' | 'down' | 'stable';
-  }[];
-  /** Explanation of why prospect is considered a sleeper */
-  discovery_reasoning: string;
-}
+import { Eye, TrendingUp, AlertCircle, ExternalLink } from 'lucide-react';
+import type { SleeperProspect } from '@/hooks/useDiscovery';
 
 /**
  * Props for the SleeperProspects component
@@ -65,7 +22,7 @@ interface SleeperProspectsProps {
   /** Loading state indicator */
   isLoading?: boolean;
   /** Error object from failed operations */
-  error?: any;
+  error?: Error | null;
   /** Callback to refresh sleeper prospects data */
   onRefresh?: () => void;
 }
@@ -192,7 +149,11 @@ export function SleeperProspects({
             <div className="flex items-center gap-2">
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
+                onChange={(e) =>
+                  setSortBy(
+                    e.target.value as 'sleeper_score' | 'differential' | 'confidence'
+                  )
+                }
                 className="text-sm border rounded-md px-3 py-1"
               >
                 <option value="sleeper_score">Sleeper Score</option>

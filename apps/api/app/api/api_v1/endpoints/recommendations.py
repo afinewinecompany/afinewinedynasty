@@ -157,6 +157,41 @@ async def get_trade_targets(
     rec_service = PersonalizedRecommendationService(db, current_user.id)
     opportunities = await rec_service.identify_trade_opportunities(league_id, category)
 
+    # Persist trade recommendations to history for quality monitoring
+    from sqlalchemy import select
+    stmt = select(FantraxLeague).where(FantraxLeague.league_id == league_id)
+    result = await db.execute(stmt)
+    league = result.scalar_one_or_none()
+
+    if league:
+        # Save buy_low candidates to history
+        for candidate in opportunities.get("buy_low_candidates", [])[:3]:
+            if candidate.get('prospect_id'):
+                history_entry = RecommendationHistory(
+                    user_id=current_user.id,
+                    league_id=league.id,
+                    prospect_id=candidate['prospect_id'],
+                    recommendation_type='trade',
+                    fit_score=candidate.get('fit_score', 0),
+                    reasoning=f"Buy-low candidate: {candidate.get('reason', '')}"
+                )
+                db.add(history_entry)
+
+        # Save sell_high opportunities to history
+        for opportunity in opportunities.get("sell_high_opportunities", [])[:3]:
+            if opportunity.get('prospect_id'):
+                history_entry = RecommendationHistory(
+                    user_id=current_user.id,
+                    league_id=league.id,
+                    prospect_id=opportunity['prospect_id'],
+                    recommendation_type='trade',
+                    fit_score=opportunity.get('fit_score', 0),
+                    reasoning=f"Sell-high opportunity: {opportunity.get('reason', '')}"
+                )
+                db.add(history_entry)
+
+        await db.commit()
+
     return TradeTargetsResponse(
         league_id=league_id,
         buy_low_candidates=opportunities.get("buy_low_candidates", []),
@@ -204,6 +239,27 @@ async def get_draft_strategy(
     tier_1 = [r for r in recommendations[:10]]
     tier_2 = [r for r in recommendations[10:25]]
     tier_3 = [r for r in recommendations[25:40]]
+
+    # Persist draft recommendations to history for quality monitoring
+    from sqlalchemy import select
+    stmt = select(FantraxLeague).where(FantraxLeague.league_id == league_id)
+    result = await db.execute(stmt)
+    league = result.scalar_one_or_none()
+
+    if league and tier_1:
+        # Save top tier recommendations to history
+        for rec in tier_1[:5]:
+            if rec.get('prospect_id'):
+                history_entry = RecommendationHistory(
+                    user_id=current_user.id,
+                    league_id=league.id,
+                    prospect_id=rec['prospect_id'],
+                    recommendation_type='draft',
+                    fit_score=rec.get('fit_score', 0),
+                    reasoning=f"Tier 1 draft target: {rec.get('reason', '')}"
+                )
+                db.add(history_entry)
+        await db.commit()
 
     return DraftStrategyResponse(
         league_id=league_id,
@@ -255,6 +311,27 @@ async def get_stash_candidates(
     else:
         stash_candidates = []
 
+    # Persist stash recommendations to history for quality monitoring
+    from sqlalchemy import select
+    stmt = select(FantraxLeague).where(FantraxLeague.league_id == league_id)
+    result = await db.execute(stmt)
+    league = result.scalar_one_or_none()
+
+    if league and stash_candidates:
+        # Save top stash candidates to history
+        for rec in stash_candidates[:5]:
+            if rec.get('prospect_id'):
+                history_entry = RecommendationHistory(
+                    user_id=current_user.id,
+                    league_id=league.id,
+                    prospect_id=rec['prospect_id'],
+                    recommendation_type='stash',
+                    fit_score=rec.get('fit_score', 0),
+                    reasoning=f"Stash candidate: {rec.get('reason', '')}"
+                )
+                db.add(history_entry)
+        await db.commit()
+
     return StashCandidatesResponse(
         league_id=league_id,
         available_spots=available_spots,
@@ -264,7 +341,9 @@ async def get_stash_candidates(
 
 
 @router.get("/preferences", response_model=UserPreferencesResponse)
+@limiter.limit("100/hour")
 async def get_user_preferences(
+    request: Request,
     current_user: User = Depends(deps.get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> UserPreferencesResponse:
@@ -307,7 +386,9 @@ async def get_user_preferences(
 
 
 @router.put("/preferences", response_model=UserPreferencesResponse)
+@limiter.limit("100/hour")
 async def update_user_preferences(
+    request: Request,
     preferences: UserPreferencesUpdate,
     current_user: User = Depends(deps.get_current_user),
     db: AsyncSession = Depends(get_db)

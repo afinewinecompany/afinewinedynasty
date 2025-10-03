@@ -281,10 +281,10 @@ async def logout(current_user: UserLogin = Depends(get_current_user), db: AsyncS
 
 @router.post("/password-reset")
 @limiter.limit(f"{settings.SENSITIVE_RATE_LIMIT_ATTEMPTS}/{settings.SENSITIVE_RATE_LIMIT_WINDOW // 3600}hour")
-async def request_password_reset(request: Request, reset_request: PasswordResetRequest):
+async def request_password_reset(request: Request, reset_request: PasswordResetRequest, db: AsyncSession = Depends(get_db)):
     """Request a password reset"""
     try:
-        success = await PasswordResetService.request_password_reset(reset_request.email)
+        success = await PasswordResetService.request_password_reset(reset_request.email, db)
 
         # Always return success to prevent user enumeration
         return {
@@ -301,7 +301,7 @@ async def request_password_reset(request: Request, reset_request: PasswordResetR
 
 @router.put("/password-reset")
 @limiter.limit(f"{settings.SENSITIVE_RATE_LIMIT_ATTEMPTS}/{settings.SENSITIVE_RATE_LIMIT_WINDOW // 3600}hour")
-async def confirm_password_reset(request: Request, reset_confirm: PasswordResetConfirmRequest):
+async def confirm_password_reset(request: Request, reset_confirm: PasswordResetConfirmRequest, db: AsyncSession = Depends(get_db)):
     """Complete password reset with token"""
     try:
         # Validate password complexity
@@ -312,7 +312,7 @@ async def confirm_password_reset(request: Request, reset_confirm: PasswordResetC
                 detail=message
             )
 
-        success = PasswordResetService.reset_password(reset_confirm.token, reset_confirm.new_password)
+        success = await PasswordResetService.reset_password(reset_confirm.token, reset_confirm.new_password, db)
 
         if not success:
             raise HTTPException(

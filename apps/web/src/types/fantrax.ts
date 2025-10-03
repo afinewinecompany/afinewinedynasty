@@ -85,7 +85,13 @@ export interface TeamAnalysis {
   /** Projected future roster holes */
   future_holes: FutureHole[];
   /** Team competitive timeline */
-  roster_timeline: 'rebuilding' | 'emerging' | 'balanced' | 'competing' | 'win-now' | 'retooling';
+  roster_timeline:
+    | 'rebuilding'
+    | 'emerging'
+    | 'balanced'
+    | 'competing'
+    | 'win-now'
+    | 'retooling';
   /** Available roster spots */
   available_spots: number;
   /** Number of matching prospects */

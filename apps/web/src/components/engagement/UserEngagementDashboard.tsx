@@ -10,7 +10,13 @@
 import React from 'react';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useEmailPreferences } from '@/hooks/useEmailPreferences';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Trophy, Mail, Users, MessageSquare, TrendingUp } from 'lucide-react';
@@ -33,7 +39,9 @@ export function UserEngagementDashboard(): JSX.Element {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Engagement Dashboard</h2>
+        <h2 className="text-2xl font-bold tracking-tight">
+          Engagement Dashboard
+        </h2>
         <p className="text-muted-foreground">
           Track your progress and manage your settings
         </p>

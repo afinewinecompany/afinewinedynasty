@@ -39,7 +39,7 @@ import {
   addToWatchlist,
   removeFromWatchlist,
   updateWatchlistNotes,
-  toggleWatchlistNotifications
+  toggleWatchlistNotifications,
 } from '@/lib/api/watchlist';
 
 /**
@@ -91,45 +91,57 @@ export function useWatchlist(): UseWatchlistResult {
     }
   }, []);
 
-  const add = useCallback(async (prospectId: number, notes?: string) => {
-    try {
-      await addToWatchlist(prospectId, notes);
-      await refresh();
-    } catch (err) {
-      setError(err as Error);
-      throw err;
-    }
-  }, [refresh]);
+  const add = useCallback(
+    async (prospectId: number, notes?: string) => {
+      try {
+        await addToWatchlist(prospectId, notes);
+        await refresh();
+      } catch (err) {
+        setError(err as Error);
+        throw err;
+      }
+    },
+    [refresh]
+  );
 
-  const remove = useCallback(async (prospectId: number) => {
-    try {
-      await removeFromWatchlist(prospectId);
-      await refresh();
-    } catch (err) {
-      setError(err as Error);
-      throw err;
-    }
-  }, [refresh]);
+  const remove = useCallback(
+    async (prospectId: number) => {
+      try {
+        await removeFromWatchlist(prospectId);
+        await refresh();
+      } catch (err) {
+        setError(err as Error);
+        throw err;
+      }
+    },
+    [refresh]
+  );
 
-  const updateNotes = useCallback(async (prospectId: number, notes: string) => {
-    try {
-      await updateWatchlistNotes(prospectId, notes);
-      await refresh();
-    } catch (err) {
-      setError(err as Error);
-      throw err;
-    }
-  }, [refresh]);
+  const updateNotes = useCallback(
+    async (prospectId: number, notes: string) => {
+      try {
+        await updateWatchlistNotes(prospectId, notes);
+        await refresh();
+      } catch (err) {
+        setError(err as Error);
+        throw err;
+      }
+    },
+    [refresh]
+  );
 
-  const toggleNotifications = useCallback(async (prospectId: number, enabled: boolean) => {
-    try {
-      await toggleWatchlistNotifications(prospectId, enabled);
-      await refresh();
-    } catch (err) {
-      setError(err as Error);
-      throw err;
-    }
-  }, [refresh]);
+  const toggleNotifications = useCallback(
+    async (prospectId: number, enabled: boolean) => {
+      try {
+        await toggleWatchlistNotifications(prospectId, enabled);
+        await refresh();
+      } catch (err) {
+        setError(err as Error);
+        throw err;
+      }
+    },
+    [refresh]
+  );
 
   useEffect(() => {
     refresh();
@@ -143,6 +155,6 @@ export function useWatchlist(): UseWatchlistResult {
     remove,
     updateNotes,
     toggleNotifications,
-    refresh
+    refresh,
   };
 }

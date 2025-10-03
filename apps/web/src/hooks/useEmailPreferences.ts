@@ -75,7 +75,9 @@ export function useEmailPreferences(): UseEmailPreferencesResult {
   const [error, setError] = useState<Error | null>(null);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const [isPreviewing, setIsPreviewing] = useState<boolean>(false);
-  const [previewContent, setPreviewContent] = useState<DigestPreview | null>(null);
+  const [previewContent, setPreviewContent] = useState<DigestPreview | null>(
+    null
+  );
 
   /**
    * Load email preferences from server.
@@ -90,7 +92,11 @@ export function useEmailPreferences(): UseEmailPreferencesResult {
       const data = await getEmailPreferences();
       setPreferences(data);
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to load email preferences'));
+      setError(
+        err instanceof Error
+          ? err
+          : new Error('Failed to load email preferences')
+      );
       console.error('Error loading email preferences:', err);
     } finally {
       setIsLoading(false);
@@ -105,7 +111,9 @@ export function useEmailPreferences(): UseEmailPreferencesResult {
    *
    * @since 1.0.0
    */
-  const updatePreferences = async (updates: EmailPreferencesUpdate): Promise<void> => {
+  const updatePreferences = async (
+    updates: EmailPreferencesUpdate
+  ): Promise<void> => {
     try {
       setIsUpdating(true);
       setError(null);
@@ -113,7 +121,11 @@ export function useEmailPreferences(): UseEmailPreferencesResult {
       const updated = await updateEmailPreferences(updates);
       setPreferences(updated);
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to update email preferences'));
+      setError(
+        err instanceof Error
+          ? err
+          : new Error('Failed to update email preferences')
+      );
       console.error('Error updating email preferences:', err);
       throw err;
     } finally {
@@ -136,7 +148,9 @@ export function useEmailPreferences(): UseEmailPreferencesResult {
       const preview = await previewEmailDigest();
       setPreviewContent(preview);
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to load digest preview'));
+      setError(
+        err instanceof Error ? err : new Error('Failed to load digest preview')
+      );
       console.error('Error loading digest preview:', err);
       throw err;
     } finally {

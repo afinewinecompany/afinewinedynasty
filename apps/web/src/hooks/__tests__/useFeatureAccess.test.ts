@@ -1,5 +1,9 @@
 import { renderHook } from '@testing-library/react';
-import { useFeatureAccess, isPremiumFeature, getFeatureLimit } from '../useFeatureAccess';
+import {
+  useFeatureAccess,
+  isPremiumFeature,
+  getFeatureLimit,
+} from '../useFeatureAccess';
 import { useAuth } from '../useAuth';
 
 // Mock useAuth hook
@@ -19,12 +23,12 @@ describe('useFeatureAccess Hook', () => {
           id: '1',
           email: 'premium@test.com',
           subscriptionTier: 'premium',
-          isActive: true
+          isActive: true,
         },
         login: jest.fn(),
         logout: jest.fn(),
         loading: false,
-        error: null
+        error: null,
       });
     });
 
@@ -58,12 +62,12 @@ describe('useFeatureAccess Hook', () => {
           id: '2',
           email: 'free@test.com',
           subscriptionTier: 'free',
-          isActive: true
+          isActive: true,
         },
         login: jest.fn(),
         logout: jest.fn(),
         loading: false,
-        error: null
+        error: null,
       });
     });
 
@@ -97,12 +101,12 @@ describe('useFeatureAccess Hook', () => {
           id: '3',
           email: 'admin@test.com',
           subscriptionTier: 'admin',
-          isActive: true
+          isActive: true,
         },
         login: jest.fn(),
         logout: jest.fn(),
         loading: false,
-        error: null
+        error: null,
       });
     });
 
@@ -123,7 +127,7 @@ describe('useFeatureAccess Hook', () => {
         login: jest.fn(),
         logout: jest.fn(),
         loading: false,
-        error: null
+        error: null,
       });
     });
 

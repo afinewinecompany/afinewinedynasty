@@ -10,7 +10,9 @@ import type { UserPreferences } from '@/types/recommendations';
 // Mock the hook
 jest.mock('@/hooks/useRecommendations');
 
-const mockUseRecommendations = useRecommendations as jest.MockedFunction<typeof useRecommendations>;
+const mockUseRecommendations = useRecommendations as jest.MockedFunction<
+  typeof useRecommendations
+>;
 
 describe('RiskToleranceSettings Component', () => {
   const mockPreferences: UserPreferences = {
@@ -81,11 +83,15 @@ describe('RiskToleranceSettings Component', () => {
 
     // Check title
     expect(screen.getByText('Recommendation Preferences')).toBeInTheDocument();
-    expect(screen.getByText('Customize how prospects are recommended to you')).toBeInTheDocument();
+    expect(
+      screen.getByText('Customize how prospects are recommended to you')
+    ).toBeInTheDocument();
 
     // Check risk tolerance description
     expect(screen.getByText('Balanced')).toBeInTheDocument();
-    expect(screen.getByText('Mix of safe and high-upside prospects')).toBeInTheDocument();
+    expect(
+      screen.getByText('Mix of safe and high-upside prospects')
+    ).toBeInTheDocument();
   });
 
   it('should call fetchPreferences on mount when autoLoad is true', () => {
@@ -217,7 +223,9 @@ describe('RiskToleranceSettings Component', () => {
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(screen.getByText('Preferences saved successfully!')).toBeInTheDocument();
+      expect(
+        screen.getByText('Preferences saved successfully!')
+      ).toBeInTheDocument();
     });
   });
 
@@ -286,7 +294,9 @@ describe('RiskToleranceSettings Component', () => {
     render(<RiskToleranceSettings />);
 
     expect(screen.getByText('Conservative')).toBeInTheDocument();
-    expect(screen.getByText('Prioritize proven prospects with safer floors')).toBeInTheDocument();
+    expect(
+      screen.getByText('Prioritize proven prospects with safer floors')
+    ).toBeInTheDocument();
   });
 
   it('should display aggressive risk tolerance correctly', () => {
@@ -299,7 +309,9 @@ describe('RiskToleranceSettings Component', () => {
 
     expect(screen.getByText('Aggressive')).toBeInTheDocument();
     expect(
-      screen.getByText('Focus on high-ceiling prospects with breakout potential')
+      screen.getByText(
+        'Focus on high-ceiling prospects with breakout potential'
+      )
     ).toBeInTheDocument();
   });
 
@@ -312,11 +324,15 @@ describe('RiskToleranceSettings Component', () => {
     render(<RiskToleranceSettings />);
 
     // prefer_win_now should be checked
-    const winNowCheckbox = screen.getByLabelText(/Prioritize win-now prospects/i);
+    const winNowCheckbox = screen.getByLabelText(
+      /Prioritize win-now prospects/i
+    );
     expect(winNowCheckbox).toBeChecked();
 
     // prefer_rebuild should be unchecked
-    const rebuildCheckbox = screen.getByLabelText(/Prioritize rebuild prospects/i);
+    const rebuildCheckbox = screen.getByLabelText(
+      /Prioritize rebuild prospects/i
+    );
     expect(rebuildCheckbox).not.toBeChecked();
 
     // Toggle rebuild
@@ -336,11 +352,15 @@ describe('RiskToleranceSettings Component', () => {
     render(<RiskToleranceSettings />);
 
     // prefer_buy_low should be checked
-    const buyLowCheckbox = screen.getByLabelText(/Highlight buy-low opportunities/i);
+    const buyLowCheckbox = screen.getByLabelText(
+      /Highlight buy-low opportunities/i
+    );
     expect(buyLowCheckbox).toBeChecked();
 
     // prefer_sell_high should be unchecked
-    const sellHighCheckbox = screen.getByLabelText(/Highlight sell-high opportunities/i);
+    const sellHighCheckbox = screen.getByLabelText(
+      /Highlight sell-high opportunities/i
+    );
     expect(sellHighCheckbox).not.toBeChecked();
   });
 
@@ -418,7 +438,9 @@ describe('RiskToleranceSettings Component', () => {
     render(<RiskToleranceSettings />);
 
     expect(
-      screen.getByText(/These preferences will be used to personalize your prospect recommendations/i)
+      screen.getByText(
+        /These preferences will be used to personalize your prospect recommendations/i
+      )
     ).toBeInTheDocument();
   });
 

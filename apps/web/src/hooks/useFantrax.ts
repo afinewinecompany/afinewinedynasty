@@ -140,22 +140,28 @@ export function useFantrax(): UseFantraxReturn {
   /**
    * Update loading state for a specific operation
    */
-  const setLoading = useCallback((key: keyof UseFantraxState['loading'], value: boolean) => {
-    setState(prev => ({
-      ...prev,
-      loading: { ...prev.loading, [key]: value },
-    }));
-  }, []);
+  const setLoading = useCallback(
+    (key: keyof UseFantraxState['loading'], value: boolean) => {
+      setState((prev) => ({
+        ...prev,
+        loading: { ...prev.loading, [key]: value },
+      }));
+    },
+    []
+  );
 
   /**
    * Update error state for a specific operation
    */
-  const setError = useCallback((key: keyof UseFantraxState['error'], value: string | null) => {
-    setState(prev => ({
-      ...prev,
-      error: { ...prev.error, [key]: value },
-    }));
-  }, []);
+  const setError = useCallback(
+    (key: keyof UseFantraxState['error'], value: string | null) => {
+      setState((prev) => ({
+        ...prev,
+        error: { ...prev.error, [key]: value },
+      }));
+    },
+    []
+  );
 
   /**
    * Check Fantrax connection status
@@ -166,14 +172,15 @@ export function useFantrax(): UseFantraxReturn {
 
     try {
       const status = await fantraxApi.getConnectionStatus();
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         isConnected: status.connected,
       }));
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to check connection';
+      const message =
+        err instanceof Error ? err.message : 'Failed to check connection';
       setError('connection', message);
-      setState(prev => ({ ...prev, isConnected: false }));
+      setState((prev) => ({ ...prev, isConnected: false }));
     } finally {
       setLoading('connection', false);
     }
@@ -191,7 +198,8 @@ export function useFantrax(): UseFantraxReturn {
       // Redirect to Fantrax OAuth page
       window.location.href = authorization_url;
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to initiate connection';
+      const message =
+        err instanceof Error ? err.message : 'Failed to initiate connection';
       setError('connection', message);
       setLoading('connection', false);
     }
@@ -231,7 +239,8 @@ export function useFantrax(): UseFantraxReturn {
         },
       });
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to disconnect';
+      const message =
+        err instanceof Error ? err.message : 'Failed to disconnect';
       setError('connection', message);
     } finally {
       setLoading('connection', false);
@@ -247,13 +256,14 @@ export function useFantrax(): UseFantraxReturn {
 
     try {
       const leagues = await fantraxApi.getUserLeagues();
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         leagues,
         isConnected: true,
       }));
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to load leagues';
+      const message =
+        err instanceof Error ? err.message : 'Failed to load leagues';
       setError('leagues', message);
     } finally {
       setLoading('leagues', false);
@@ -264,7 +274,7 @@ export function useFantrax(): UseFantraxReturn {
    * Select a league
    */
   const selectLeague = useCallback((league: FantraxLeague) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       selectedLeague: league,
       // Clear previous league data
@@ -277,33 +287,39 @@ export function useFantrax(): UseFantraxReturn {
   /**
    * Sync roster for selected league
    */
-  const syncRoster = useCallback(async (forceRefresh: boolean = false) => {
-    if (!state.selectedLeague) {
-      setError('sync', 'No league selected');
-      return;
-    }
+  const syncRoster = useCallback(
+    async (forceRefresh: boolean = false) => {
+      if (!state.selectedLeague) {
+        setError('sync', 'No league selected');
+        return;
+      }
 
-    setLoading('sync', true);
-    setError('sync', null);
+      setLoading('sync', true);
+      setError('sync', null);
 
-    try {
-      await fantraxApi.syncRoster({
-        league_id: state.selectedLeague.league_id,
-        force_refresh: forceRefresh,
-      });
+      try {
+        await fantraxApi.syncRoster({
+          league_id: state.selectedLeague.league_id,
+          force_refresh: forceRefresh,
+        });
 
-      // Load the roster data after sync
-      setLoading('roster', true);
-      const roster = await fantraxApi.getRoster(state.selectedLeague.league_id);
-      setState(prev => ({ ...prev, roster }));
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to sync roster';
-      setError('sync', message);
-    } finally {
-      setLoading('sync', false);
-      setLoading('roster', false);
-    }
-  }, [state.selectedLeague, setLoading, setError]);
+        // Load the roster data after sync
+        setLoading('roster', true);
+        const roster = await fantraxApi.getRoster(
+          state.selectedLeague.league_id
+        );
+        setState((prev) => ({ ...prev, roster }));
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : 'Failed to sync roster';
+        setError('sync', message);
+      } finally {
+        setLoading('sync', false);
+        setLoading('roster', false);
+      }
+    },
+    [state.selectedLeague, setLoading, setError]
+  );
 
   /**
    * Load team analysis
@@ -318,10 +334,13 @@ export function useFantrax(): UseFantraxReturn {
     setError('analysis', null);
 
     try {
-      const analysis = await fantraxApi.getTeamAnalysis(state.selectedLeague.league_id);
-      setState(prev => ({ ...prev, analysis }));
+      const analysis = await fantraxApi.getTeamAnalysis(
+        state.selectedLeague.league_id
+      );
+      setState((prev) => ({ ...prev, analysis }));
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to load analysis';
+      const message =
+        err instanceof Error ? err.message : 'Failed to load analysis';
       setError('analysis', message);
     } finally {
       setLoading('analysis', false);
@@ -331,28 +350,32 @@ export function useFantrax(): UseFantraxReturn {
   /**
    * Load recommendations
    */
-  const loadRecommendations = useCallback(async (limit: number = 10) => {
-    if (!state.selectedLeague) {
-      setError('recommendations', 'No league selected');
-      return;
-    }
+  const loadRecommendations = useCallback(
+    async (limit: number = 10) => {
+      if (!state.selectedLeague) {
+        setError('recommendations', 'No league selected');
+        return;
+      }
 
-    setLoading('recommendations', true);
-    setError('recommendations', null);
+      setLoading('recommendations', true);
+      setError('recommendations', null);
 
-    try {
-      const recommendations = await fantraxApi.getRecommendations(
-        state.selectedLeague.league_id,
-        limit
-      );
-      setState(prev => ({ ...prev, recommendations }));
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to load recommendations';
-      setError('recommendations', message);
-    } finally {
-      setLoading('recommendations', false);
-    }
-  }, [state.selectedLeague, setLoading, setError]);
+      try {
+        const recommendations = await fantraxApi.getRecommendations(
+          state.selectedLeague.league_id,
+          limit
+        );
+        setState((prev) => ({ ...prev, recommendations }));
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : 'Failed to load recommendations';
+        setError('recommendations', message);
+      } finally {
+        setLoading('recommendations', false);
+      }
+    },
+    [state.selectedLeague, setLoading, setError]
+  );
 
   // Check connection on mount
   useEffect(() => {

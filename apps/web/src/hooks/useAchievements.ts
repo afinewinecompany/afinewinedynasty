@@ -56,7 +56,9 @@ export interface UseAchievementsResult {
  *
  * @since 1.0.0
  */
-export function useAchievements(includeLocked: boolean = false): UseAchievementsResult {
+export function useAchievements(
+  includeLocked: boolean = false
+): UseAchievementsResult {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [progress, setProgress] = useState<AchievementProgress | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -81,7 +83,9 @@ export function useAchievements(includeLocked: boolean = false): UseAchievements
       setAchievements(achievementsData.achievements);
       setProgress(progressData);
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to load achievements'));
+      setError(
+        err instanceof Error ? err : new Error('Failed to load achievements')
+      );
       console.error('Error loading achievements:', err);
     } finally {
       setIsLoading(false);

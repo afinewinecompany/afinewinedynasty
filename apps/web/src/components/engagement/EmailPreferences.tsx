@@ -10,10 +10,22 @@
 
 import React, { useState } from 'react';
 import { useEmailPreferences } from '@/hooks/useEmailPreferences';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Mail, CheckCircle, AlertCircle } from 'lucide-react';
@@ -45,7 +57,9 @@ export interface EmailPreferencesProps {
  *
  * @since 1.0.0
  */
-export function EmailPreferences({ className }: EmailPreferencesProps): JSX.Element {
+export function EmailPreferences({
+  className,
+}: EmailPreferencesProps): JSX.Element {
   const {
     preferences,
     isLoading,
@@ -108,7 +122,9 @@ export function EmailPreferences({ className }: EmailPreferencesProps): JSX.Elem
 
   if (isLoading) {
     return (
-      <div className={`flex items-center justify-center p-8 ${className || ''}`}>
+      <div
+        className={`flex items-center justify-center p-8 ${className || ''}`}
+      >
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
@@ -186,14 +202,21 @@ export function EmailPreferences({ className }: EmailPreferencesProps): JSX.Elem
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="daily">Daily</SelectItem>
-                  <SelectItem value="weekly">Weekly (Monday mornings)</SelectItem>
-                  <SelectItem value="monthly">Monthly (First Monday)</SelectItem>
+                  <SelectItem value="weekly">
+                    Weekly (Monday mornings)
+                  </SelectItem>
+                  <SelectItem value="monthly">
+                    Monthly (First Monday)
+                  </SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-sm text-muted-foreground">
-                {preferences.frequency === 'daily' && 'You\'ll receive a digest every morning at 7 AM'}
-                {preferences.frequency === 'weekly' && 'You\'ll receive a digest every Monday at 6 AM'}
-                {preferences.frequency === 'monthly' && 'You\'ll receive a digest on the first Monday of each month'}
+                {preferences.frequency === 'daily' &&
+                  "You'll receive a digest every morning at 7 AM"}
+                {preferences.frequency === 'weekly' &&
+                  "You'll receive a digest every Monday at 6 AM"}
+                {preferences.frequency === 'monthly' &&
+                  "You'll receive a digest on the first Monday of each month"}
               </p>
             </div>
           )}

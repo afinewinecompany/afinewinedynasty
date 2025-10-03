@@ -66,11 +66,20 @@ interface UseRecommendationsReturn extends UseRecommendationsState {
   /** Fetch team needs analysis */
   fetchTeamNeeds: (leagueId: string) => Promise<void>;
   /** Fetch prospect recommendations */
-  fetchProspectRecommendations: (leagueId: string, query?: ProspectRecommendationsQuery) => Promise<void>;
+  fetchProspectRecommendations: (
+    leagueId: string,
+    query?: ProspectRecommendationsQuery
+  ) => Promise<void>;
   /** Fetch trade targets */
-  fetchTradeTargets: (leagueId: string, query?: TradeTargetsQuery) => Promise<void>;
+  fetchTradeTargets: (
+    leagueId: string,
+    query?: TradeTargetsQuery
+  ) => Promise<void>;
   /** Fetch draft strategy */
-  fetchDraftStrategy: (leagueId: string, query?: DraftStrategyQuery) => Promise<void>;
+  fetchDraftStrategy: (
+    leagueId: string,
+    query?: DraftStrategyQuery
+  ) => Promise<void>;
   /** Fetch stash candidates */
   fetchStashCandidates: (leagueId: string) => Promise<void>;
   /** Fetch user preferences */
@@ -140,40 +149,50 @@ export function useRecommendations(): UseRecommendationsReturn {
   /**
    * Update loading state for a specific operation
    */
-  const setLoading = useCallback((key: keyof UseRecommendationsState['loading'], value: boolean) => {
-    setState(prev => ({
-      ...prev,
-      loading: { ...prev.loading, [key]: value },
-    }));
-  }, []);
+  const setLoading = useCallback(
+    (key: keyof UseRecommendationsState['loading'], value: boolean) => {
+      setState((prev) => ({
+        ...prev,
+        loading: { ...prev.loading, [key]: value },
+      }));
+    },
+    []
+  );
 
   /**
    * Update error state for a specific operation
    */
-  const setError = useCallback((key: keyof UseRecommendationsState['error'], value: string | null) => {
-    setState(prev => ({
-      ...prev,
-      error: { ...prev.error, [key]: value },
-    }));
-  }, []);
+  const setError = useCallback(
+    (key: keyof UseRecommendationsState['error'], value: string | null) => {
+      setState((prev) => ({
+        ...prev,
+        error: { ...prev.error, [key]: value },
+      }));
+    },
+    []
+  );
 
   /**
    * Fetch team needs analysis
    */
-  const fetchTeamNeeds = useCallback(async (leagueId: string) => {
-    setLoading('teamNeeds', true);
-    setError('teamNeeds', null);
+  const fetchTeamNeeds = useCallback(
+    async (leagueId: string) => {
+      setLoading('teamNeeds', true);
+      setError('teamNeeds', null);
 
-    try {
-      const teamNeeds = await recommendationsApi.getTeamNeeds(leagueId);
-      setState(prev => ({ ...prev, teamNeeds }));
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to load team needs';
-      setError('teamNeeds', message);
-    } finally {
-      setLoading('teamNeeds', false);
-    }
-  }, [setLoading, setError]);
+      try {
+        const teamNeeds = await recommendationsApi.getTeamNeeds(leagueId);
+        setState((prev) => ({ ...prev, teamNeeds }));
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : 'Failed to load team needs';
+        setError('teamNeeds', message);
+      } finally {
+        setLoading('teamNeeds', false);
+      }
+    },
+    [setLoading, setError]
+  );
 
   /**
    * Fetch prospect recommendations
@@ -184,13 +203,19 @@ export function useRecommendations(): UseRecommendationsReturn {
       setError('prospects', null);
 
       try {
-        const response = await recommendationsApi.getProspectRecommendations(leagueId, query);
-        setState(prev => ({
+        const response = await recommendationsApi.getProspectRecommendations(
+          leagueId,
+          query
+        );
+        setState((prev) => ({
           ...prev,
           prospectRecommendations: response.recommendations,
         }));
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to load prospect recommendations';
+        const message =
+          err instanceof Error
+            ? err.message
+            : 'Failed to load prospect recommendations';
         setError('prospects', message);
       } finally {
         setLoading('prospects', false);
@@ -208,10 +233,14 @@ export function useRecommendations(): UseRecommendationsReturn {
       setError('tradeTargets', null);
 
       try {
-        const tradeTargets = await recommendationsApi.getTradeTargets(leagueId, query);
-        setState(prev => ({ ...prev, tradeTargets }));
+        const tradeTargets = await recommendationsApi.getTradeTargets(
+          leagueId,
+          query
+        );
+        setState((prev) => ({ ...prev, tradeTargets }));
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to load trade targets';
+        const message =
+          err instanceof Error ? err.message : 'Failed to load trade targets';
         setError('tradeTargets', message);
       } finally {
         setLoading('tradeTargets', false);
@@ -229,10 +258,14 @@ export function useRecommendations(): UseRecommendationsReturn {
       setError('draftStrategy', null);
 
       try {
-        const draftStrategy = await recommendationsApi.getDraftStrategy(leagueId, query);
-        setState(prev => ({ ...prev, draftStrategy }));
+        const draftStrategy = await recommendationsApi.getDraftStrategy(
+          leagueId,
+          query
+        );
+        setState((prev) => ({ ...prev, draftStrategy }));
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to load draft strategy';
+        const message =
+          err instanceof Error ? err.message : 'Failed to load draft strategy';
         setError('draftStrategy', message);
       } finally {
         setLoading('draftStrategy', false);
@@ -250,10 +283,14 @@ export function useRecommendations(): UseRecommendationsReturn {
       setError('stashCandidates', null);
 
       try {
-        const stashCandidates = await recommendationsApi.getStashCandidates(leagueId);
-        setState(prev => ({ ...prev, stashCandidates }));
+        const stashCandidates =
+          await recommendationsApi.getStashCandidates(leagueId);
+        setState((prev) => ({ ...prev, stashCandidates }));
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to load stash candidates';
+        const message =
+          err instanceof Error
+            ? err.message
+            : 'Failed to load stash candidates';
         setError('stashCandidates', message);
       } finally {
         setLoading('stashCandidates', false);
@@ -271,9 +308,10 @@ export function useRecommendations(): UseRecommendationsReturn {
 
     try {
       const preferences = await recommendationsApi.getUserPreferences();
-      setState(prev => ({ ...prev, preferences }));
+      setState((prev) => ({ ...prev, preferences }));
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to load preferences';
+      const message =
+        err instanceof Error ? err.message : 'Failed to load preferences';
       setError('preferences', message);
     } finally {
       setLoading('preferences', false);
@@ -289,10 +327,12 @@ export function useRecommendations(): UseRecommendationsReturn {
       setError('preferences', null);
 
       try {
-        const updated = await recommendationsApi.updateUserPreferences(preferences);
-        setState(prev => ({ ...prev, preferences: updated }));
+        const updated =
+          await recommendationsApi.updateUserPreferences(preferences);
+        setState((prev) => ({ ...prev, preferences: updated }));
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to update preferences';
+        const message =
+          err instanceof Error ? err.message : 'Failed to update preferences';
         setError('preferences', message);
         throw err; // Re-throw to allow component to handle
       } finally {

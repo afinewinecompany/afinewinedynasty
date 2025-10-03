@@ -12,7 +12,13 @@
 import React, { useEffect } from 'react';
 import { useFantrax } from '@/hooks/useFantrax';
 import type { ProspectRecommendation } from '@/types/fantrax';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -65,7 +71,13 @@ export function PersonalizedRecommendations({
     if (autoLoad && selectedLeague && recommendations.length === 0) {
       loadRecommendations(limit);
     }
-  }, [autoLoad, selectedLeague, recommendations.length, loadRecommendations, limit]);
+  }, [
+    autoLoad,
+    selectedLeague,
+    recommendations.length,
+    loadRecommendations,
+    limit,
+  ]);
 
   /**
    * Get fit score color
@@ -82,11 +94,11 @@ export function PersonalizedRecommendations({
    */
   const getTradeValueVariant = (value: string) => {
     const variants: Record<string, string> = {
-      'Elite': 'bg-purple-100 text-purple-800',
-      'High': 'bg-blue-100 text-blue-800',
-      'Medium': 'bg-green-100 text-green-800',
-      'Low': 'bg-gray-100 text-gray-800',
-      'Speculative': 'bg-orange-100 text-orange-800',
+      Elite: 'bg-purple-100 text-purple-800',
+      High: 'bg-blue-100 text-blue-800',
+      Medium: 'bg-green-100 text-green-800',
+      Low: 'bg-gray-100 text-gray-800',
+      Speculative: 'bg-orange-100 text-orange-800',
     };
     return variants[value] || variants['Low'];
   };
@@ -110,7 +122,9 @@ export function PersonalizedRecommendations({
       <Card>
         <CardContent className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-          <span className="ml-2 text-gray-600">Generating recommendations...</span>
+          <span className="ml-2 text-gray-600">
+            Generating recommendations...
+          </span>
         </CardContent>
       </Card>
     );
@@ -187,12 +201,16 @@ export function PersonalizedRecommendations({
                     <div className="flex items-center gap-2 mt-1">
                       <Badge variant="outline">{rec.position}</Badge>
                       {rec.age && (
-                        <span className="text-xs text-gray-500">{rec.age} years old</span>
+                        <span className="text-xs text-gray-500">
+                          {rec.age} years old
+                        </span>
                       )}
                     </div>
                   </div>
                 </div>
-                <div className={`px-3 py-1 rounded-full text-sm font-medium ${getFitScoreColor(rec.fit_score)}`}>
+                <div
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${getFitScoreColor(rec.fit_score)}`}
+                >
                   {rec.fit_score.toFixed(0)}% fit
                 </div>
               </div>

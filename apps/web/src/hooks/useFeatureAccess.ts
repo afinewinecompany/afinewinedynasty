@@ -63,7 +63,7 @@ export function useFeatureAccess(): FeatureAccess {
       maxComparisons: isPremiumOrAdmin ? 10 : 2,
 
       // Beta access
-      canAccessBetaFeatures: isPremiumOrAdmin
+      canAccessBetaFeatures: isPremiumOrAdmin,
     };
   }, [user?.subscriptionTier]);
 }
@@ -94,7 +94,7 @@ export function isPremiumFeature(feature: keyof FeatureAccess): boolean {
     'hasPrioritySupport',
     'canVoteOnFeatures',
     'canCreateFeatureRequests',
-    'canAccessBetaFeatures'
+    'canAccessBetaFeatures',
   ]);
 
   return premiumFeatures.has(feature);
@@ -114,7 +114,10 @@ export function getFeatureLimit(
   feature: keyof FeatureAccess,
   isPremium: boolean
 ): number | boolean {
-  const limits: Record<string, { free: number | boolean; premium: number | boolean }> = {
+  const limits: Record<
+    string,
+    { free: number | boolean; premium: number | boolean }
+  > = {
     prospectsLimit: { free: 100, premium: 500 },
     maxSavedSearches: { free: 5, premium: 50 },
     maxComparisons: { free: 2, premium: 10 },
@@ -126,7 +129,7 @@ export function getFeatureLimit(
     hasPrioritySupport: { free: false, premium: true },
     canVoteOnFeatures: { free: false, premium: true },
     canCreateFeatureRequests: { free: false, premium: true },
-    canAccessBetaFeatures: { free: false, premium: true }
+    canAccessBetaFeatures: { free: false, premium: true },
   };
 
   const limit = limits[feature];

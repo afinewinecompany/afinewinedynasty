@@ -27,7 +27,7 @@ export async function addToWatchlist(
   const response = await apiClient.post<WatchlistEntry>('/watchlist', {
     prospect_id: prospectId,
     notes,
-    notify_on_changes: notifyOnChanges
+    notify_on_changes: notifyOnChanges,
   });
   return response.data;
 }

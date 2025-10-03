@@ -34,45 +34,52 @@ export const PremiumFeatureTour: React.FC = () => {
     {
       target: '.full-rankings',
       title: 'Full Top 500 Rankings',
-      content: 'Access all 500 prospects instead of just the top 100. Get comprehensive insights into deeper dynasty targets.',
-      placement: 'bottom'
+      content:
+        'Access all 500 prospects instead of just the top 100. Get comprehensive insights into deeper dynasty targets.',
+      placement: 'bottom',
     },
     {
       target: '.advanced-filters',
       title: 'Advanced Filtering',
-      content: 'Use complex multi-criteria filters with AND/OR logic to find exactly the prospects you need.',
-      placement: 'right'
+      content:
+        'Use complex multi-criteria filters with AND/OR logic to find exactly the prospects you need.',
+      placement: 'right',
     },
     {
       target: '.comparison-tool',
       title: 'Unlimited Comparisons',
-      content: 'Compare up to 10 prospects simultaneously with detailed analytics and export capabilities.',
-      placement: 'left'
+      content:
+        'Compare up to 10 prospects simultaneously with detailed analytics and export capabilities.',
+      placement: 'left',
     },
     {
       target: '.historical-data',
       title: 'Historical Trends',
-      content: 'View performance trajectories and season-over-season comparisons to identify rising stars.',
-      placement: 'top'
+      content:
+        'View performance trajectories and season-over-season comparisons to identify rising stars.',
+      placement: 'top',
     },
     {
       target: '.enhanced-outlooks',
       title: 'AI-Powered Outlooks',
-      content: 'Get personalized ML predictions with detailed explanations tailored to your league settings.',
-      placement: 'bottom'
+      content:
+        'Get personalized ML predictions with detailed explanations tailored to your league settings.',
+      placement: 'bottom',
     },
     {
       target: '.export-button',
       title: 'Data Export',
-      content: 'Export rankings, comparisons, and reports in CSV, PDF, or JSON formats.',
-      placement: 'left'
+      content:
+        'Export rankings, comparisons, and reports in CSV, PDF, or JSON formats.',
+      placement: 'left',
     },
     {
       target: '.priority-support',
       title: 'Priority Support',
-      content: 'Get faster response times and direct access to feature requests with voting privileges.',
-      placement: 'top'
-    }
+      content:
+        'Get faster response times and direct access to feature requests with voting privileges.',
+      placement: 'top',
+    },
   ];
 
   useEffect(() => {
@@ -153,7 +160,9 @@ export const PremiumFeatureTour: React.FC = () => {
                   <Star className="w-5 h-5 fill-current" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold">{currentStepData.title}</h3>
+                  <h3 className="text-lg font-semibold">
+                    {currentStepData.title}
+                  </h3>
                   <p className="text-sm text-gray-600">
                     Step {currentStep + 1} of {steps.length}
                   </p>
@@ -168,7 +177,7 @@ export const PremiumFeatureTour: React.FC = () => {
                 <div
                   className="h-full bg-gradient-to-r from-amber-500 to-amber-600 transition-all duration-300"
                   style={{
-                    width: `${((currentStep + 1) / steps.length) * 100}%`
+                    width: `${((currentStep + 1) / steps.length) * 100}%`,
                   }}
                 />
               </div>
@@ -193,8 +202,8 @@ export const PremiumFeatureTour: React.FC = () => {
                         index === currentStep
                           ? 'bg-amber-600'
                           : index < currentStep
-                          ? 'bg-amber-400'
-                          : 'bg-gray-300'
+                            ? 'bg-amber-400'
+                            : 'bg-gray-300'
                       }`}
                     />
                   ))}

@@ -19,7 +19,7 @@ import {
   progressOnboarding,
   completeOnboarding,
   skipOnboarding,
-  resetOnboarding
+  resetOnboarding,
 } from '@/lib/api/onboarding';
 
 /**
@@ -258,6 +258,6 @@ export function useOnboarding(autoLoad: boolean = true): UseOnboardingResult {
     complete,
     skip,
     reset,
-    refresh
+    refresh,
   };
 }

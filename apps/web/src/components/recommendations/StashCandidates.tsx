@@ -11,7 +11,13 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -56,7 +62,8 @@ export function StashCandidates({
   onProspectClick,
   onRefresh,
 }: StashCandidatesProps) {
-  const { stashCandidates, loading, error, fetchStashCandidates } = useRecommendations();
+  const { stashCandidates, loading, error, fetchStashCandidates } =
+    useRecommendations();
 
   // Auto-load on mount
   useEffect(() => {
@@ -109,7 +116,9 @@ export function StashCandidates({
         {/* Header */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 text-lg">{candidate.name}</h3>
+            <h3 className="font-semibold text-gray-900 text-lg">
+              {candidate.name}
+            </h3>
             <div className="flex items-center gap-2 mt-1">
               <Badge variant="outline">{candidate.position}</Badge>
               <div className="flex items-center gap-1 text-xs text-gray-500">
@@ -120,15 +129,23 @@ export function StashCandidates({
           </div>
 
           {/* Upside Score */}
-          <div className={`px-3 py-2 rounded-lg border text-center ${upsideColor}`}>
-            <div className="text-xl font-bold">{candidate.upside_score.toFixed(0)}</div>
+          <div
+            className={`px-3 py-2 rounded-lg border text-center ${upsideColor}`}
+          >
+            <div className="text-xl font-bold">
+              {candidate.upside_score.toFixed(0)}
+            </div>
             <div className="text-xs">Upside</div>
           </div>
         </div>
 
         {/* Upside Badge */}
         <div className="mb-3">
-          <Badge className={upsideColor.replace('bg-', 'bg-').replace('text-', 'text-')}>
+          <Badge
+            className={upsideColor
+              .replace('bg-', 'bg-')
+              .replace('text-', 'text-')}
+          >
             <Sparkles className="h-3 w-3 mr-1" />
             {upsideLabel}
           </Badge>
@@ -147,7 +164,9 @@ export function StashCandidates({
       <Card>
         <CardContent className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-          <span className="ml-2 text-gray-600">Finding stash candidates...</span>
+          <span className="ml-2 text-gray-600">
+            Finding stash candidates...
+          </span>
         </CardContent>
       </Card>
     );
@@ -192,7 +211,9 @@ export function StashCandidates({
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Stash Candidates</CardTitle>
-            <CardDescription>High-upside prospects to stash on your roster</CardDescription>
+            <CardDescription>
+              High-upside prospects to stash on your roster
+            </CardDescription>
           </div>
           <Button
             variant="outline"
@@ -212,7 +233,9 @@ export function StashCandidates({
             <div className="flex items-center gap-2">
               <Package className="h-5 w-5 text-blue-600" />
               <div>
-                <h3 className="font-semibold text-blue-900">Available Roster Spots</h3>
+                <h3 className="font-semibold text-blue-900">
+                  Available Roster Spots
+                </h3>
                 <p className="text-sm text-blue-700">
                   {hasSpots
                     ? `You have ${stashCandidates.available_spots} spot${
@@ -234,9 +257,10 @@ export function StashCandidates({
             <AlertDescription className="flex items-start gap-2">
               <TrendingUp className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
               <div>
-                <span className="font-medium">Maximize your upside:</span> These high-potential
-                prospects can provide significant long-term value. Consider your team's competitive
-                window when making stash decisions.
+                <span className="font-medium">Maximize your upside:</span> These
+                high-potential prospects can provide significant long-term
+                value. Consider your team's competitive window when making stash
+                decisions.
               </div>
             </AlertDescription>
           </Alert>
@@ -256,7 +280,9 @@ export function StashCandidates({
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Sparkles className="h-5 w-5 text-purple-600" />
-              <h3 className="font-semibold text-gray-900">Recommended Stash Targets</h3>
+              <h3 className="font-semibold text-gray-900">
+                Recommended Stash Targets
+              </h3>
               <Badge className="bg-purple-100 text-purple-800">
                 {stashCandidates.stash_candidates.length}
               </Badge>
@@ -272,9 +298,10 @@ export function StashCandidates({
         {!hasSpots && (
           <div className="p-4 rounded-lg bg-yellow-50 border border-yellow-200">
             <p className="text-sm text-yellow-800">
-              <span className="font-medium">Roster Management Tip:</span> Consider dropping
-              underperforming veterans or low-upside depth pieces to make room for these stash
-              candidates with higher long-term potential.
+              <span className="font-medium">Roster Management Tip:</span>{' '}
+              Consider dropping underperforming veterans or low-upside depth
+              pieces to make room for these stash candidates with higher
+              long-term potential.
             </p>
           </div>
         )}

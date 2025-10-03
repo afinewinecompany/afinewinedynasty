@@ -10,7 +10,9 @@ import type { TradeTargetsResponse } from '@/types/recommendations';
 // Mock the hook
 jest.mock('@/hooks/useRecommendations');
 
-const mockUseRecommendations = useRecommendations as jest.MockedFunction<typeof useRecommendations>;
+const mockUseRecommendations = useRecommendations as jest.MockedFunction<
+  typeof useRecommendations
+>;
 
 describe('TradeTargetsList Component', () => {
   const mockLeagueId = 'test-league-123';
@@ -97,7 +99,9 @@ describe('TradeTargetsList Component', () => {
 
     render(<TradeTargetsList leagueId={mockLeagueId} />);
 
-    expect(screen.getByText('Finding trade opportunities...')).toBeInTheDocument();
+    expect(
+      screen.getByText('Finding trade opportunities...')
+    ).toBeInTheDocument();
   });
 
   it('should render error state', () => {
@@ -160,7 +164,9 @@ describe('TradeTargetsList Component', () => {
     const buyLowButton = screen.getByRole('button', { name: /Buy Low/i });
     fireEvent.click(buyLowButton);
 
-    expect(mockFetch).toHaveBeenCalledWith(mockLeagueId, { category: 'buy_low' });
+    expect(mockFetch).toHaveBeenCalledWith(mockLeagueId, {
+      category: 'buy_low',
+    });
   });
 
   it('should filter by sell_high category', () => {
@@ -176,7 +182,9 @@ describe('TradeTargetsList Component', () => {
     const sellHighButton = screen.getByRole('button', { name: /Sell High/i });
     fireEvent.click(sellHighButton);
 
-    expect(mockFetch).toHaveBeenCalledWith(mockLeagueId, { category: 'sell_high' });
+    expect(mockFetch).toHaveBeenCalledWith(mockLeagueId, {
+      category: 'sell_high',
+    });
   });
 
   it('should filter by arbitrage category', () => {
@@ -192,7 +200,9 @@ describe('TradeTargetsList Component', () => {
     const arbitrageButton = screen.getByRole('button', { name: /Arbitrage/i });
     fireEvent.click(arbitrageButton);
 
-    expect(mockFetch).toHaveBeenCalledWith(mockLeagueId, { category: 'arbitrage' });
+    expect(mockFetch).toHaveBeenCalledWith(mockLeagueId, {
+      category: 'arbitrage',
+    });
   });
 
   it('should show all categories when All filter is selected', () => {
@@ -223,7 +233,9 @@ describe('TradeTargetsList Component', () => {
       tradeTargets: mockTradeTargets,
     });
 
-    render(<TradeTargetsList leagueId={mockLeagueId} onProspectClick={mockOnClick} />);
+    render(
+      <TradeTargetsList leagueId={mockLeagueId} onProspectClick={mockOnClick} />
+    );
 
     const candidate = screen.getByText('Buy Low Prospect');
     fireEvent.click(candidate);
@@ -240,7 +252,9 @@ describe('TradeTargetsList Component', () => {
       fetchTradeTargets: mockFetch,
     });
 
-    render(<TradeTargetsList leagueId={mockLeagueId} onRefresh={mockOnRefresh} />);
+    render(
+      <TradeTargetsList leagueId={mockLeagueId} onRefresh={mockOnRefresh} />
+    );
 
     const refreshButton = screen.getByText('Refresh');
     fireEvent.click(refreshButton);

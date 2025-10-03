@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { BreakoutCandidate } from '@/hooks/useDiscovery';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -29,7 +29,7 @@ interface BreakoutCandidatesProps {
   /** Loading state indicator for data fetch */
   isLoading: boolean;
   /** Error object from failed data operations */
-  error: any;
+  error: Error | null;
   /** Callback to refresh breakout candidates data */
   onRefresh: () => void;
 }
@@ -75,13 +75,6 @@ export function BreakoutCandidates({
   error,
   onRefresh,
 }: BreakoutCandidatesProps) {
-  const getBreakoutScoreColor = (score: number) => {
-    if (score >= 80) return 'bg-green-500';
-    if (score >= 60) return 'bg-blue-500';
-    if (score >= 40) return 'bg-yellow-500';
-    return 'bg-gray-400';
-  };
-
   const getBreakoutScoreBadge = (score: number) => {
     if (score >= 80)
       return {

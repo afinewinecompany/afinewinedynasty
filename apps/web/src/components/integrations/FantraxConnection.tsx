@@ -13,7 +13,13 @@
 import React from 'react';
 import { useFantrax } from '@/hooks/useFantrax';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle2, XCircle, Loader2, Link as LinkIcon } from 'lucide-react';
 
@@ -40,15 +46,12 @@ interface FantraxConnectionProps {
  *
  * @since 1.0.0
  */
-export function FantraxConnection({ onConnectionChange, compact = false }: FantraxConnectionProps) {
-  const {
-    isConnected,
-    leagues,
-    loading,
-    error,
-    connect,
-    disconnect,
-  } = useFantrax();
+export function FantraxConnection({
+  onConnectionChange,
+  compact = false,
+}: FantraxConnectionProps) {
+  const { isConnected, leagues, loading, error, connect, disconnect } =
+    useFantrax();
 
   // Notify parent of connection changes
   React.useEffect(() => {
@@ -107,8 +110,8 @@ export function FantraxConnection({ onConnectionChange, compact = false }: Fantr
           Fantrax Integration
         </CardTitle>
         <CardDescription>
-          Connect your Fantrax account to get personalized prospect recommendations
-          based on your league rosters.
+          Connect your Fantrax account to get personalized prospect
+          recommendations based on your league rosters.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -126,7 +129,8 @@ export function FantraxConnection({ onConnectionChange, compact = false }: Fantr
               </p>
               {isConnected && (
                 <p className="text-sm text-gray-600">
-                  {leagues.length} {leagues.length === 1 ? 'league' : 'leagues'} found
+                  {leagues.length} {leagues.length === 1 ? 'league' : 'leagues'}{' '}
+                  found
                 </p>
               )}
             </div>
@@ -175,8 +179,8 @@ export function FantraxConnection({ onConnectionChange, compact = false }: Fantr
         {/* Premium Notice */}
         <div className="pt-4 border-t">
           <p className="text-xs text-gray-500">
-            🔒 Fantrax integration is a premium feature. Upgrade to access personalized
-            recommendations and advanced roster analysis.
+            🔒 Fantrax integration is a premium feature. Upgrade to access
+            personalized recommendations and advanced roster analysis.
           </p>
         </div>
       </CardContent>

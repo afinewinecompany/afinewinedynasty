@@ -11,13 +11,28 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, TrendingDown, TrendingUp, Repeat, Target } from 'lucide-react';
+import {
+  Loader2,
+  TrendingDown,
+  TrendingUp,
+  Repeat,
+  Target,
+} from 'lucide-react';
 import { useRecommendations } from '@/hooks/useRecommendations';
-import type { TradeTargetCandidate, TradeTargetsQuery } from '@/types/recommendations';
+import type {
+  TradeTargetCandidate,
+  TradeTargetsQuery,
+} from '@/types/recommendations';
 
 /**
  * Component props
@@ -56,8 +71,11 @@ export function TradeTargetsList({
   onProspectClick,
   onRefresh,
 }: TradeTargetsListProps) {
-  const { tradeTargets, loading, error, fetchTradeTargets } = useRecommendations();
-  const [activeCategory, setActiveCategory] = useState<'all' | 'buy_low' | 'sell_high' | 'arbitrage'>('all');
+  const { tradeTargets, loading, error, fetchTradeTargets } =
+    useRecommendations();
+  const [activeCategory, setActiveCategory] = useState<
+    'all' | 'buy_low' | 'sell_high' | 'arbitrage'
+  >('all');
 
   // Auto-load on mount
   useEffect(() => {
@@ -69,11 +87,25 @@ export function TradeTargetsList({
   /**
    * Get opportunity type badge
    */
-  const getOpportunityBadge = (type: TradeTargetCandidate['opportunity_type']) => {
+  const getOpportunityBadge = (
+    type: TradeTargetCandidate['opportunity_type']
+  ) => {
     const badges = {
-      buy_low: { label: 'Buy Low', color: 'bg-green-100 text-green-800', icon: TrendingDown },
-      sell_high: { label: 'Sell High', color: 'bg-orange-100 text-orange-800', icon: TrendingUp },
-      arbitrage: { label: 'Arbitrage', color: 'bg-purple-100 text-purple-800', icon: Repeat },
+      buy_low: {
+        label: 'Buy Low',
+        color: 'bg-green-100 text-green-800',
+        icon: TrendingDown,
+      },
+      sell_high: {
+        label: 'Sell High',
+        color: 'bg-orange-100 text-orange-800',
+        icon: TrendingUp,
+      },
+      arbitrage: {
+        label: 'Arbitrage',
+        color: 'bg-purple-100 text-purple-800',
+        icon: Repeat,
+      },
     };
     return badges[type];
   };
@@ -82,7 +114,8 @@ export function TradeTargetsList({
    * Handle refresh
    */
   const handleRefresh = () => {
-    const query: TradeTargetsQuery = activeCategory !== 'all' ? { category: activeCategory } : undefined;
+    const query: TradeTargetsQuery =
+      activeCategory !== 'all' ? { category: activeCategory } : undefined;
     fetchTradeTargets(leagueId, query);
     onRefresh?.();
   };
@@ -92,7 +125,8 @@ export function TradeTargetsList({
    */
   const handleCategoryChange = (category: typeof activeCategory) => {
     setActiveCategory(category);
-    const query: TradeTargetsQuery = category !== 'all' ? { category } : undefined;
+    const query: TradeTargetsQuery =
+      category !== 'all' ? { category } : undefined;
     fetchTradeTargets(leagueId, query);
   };
 
@@ -112,7 +146,9 @@ export function TradeTargetsList({
         {/* Header */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 text-lg">{candidate.name}</h3>
+            <h3 className="font-semibold text-gray-900 text-lg">
+              {candidate.name}
+            </h3>
             <div className="flex items-center gap-2 mt-1">
               <Badge variant="outline">{candidate.position}</Badge>
             </div>
@@ -127,11 +163,15 @@ export function TradeTargetsList({
         <div className="grid grid-cols-2 gap-3 mb-3">
           <div className="p-2 rounded-lg bg-gray-50">
             <div className="text-xs text-gray-600 mb-1">Current Value</div>
-            <div className="text-sm font-semibold text-gray-900">{candidate.current_value}</div>
+            <div className="text-sm font-semibold text-gray-900">
+              {candidate.current_value}
+            </div>
           </div>
           <div className="p-2 rounded-lg bg-blue-50">
             <div className="text-xs text-blue-700 mb-1">Target Value</div>
-            <div className="text-sm font-semibold text-blue-900">{candidate.target_value}</div>
+            <div className="text-sm font-semibold text-blue-900">
+              {candidate.target_value}
+            </div>
           </div>
         </div>
 
@@ -148,7 +188,9 @@ export function TradeTargetsList({
       <Card>
         <CardContent className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-          <span className="ml-2 text-gray-600">Finding trade opportunities...</span>
+          <span className="ml-2 text-gray-600">
+            Finding trade opportunities...
+          </span>
         </CardContent>
       </Card>
     );
@@ -195,9 +237,16 @@ export function TradeTargetsList({
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Trade Targets</CardTitle>
-            <CardDescription>Buy-low and sell-high opportunities for your team</CardDescription>
+            <CardDescription>
+              Buy-low and sell-high opportunities for your team
+            </CardDescription>
           </div>
-          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={loading.tradeTargets}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={loading.tradeTargets}
+          >
             Refresh
           </Button>
         </div>
@@ -243,7 +292,8 @@ export function TradeTargetsList({
           <div className="py-8 text-center">
             <p className="text-gray-600 mb-2">No trade targets found</p>
             <p className="text-sm text-gray-500">
-              Try adjusting your filters or check back later for new opportunities
+              Try adjusting your filters or check back later for new
+              opportunities
             </p>
           </div>
         ) : (
@@ -254,7 +304,9 @@ export function TradeTargetsList({
                 <div>
                   <div className="flex items-center gap-2 mb-3">
                     <TrendingDown className="h-5 w-5 text-green-600" />
-                    <h3 className="font-semibold text-gray-900">Buy Low Candidates</h3>
+                    <h3 className="font-semibold text-gray-900">
+                      Buy Low Candidates
+                    </h3>
                     <Badge className="bg-green-100 text-green-800">
                       {tradeTargets.buy_low_candidates.length}
                     </Badge>
@@ -271,7 +323,9 @@ export function TradeTargetsList({
                 <div>
                   <div className="flex items-center gap-2 mb-3">
                     <TrendingUp className="h-5 w-5 text-orange-600" />
-                    <h3 className="font-semibold text-gray-900">Sell High Opportunities</h3>
+                    <h3 className="font-semibold text-gray-900">
+                      Sell High Opportunities
+                    </h3>
                     <Badge className="bg-orange-100 text-orange-800">
                       {tradeTargets.sell_high_opportunities.length}
                     </Badge>
@@ -288,7 +342,9 @@ export function TradeTargetsList({
                 <div>
                   <div className="flex items-center gap-2 mb-3">
                     <Repeat className="h-5 w-5 text-purple-600" />
-                    <h3 className="font-semibold text-gray-900">Value Arbitrage</h3>
+                    <h3 className="font-semibold text-gray-900">
+                      Value Arbitrage
+                    </h3>
                     <Badge className="bg-purple-100 text-purple-800">
                       {tradeTargets.trade_value_arbitrage.length}
                     </Badge>

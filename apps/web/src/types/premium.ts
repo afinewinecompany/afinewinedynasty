@@ -49,7 +49,7 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
     enabled: true,
     tier: 'premium',
     category: 'data',
-    limit: 500
+    limit: 500,
   },
   {
     id: 'advanced-filters',
@@ -57,7 +57,7 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
     description: 'Complex multi-criteria filtering with AND/OR operations',
     enabled: true,
     tier: 'premium',
-    category: 'analysis'
+    category: 'analysis',
   },
   {
     id: 'unlimited-comparisons',
@@ -66,7 +66,7 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
     enabled: true,
     tier: 'premium',
     category: 'analysis',
-    limit: 10
+    limit: 10,
   },
   {
     id: 'historical-data',
@@ -74,7 +74,7 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
     description: 'View performance trends and season-over-season comparisons',
     enabled: true,
     tier: 'premium',
-    category: 'data'
+    category: 'data',
   },
   {
     id: 'enhanced-outlooks',
@@ -82,7 +82,7 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
     description: 'Personalized ML predictions with detailed explanations',
     enabled: true,
     tier: 'premium',
-    category: 'analysis'
+    category: 'analysis',
   },
   {
     id: 'data-export',
@@ -90,7 +90,7 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
     description: 'Export data in CSV, PDF, and JSON formats',
     enabled: true,
     tier: 'premium',
-    category: 'export'
+    category: 'export',
   },
   {
     id: 'priority-support',
@@ -98,7 +98,7 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
     description: 'Faster response times and direct feature requests',
     enabled: true,
     tier: 'premium',
-    category: 'support'
+    category: 'support',
   },
   {
     id: 'saved-searches',
@@ -107,7 +107,7 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
     enabled: true,
     tier: 'premium',
     category: 'analysis',
-    limit: 50
+    limit: 50,
   },
   {
     id: 'beta-features',
@@ -115,8 +115,8 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
     description: 'Early access to new features and functionality',
     enabled: true,
     tier: 'premium',
-    category: 'beta'
-  }
+    category: 'beta',
+  },
 ];
 
 export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
@@ -131,14 +131,14 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       'Basic filtering',
       'Compare 2 prospects',
       'Standard support',
-      '5 saved searches'
+      '5 saved searches',
     ],
     limits: {
       prospects: 100,
       comparisons: 2,
       savedSearches: 5,
-      exports: 0
-    }
+      exports: 0,
+    },
   },
   {
     id: 'premium',
@@ -155,19 +155,19 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
       'Data export (CSV, PDF, JSON)',
       'Priority support',
       '50 saved searches',
-      'Beta feature access'
+      'Beta feature access',
     ],
     limits: {
       prospects: 500,
       comparisons: 10,
       savedSearches: 50,
-      exports: 100
-    }
-  }
+      exports: 100,
+    },
+  },
 ];
 
 export function getFeatureByTier(tier: 'free' | 'premium'): PremiumFeature[] {
-  return PREMIUM_FEATURES.filter(feature => {
+  return PREMIUM_FEATURES.filter((feature) => {
     if (tier === 'premium') {
       return feature.tier === 'premium' || feature.tier === 'free';
     }
@@ -175,8 +175,10 @@ export function getFeatureByTier(tier: 'free' | 'premium'): PremiumFeature[] {
   });
 }
 
-export function getTierLimits(tier: 'free' | 'premium'): Record<string, number> {
-  const tierConfig = SUBSCRIPTION_TIERS.find(t => t.id === tier);
+export function getTierLimits(
+  tier: 'free' | 'premium'
+): Record<string, number> {
+  const tierConfig = SUBSCRIPTION_TIERS.find((t) => t.id === tier);
   return tierConfig?.limits || {};
 }
 
@@ -185,18 +187,26 @@ export function getUpgradePrompt(feature: string): UpgradePromptConfig {
     'full-rankings': {
       title: 'Unlock Full Rankings',
       description: 'Get access to all 500 dynasty prospects',
-      features: ['400 additional prospects', 'Deeper dynasty targets', 'Complete player pool'],
+      features: [
+        '400 additional prospects',
+        'Deeper dynasty targets',
+        'Complete player pool',
+      ],
       ctaText: 'Upgrade to Premium',
       ctaLink: '/subscription',
-      showPricing: true
+      showPricing: true,
     },
     'advanced-filters': {
       title: 'Advanced Filtering',
       description: 'Find exactly the prospects you need',
-      features: ['Complex criteria', 'AND/OR operations', 'Save custom filters'],
+      features: [
+        'Complex criteria',
+        'AND/OR operations',
+        'Save custom filters',
+      ],
       ctaText: 'Unlock Advanced Filters',
       ctaLink: '/subscription',
-      showPricing: true
+      showPricing: true,
     },
     'data-export': {
       title: 'Export Your Data',
@@ -204,24 +214,28 @@ export function getUpgradePrompt(feature: string): UpgradePromptConfig {
       features: ['CSV format', 'PDF reports', 'JSON data'],
       ctaText: 'Get Export Access',
       ctaLink: '/subscription',
-      showPricing: true
+      showPricing: true,
     },
     'historical-data': {
       title: 'Historical Trends',
       description: 'Track prospect performance over time',
-      features: ['Performance trajectories', 'Season comparisons', 'Trend analysis'],
+      features: [
+        'Performance trajectories',
+        'Season comparisons',
+        'Trend analysis',
+      ],
       ctaText: 'View Historical Data',
       ctaLink: '/subscription',
-      showPricing: true
+      showPricing: true,
     },
-    'default': {
+    default: {
       title: 'Premium Feature',
       description: 'This feature requires a premium subscription',
       features: SUBSCRIPTION_TIERS[1].features,
       ctaText: 'Upgrade Now',
       ctaLink: '/subscription',
-      showPricing: true
-    }
+      showPricing: true,
+    },
   };
 
   return prompts[feature] || prompts.default;

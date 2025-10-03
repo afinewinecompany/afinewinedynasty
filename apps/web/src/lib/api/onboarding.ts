@@ -115,8 +115,13 @@ export async function getOnboardingStatus(): Promise<OnboardingStatus> {
  *
  * @since 1.0.0
  */
-export async function progressOnboarding(step: number): Promise<OnboardingStatus> {
-  const response = await apiClient.post<OnboardingStatus>('/onboarding/progress', { step });
+export async function progressOnboarding(
+  step: number
+): Promise<OnboardingStatus> {
+  const response = await apiClient.post<OnboardingStatus>(
+    '/onboarding/progress',
+    { step }
+  );
   return response.data;
 }
 
@@ -136,7 +141,9 @@ export async function progressOnboarding(step: number): Promise<OnboardingStatus
  * @since 1.0.0
  */
 export async function completeOnboarding(): Promise<OnboardingCompletionResponse> {
-  const response = await apiClient.post<OnboardingCompletionResponse>('/onboarding/complete');
+  const response = await apiClient.post<OnboardingCompletionResponse>(
+    '/onboarding/complete'
+  );
   return response.data;
 }
 
@@ -156,7 +163,8 @@ export async function completeOnboarding(): Promise<OnboardingCompletionResponse
  * @since 1.0.0
  */
 export async function skipOnboarding(): Promise<OnboardingCompletionResponse> {
-  const response = await apiClient.post<OnboardingCompletionResponse>('/onboarding/skip');
+  const response =
+    await apiClient.post<OnboardingCompletionResponse>('/onboarding/skip');
   return response.data;
 }
 
@@ -176,6 +184,7 @@ export async function skipOnboarding(): Promise<OnboardingCompletionResponse> {
  * @since 1.0.0
  */
 export async function resetOnboarding(): Promise<OnboardingResetResponse> {
-  const response = await apiClient.post<OnboardingResetResponse>('/onboarding/reset');
+  const response =
+    await apiClient.post<OnboardingResetResponse>('/onboarding/reset');
   return response.data;
 }

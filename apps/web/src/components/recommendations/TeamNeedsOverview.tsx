@@ -11,11 +11,23 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, TrendingUp, AlertTriangle, Users, Calendar } from 'lucide-react';
+import {
+  Loader2,
+  TrendingUp,
+  AlertTriangle,
+  Users,
+  Calendar,
+} from 'lucide-react';
 import { useRecommendations } from '@/hooks/useRecommendations';
 import type { PositionalNeed, DepthAnalysis } from '@/types/recommendations';
 
@@ -52,12 +64,7 @@ export function TeamNeedsOverview({
   autoLoad = true,
   onRefresh,
 }: TeamNeedsOverviewProps) {
-  const {
-    teamNeeds,
-    loading,
-    error,
-    fetchTeamNeeds,
-  } = useRecommendations();
+  const { teamNeeds, loading, error, fetchTeamNeeds } = useRecommendations();
 
   // Auto-load on mount
   useEffect(() => {
@@ -96,7 +103,8 @@ export function TeamNeedsOverview({
    */
   const getGapIndicator = (gapScore: number) => {
     if (gapScore >= 70) return { color: 'text-red-600', label: 'Critical Gap' };
-    if (gapScore >= 50) return { color: 'text-orange-600', label: 'Significant Gap' };
+    if (gapScore >= 50)
+      return { color: 'text-orange-600', label: 'Significant Gap' };
     if (gapScore >= 30) return { color: 'text-yellow-600', label: 'Minor Gap' };
     return { color: 'text-green-600', label: 'Adequate' };
   };
@@ -144,9 +152,7 @@ export function TeamNeedsOverview({
           <p className="text-sm text-gray-500 mb-4">
             Load team needs to see positional gaps and depth analysis
           </p>
-          <Button onClick={handleRefresh}>
-            Load Team Needs
-          </Button>
+          <Button onClick={handleRefresh}>Load Team Needs</Button>
         </CardContent>
       </Card>
     );
@@ -178,7 +184,9 @@ export function TeamNeedsOverview({
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-gray-600" />
-              <h3 className="font-semibold text-gray-900">Competitive Window</h3>
+              <h3 className="font-semibold text-gray-900">
+                Competitive Window
+              </h3>
             </div>
             <Badge className={getWindowColor(teamNeeds.competitive_window)}>
               {teamNeeds.competitive_window.charAt(0).toUpperCase() +
@@ -189,8 +197,8 @@ export function TeamNeedsOverview({
             {teamNeeds.competitive_window === 'contending'
               ? 'Your team is positioned to compete now. Focus on win-now prospects and immediate contributors.'
               : teamNeeds.competitive_window === 'transitional'
-              ? 'Your team is in transition. Balance between current contributors and future assets.'
-              : 'Your team is rebuilding. Prioritize high-upside prospects with longer timelines.'}
+                ? 'Your team is in transition. Balance between current contributors and future assets.'
+                : 'Your team is rebuilding. Prioritize high-upside prospects with longer timelines.'}
           </p>
         </div>
 
@@ -201,7 +209,9 @@ export function TeamNeedsOverview({
             <h3 className="font-semibold text-gray-900">Positional Needs</h3>
           </div>
           {teamNeeds.positional_needs.length === 0 ? (
-            <p className="text-sm text-gray-500">No critical positional needs identified</p>
+            <p className="text-sm text-gray-500">
+              No critical positional needs identified
+            </p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {teamNeeds.positional_needs.map((need, index) => (
@@ -210,13 +220,18 @@ export function TeamNeedsOverview({
                   className="p-3 rounded-lg border border-gray-200 hover:border-blue-300 transition-colors"
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="font-semibold text-gray-900">{need.position}</span>
+                    <span className="font-semibold text-gray-900">
+                      {need.position}
+                    </span>
                     <Badge className={getSeverityColor(need.severity)}>
                       {need.severity}
                     </Badge>
                   </div>
                   <p className="text-xs text-gray-600">
-                    Timeline: <span className="font-medium">{need.timeline.replace('_', ' ')}</span>
+                    Timeline:{' '}
+                    <span className="font-medium">
+                      {need.timeline.replace('_', ' ')}
+                    </span>
                   </p>
                 </div>
               ))}
@@ -228,30 +243,36 @@ export function TeamNeedsOverview({
         <div>
           <div className="flex items-center gap-2 mb-3">
             <Users className="h-5 w-5 text-gray-600" />
-            <h3 className="font-semibold text-gray-900">Depth Chart Analysis</h3>
+            <h3 className="font-semibold text-gray-900">
+              Depth Chart Analysis
+            </h3>
           </div>
           <div className="space-y-2">
-            {Object.entries(teamNeeds.depth_analysis).map(([position, depth]: [string, DepthAnalysis]) => {
-              const gap = getGapIndicator(depth.gap_score);
-              return (
-                <div
-                  key={position}
-                  className="flex items-center justify-between p-3 rounded-lg bg-gray-50"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="font-medium text-gray-900 w-12">{position}</span>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <span>{depth.starters} starters</span>
-                      <span className="text-gray-400">•</span>
-                      <span>{depth.depth} depth</span>
+            {Object.entries(teamNeeds.depth_analysis).map(
+              ([position, depth]: [string, DepthAnalysis]) => {
+                const gap = getGapIndicator(depth.gap_score);
+                return (
+                  <div
+                    key={position}
+                    className="flex items-center justify-between p-3 rounded-lg bg-gray-50"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="font-medium text-gray-900 w-12">
+                        {position}
+                      </span>
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <span>{depth.starters} starters</span>
+                        <span className="text-gray-400">•</span>
+                        <span>{depth.depth} depth</span>
+                      </div>
                     </div>
+                    <Badge className={`${gap.color} bg-transparent border-0`}>
+                      {gap.label}
+                    </Badge>
                   </div>
-                  <Badge className={`${gap.color} bg-transparent border-0`}>
-                    {gap.label}
-                  </Badge>
-                </div>
-              );
-            })}
+                );
+              }
+            )}
           </div>
         </div>
 
@@ -261,15 +282,23 @@ export function TeamNeedsOverview({
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Calendar className="h-5 w-5 text-gray-600" />
-              <h3 className="font-semibold text-gray-900">Future Roster Needs</h3>
+              <h3 className="font-semibold text-gray-900">
+                Future Roster Needs
+              </h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {teamNeeds.future_needs['2_year'].length > 0 && (
                 <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
-                  <h4 className="text-sm font-semibold text-blue-900 mb-2">2-Year Outlook</h4>
+                  <h4 className="text-sm font-semibold text-blue-900 mb-2">
+                    2-Year Outlook
+                  </h4>
                   <div className="flex flex-wrap gap-2">
                     {teamNeeds.future_needs['2_year'].map((position, index) => (
-                      <Badge key={index} variant="outline" className="border-blue-300">
+                      <Badge
+                        key={index}
+                        variant="outline"
+                        className="border-blue-300"
+                      >
                         {position}
                       </Badge>
                     ))}
@@ -278,10 +307,16 @@ export function TeamNeedsOverview({
               )}
               {teamNeeds.future_needs['3_year'].length > 0 && (
                 <div className="p-3 rounded-lg bg-purple-50 border border-purple-200">
-                  <h4 className="text-sm font-semibold text-purple-900 mb-2">3-Year Outlook</h4>
+                  <h4 className="text-sm font-semibold text-purple-900 mb-2">
+                    3-Year Outlook
+                  </h4>
                   <div className="flex flex-wrap gap-2">
                     {teamNeeds.future_needs['3_year'].map((position, index) => (
-                      <Badge key={index} variant="outline" className="border-purple-300">
+                      <Badge
+                        key={index}
+                        variant="outline"
+                        className="border-purple-300"
+                      >
                         {position}
                       </Badge>
                     ))}

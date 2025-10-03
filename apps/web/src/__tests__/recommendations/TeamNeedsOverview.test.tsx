@@ -10,7 +10,9 @@ import type { TeamNeeds } from '@/types/recommendations';
 // Mock the hook
 jest.mock('@/hooks/useRecommendations');
 
-const mockUseRecommendations = useRecommendations as jest.MockedFunction<typeof useRecommendations>;
+const mockUseRecommendations = useRecommendations as jest.MockedFunction<
+  typeof useRecommendations
+>;
 
 describe('TeamNeedsOverview Component', () => {
   const mockLeagueId = 'test-league-123';
@@ -179,7 +181,9 @@ describe('TeamNeedsOverview Component', () => {
       fetchTeamNeeds: mockFetch,
     });
 
-    render(<TeamNeedsOverview leagueId={mockLeagueId} onRefresh={mockOnRefresh} />);
+    render(
+      <TeamNeedsOverview leagueId={mockLeagueId} onRefresh={mockOnRefresh} />
+    );
 
     const refreshButton = screen.getByText('Refresh');
     fireEvent.click(refreshButton);
@@ -217,7 +221,9 @@ describe('TeamNeedsOverview Component', () => {
 
     expect(screen.getByText('Rebuilding')).toBeInTheDocument();
     expect(
-      screen.getByText(/Your team is rebuilding. Prioritize high-upside prospects/i)
+      screen.getByText(
+        /Your team is rebuilding. Prioritize high-upside prospects/i
+      )
     ).toBeInTheDocument();
   });
 });

@@ -41,7 +41,7 @@ interface PositionScarcityData {
 interface PositionScarcityProps {
   scarcityData?: PositionScarcityData[];
   isLoading?: boolean;
-  error?: any;
+  error?: Error | null;
   onRefresh?: () => void;
 }
 

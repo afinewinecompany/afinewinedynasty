@@ -58,7 +58,9 @@ export interface AchievementProgress {
  * @since 1.0.0
  */
 export async function getAllAchievements(): Promise<Achievement[]> {
-  const response = await apiClient.get<Achievement[]>('/achievements/achievements');
+  const response = await apiClient.get<Achievement[]>(
+    '/achievements/achievements'
+  );
   return response.data;
 }
 
@@ -80,10 +82,12 @@ export async function getAllAchievements(): Promise<Achievement[]> {
 export async function getUserAchievements(
   includeLocked: boolean = false
 ): Promise<{ achievements: Achievement[]; total: number }> {
-  const response = await apiClient.get<{ achievements: Achievement[]; total: number }>(
-    '/achievements/users/achievements',
-    { params: { include_locked: includeLocked } }
-  );
+  const response = await apiClient.get<{
+    achievements: Achievement[];
+    total: number;
+  }>('/achievements/users/achievements', {
+    params: { include_locked: includeLocked },
+  });
   return response.data;
 }
 

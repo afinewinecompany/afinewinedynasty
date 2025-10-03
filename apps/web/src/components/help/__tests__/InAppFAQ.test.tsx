@@ -34,8 +34,12 @@ describe('InAppFAQ Component', () => {
     fireEvent.click(closeButton);
 
     // Should show the help button again
-    expect(screen.getByRole('button', { name: /open faq/i })).toBeInTheDocument();
-    expect(screen.queryByText('Frequently Asked Questions')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /open faq/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText('Frequently Asked Questions')
+    ).not.toBeInTheDocument();
   });
 
   it('should display all FAQ items by default', () => {
@@ -45,9 +49,15 @@ describe('InAppFAQ Component', () => {
     fireEvent.click(screen.getByRole('button', { name: /open faq/i }));
 
     // Check for some FAQ questions
-    expect(screen.getByText('How do I upgrade my subscription?')).toBeInTheDocument();
-    expect(screen.getByText('What data sources do you use for prospect information?')).toBeInTheDocument();
-    expect(screen.getByText('How often are rankings updated?')).toBeInTheDocument();
+    expect(
+      screen.getByText('How do I upgrade my subscription?')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('What data sources do you use for prospect information?')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('How often are rankings updated?')
+    ).toBeInTheDocument();
   });
 
   it('should filter FAQ items by search query', async () => {
@@ -63,10 +73,14 @@ describe('InAppFAQ Component', () => {
     await user.type(searchInput, 'subscription');
 
     // Should show subscription-related questions
-    expect(screen.getByText('How do I upgrade my subscription?')).toBeInTheDocument();
+    expect(
+      screen.getByText('How do I upgrade my subscription?')
+    ).toBeInTheDocument();
 
     // Should not show unrelated questions
-    expect(screen.queryByText('How often are rankings updated?')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('How often are rankings updated?')
+    ).not.toBeInTheDocument();
   });
 
   it('should filter FAQ items by category', () => {
@@ -80,10 +94,14 @@ describe('InAppFAQ Component', () => {
     fireEvent.click(billingButton);
 
     // Should show billing questions
-    expect(screen.getByText('How do I upgrade my subscription?')).toBeInTheDocument();
+    expect(
+      screen.getByText('How do I upgrade my subscription?')
+    ).toBeInTheDocument();
 
     // Should not show non-billing questions
-    expect(screen.queryByText('How often are rankings updated?')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('How often are rankings updated?')
+    ).not.toBeInTheDocument();
   });
 
   it('should reset category filter when "All" is clicked', () => {
@@ -94,14 +112,20 @@ describe('InAppFAQ Component', () => {
 
     // Filter by category
     fireEvent.click(screen.getByRole('button', { name: 'Billing' }));
-    expect(screen.queryByText('How often are rankings updated?')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('How often are rankings updated?')
+    ).not.toBeInTheDocument();
 
     // Click "All"
     fireEvent.click(screen.getByRole('button', { name: 'All' }));
 
     // Should show all questions again
-    expect(screen.getByText('How do I upgrade my subscription?')).toBeInTheDocument();
-    expect(screen.getByText('How often are rankings updated?')).toBeInTheDocument();
+    expect(
+      screen.getByText('How do I upgrade my subscription?')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('How often are rankings updated?')
+    ).toBeInTheDocument();
   });
 
   it('should expand and collapse FAQ items', () => {
@@ -113,19 +137,25 @@ describe('InAppFAQ Component', () => {
     const firstQuestion = screen.getByText('How do I upgrade my subscription?');
 
     // Answer should not be visible initially
-    expect(screen.queryByText(/Navigate to Account Settings/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Navigate to Account Settings/)
+    ).not.toBeInTheDocument();
 
     // Click to expand
     fireEvent.click(firstQuestion);
 
     // Answer should now be visible
-    expect(screen.getByText(/Navigate to Account Settings/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Navigate to Account Settings/)
+    ).toBeInTheDocument();
 
     // Click to collapse
     fireEvent.click(firstQuestion);
 
     // Answer should be hidden again
-    expect(screen.queryByText(/Navigate to Account Settings/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Navigate to Account Settings/)
+    ).not.toBeInTheDocument();
   });
 
   it('should display tags for expanded items', () => {
@@ -157,7 +187,9 @@ describe('InAppFAQ Component', () => {
     // Search for something that doesn't exist
     await user.type(searchInput, 'xyz123nonexistent');
 
-    expect(screen.getByText('No questions found. Try adjusting your search.')).toBeInTheDocument();
+    expect(
+      screen.getByText('No questions found. Try adjusting your search.')
+    ).toBeInTheDocument();
   });
 
   it('should display contact support link', () => {
@@ -168,7 +200,10 @@ describe('InAppFAQ Component', () => {
 
     const supportLink = screen.getByRole('link', { name: /contact support/i });
     expect(supportLink).toBeInTheDocument();
-    expect(supportLink).toHaveAttribute('href', 'mailto:support@afinewinedynasty.com');
+    expect(supportLink).toHaveAttribute(
+      'href',
+      'mailto:support@afinewinedynasty.com'
+    );
   });
 
   it('should highlight selected category', () => {
@@ -202,13 +237,17 @@ describe('InAppFAQ Component', () => {
     // Expand a question
     const question = screen.getByText('How do I upgrade my subscription?');
     fireEvent.click(question);
-    expect(screen.getByText(/Navigate to Account Settings/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Navigate to Account Settings/)
+    ).toBeInTheDocument();
 
     // Search for something that still includes this question
     const searchInput = screen.getByPlaceholderText('Search FAQ...');
     await user.type(searchInput, 'upgrade');
 
     // The question should still be expanded
-    expect(screen.getByText(/Navigate to Account Settings/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Navigate to Account Settings/)
+    ).toBeInTheDocument();
   });
 });

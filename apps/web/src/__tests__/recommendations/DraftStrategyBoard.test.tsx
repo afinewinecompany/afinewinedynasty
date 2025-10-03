@@ -10,7 +10,9 @@ import type { DraftStrategy } from '@/types/recommendations';
 // Mock the hook
 jest.mock('@/hooks/useRecommendations');
 
-const mockUseRecommendations = useRecommendations as jest.MockedFunction<typeof useRecommendations>;
+const mockUseRecommendations = useRecommendations as jest.MockedFunction<
+  typeof useRecommendations
+>;
 
 describe('DraftStrategyBoard Component', () => {
   const mockLeagueId = 'test-league-123';
@@ -108,7 +110,9 @@ describe('DraftStrategyBoard Component', () => {
 
     render(<DraftStrategyBoard leagueId={mockLeagueId} />);
 
-    expect(screen.getByText('Generating draft strategy...')).toBeInTheDocument();
+    expect(
+      screen.getByText('Generating draft strategy...')
+    ).toBeInTheDocument();
   });
 
   it('should render error state', () => {
@@ -141,7 +145,9 @@ describe('DraftStrategyBoard Component', () => {
 
     // Check title
     expect(screen.getByText('Draft Strategy Board')).toBeInTheDocument();
-    expect(screen.getByText('Tiered prospects and draft recommendations')).toBeInTheDocument();
+    expect(
+      screen.getByText('Tiered prospects and draft recommendations')
+    ).toBeInTheDocument();
 
     // Check BPA vs Need guidance
     expect(screen.getByText('Draft Guidance')).toBeInTheDocument();
@@ -251,7 +257,13 @@ describe('DraftStrategyBoard Component', () => {
       fetchDraftStrategy: mockFetch,
     });
 
-    render(<DraftStrategyBoard leagueId={mockLeagueId} initialPickNumber={3} autoLoad={true} />);
+    render(
+      <DraftStrategyBoard
+        leagueId={mockLeagueId}
+        initialPickNumber={3}
+        autoLoad={true}
+      />
+    );
 
     expect(mockFetch).toHaveBeenCalledWith(mockLeagueId, { pick_number: 3 });
   });
@@ -263,7 +275,12 @@ describe('DraftStrategyBoard Component', () => {
       draftStrategy: mockDraftStrategy,
     });
 
-    render(<DraftStrategyBoard leagueId={mockLeagueId} onProspectClick={mockOnClick} />);
+    render(
+      <DraftStrategyBoard
+        leagueId={mockLeagueId}
+        onProspectClick={mockOnClick}
+      />
+    );
 
     // Click on a prospect
     const prospect = screen.getByText('Elite Prospect 1');
@@ -281,7 +298,9 @@ describe('DraftStrategyBoard Component', () => {
       fetchDraftStrategy: mockFetch,
     });
 
-    render(<DraftStrategyBoard leagueId={mockLeagueId} onRefresh={mockOnRefresh} />);
+    render(
+      <DraftStrategyBoard leagueId={mockLeagueId} onRefresh={mockOnRefresh} />
+    );
 
     const refreshButton = screen.getByText('Refresh');
     fireEvent.click(refreshButton);

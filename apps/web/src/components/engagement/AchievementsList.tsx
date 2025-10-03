@@ -11,7 +11,13 @@
 import React, { useState } from 'react';
 import { useAchievements } from '@/hooks/useAchievements';
 import { AchievementBadge } from './AchievementBadge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -44,13 +50,17 @@ export interface AchievementsListProps {
  *
  * @since 1.0.0
  */
-export function AchievementsList({ className }: AchievementsListProps): JSX.Element {
+export function AchievementsList({
+  className,
+}: AchievementsListProps): JSX.Element {
   const { achievements, progress, isLoading, error } = useAchievements(true);
   const [activeTab, setActiveTab] = useState<string>('unlocked');
 
   if (isLoading) {
     return (
-      <div className={`flex items-center justify-center p-8 ${className || ''}`}>
+      <div
+        className={`flex items-center justify-center p-8 ${className || ''}`}
+      >
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
@@ -148,7 +158,9 @@ export function AchievementsList({ className }: AchievementsListProps): JSX.Elem
                 <div className="text-center py-8 text-muted-foreground">
                   <Trophy className="h-12 w-12 mx-auto mb-3 opacity-20" />
                   <p>No achievements unlocked yet</p>
-                  <p className="text-sm mt-1">Start exploring to earn your first achievement!</p>
+                  <p className="text-sm mt-1">
+                    Start exploring to earn your first achievement!
+                  </p>
                 </div>
               ) : (
                 <div className="grid gap-4 md:grid-cols-2">
@@ -166,8 +178,12 @@ export function AchievementsList({ className }: AchievementsListProps): JSX.Elem
               {lockedAchievements.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Trophy className="h-12 w-12 mx-auto mb-3 text-amber-500" />
-                  <p className="font-semibold text-lg">All Achievements Unlocked!</p>
-                  <p className="text-sm mt-1">Congratulations on completing everything!</p>
+                  <p className="font-semibold text-lg">
+                    All Achievements Unlocked!
+                  </p>
+                  <p className="text-sm mt-1">
+                    Congratulations on completing everything!
+                  </p>
                 </div>
               ) : (
                 <div className="grid gap-4 md:grid-cols-2">

@@ -60,7 +60,9 @@ export function AchievementBadge({
   return (
     <Card
       className={`p-4 ${
-        isUnlocked ? 'bg-gradient-to-br from-yellow-50 to-amber-50 border-amber-200' : 'bg-gray-50'
+        isUnlocked
+          ? 'bg-gradient-to-br from-yellow-50 to-amber-50 border-amber-200'
+          : 'bg-gray-50'
       } ${className || ''}`}
     >
       <div className="flex items-start gap-3">

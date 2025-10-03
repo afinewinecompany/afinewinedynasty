@@ -13,7 +13,14 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ChevronDown, ChevronUp, TrendingUp, Clock, DollarSign, Target } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronUp,
+  TrendingUp,
+  Clock,
+  DollarSign,
+  Target,
+} from 'lucide-react';
 import type { RecommendationDetails } from '@/types/recommendations';
 
 /**
@@ -81,7 +88,9 @@ export function RecommendationCard({
   /**
    * Get confidence badge color
    */
-  const getConfidenceColor = (confidence: RecommendationDetails['confidence']): string => {
+  const getConfidenceColor = (
+    confidence: RecommendationDetails['confidence']
+  ): string => {
     const colors = {
       high: 'bg-green-100 text-green-800',
       medium: 'bg-blue-100 text-blue-800',
@@ -99,7 +108,10 @@ export function RecommendationCard({
       high: { label: 'High', color: 'bg-blue-100 text-blue-800' },
       medium: { label: 'Medium', color: 'bg-green-100 text-green-800' },
       low: { label: 'Low', color: 'bg-gray-100 text-gray-800' },
-      speculative: { label: 'Speculative', color: 'bg-orange-100 text-orange-800' },
+      speculative: {
+        label: 'Speculative',
+        color: 'bg-orange-100 text-orange-800',
+      },
     };
     return ratings[rating];
   };
@@ -173,7 +185,9 @@ export function RecommendationCard({
             <Target className="h-4 w-4 text-gray-500 flex-shrink-0" />
             <div className="flex-1">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-medium text-gray-700">Position Fit</span>
+                <span className="text-xs font-medium text-gray-700">
+                  Position Fit
+                </span>
                 <span className="text-xs font-semibold text-gray-900">
                   {recommendation.position_fit.toFixed(0)}%
                 </span>
@@ -192,7 +206,9 @@ export function RecommendationCard({
             <Clock className="h-4 w-4 text-gray-500 flex-shrink-0" />
             <div className="flex-1">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-medium text-gray-700">Timeline Fit</span>
+                <span className="text-xs font-medium text-gray-700">
+                  Timeline Fit
+                </span>
                 <span className="text-xs font-semibold text-gray-900">
                   {recommendation.timeline_fit.toFixed(0)}%
                 </span>
@@ -281,8 +297,9 @@ export function RecommendationCard({
                 </span>
               </div>
               <p className="text-xs text-blue-700">
-                This recommendation has {recommendation.confidence} confidence based on
-                your team's competitive timeline, positional needs, and prospect fit.
+                This recommendation has {recommendation.confidence} confidence
+                based on your team's competitive timeline, positional needs, and
+                prospect fit.
               </p>
             </div>
           </div>

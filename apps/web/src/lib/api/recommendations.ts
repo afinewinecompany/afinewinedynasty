@@ -65,7 +65,8 @@ export async function getProspectRecommendations(
 ): Promise<ProspectRecommendationsResponse> {
   const params = new URLSearchParams();
   if (query?.limit) params.append('limit', query.limit.toString());
-  if (query?.risk_tolerance) params.append('risk_tolerance', query.risk_tolerance);
+  if (query?.risk_tolerance)
+    params.append('risk_tolerance', query.risk_tolerance);
 
   const queryString = params.toString();
   const endpoint = `/api/recommendations/prospects/${leagueId}${queryString ? `?${queryString}` : ''}`;
@@ -129,7 +130,8 @@ export async function getDraftStrategy(
   query?: DraftStrategyQuery
 ): Promise<DraftStrategyResponse> {
   const params = new URLSearchParams();
-  if (query?.pick_number) params.append('pick_number', query.pick_number.toString());
+  if (query?.pick_number)
+    params.append('pick_number', query.pick_number.toString());
 
   const queryString = params.toString();
   const endpoint = `/api/recommendations/draft-strategy/${leagueId}${queryString ? `?${queryString}` : ''}`;
@@ -154,7 +156,9 @@ export async function getDraftStrategy(
  *
  * @since 1.0.0
  */
-export async function getStashCandidates(leagueId: string): Promise<StashCandidatesResponse> {
+export async function getStashCandidates(
+  leagueId: string
+): Promise<StashCandidatesResponse> {
   return apiClient.get<StashCandidatesResponse>(
     `/api/recommendations/stash-candidates/${leagueId}`,
     30 // Cache for 30 minutes
@@ -198,6 +202,11 @@ export async function getUserPreferences(): Promise<UserPreferences> {
  *
  * @since 1.0.0
  */
-export async function updateUserPreferences(preferences: UserPreferences): Promise<UserPreferences> {
-  return apiClient.put<UserPreferences>('/api/recommendations/preferences', preferences);
+export async function updateUserPreferences(
+  preferences: UserPreferences
+): Promise<UserPreferences> {
+  return apiClient.put<UserPreferences>(
+    '/api/recommendations/preferences',
+    preferences
+  );
 }

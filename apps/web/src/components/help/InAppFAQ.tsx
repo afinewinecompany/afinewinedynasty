@@ -15,59 +15,67 @@ const faqData: FAQItem[] = [
   {
     id: '1',
     question: 'How do I upgrade my subscription?',
-    answer: 'Navigate to Account Settings > Subscription and click "Upgrade Plan". Select your desired tier and enter payment information. Your new features will be available immediately.',
+    answer:
+      'Navigate to Account Settings > Subscription and click "Upgrade Plan". Select your desired tier and enter payment information. Your new features will be available immediately.',
     category: 'Billing',
-    tags: ['subscription', 'upgrade', 'payment']
+    tags: ['subscription', 'upgrade', 'payment'],
   },
   {
     id: '2',
     question: 'What data sources do you use for prospect information?',
-    answer: 'We aggregate data from official MLB statistics, MiLB.com, Statcast measurements, team reports, and our proprietary scouting network to provide comprehensive prospect analysis.',
+    answer:
+      'We aggregate data from official MLB statistics, MiLB.com, Statcast measurements, team reports, and our proprietary scouting network to provide comprehensive prospect analysis.',
     category: 'Data',
-    tags: ['data', 'sources', 'statistics']
+    tags: ['data', 'sources', 'statistics'],
   },
   {
     id: '3',
     question: 'How often are rankings updated?',
-    answer: 'Rankings are updated weekly during the season and bi-weekly during the off-season. ML predictions are recalculated daily based on the latest performance data.',
+    answer:
+      'Rankings are updated weekly during the season and bi-weekly during the off-season. ML predictions are recalculated daily based on the latest performance data.',
     category: 'Features',
-    tags: ['rankings', 'updates', 'frequency']
+    tags: ['rankings', 'updates', 'frequency'],
   },
   {
     id: '4',
     question: 'Can I export prospect data?',
-    answer: 'Pro and Premium subscribers can export data to CSV format. Premium users also get API access for programmatic data retrieval and bulk exports.',
+    answer:
+      'Pro and Premium subscribers can export data to CSV format. Premium users also get API access for programmatic data retrieval and bulk exports.',
     category: 'Features',
-    tags: ['export', 'csv', 'data', 'api']
+    tags: ['export', 'csv', 'data', 'api'],
   },
   {
     id: '5',
     question: 'How do saved searches work?',
-    answer: 'Saved searches remember your filter criteria and can be quickly accessed from your dashboard. Premium users can set up notifications when new prospects match their search criteria.',
+    answer:
+      'Saved searches remember your filter criteria and can be quickly accessed from your dashboard. Premium users can set up notifications when new prospects match their search criteria.',
     category: 'Features',
-    tags: ['search', 'saved', 'filters', 'notifications']
+    tags: ['search', 'saved', 'filters', 'notifications'],
   },
   {
     id: '6',
     question: 'What is the prospect comparison tool?',
-    answer: 'The comparison tool allows you to select 2-4 prospects and view their statistics side-by-side with radar chart visualizations. You can compare current stats, projections, and historical performance.',
+    answer:
+      'The comparison tool allows you to select 2-4 prospects and view their statistics side-by-side with radar chart visualizations. You can compare current stats, projections, and historical performance.',
     category: 'Features',
-    tags: ['comparison', 'prospects', 'visualization']
+    tags: ['comparison', 'prospects', 'visualization'],
   },
   {
     id: '7',
     question: 'How accurate are the ML predictions?',
-    answer: 'Our models have shown 78% accuracy for next-season predictions and 65% for 3-year projections. We have an 82% success rate in identifying breakout candidates.',
+    answer:
+      'Our models have shown 78% accuracy for next-season predictions and 65% for 3-year projections. We have an 82% success rate in identifying breakout candidates.',
     category: 'ML',
-    tags: ['predictions', 'accuracy', 'machine learning']
+    tags: ['predictions', 'accuracy', 'machine learning'],
   },
   {
     id: '8',
     question: 'Can I integrate with my fantasy baseball platform?',
-    answer: 'We are developing integrations with major fantasy platforms. Fantrax integration is coming Q1 2025, with Yahoo and ESPN planned for later in the year.',
+    answer:
+      'We are developing integrations with major fantasy platforms. Fantrax integration is coming Q1 2025, with Yahoo and ESPN planned for later in the year.',
     category: 'Integrations',
-    tags: ['fantasy', 'integration', 'fantrax']
-  }
+    tags: ['fantasy', 'integration', 'fantrax'],
+  },
 ];
 
 export const InAppFAQ: React.FC = () => {
@@ -76,15 +84,19 @@ export const InAppFAQ: React.FC = () => {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [isOpen, setIsOpen] = useState(false);
 
-  const categories = Array.from(new Set(faqData.map(item => item.category)));
+  const categories = Array.from(new Set(faqData.map((item) => item.category)));
 
-  const filteredFAQ = faqData.filter(item => {
-    const matchesSearch = searchQuery === '' ||
+  const filteredFAQ = faqData.filter((item) => {
+    const matchesSearch =
+      searchQuery === '' ||
       item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.answer.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+      item.tags.some((tag) =>
+        tag.toLowerCase().includes(searchQuery.toLowerCase())
+      );
 
-    const matchesCategory = !selectedCategory || item.category === selectedCategory;
+    const matchesCategory =
+      !selectedCategory || item.category === selectedCategory;
 
     return matchesSearch && matchesCategory;
   });
@@ -119,7 +131,9 @@ export const InAppFAQ: React.FC = () => {
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Frequently Asked Questions</CardTitle>
+            <CardTitle className="text-lg">
+              Frequently Asked Questions
+            </CardTitle>
             <button
               onClick={() => setIsOpen(false)}
               className="p-1 hover:bg-gray-100 rounded transition-colors"
@@ -152,7 +166,7 @@ export const InAppFAQ: React.FC = () => {
               >
                 All
               </button>
-              {categories.map(category => (
+              {categories.map((category) => (
                 <button
                   key={category}
                   onClick={() => setSelectedCategory(category)}
@@ -176,7 +190,7 @@ export const InAppFAQ: React.FC = () => {
             </p>
           ) : (
             <div className="space-y-2">
-              {filteredFAQ.map(item => (
+              {filteredFAQ.map((item) => (
                 <div
                   key={item.id}
                   className="border rounded-lg overflow-hidden"
@@ -185,7 +199,9 @@ export const InAppFAQ: React.FC = () => {
                     onClick={() => toggleExpanded(item.id)}
                     className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center justify-between"
                   >
-                    <span className="text-sm font-medium pr-2">{item.question}</span>
+                    <span className="text-sm font-medium pr-2">
+                      {item.question}
+                    </span>
                     {expandedItems.has(item.id) ? (
                       <ChevronUp className="h-4 w-4 text-gray-400 flex-shrink-0" />
                     ) : (
@@ -196,7 +212,7 @@ export const InAppFAQ: React.FC = () => {
                     <div className="px-4 pb-3 pt-1 bg-gray-50">
                       <p className="text-sm text-gray-600">{item.answer}</p>
                       <div className="mt-2 flex flex-wrap gap-1">
-                        {item.tags.map(tag => (
+                        {item.tags.map((tag) => (
                           <span
                             key={tag}
                             className="inline-block px-2 py-1 text-xs bg-gray-200 text-gray-600 rounded"

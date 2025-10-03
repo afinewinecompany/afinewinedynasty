@@ -135,3 +135,6 @@ export class APIClient {
 export const apiClient = new APIClient({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
 });
+
+// Export as 'api' for compatibility
+export const api = apiClient;

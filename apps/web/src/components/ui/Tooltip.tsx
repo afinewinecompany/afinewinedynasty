@@ -19,13 +19,11 @@ export const Tooltip: React.FC<TooltipProps> = ({
   side = 'top',
   align = 'center',
   delayDuration = 200,
-  className
+  className,
 }) => {
   return (
     <TooltipPrimitive.Root delayDuration={delayDuration}>
-      <TooltipPrimitive.Trigger asChild>
-        {children}
-      </TooltipPrimitive.Trigger>
+      <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
       <TooltipPrimitive.Portal>
         <TooltipPrimitive.Content
           side={side}

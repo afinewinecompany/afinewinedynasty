@@ -22,7 +22,8 @@ import type {
   ConnectionStatus,
 } from '@/types/fantrax';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 const FANTRAX_BASE = `${API_BASE_URL}/integrations/fantrax`;
 
 /**
@@ -117,7 +118,10 @@ export async function handleOAuthCallback(
  *
  * @since 1.0.0
  */
-export async function disconnectFantrax(): Promise<{ success: boolean; message: string }> {
+export async function disconnectFantrax(): Promise<{
+  success: boolean;
+  message: string;
+}> {
   const response = await fetch(`${FANTRAX_BASE}/disconnect`, {
     method: 'POST',
     headers: getAuthHeaders(),
@@ -162,7 +166,9 @@ export async function getUserLeagues(): Promise<FantraxLeague[]> {
  *
  * @since 1.0.0
  */
-export async function syncRoster(request: RosterSyncRequest): Promise<RosterSyncResponse> {
+export async function syncRoster(
+  request: RosterSyncRequest
+): Promise<RosterSyncResponse> {
   const response = await fetch(`${FANTRAX_BASE}/roster/sync`, {
     method: 'POST',
     headers: getAuthHeaders(),

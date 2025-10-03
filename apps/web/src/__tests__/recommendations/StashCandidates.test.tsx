@@ -10,7 +10,9 @@ import type { StashCandidatesResponse } from '@/types/recommendations';
 // Mock the hook
 jest.mock('@/hooks/useRecommendations');
 
-const mockUseRecommendations = useRecommendations as jest.MockedFunction<typeof useRecommendations>;
+const mockUseRecommendations = useRecommendations as jest.MockedFunction<
+  typeof useRecommendations
+>;
 
 describe('StashCandidates Component', () => {
   const mockLeagueId = 'test-league-123';
@@ -110,7 +112,9 @@ describe('StashCandidates Component', () => {
   it('should render empty state when no data', () => {
     render(<StashCandidates leagueId={mockLeagueId} autoLoad={false} />);
 
-    expect(screen.getByText('No stash candidates available')).toBeInTheDocument();
+    expect(
+      screen.getByText('No stash candidates available')
+    ).toBeInTheDocument();
     expect(screen.getByText('Load Stash Candidates')).toBeInTheDocument();
   });
 
@@ -124,7 +128,9 @@ describe('StashCandidates Component', () => {
 
     // Check title
     expect(screen.getByText('Stash Candidates')).toBeInTheDocument();
-    expect(screen.getByText('High-upside prospects to stash on your roster')).toBeInTheDocument();
+    expect(
+      screen.getByText('High-upside prospects to stash on your roster')
+    ).toBeInTheDocument();
 
     // Check available spots
     expect(screen.getByText('Available Roster Spots')).toBeInTheDocument();
@@ -136,8 +142,12 @@ describe('StashCandidates Component', () => {
     expect(screen.getByText('Moderate Upside 3')).toBeInTheDocument();
 
     // Check reasoning
-    expect(screen.getByText('Elite pitching prospect with ace potential')).toBeInTheDocument();
-    expect(screen.getByText('Power/speed combination with high ceiling')).toBeInTheDocument();
+    expect(
+      screen.getByText('Elite pitching prospect with ace potential')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Power/speed combination with high ceiling')
+    ).toBeInTheDocument();
   });
 
   it('should call fetchStashCandidates on mount when autoLoad is true', () => {
@@ -187,7 +197,9 @@ describe('StashCandidates Component', () => {
       stashCandidates: mockStashCandidates,
     });
 
-    render(<StashCandidates leagueId={mockLeagueId} onProspectClick={mockOnClick} />);
+    render(
+      <StashCandidates leagueId={mockLeagueId} onProspectClick={mockOnClick} />
+    );
 
     const candidate = screen.getByText('Elite Stash 1');
     fireEvent.click(candidate.closest('div')!);
@@ -204,7 +216,9 @@ describe('StashCandidates Component', () => {
       fetchStashCandidates: mockFetch,
     });
 
-    render(<StashCandidates leagueId={mockLeagueId} onRefresh={mockOnRefresh} />);
+    render(
+      <StashCandidates leagueId={mockLeagueId} onRefresh={mockOnRefresh} />
+    );
 
     const refreshButton = screen.getByText('Refresh');
     fireEvent.click(refreshButton);
@@ -266,7 +280,9 @@ describe('StashCandidates Component', () => {
     render(<StashCandidates leagueId={mockLeagueId} />);
 
     // Check for full roster message
-    expect(screen.getByText('Your roster is currently full')).toBeInTheDocument();
+    expect(
+      screen.getByText('Your roster is currently full')
+    ).toBeInTheDocument();
 
     // Check for roster management tip
     expect(screen.getByText(/Roster Management Tip/i)).toBeInTheDocument();
@@ -300,7 +316,9 @@ describe('StashCandidates Component', () => {
 
     // Check for opportunity cost notice
     expect(screen.getByText(/Maximize your upside/i)).toBeInTheDocument();
-    expect(screen.getByText(/Consider your team's competitive window/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Consider your team's competitive window/i)
+    ).toBeInTheDocument();
   });
 
   it('should not display opportunity cost notice when no spots available', () => {
@@ -332,7 +350,9 @@ describe('StashCandidates Component', () => {
     // Check for no candidates message
     expect(screen.getByText('No stash candidates found')).toBeInTheDocument();
     expect(
-      screen.getByText('Check back later for new high-upside prospects to stash')
+      screen.getByText(
+        'Check back later for new high-upside prospects to stash'
+      )
     ).toBeInTheDocument();
   });
 

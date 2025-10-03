@@ -30,49 +30,51 @@ export interface OnboardingWizardProps {
 const STEP_CONTENT = {
   0: {
     title: 'Welcome to A Fine Wine Dynasty',
-    description: 'Your comprehensive prospect evaluation platform for dynasty fantasy baseball',
-    content: 'Get started with ranking prospects, comparing players, and making data-driven decisions.'
+    description:
+      'Your comprehensive prospect evaluation platform for dynasty fantasy baseball',
+    content:
+      'Get started with ranking prospects, comparing players, and making data-driven decisions.',
   },
   1: {
     title: 'Prospect Rankings',
-    description: 'Browse our comprehensive prospect rankings powered by ML predictions',
-    content: 'Filter by position, organization, and ETA. View detailed stats and scouting grades.'
+    description:
+      'Browse our comprehensive prospect rankings powered by ML predictions',
+    content:
+      'Filter by position, organization, and ETA. View detailed stats and scouting grades.',
   },
   2: {
     title: 'Prospect Profiles',
-    description: 'Deep dive into individual prospect analytics and AI-generated outlooks',
-    content: 'View performance trends, ML predictions, and historical comparisons.'
+    description:
+      'Deep dive into individual prospect analytics and AI-generated outlooks',
+    content:
+      'View performance trends, ML predictions, and historical comparisons.',
   },
   3: {
     title: 'Prospect Comparisons',
     description: 'Compare prospects side-by-side with statistical analysis',
-    content: 'Use our comparison tool to evaluate multiple prospects and make informed decisions.'
+    content:
+      'Use our comparison tool to evaluate multiple prospects and make informed decisions.',
   },
   4: {
     title: 'Choose Your Plan',
     description: 'Select a subscription tier that fits your needs',
-    content: 'Start with our free tier or upgrade to Premium for advanced features.'
+    content:
+      'Start with our free tier or upgrade to Premium for advanced features.',
   },
   5: {
     title: 'Fantrax Integration (Optional)',
     description: 'Connect your Fantrax league for personalized recommendations',
-    content: 'Get prospect recommendations tailored to your league settings and roster needs.'
-  }
+    content:
+      'Get prospect recommendations tailored to your league settings and roster needs.',
+  },
 };
 
 export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
   onComplete,
-  onSkip
+  onSkip,
 }) => {
-  const {
-    status,
-    isLoading,
-    error,
-    nextStep,
-    previousStep,
-    complete,
-    skip
-  } = useOnboarding();
+  const { status, isLoading, error, nextStep, previousStep, complete, skip } =
+    useOnboarding();
 
   if (isLoading && !status) {
     return (
@@ -94,7 +96,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
     return null;
   }
 
-  const currentStepContent = STEP_CONTENT[status.current_step as keyof typeof STEP_CONTENT] || STEP_CONTENT[0];
+  const currentStepContent =
+    STEP_CONTENT[status.current_step as keyof typeof STEP_CONTENT] ||
+    STEP_CONTENT[0];
   const isFirstStep = status.current_step === 0;
   const isLastStep = status.current_step === status.total_steps - 1;
 
@@ -140,7 +144,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
         </div>
 
         <div className="mb-8">
-          <h3 className="text-lg font-semibold mb-2">{currentStepContent.description}</h3>
+          <h3 className="text-lg font-semibold mb-2">
+            {currentStepContent.description}
+          </h3>
           <p className="text-gray-700">{currentStepContent.content}</p>
         </div>
 
@@ -153,10 +159,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({
             Previous
           </Button>
 
-          <Button
-            onClick={handleNext}
-            disabled={isLoading}
-          >
+          <Button onClick={handleNext} disabled={isLoading}>
             {isLastStep ? 'Get Started' : 'Next'}
           </Button>
         </div>
