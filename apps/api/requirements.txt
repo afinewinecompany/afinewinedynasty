@@ -32,3 +32,8 @@ textstat>=0.7.0
 
 # Payment Processing
 stripe>=7.0.0
+
+# Fantrax Integration
+fantraxapi>=0.2.9
+selenium>=4.0.0
+webdriver-manager>=4.0.0

@@ -30,8 +30,9 @@ class User(Base):
     # Subscription management
     subscription_tier: Mapped[str] = mapped_column(String(20), default='free', nullable=False)
     stripe_customer_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, unique=True)
-    fantrax_user_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, unique=True)
-    fantrax_refresh_token: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
+
+    # Fantrax Integration (Cookie-based authentication)
+    fantrax_cookies: Mapped[Optional[str]] = mapped_column(Text, nullable=True)  # Encrypted JSON
     fantrax_connected_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
     # User preferences (JSONB)
@@ -381,7 +382,7 @@ class SubscriptionEvent(Base):
     subscription_id: Mapped[int] = mapped_column(Integer, ForeignKey("subscriptions.id"), nullable=False)
     event_type: Mapped[str] = mapped_column(String(100), nullable=False)  # created, updated, canceled, payment_failed, etc.
     stripe_event_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, unique=True)
-    metadata: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)  # Additional event data
+    event_metadata: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)  # Additional event data
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
 
     # Relationships

@@ -6,6 +6,11 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from alembic import context
 import sys
 import os
+from dotenv import load_dotenv
+
+# Load .env file explicitly for alembic
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+load_dotenv(dotenv_path)
 
 # Add the app directory to the path so we can import our models
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
