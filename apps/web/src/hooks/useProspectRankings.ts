@@ -13,6 +13,7 @@ export function useProspectRankings(params: ProspectRankingsParams) {
         params: {
           page: params.page,
           page_size: params.pageSize,
+          limit: params.limit,
           position: params.position,
           organization: params.organization,
           level: params.level,

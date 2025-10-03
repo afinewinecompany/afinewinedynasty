@@ -61,7 +61,7 @@ export class ServiceWorkerManager {
       autoUpdate: config.autoUpdate ?? true,
       updateInterval: config.updateInterval || 60 * 60 * 1000, // 1 hour
       onUpdateAvailable: config.onUpdateAvailable || (() => {}),
-      onUpdateInstalled: config.onUpdateInstalled || (() => {})
+      onUpdateInstalled: config.onUpdateInstalled || (() => {}),
     };
   }
 
@@ -250,9 +250,7 @@ export class ServiceWorkerManager {
     if (!('caches' in window)) return;
 
     const cacheNames = await caches.keys();
-    await Promise.all(
-      cacheNames.map(cacheName => caches.delete(cacheName))
-    );
+    await Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)));
 
     console.log('[ServiceWorker] All caches cleared');
   }
@@ -280,7 +278,7 @@ export class ServiceWorkerManager {
   async cacheUrls(urls: string[]): Promise<void> {
     this.postMessage({
       type: 'CACHE_URLS',
-      urls
+      urls,
     });
   }
 
@@ -319,7 +317,7 @@ export class ServiceWorkerManager {
       registered: !!this.registration,
       active: !!this.registration?.active,
       waiting: !!this.registration?.waiting,
-      installing: !!this.registration?.installing
+      installing: !!this.registration?.installing,
     };
   }
 
@@ -371,7 +369,7 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
           window.location.reload();
         });
       }
-    }
+    },
   });
 
   try {

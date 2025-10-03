@@ -12,7 +12,7 @@ import {
   Target,
   ArrowRight,
   AlertCircle,
-  Star
+  Star,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -84,7 +84,7 @@ export function DiscoveryInsights({
   positionScarcity = [],
   metadata,
   isLoading = false,
-  error
+  error,
 }: DiscoveryInsightsProps) {
   if (isLoading) {
     return (
@@ -107,8 +107,12 @@ export function DiscoveryInsights({
   // Calculate key insights
   const topBreakout = breakoutCandidates[0];
   const topSleeper = sleeperProspects[0];
-  const bestOpportunity = organizationalInsights.sort((a, b) => b.opportunity_score - a.opportunity_score)[0];
-  const mostScarce = positionScarcity.sort((a, b) => b.scarcity_score - a.scarcity_score)[0];
+  const bestOpportunity = organizationalInsights.sort(
+    (a, b) => b.opportunity_score - a.opportunity_score
+  )[0];
+  const mostScarce = positionScarcity.sort(
+    (a, b) => b.scarcity_score - a.scarcity_score
+  )[0];
 
   const insights = [
     {
@@ -118,10 +122,13 @@ export function DiscoveryInsights({
       bgColor: 'bg-green-50',
       data: topBreakout,
       title: topBreakout?.prospect_name,
-      subtitle: topBreakout && `${topBreakout.position} | ${topBreakout.organization}`,
+      subtitle:
+        topBreakout && `${topBreakout.position} | ${topBreakout.organization}`,
       metric: topBreakout?.breakout_score?.toFixed(1),
       metricLabel: 'Breakout Score',
-      description: topBreakout && `${topBreakout.improvement_rate.toFixed(0)}% improvement over last ${topBreakout.lookback_days} days`
+      description:
+        topBreakout &&
+        `${topBreakout.improvement_rate.toFixed(0)}% improvement over last ${topBreakout.lookback_days} days`,
     },
     {
       category: 'Top Sleeper Prospect',
@@ -130,10 +137,13 @@ export function DiscoveryInsights({
       bgColor: 'bg-purple-50',
       data: topSleeper,
       title: topSleeper?.prospect_name,
-      subtitle: topSleeper && `${topSleeper.position} | ${topSleeper.organization}`,
+      subtitle:
+        topSleeper && `${topSleeper.position} | ${topSleeper.organization}`,
       metric: topSleeper?.sleeper_score?.toFixed(1),
       metricLabel: 'Sleeper Score',
-      description: topSleeper && `ML ranks ${topSleeper.ranking_differential} spots higher than consensus`
+      description:
+        topSleeper &&
+        `ML ranks ${topSleeper.ranking_differential} spots higher than consensus`,
     },
     {
       category: 'Best Opportunity',
@@ -142,10 +152,13 @@ export function DiscoveryInsights({
       bgColor: 'bg-blue-50',
       data: bestOpportunity,
       title: bestOpportunity?.organization,
-      subtitle: bestOpportunity && `#${bestOpportunity.system_ranking} farm system`,
+      subtitle:
+        bestOpportunity && `#${bestOpportunity.system_ranking} farm system`,
       metric: bestOpportunity?.opportunity_score,
       metricLabel: 'Opportunity',
-      description: bestOpportunity && `${bestOpportunity.total_prospects} prospects with ${bestOpportunity.strengths[0]} strength`
+      description:
+        bestOpportunity &&
+        `${bestOpportunity.total_prospects} prospects with ${bestOpportunity.strengths[0]} strength`,
     },
     {
       category: 'Scarcest Position',
@@ -157,8 +170,10 @@ export function DiscoveryInsights({
       subtitle: mostScarce && `${mostScarce.total_prospects} total prospects`,
       metric: mostScarce?.scarcity_score,
       metricLabel: 'Scarcity',
-      description: mostScarce && `Only ${mostScarce.elite_prospects} elite prospects available`
-    }
+      description:
+        mostScarce &&
+        `Only ${mostScarce.elite_prospects} elite prospects available`,
+    },
   ];
 
   return (
@@ -170,7 +185,10 @@ export function DiscoveryInsights({
           if (!insight.data) return null;
 
           return (
-            <Card key={insight.category} className="hover:shadow-lg transition-all">
+            <Card
+              key={insight.category}
+              className="hover:shadow-lg transition-all"
+            >
               <CardContent className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className={`p-2 rounded-lg ${insight.bgColor}`}>
@@ -191,7 +209,9 @@ export function DiscoveryInsights({
                     <span className={`text-3xl font-bold ${insight.color}`}>
                       {insight.metric}
                     </span>
-                    <span className="text-sm text-gray-500">{insight.metricLabel}</span>
+                    <span className="text-sm text-gray-500">
+                      {insight.metricLabel}
+                    </span>
                   </div>
 
                   <p className="text-sm text-gray-700 mt-2">
@@ -218,23 +238,33 @@ export function DiscoveryInsights({
               <div className="text-2xl font-bold text-green-600">
                 {breakoutCandidates.length}
               </div>
-              <div className="text-sm text-gray-600 mt-1">Breakout Candidates</div>
+              <div className="text-sm text-gray-600 mt-1">
+                Breakout Candidates
+              </div>
             </div>
             <div className="text-center p-4 bg-gray-50 rounded-lg">
               <div className="text-2xl font-bold text-purple-600">
                 {sleeperProspects.length}
               </div>
-              <div className="text-sm text-gray-600 mt-1">Sleeper Prospects</div>
+              <div className="text-sm text-gray-600 mt-1">
+                Sleeper Prospects
+              </div>
             </div>
             <div className="text-center p-4 bg-gray-50 rounded-lg">
               <div className="text-2xl font-bold text-blue-600">
-                {organizationalInsights.filter(o => o.opportunity_score >= 70).length}
+                {
+                  organizationalInsights.filter(
+                    (o) => o.opportunity_score >= 70
+                  ).length
+                }
               </div>
-              <div className="text-sm text-gray-600 mt-1">High Opportunity Orgs</div>
+              <div className="text-sm text-gray-600 mt-1">
+                High Opportunity Orgs
+              </div>
             </div>
             <div className="text-center p-4 bg-gray-50 rounded-lg">
               <div className="text-2xl font-bold text-red-600">
-                {positionScarcity.filter(p => p.scarcity_score >= 60).length}
+                {positionScarcity.filter((p) => p.scarcity_score >= 60).length}
               </div>
               <div className="text-sm text-gray-600 mt-1">Scarce Positions</div>
             </div>
@@ -260,7 +290,8 @@ export function DiscoveryInsights({
                     Consider acquiring {topBreakout.prospect_name}
                   </p>
                   <p className="text-xs text-green-700 mt-1">
-                    Showing significant improvement with {topBreakout.improvement_rate.toFixed(0)}% performance gain
+                    Showing significant improvement with{' '}
+                    {topBreakout.improvement_rate.toFixed(0)}% performance gain
                   </p>
                 </div>
                 <Link href={`/prospects/${topBreakout.prospect_id}`}>
@@ -280,7 +311,8 @@ export function DiscoveryInsights({
                     {topSleeper.prospect_name} is potentially undervalued
                   </p>
                   <p className="text-xs text-purple-700 mt-1">
-                    ML models project significantly higher value than current consensus ranking
+                    ML models project significantly higher value than current
+                    consensus ranking
                   </p>
                 </div>
                 <Link href={`/prospects/${topSleeper.prospect_id}`}>
@@ -300,7 +332,8 @@ export function DiscoveryInsights({
                     Prioritize {mostScarce.position} prospects
                   </p>
                   <p className="text-xs text-red-700 mt-1">
-                    High scarcity with limited elite prospects available in the pipeline
+                    High scarcity with limited elite prospects available in the
+                    pipeline
                   </p>
                 </div>
                 <Link href="/search/advanced">

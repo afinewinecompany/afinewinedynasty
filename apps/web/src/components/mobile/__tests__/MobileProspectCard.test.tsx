@@ -18,21 +18,21 @@ describe('MobileProspectCard Component', () => {
     eta: '2025',
     mlPrediction: {
       confidence: 0.85,
-      projectedWAR: 3.5
+      projectedWAR: 3.5,
     },
     stats: {
       battingAverage: '.285',
       ops: '.850',
-      homeRuns: '15'
+      homeRuns: '15',
     },
     scoutingGrades: {
       hit: 60,
       power: 55,
       speed: 50,
       fielding: 65,
-      arm: 60
+      arm: 60,
     },
-    aiOutlook: 'Strong defensive shortstop with developing power potential.'
+    aiOutlook: 'Strong defensive shortstop with developing power potential.',
   };
 
   const mockOnQuickAction = jest.fn();
@@ -131,7 +131,7 @@ describe('MobileProspectCard Component', () => {
       );
 
       const buttons = container.querySelectorAll('button');
-      buttons.forEach(button => {
+      buttons.forEach((button) => {
         const styles = window.getComputedStyle(button);
         expect(button.className).toContain('h-[44px]');
       });
@@ -207,7 +207,7 @@ describe('MobileProspectCard Component', () => {
     it('should show yellow color for medium confidence (60-79%)', () => {
       const mediumConfidenceProspect = {
         ...mockProspect,
-        mlPrediction: { confidence: 0.65, projectedWAR: 2.5 }
+        mlPrediction: { confidence: 0.65, projectedWAR: 2.5 },
       };
 
       render(
@@ -224,7 +224,7 @@ describe('MobileProspectCard Component', () => {
     it('should show red color for low confidence (<60%)', () => {
       const lowConfidenceProspect = {
         ...mockProspect,
-        mlPrediction: { confidence: 0.45, projectedWAR: 1.5 }
+        mlPrediction: { confidence: 0.45, projectedWAR: 1.5 },
       };
 
       render(
@@ -243,7 +243,7 @@ describe('MobileProspectCard Component', () => {
     it('should handle missing stats gracefully', () => {
       const prospectWithoutStats = {
         ...mockProspect,
-        stats: undefined
+        stats: undefined,
       };
 
       render(
@@ -264,7 +264,7 @@ describe('MobileProspectCard Component', () => {
     it('should handle missing scouting grades', () => {
       const prospectWithoutGrades = {
         ...mockProspect,
-        scoutingGrades: undefined
+        scoutingGrades: undefined,
       };
 
       render(

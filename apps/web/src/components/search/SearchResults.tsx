@@ -28,7 +28,7 @@ import {
   BarChart3,
   Target,
   Brain,
-  AlertCircle
+  AlertCircle,
 } from 'lucide-react';
 
 /**
@@ -88,20 +88,33 @@ interface SearchResultsProps {
  * @since 1.0.0
  * @version 3.4.0
  */
-export function SearchResults({ results, isLoading, error, onProspectView }: SearchResultsProps) {
+export function SearchResults({
+  results,
+  isLoading,
+  error,
+  onProspectView,
+}: SearchResultsProps) {
   const [viewingProspect, setViewingProspect] = useState<number | null>(null);
   const queryClient = useQueryClient();
 
   // Track prospect view mutation
   const trackViewMutation = useMutation({
-    mutationFn: async ({ prospectId, duration }: { prospectId: number; duration?: number }) => {
+    mutationFn: async ({
+      prospectId,
+      duration,
+    }: {
+      prospectId: number;
+      duration?: number;
+    }) => {
       await api.post('/search/track-view', null, {
-        params: { prospect_id: prospectId, view_duration: duration }
+        params: { prospect_id: prospectId, view_duration: duration },
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['recently-viewed-prospects'] });
-    }
+      queryClient.invalidateQueries({
+        queryKey: ['recently-viewed-prospects'],
+      });
+    },
   });
 
   const handleProspectView = (prospectId: number) => {
@@ -130,7 +143,10 @@ export function SearchResults({ results, isLoading, error, onProspectView }: Sea
     }
   };
 
-  const formatStatValue = (value: number | null | undefined, isPercentage = false) => {
+  const formatStatValue = (
+    value: number | null | undefined,
+    isPercentage = false
+  ) => {
     if (value === null || value === undefined) return 'N/A';
     if (isPercentage) return `${(value * 100).toFixed(1)}%`;
     return value.toFixed(3);
@@ -160,9 +176,12 @@ export function SearchResults({ results, isLoading, error, onProspectView }: Sea
     return (
       <div className="text-center py-12">
         <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Search Failed</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">
+          Search Failed
+        </h3>
         <p className="text-gray-600 mb-4">
-          {error.message || 'An error occurred while searching. Please try again.'}
+          {error.message ||
+            'An error occurred while searching. Please try again.'}
         </p>
         <Button variant="outline" onClick={() => window.location.reload()}>
           Try Again
@@ -175,7 +194,9 @@ export function SearchResults({ results, isLoading, error, onProspectView }: Sea
     return (
       <div className="text-center py-12">
         <Search className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Ready to Search</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">
+          Ready to Search
+        </h3>
         <p className="text-gray-600">
           Set your search criteria and click search to find prospects
         </p>
@@ -187,7 +208,9 @@ export function SearchResults({ results, isLoading, error, onProspectView }: Sea
     return (
       <div className="text-center py-12">
         <Search className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">No Results Found</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">
+          No Results Found
+        </h3>
         <p className="text-gray-600 mb-4">
           Try adjusting your search criteria to find more prospects
         </p>
@@ -215,10 +238,12 @@ export function SearchResults({ results, isLoading, error, onProspectView }: Sea
         <div className="flex items-start justify-between mb-3">
           <div>
             <h3 className="text-lg font-medium text-gray-900">
-              {results.total_count.toLocaleString()} prospect{results.total_count !== 1 ? 's' : ''} found
+              {results.total_count.toLocaleString()} prospect
+              {results.total_count !== 1 ? 's' : ''} found
             </h3>
             <p className="text-sm text-gray-600">
-              Showing {results.prospects.length} results on page {results.page} of {results.total_pages}
+              Showing {results.prospects.length} results on page {results.page}{' '}
+              of {results.total_pages}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -277,9 +302,7 @@ export function SearchResults({ results, isLoading, error, onProspectView }: Sea
                   <div className="flex items-center gap-4 text-sm text-gray-600">
                     <span>{prospect.organization}</span>
                     <span>{prospect.level}</span>
-                    {prospect.eta_year && (
-                      <span>ETA: {prospect.eta_year}</span>
-                    )}
+                    {prospect.eta_year && <span>ETA: {prospect.eta_year}</span>}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -308,18 +331,23 @@ export function SearchResults({ results, isLoading, error, onProspectView }: Sea
                     Latest Statistics
                   </h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                    {prospect.position === 'SP' || prospect.position === 'RP' ? (
+                    {prospect.position === 'SP' ||
+                    prospect.position === 'RP' ? (
                       <>
                         {prospect.latest_stats.era && (
                           <div>
                             <span className="text-gray-500">ERA:</span>
-                            <span className="ml-1 font-medium">{prospect.latest_stats.era.toFixed(2)}</span>
+                            <span className="ml-1 font-medium">
+                              {prospect.latest_stats.era.toFixed(2)}
+                            </span>
                           </div>
                         )}
                         {prospect.latest_stats.whip && (
                           <div>
                             <span className="text-gray-500">WHIP:</span>
-                            <span className="ml-1 font-medium">{prospect.latest_stats.whip.toFixed(2)}</span>
+                            <span className="ml-1 font-medium">
+                              {prospect.latest_stats.whip.toFixed(2)}
+                            </span>
                           </div>
                         )}
                       </>
@@ -328,68 +356,92 @@ export function SearchResults({ results, isLoading, error, onProspectView }: Sea
                         {prospect.latest_stats.batting_avg && (
                           <div>
                             <span className="text-gray-500">AVG:</span>
-                            <span className="ml-1 font-medium">{formatStatValue(prospect.latest_stats.batting_avg)}</span>
+                            <span className="ml-1 font-medium">
+                              {formatStatValue(
+                                prospect.latest_stats.batting_avg
+                              )}
+                            </span>
                           </div>
                         )}
                         {prospect.latest_stats.on_base_pct && (
                           <div>
                             <span className="text-gray-500">OBP:</span>
-                            <span className="ml-1 font-medium">{formatStatValue(prospect.latest_stats.on_base_pct)}</span>
+                            <span className="ml-1 font-medium">
+                              {formatStatValue(
+                                prospect.latest_stats.on_base_pct
+                              )}
+                            </span>
                           </div>
                         )}
                         {prospect.latest_stats.slugging_pct && (
                           <div>
                             <span className="text-gray-500">SLG:</span>
-                            <span className="ml-1 font-medium">{formatStatValue(prospect.latest_stats.slugging_pct)}</span>
+                            <span className="ml-1 font-medium">
+                              {formatStatValue(
+                                prospect.latest_stats.slugging_pct
+                              )}
+                            </span>
                           </div>
                         )}
                         {prospect.latest_stats.woba && (
                           <div>
                             <span className="text-gray-500">wOBA:</span>
-                            <span className="ml-1 font-medium">{formatStatValue(prospect.latest_stats.woba)}</span>
+                            <span className="ml-1 font-medium">
+                              {formatStatValue(prospect.latest_stats.woba)}
+                            </span>
                           </div>
                         )}
                       </>
                     )}
                   </div>
                   <div className="text-xs text-gray-500 mt-1">
-                    As of {new Date(prospect.latest_stats.date_recorded).toLocaleDateString()}
+                    As of{' '}
+                    {new Date(
+                      prospect.latest_stats.date_recorded
+                    ).toLocaleDateString()}
                   </div>
                 </div>
               )}
 
               {/* Scouting Grades */}
-              {prospect.scouting_grades && prospect.scouting_grades.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
-                    <Target className="h-4 w-4" />
-                    Scouting Grades
-                  </h4>
-                  <div className="space-y-2">
-                    {prospect.scouting_grades.slice(0, 2).map((grade, index) => (
-                      <div key={index} className="text-sm">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-gray-600">{grade.source}</span>
-                          {grade.overall && (
-                            <Badge variant="secondary" className="text-xs">
-                              Overall: {grade.overall}
-                            </Badge>
-                          )}
-                        </div>
-                        {grade.overall && (
-                          <div className="flex items-center gap-2">
-                            <Progress
-                              value={(grade.overall - 20) / 60 * 100}
-                              className="flex-1 h-2"
-                            />
-                            <span className="text-xs text-gray-500 w-8">{grade.overall}</span>
+              {prospect.scouting_grades &&
+                prospect.scouting_grades.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+                      <Target className="h-4 w-4" />
+                      Scouting Grades
+                    </h4>
+                    <div className="space-y-2">
+                      {prospect.scouting_grades
+                        .slice(0, 2)
+                        .map((grade, index) => (
+                          <div key={index} className="text-sm">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-gray-600">
+                                {grade.source}
+                              </span>
+                              {grade.overall && (
+                                <Badge variant="secondary" className="text-xs">
+                                  Overall: {grade.overall}
+                                </Badge>
+                              )}
+                            </div>
+                            {grade.overall && (
+                              <div className="flex items-center gap-2">
+                                <Progress
+                                  value={((grade.overall - 20) / 60) * 100}
+                                  className="flex-1 h-2"
+                                />
+                                <span className="text-xs text-gray-500 w-8">
+                                  {grade.overall}
+                                </span>
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    ))}
+                        ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {/* Relevance Score */}
               <div className="flex items-center justify-between pt-2 border-t border-gray-100">
@@ -411,7 +463,7 @@ export function SearchResults({ results, isLoading, error, onProspectView }: Sea
       {results.total_pages > 1 && (
         <div className="flex items-center justify-between pt-6 border-t border-gray-200">
           <div className="text-sm text-gray-600">
-            Showing {((results.page - 1) * results.size) + 1} to{' '}
+            Showing {(results.page - 1) * results.size + 1} to{' '}
             {Math.min(results.page * results.size, results.total_count)} of{' '}
             {results.total_count.toLocaleString()} results
           </div>
@@ -430,7 +482,9 @@ export function SearchResults({ results, isLoading, error, onProspectView }: Sea
               <span className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded">
                 {results.page}
               </span>
-              <span className="text-sm text-gray-500">of {results.total_pages}</span>
+              <span className="text-sm text-gray-500">
+                of {results.total_pages}
+              </span>
             </div>
             <Button
               variant="outline"

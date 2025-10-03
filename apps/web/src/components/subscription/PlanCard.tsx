@@ -6,7 +6,14 @@
 
 import React from 'react';
 import { Check, X } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { PlanDetails } from '@/types/subscription';
@@ -28,10 +35,12 @@ export const PlanCard: React.FC<PlanCardProps> = ({
   plan,
   currentPlan = false,
   onSelect,
-  isLoading = false
+  isLoading = false,
 }) => {
   return (
-    <Card className={`relative ${plan.highlighted ? 'border-primary shadow-lg' : ''}`}>
+    <Card
+      className={`relative ${plan.highlighted ? 'border-primary shadow-lg' : ''}`}
+    >
       {plan.highlighted && (
         <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2">
           Most Popular
@@ -47,9 +56,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({
       <CardHeader>
         <CardTitle className="text-2xl">{plan.name}</CardTitle>
         <CardDescription>
-          <span className="text-3xl font-bold">
-            ${plan.price}
-          </span>
+          <span className="text-3xl font-bold">${plan.price}</span>
           {plan.price > 0 && (
             <span className="text-muted-foreground">/{plan.interval}</span>
           )}
@@ -58,7 +65,9 @@ export const PlanCard: React.FC<PlanCardProps> = ({
 
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <h4 className="font-semibold text-sm text-muted-foreground">Features</h4>
+          <h4 className="font-semibold text-sm text-muted-foreground">
+            Features
+          </h4>
           <ul className="space-y-2">
             {plan.features.map((feature, index) => (
               <li key={index} className="flex items-start gap-2">
@@ -71,12 +80,16 @@ export const PlanCard: React.FC<PlanCardProps> = ({
 
         {plan.limitations && plan.limitations.length > 0 && (
           <div className="space-y-2 pt-2 border-t">
-            <h4 className="font-semibold text-sm text-muted-foreground">Limitations</h4>
+            <h4 className="font-semibold text-sm text-muted-foreground">
+              Limitations
+            </h4>
             <ul className="space-y-2">
               {plan.limitations.map((limitation, index) => (
                 <li key={index} className="flex items-start gap-2">
                   <X className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-muted-foreground">{limitation}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {limitation}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -90,9 +103,13 @@ export const PlanCard: React.FC<PlanCardProps> = ({
             onClick={onSelect}
             disabled={isLoading}
             className="w-full"
-            variant={plan.highlighted ? "default" : "outline"}
+            variant={plan.highlighted ? 'default' : 'outline'}
           >
-            {isLoading ? "Processing..." : plan.price === 0 ? "Get Started" : "Subscribe Now"}
+            {isLoading
+              ? 'Processing...'
+              : plan.price === 0
+                ? 'Get Started'
+                : 'Subscribe Now'}
           </Button>
         )}
         {currentPlan && (

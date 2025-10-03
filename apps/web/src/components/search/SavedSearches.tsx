@@ -7,7 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import {
   AlertDialog,
@@ -29,7 +35,7 @@ import {
   Play,
   Calendar,
   Filter,
-  Search
+  Search,
 } from 'lucide-react';
 
 /**
@@ -99,7 +105,10 @@ interface SavedSearchesProps {
  * @since 1.0.0
  * @version 3.4.0
  */
-export function SavedSearches({ onSearchSelect, currentCriteria }: SavedSearchesProps) {
+export function SavedSearches({
+  onSearchSelect,
+  currentCriteria,
+}: SavedSearchesProps) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingSearch, setEditingSearch] = useState<SavedSearch | null>(null);
   const [newSearchName, setNewSearchName] = useState('');
@@ -111,7 +120,7 @@ export function SavedSearches({ onSearchSelect, currentCriteria }: SavedSearches
     queryFn: async () => {
       const response = await api.get('/search/saved');
       return response.data as SavedSearch[];
-    }
+    },
   });
 
   // Create saved search mutation
@@ -124,7 +133,7 @@ export function SavedSearches({ onSearchSelect, currentCriteria }: SavedSearches
       queryClient.invalidateQueries({ queryKey: ['saved-searches'] });
       setIsCreateDialogOpen(false);
       setNewSearchName('');
-    }
+    },
   });
 
   // Update saved search mutation
@@ -136,7 +145,7 @@ export function SavedSearches({ onSearchSelect, currentCriteria }: SavedSearches
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['saved-searches'] });
       setEditingSearch(null);
-    }
+    },
   });
 
   // Delete saved search mutation
@@ -146,7 +155,7 @@ export function SavedSearches({ onSearchSelect, currentCriteria }: SavedSearches
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['saved-searches'] });
-    }
+    },
   });
 
   const handleCreateSavedSearch = () => {
@@ -154,7 +163,7 @@ export function SavedSearches({ onSearchSelect, currentCriteria }: SavedSearches
 
     createMutation.mutate({
       search_name: newSearchName.trim(),
-      search_criteria: currentCriteria
+      search_criteria: currentCriteria,
     });
   };
 
@@ -165,8 +174,8 @@ export function SavedSearches({ onSearchSelect, currentCriteria }: SavedSearches
       id: editingSearch.id,
       data: {
         search_name: newSearchName.trim(),
-        search_criteria: editingSearch.search_criteria
-      }
+        search_criteria: editingSearch.search_criteria,
+      },
     });
   };
 
@@ -176,7 +185,7 @@ export function SavedSearches({ onSearchSelect, currentCriteria }: SavedSearches
 
   const getActiveFiltersCount = (criteria: AdvancedSearchCriteria) => {
     const { page, size, sort_by, ...filters } = criteria;
-    return Object.values(filters).filter(value => {
+    return Object.values(filters).filter((value) => {
       if (Array.isArray(value)) return value.length > 0;
       return value !== undefined && value !== null && value !== '';
     }).length;
@@ -186,7 +195,7 @@ export function SavedSearches({ onSearchSelect, currentCriteria }: SavedSearches
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
-      year: 'numeric'
+      year: 'numeric',
     });
   };
 
@@ -233,7 +242,9 @@ export function SavedSearches({ onSearchSelect, currentCriteria }: SavedSearches
                 />
               </div>
               <div className="bg-gray-50 p-3 rounded-md">
-                <p className="text-sm text-gray-600 mb-2">Current criteria will be saved:</p>
+                <p className="text-sm text-gray-600 mb-2">
+                  Current criteria will be saved:
+                </p>
                 <Badge variant="secondary">
                   {getActiveFiltersCount(currentCriteria)} active filter
                   {getActiveFiltersCount(currentCriteria) !== 1 ? 's' : ''}
@@ -268,7 +279,10 @@ export function SavedSearches({ onSearchSelect, currentCriteria }: SavedSearches
       {savedSearches && savedSearches.length > 0 ? (
         <div className="space-y-3">
           {savedSearches.map((savedSearch) => (
-            <Card key={savedSearch.id} className="hover:shadow-md transition-shadow">
+            <Card
+              key={savedSearch.id}
+              className="hover:shadow-md transition-shadow"
+            >
               <CardContent className="p-4">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -276,8 +290,12 @@ export function SavedSearches({ onSearchSelect, currentCriteria }: SavedSearches
                       <Bookmark className="h-4 w-4 text-blue-500" />
                       <h4 className="font-medium">{savedSearch.search_name}</h4>
                       <Badge variant="outline" className="text-xs">
-                        {getActiveFiltersCount(savedSearch.search_criteria)} filter
-                        {getActiveFiltersCount(savedSearch.search_criteria) !== 1 ? 's' : ''}
+                        {getActiveFiltersCount(savedSearch.search_criteria)}{' '}
+                        filter
+                        {getActiveFiltersCount(savedSearch.search_criteria) !==
+                        1
+                          ? 's'
+                          : ''}
                       </Badge>
                     </div>
 
@@ -295,16 +313,21 @@ export function SavedSearches({ onSearchSelect, currentCriteria }: SavedSearches
                     <div className="flex flex-wrap gap-1 mb-3">
                       {savedSearch.search_criteria.search_query && (
                         <Badge variant="secondary" className="text-xs">
-                          <Search className="h-3 w-3 mr-1" />
-                          "{savedSearch.search_criteria.search_query}"
+                          <Search className="h-3 w-3 mr-1" />"
+                          {savedSearch.search_criteria.search_query}"
                         </Badge>
                       )}
-                      {savedSearch.search_criteria.positions && savedSearch.search_criteria.positions.length > 0 && (
-                        <Badge variant="secondary" className="text-xs">
-                          Positions: {savedSearch.search_criteria.positions.slice(0, 2).join(', ')}
-                          {savedSearch.search_criteria.positions.length > 2 && ' +more'}
-                        </Badge>
-                      )}
+                      {savedSearch.search_criteria.positions &&
+                        savedSearch.search_criteria.positions.length > 0 && (
+                          <Badge variant="secondary" className="text-xs">
+                            Positions:{' '}
+                            {savedSearch.search_criteria.positions
+                              .slice(0, 2)
+                              .join(', ')}
+                            {savedSearch.search_criteria.positions.length > 2 &&
+                              ' +more'}
+                          </Badge>
+                        )}
                       {savedSearch.search_criteria.min_batting_avg && (
                         <Badge variant="secondary" className="text-xs">
                           BA ≥ {savedSearch.search_criteria.min_batting_avg}
@@ -312,7 +335,8 @@ export function SavedSearches({ onSearchSelect, currentCriteria }: SavedSearches
                       )}
                       {savedSearch.search_criteria.min_overall_grade && (
                         <Badge variant="secondary" className="text-xs">
-                          Grade ≥ {savedSearch.search_criteria.min_overall_grade}
+                          Grade ≥{' '}
+                          {savedSearch.search_criteria.min_overall_grade}
                         </Badge>
                       )}
                     </div>
@@ -352,7 +376,9 @@ export function SavedSearches({ onSearchSelect, currentCriteria }: SavedSearches
                         </DialogHeader>
                         <div className="space-y-4">
                           <div>
-                            <Label htmlFor="edit-search-name">Search Name</Label>
+                            <Label htmlFor="edit-search-name">
+                              Search Name
+                            </Label>
                             <Input
                               id="edit-search-name"
                               value={newSearchName}
@@ -369,9 +395,14 @@ export function SavedSearches({ onSearchSelect, currentCriteria }: SavedSearches
                             </Button>
                             <Button
                               onClick={handleUpdateSavedSearch}
-                              disabled={!newSearchName.trim() || updateMutation.isPending}
+                              disabled={
+                                !newSearchName.trim() ||
+                                updateMutation.isPending
+                              }
                             >
-                              {updateMutation.isPending ? 'Updating...' : 'Update'}
+                              {updateMutation.isPending
+                                ? 'Updating...'
+                                : 'Update'}
                             </Button>
                           </div>
                         </div>
@@ -380,22 +411,31 @@ export function SavedSearches({ onSearchSelect, currentCriteria }: SavedSearches
 
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-red-600 hover:text-red-700"
+                        >
                           <Trash2 className="h-3 w-3" />
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Saved Search</AlertDialogTitle>
+                          <AlertDialogTitle>
+                            Delete Saved Search
+                          </AlertDialogTitle>
                           <AlertDialogDescription>
-                            Are you sure you want to delete "{savedSearch.search_name}"?
-                            This action cannot be undone.
+                            Are you sure you want to delete "
+                            {savedSearch.search_name}"? This action cannot be
+                            undone.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
                           <AlertDialogAction
-                            onClick={() => handleDeleteSavedSearch(savedSearch.id)}
+                            onClick={() =>
+                              handleDeleteSavedSearch(savedSearch.id)
+                            }
                             className="bg-red-600 hover:bg-red-700"
                           >
                             Delete
@@ -412,7 +452,9 @@ export function SavedSearches({ onSearchSelect, currentCriteria }: SavedSearches
       ) : (
         <div className="text-center py-8">
           <Bookmark className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No saved searches yet</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            No saved searches yet
+          </h3>
           <p className="text-gray-500 mb-4">
             Create search criteria and save them for quick access later
           </p>

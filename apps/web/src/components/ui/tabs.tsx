@@ -6,7 +6,9 @@ interface TabsContextValue {
   onValueChange: (value: string) => void;
 }
 
-const TabsContext = React.createContext<TabsContextValue | undefined>(undefined);
+const TabsContext = React.createContext<TabsContextValue | undefined>(
+  undefined
+);
 
 interface TabsProps extends React.HTMLAttributes<HTMLDivElement> {
   value: string;
@@ -27,21 +29,23 @@ const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
 );
 Tabs.displayName = 'Tabs';
 
-const TabsList = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn(
-        'inline-flex h-10 items-center justify-center rounded-md bg-gray-100 p-1 text-gray-600',
-        className
-      )}
-      {...props}
-    />
-  )
-);
+const TabsList = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      'inline-flex h-10 items-center justify-center rounded-md bg-gray-100 p-1 text-gray-600',
+      className
+    )}
+    {...props}
+  />
+));
 TabsList.displayName = 'TabsList';
 
-interface TabsTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface TabsTriggerProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   value: string;
 }
 
@@ -82,13 +86,7 @@ const TabsContent = React.forwardRef<HTMLDivElement, TabsContentProps>(
 
     if (context.value !== value) return null;
 
-    return (
-      <div
-        ref={ref}
-        className={cn('mt-2', className)}
-        {...props}
-      />
-    );
+    return <div ref={ref} className={cn('mt-2', className)} {...props} />;
   }
 );
 TabsContent.displayName = 'TabsContent';

@@ -35,38 +35,32 @@ const STORES: Record<string, StoreConfig> = {
     keyPath: 'id',
     indexes: [
       { name: 'by_rank', keyPath: 'rank' },
-      { name: 'by_updated', keyPath: 'updatedAt' }
-    ]
+      { name: 'by_updated', keyPath: 'updatedAt' },
+    ],
   },
   rankings: {
     name: 'rankings',
     keyPath: 'timestamp',
-    indexes: [
-      { name: 'by_position', keyPath: 'position' }
-    ]
+    indexes: [{ name: 'by_position', keyPath: 'position' }],
   },
   watchlist: {
     name: 'watchlist',
     keyPath: 'prospectId',
-    indexes: [
-      { name: 'by_added', keyPath: 'addedAt' }
-    ]
+    indexes: [{ name: 'by_added', keyPath: 'addedAt' }],
   },
   comparisons: {
     name: 'comparisons',
     keyPath: 'id',
-    indexes: [
-      { name: 'by_created', keyPath: 'createdAt' }
-    ]
+    indexes: [{ name: 'by_created', keyPath: 'createdAt' }],
   },
   pendingSync: {
     name: 'pendingSync',
     keyPath: 'id',
     indexes: [
       { name: 'by_type', keyPath: 'type' },
-      { name: 'by_timestamp', keyPath: 'timestamp' }
-    ]
-  }
+      { name: 'by_timestamp', keyPath: 'timestamp' },
+    ],
+  },
 };
 
 /**
@@ -111,16 +105,16 @@ export class OfflineStorage {
         const db = (event.target as IDBOpenDBRequest).result;
 
         // Create object stores
-        Object.values(STORES).forEach(store => {
+        Object.values(STORES).forEach((store) => {
           if (!db.objectStoreNames.contains(store.name)) {
             const objectStore = db.createObjectStore(store.name, {
-              keyPath: store.keyPath
+              keyPath: store.keyPath,
             });
 
             // Create indexes
-            store.indexes?.forEach(index => {
+            store.indexes?.forEach((index) => {
               objectStore.createIndex(index.name, index.keyPath, {
-                unique: index.unique || false
+                unique: index.unique || false,
               });
             });
           }
@@ -153,7 +147,7 @@ export class OfflineStorage {
 
       const prospectWithTimestamp = {
         ...prospect,
-        updatedAt: Date.now()
+        updatedAt: Date.now(),
       };
 
       const request = store.put(prospectWithTimestamp);
@@ -198,7 +192,7 @@ export class OfflineStorage {
       const rankingData = {
         timestamp: Date.now(),
         rankings,
-        count: rankings.length
+        count: rankings.length,
       };
 
       const request = store.put(rankingData);
@@ -248,14 +242,17 @@ export class OfflineStorage {
     if (!this.db) await this.init();
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(['watchlist', 'pendingSync'], 'readwrite');
+      const transaction = this.db!.transaction(
+        ['watchlist', 'pendingSync'],
+        'readwrite'
+      );
       const watchlistStore = transaction.objectStore('watchlist');
       const syncStore = transaction.objectStore('pendingSync');
 
       // Add to watchlist
       watchlistStore.put({
         prospectId,
-        addedAt: Date.now()
+        addedAt: Date.now(),
       });
 
       // Add to pending sync
@@ -263,11 +260,12 @@ export class OfflineStorage {
         id: `watchlist_add_${prospectId}_${Date.now()}`,
         type: 'watchlist_add',
         prospectId,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
 
       transaction.oncomplete = () => resolve();
-      transaction.onerror = () => reject(new Error('Failed to add to watchlist'));
+      transaction.onerror = () =>
+        reject(new Error('Failed to add to watchlist'));
     });
   }
 
@@ -281,7 +279,10 @@ export class OfflineStorage {
     if (!this.db) await this.init();
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(['watchlist', 'pendingSync'], 'readwrite');
+      const transaction = this.db!.transaction(
+        ['watchlist', 'pendingSync'],
+        'readwrite'
+      );
       const watchlistStore = transaction.objectStore('watchlist');
       const syncStore = transaction.objectStore('pendingSync');
 
@@ -293,11 +294,12 @@ export class OfflineStorage {
         id: `watchlist_remove_${prospectId}_${Date.now()}`,
         type: 'watchlist_remove',
         prospectId,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
 
       transaction.oncomplete = () => resolve();
-      transaction.onerror = () => reject(new Error('Failed to remove from watchlist'));
+      transaction.onerror = () =>
+        reject(new Error('Failed to remove from watchlist'));
     });
   }
 
@@ -316,7 +318,7 @@ export class OfflineStorage {
 
       request.onsuccess = () => {
         const items = request.result || [];
-        resolve(items.map(item => item.prospectId));
+        resolve(items.map((item) => item.prospectId));
       };
 
       request.onerror = () => reject(new Error('Failed to get watchlist'));
@@ -330,7 +332,10 @@ export class OfflineStorage {
    * @param prospectIds - Array of prospect IDs being compared
    * @returns Promise resolving when saved
    */
-  async saveComparison(comparisonId: string, prospectIds: string[]): Promise<void> {
+  async saveComparison(
+    comparisonId: string,
+    prospectIds: string[]
+  ): Promise<void> {
     if (!this.db) await this.init();
 
     return new Promise((resolve, reject) => {
@@ -340,11 +345,12 @@ export class OfflineStorage {
       store.put({
         id: comparisonId,
         prospectIds,
-        createdAt: Date.now()
+        createdAt: Date.now(),
       });
 
       transaction.oncomplete = () => resolve();
-      transaction.onerror = () => reject(new Error('Failed to save comparison'));
+      transaction.onerror = () =>
+        reject(new Error('Failed to save comparison'));
     });
   }
 
@@ -354,7 +360,9 @@ export class OfflineStorage {
    * @param limit - Maximum number to return
    * @returns Promise resolving to comparison data
    */
-  async getRecentComparisons(limit: number = 5): Promise<Array<{ id: string; prospectIds: string[] }>> {
+  async getRecentComparisons(
+    limit: number = 5
+  ): Promise<Array<{ id: string; prospectIds: string[] }>> {
     if (!this.db) await this.init();
 
     return new Promise((resolve, reject) => {
@@ -370,7 +378,7 @@ export class OfflineStorage {
         if (cursor && comparisons.length < limit) {
           comparisons.push({
             id: cursor.value.id,
-            prospectIds: cursor.value.prospectIds
+            prospectIds: cursor.value.prospectIds,
           });
           cursor.continue();
         } else {
@@ -387,7 +395,9 @@ export class OfflineStorage {
    *
    * @returns Promise resolving to array of pending operations
    */
-  async getPendingSync(): Promise<Array<{ id: string; type: string; data: any }>> {
+  async getPendingSync(): Promise<
+    Array<{ id: string; type: string; data: any }>
+  > {
     if (!this.db) await this.init();
 
     return new Promise((resolve, reject) => {
@@ -413,10 +423,11 @@ export class OfflineStorage {
       const transaction = this.db!.transaction(['pendingSync'], 'readwrite');
       const store = transaction.objectStore('pendingSync');
 
-      ids.forEach(id => store.delete(id));
+      ids.forEach((id) => store.delete(id));
 
       transaction.oncomplete = () => resolve();
-      transaction.onerror = () => reject(new Error('Failed to clear pending sync'));
+      transaction.onerror = () =>
+        reject(new Error('Failed to clear pending sync'));
     });
   }
 
@@ -434,7 +445,7 @@ export class OfflineStorage {
         'readwrite'
       );
 
-      Object.keys(STORES).forEach(storeName => {
+      Object.keys(STORES).forEach((storeName) => {
         transaction.objectStore(storeName).clear();
       });
 
@@ -453,7 +464,7 @@ export class OfflineStorage {
       const estimate = await navigator.storage.estimate();
       return {
         usage: estimate.usage || 0,
-        quota: estimate.quota || 0
+        quota: estimate.quota || 0,
       };
     }
 

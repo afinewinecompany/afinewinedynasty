@@ -52,7 +52,7 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({
   onRefresh,
   enabled = true,
   threshold = 80,
-  className = ''
+  className = '',
 }) => {
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -63,40 +63,46 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({
   /**
    * Handle touch start event
    */
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    if (!enabled || isRefreshing) return;
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      if (!enabled || isRefreshing) return;
 
-    const touch = e.touches[0];
-    startYRef.current = touch.clientY;
+      const touch = e.touches[0];
+      startYRef.current = touch.clientY;
 
-    // Check if we're at the top of the scrollable area
-    const scrollTop = containerRef.current?.scrollTop || 0;
-    if (scrollTop === 0) {
-      setIsPulling(true);
-    }
-  }, [enabled, isRefreshing]);
+      // Check if we're at the top of the scrollable area
+      const scrollTop = containerRef.current?.scrollTop || 0;
+      if (scrollTop === 0) {
+        setIsPulling(true);
+      }
+    },
+    [enabled, isRefreshing]
+  );
 
   /**
    * Handle touch move event
    */
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (!enabled || !isPulling || isRefreshing) return;
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (!enabled || !isPulling || isRefreshing) return;
 
-    const touch = e.touches[0];
-    const currentY = touch.clientY;
-    const diff = currentY - startYRef.current;
+      const touch = e.touches[0];
+      const currentY = touch.clientY;
+      const diff = currentY - startYRef.current;
 
-    // Only track downward pull when at top
-    if (diff > 0 && containerRef.current?.scrollTop === 0) {
-      e.preventDefault(); // Prevent default scroll
+      // Only track downward pull when at top
+      if (diff > 0 && containerRef.current?.scrollTop === 0) {
+        e.preventDefault(); // Prevent default scroll
 
-      // Apply resistance factor for more natural feel
-      const resistance = 0.5;
-      const adjustedDistance = diff * resistance;
+        // Apply resistance factor for more natural feel
+        const resistance = 0.5;
+        const adjustedDistance = diff * resistance;
 
-      setPullDistance(Math.min(adjustedDistance, threshold * 1.5));
-    }
-  }, [enabled, isPulling, isRefreshing, threshold]);
+        setPullDistance(Math.min(adjustedDistance, threshold * 1.5));
+      }
+    },
+    [enabled, isPulling, isRefreshing, threshold]
+  );
 
   /**
    * Handle touch end event
@@ -149,7 +155,7 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({
         `}
         style={{
           transform: `translateY(${pullDistance - 60}px)`,
-          height: '60px'
+          height: '60px',
         }}
       >
         <div
@@ -207,7 +213,7 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({
           transition-transform duration-200 ease-out
         `}
         style={{
-          transform: `translateY(${pullDistance}px)`
+          transform: `translateY(${pullDistance}px)`,
         }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}

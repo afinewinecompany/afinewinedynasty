@@ -44,7 +44,7 @@ interface OfflineIndicatorProps {
 export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
   position = 'top',
   showSyncStatus = true,
-  className = ''
+  className = '',
 }) => {
   const [isOnline, setIsOnline] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -69,7 +69,8 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
       // Trigger background sync if available
       if ('sync' in self.registration) {
         setIsSyncing(true);
-        self.registration.sync.register('sync-data')
+        self.registration.sync
+          .register('sync-data')
           .then(() => {
             setTimeout(() => setIsSyncing(false), 2000);
           })
@@ -111,9 +112,10 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
     return null;
   }
 
-  const positionClasses = position === 'top'
-    ? 'top-0 animate-slide-down'
-    : 'bottom-16 animate-slide-up';
+  const positionClasses =
+    position === 'top'
+      ? 'top-0 animate-slide-down'
+      : 'bottom-16 animate-slide-up';
 
   return (
     <div
@@ -173,9 +175,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
               <div>
                 <p className="font-medium text-sm">Back online</p>
                 {isSyncing && showSyncStatus && (
-                  <p className="text-xs text-green-100">
-                    Syncing your data...
-                  </p>
+                  <p className="text-xs text-green-100">Syncing your data...</p>
                 )}
               </div>
             </div>

@@ -10,7 +10,7 @@ const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
     const variants = {
       default: 'bg-blue-100 text-blue-800',
       outline: 'border border-gray-300 bg-white',
-      secondary: 'bg-gray-100 text-gray-800'
+      secondary: 'bg-gray-100 text-gray-800',
     };
 
     return (

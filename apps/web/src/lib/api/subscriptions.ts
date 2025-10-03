@@ -10,7 +10,7 @@ import type {
   SubscriptionStatus,
   CheckoutSession,
   PaymentMethod,
-  Invoice
+  Invoice,
 } from '@/types/subscription';
 
 /**
@@ -18,8 +18,12 @@ import type {
  * @param planId - Subscription plan ID
  * @returns Promise with checkout session details
  */
-export async function createCheckoutSession(planId: string = 'premium'): Promise<CheckoutSession> {
-  const response = await apiClient.post('/subscriptions/checkout-session', { plan_id: planId });
+export async function createCheckoutSession(
+  planId: string = 'premium'
+): Promise<CheckoutSession> {
+  const response = await apiClient.post('/subscriptions/checkout-session', {
+    plan_id: planId,
+  });
   return response.data;
 }
 
@@ -66,9 +70,11 @@ export async function reactivateSubscription(): Promise<{
  * @param paymentMethodId - Stripe payment method ID
  * @returns Promise with updated payment method details
  */
-export async function updatePaymentMethod(paymentMethodId: string): Promise<PaymentMethod & { message: string }> {
+export async function updatePaymentMethod(
+  paymentMethodId: string
+): Promise<PaymentMethod & { message: string }> {
   const response = await apiClient.put('/subscriptions/payment-method', {
-    payment_method_id: paymentMethodId
+    payment_method_id: paymentMethodId,
   });
   return response.data;
 }
@@ -80,7 +86,9 @@ export async function updatePaymentMethod(paymentMethodId: string): Promise<Paym
  */
 export async function getUserInvoices(limit: number = 10): Promise<Invoice[]> {
   // This would be implemented when the endpoint is added
-  const response = await apiClient.get(`/subscriptions/invoices?limit=${limit}`);
+  const response = await apiClient.get(
+    `/subscriptions/invoices?limit=${limit}`
+  );
   return response.data.invoices;
 }
 

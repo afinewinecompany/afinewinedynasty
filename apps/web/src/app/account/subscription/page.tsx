@@ -37,7 +37,9 @@ export default function SubscriptionManagementPage() {
     return (
       <div className="container mx-auto py-8 px-4 max-w-4xl">
         <div className="text-center py-12">
-          <p className="text-muted-foreground">Loading subscription details...</p>
+          <p className="text-muted-foreground">
+            Loading subscription details...
+          </p>
         </div>
       </div>
     );
@@ -46,11 +48,7 @@ export default function SubscriptionManagementPage() {
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl">
       <div className="mb-8">
-        <Button
-          variant="ghost"
-          onClick={() => router.back()}
-          className="mb-4"
-        >
+        <Button variant="ghost" onClick={() => router.back()} className="mb-4">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
@@ -98,9 +96,7 @@ export default function SubscriptionManagementPage() {
                   Unlock full access to 500+ prospects, advanced analytics,
                   comparison tools, and data export capabilities.
                 </p>
-                <CheckoutButton>
-                  Upgrade Now - $9.99/month
-                </CheckoutButton>
+                <CheckoutButton>Upgrade Now - $9.99/month</CheckoutButton>
               </div>
             </div>
           )}
@@ -114,7 +110,7 @@ export default function SubscriptionManagementPage() {
                   card_brand: 'visa', // This would come from the API
                   last4: '4242',
                   exp_month: 12,
-                  exp_year: 2025
+                  exp_year: 2025,
                 }
               }
               onUpdate={() => refetch()}
@@ -124,11 +120,10 @@ export default function SubscriptionManagementPage() {
               <CreditCard className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="font-semibold mb-2">No Payment Method Required</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                You're on the free plan. Upgrade to premium to add a payment method.
+                You're on the free plan. Upgrade to premium to add a payment
+                method.
               </p>
-              <CheckoutButton>
-                Upgrade to Premium
-              </CheckoutButton>
+              <CheckoutButton>Upgrade to Premium</CheckoutButton>
             </div>
           )}
         </TabsContent>

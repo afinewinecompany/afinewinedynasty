@@ -53,7 +53,7 @@ export const MobileProspectCard: React.FC<MobileProspectCardProps> = ({
   prospect,
   onQuickAction,
   isInWatchlist = false,
-  className = ''
+  className = '',
 }) => {
   const [isExpanded, setIsExpanded] = React.useState(false);
 
@@ -62,7 +62,9 @@ export const MobileProspectCard: React.FC<MobileProspectCardProps> = ({
   };
 
   // Format confidence percentage
-  const confidencePercent = Math.round((prospect.mlPrediction?.confidence || 0) * 100);
+  const confidencePercent = Math.round(
+    (prospect.mlPrediction?.confidence || 0) * 100
+  );
 
   // Determine confidence color
   const getConfidenceColor = (confidence: number) => {
@@ -80,7 +82,10 @@ export const MobileProspectCard: React.FC<MobileProspectCardProps> = ({
             <div className="flex items-center gap-3">
               {/* Rank Badge */}
               <div className="flex-shrink-0">
-                <Badge variant="outline" className="text-lg font-bold min-w-[44px] h-[44px] flex items-center justify-center">
+                <Badge
+                  variant="outline"
+                  className="text-lg font-bold min-w-[44px] h-[44px] flex items-center justify-center"
+                >
                   #{prospect.rank}
                 </Badge>
               </div>
@@ -98,7 +103,9 @@ export const MobileProspectCard: React.FC<MobileProspectCardProps> = ({
 
                 {/* ML Prediction & ETA */}
                 <div className="flex items-center gap-3 mt-1">
-                  <span className={`text-sm font-medium ${getConfidenceColor(confidencePercent)}`}>
+                  <span
+                    className={`text-sm font-medium ${getConfidenceColor(confidencePercent)}`}
+                  >
                     {confidencePercent}% confidence
                   </span>
                   <Badge variant="secondary" className="text-xs">
@@ -113,10 +120,12 @@ export const MobileProspectCard: React.FC<MobileProspectCardProps> = ({
           <div className="flex flex-col gap-1">
             <Button
               size="sm"
-              variant={isInWatchlist ? "default" : "outline"}
+              variant={isInWatchlist ? 'default' : 'outline'}
               className="min-w-[44px] h-[44px] p-2"
               onClick={() => handleQuickAction('watchlist')}
-              aria-label={isInWatchlist ? "Remove from watchlist" : "Add to watchlist"}
+              aria-label={
+                isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'
+              }
             >
               {isInWatchlist ? '★' : '☆'}
             </Button>
@@ -150,13 +159,16 @@ export const MobileProspectCard: React.FC<MobileProspectCardProps> = ({
               <h4 className="text-sm font-semibold mb-1">Current Season</h4>
               <div className="grid grid-cols-3 gap-2 text-sm">
                 <div>
-                  <span className="text-gray-600">AVG:</span> {prospect.stats?.battingAverage || '--'}
+                  <span className="text-gray-600">AVG:</span>{' '}
+                  {prospect.stats?.battingAverage || '--'}
                 </div>
                 <div>
-                  <span className="text-gray-600">OPS:</span> {prospect.stats?.ops || '--'}
+                  <span className="text-gray-600">OPS:</span>{' '}
+                  {prospect.stats?.ops || '--'}
                 </div>
                 <div>
-                  <span className="text-gray-600">HR:</span> {prospect.stats?.homeRuns || '--'}
+                  <span className="text-gray-600">HR:</span>{' '}
+                  {prospect.stats?.homeRuns || '--'}
                 </div>
               </div>
             </div>
@@ -167,16 +179,20 @@ export const MobileProspectCard: React.FC<MobileProspectCardProps> = ({
                 <h4 className="text-sm font-semibold mb-1">Scouting Grades</h4>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
-                    <span className="text-gray-600">Hit:</span> {prospect.scoutingGrades.hit}/80
+                    <span className="text-gray-600">Hit:</span>{' '}
+                    {prospect.scoutingGrades.hit}/80
                   </div>
                   <div>
-                    <span className="text-gray-600">Power:</span> {prospect.scoutingGrades.power}/80
+                    <span className="text-gray-600">Power:</span>{' '}
+                    {prospect.scoutingGrades.power}/80
                   </div>
                   <div>
-                    <span className="text-gray-600">Speed:</span> {prospect.scoutingGrades.speed}/80
+                    <span className="text-gray-600">Speed:</span>{' '}
+                    {prospect.scoutingGrades.speed}/80
                   </div>
                   <div>
-                    <span className="text-gray-600">Field:</span> {prospect.scoutingGrades.fielding}/80
+                    <span className="text-gray-600">Field:</span>{' '}
+                    {prospect.scoutingGrades.fielding}/80
                   </div>
                 </div>
               </div>

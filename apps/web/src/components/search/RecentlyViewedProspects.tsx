@@ -12,7 +12,7 @@ import {
   ExternalLink,
   User,
   Calendar,
-  RotateCcw
+  RotateCcw,
 } from 'lucide-react';
 
 /**
@@ -65,19 +65,25 @@ interface RecentlyViewedProspect {
  */
 export function RecentlyViewedProspects() {
   // Fetch recently viewed prospects
-  const { data: recentlyViewed, isLoading, error } = useQuery({
+  const {
+    data: recentlyViewed,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['recently-viewed-prospects'],
     queryFn: async () => {
       const response = await api.get('/search/recently-viewed?limit=15');
       return response.data as RecentlyViewedProspect[];
     },
-    refetchInterval: 30000 // Refresh every 30 seconds to show recent views
+    refetchInterval: 30000, // Refresh every 30 seconds to show recent views
   });
 
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    const diffInMinutes = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60)
+    );
 
     if (diffInMinutes < 1) {
       return 'Just now';
@@ -108,10 +114,10 @@ export function RecentlyViewedProspects() {
 
   const groupViewsByTime = (views: RecentlyViewedProspect[]) => {
     const groups: { [key: string]: RecentlyViewedProspect[] } = {
-      'Today': [],
-      'Yesterday': [],
+      Today: [],
+      Yesterday: [],
       'This Week': [],
-      'Older': []
+      Older: [],
     };
 
     const now = new Date();
@@ -121,9 +127,13 @@ export function RecentlyViewedProspects() {
     const weekAgo = new Date(today);
     weekAgo.setDate(weekAgo.getDate() - 7);
 
-    views.forEach(view => {
+    views.forEach((view) => {
       const viewDate = new Date(view.viewed_at);
-      const viewDateOnly = new Date(viewDate.getFullYear(), viewDate.getMonth(), viewDate.getDate());
+      const viewDateOnly = new Date(
+        viewDate.getFullYear(),
+        viewDate.getMonth(),
+        viewDate.getDate()
+      );
 
       if (viewDateOnly.getTime() === today.getTime()) {
         groups['Today'].push(view);
@@ -151,8 +161,14 @@ export function RecentlyViewedProspects() {
   if (error) {
     return (
       <div className="text-center py-6">
-        <div className="text-red-500 text-sm mb-3">Failed to load recent views</div>
-        <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+        <div className="text-red-500 text-sm mb-3">
+          Failed to load recent views
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => window.location.reload()}
+        >
           <RotateCcw className="h-3 w-3 mr-1" />
           Retry
         </Button>
@@ -164,7 +180,9 @@ export function RecentlyViewedProspects() {
     return (
       <div className="text-center py-6">
         <Eye className="h-8 w-8 text-gray-300 mx-auto mb-3" />
-        <h4 className="text-sm font-medium text-gray-900 mb-1">No recent views</h4>
+        <h4 className="text-sm font-medium text-gray-900 mb-1">
+          No recent views
+        </h4>
         <p className="text-xs text-gray-500">
           Prospects you view will appear here for quick access
         </p>
@@ -193,7 +211,10 @@ export function RecentlyViewedProspects() {
 
             <div className="space-y-2">
               {views.map((view) => (
-                <Card key={view.id} className="hover:shadow-sm transition-shadow">
+                <Card
+                  key={view.id}
+                  className="hover:shadow-sm transition-shadow"
+                >
                   <CardContent className="p-3">
                     <div className="space-y-2">
                       <div className="flex items-start justify-between">
@@ -212,7 +233,11 @@ export function RecentlyViewedProspects() {
                           href={`/prospects/${view.prospect_id}`}
                           className="ml-2"
                         >
-                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0"
+                          >
                             <ExternalLink className="h-3 w-3" />
                           </Button>
                         </Link>
@@ -240,7 +265,10 @@ export function RecentlyViewedProspects() {
 
       {recentlyViewed.length >= 15 && (
         <div className="text-center pt-2">
-          <Link href="/prospects/recently-viewed" className="text-xs text-blue-600 hover:text-blue-700">
+          <Link
+            href="/prospects/recently-viewed"
+            className="text-xs text-blue-600 hover:text-blue-700"
+          >
             View all recent prospects →
           </Link>
         </div>

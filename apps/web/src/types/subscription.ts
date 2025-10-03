@@ -9,7 +9,13 @@ export interface Subscription {
   user_id: number;
   stripe_subscription_id: string;
   stripe_customer_id: string;
-  status: 'active' | 'past_due' | 'unpaid' | 'canceled' | 'trialing' | 'incomplete';
+  status:
+    | 'active'
+    | 'past_due'
+    | 'unpaid'
+    | 'canceled'
+    | 'trialing'
+    | 'incomplete';
   plan_id: 'free' | 'premium';
   current_period_start: string;
   current_period_end: string;
@@ -86,14 +92,14 @@ export const SUBSCRIPTION_PLANS: PlanDetails[] = [
       'Basic filtering options',
       'Dynasty rankings view',
       'Player profiles',
-      'Basic statistical comparisons'
+      'Basic statistical comparisons',
     ],
     limitations: [
       'No data export',
       'Limited to 100 prospects',
       'No advanced filters',
-      'No comparison tools'
-    ]
+      'No comparison tools',
+    ],
   },
   {
     id: 'premium',
@@ -110,8 +116,8 @@ export const SUBSCRIPTION_PLANS: PlanDetails[] = [
       'Historical analog matching',
       'Custom watchlists',
       'Priority support',
-      'Early access to new features'
+      'Early access to new features',
     ],
-    highlighted: true
-  }
+    highlighted: true,
+  },
 ];

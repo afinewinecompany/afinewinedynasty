@@ -12,7 +12,7 @@ import {
   createCheckoutSession,
   cancelSubscription,
   reactivateSubscription,
-  updatePaymentMethod
+  updatePaymentMethod,
 } from '@/lib/api/subscriptions';
 import type { SubscriptionStatus } from '@/types/subscription';
 
@@ -27,7 +27,7 @@ export function useSubscription() {
     data: subscription,
     isLoading,
     error,
-    refetch
+    refetch,
   } = useQuery<SubscriptionStatus>({
     queryKey: ['subscription', 'status'],
     queryFn: getSubscriptionStatus,
@@ -37,7 +37,8 @@ export function useSubscription() {
 
   // Check if user has premium access
   const isPremium = subscription?.tier === 'premium';
-  const isActive = subscription?.status === 'active' || subscription?.status === 'trialing';
+  const isActive =
+    subscription?.status === 'active' || subscription?.status === 'trialing';
 
   // Check specific feature access
   const hasFeature = (feature: keyof SubscriptionStatus['features']) => {
@@ -62,8 +63,8 @@ export function useSubscription() {
       prospects_limit: 100,
       export_enabled: false,
       advanced_filters_enabled: false,
-      comparison_enabled: false
-    }
+      comparison_enabled: false,
+    },
   };
 }
 
@@ -85,13 +86,13 @@ export function useCheckout() {
     onError: (error: any) => {
       setIsRedirecting(false);
       console.error('Checkout error:', error);
-    }
+    },
   });
 
   return {
     initiateCheckout: checkoutMutation.mutate,
     isLoading: checkoutMutation.isLoading || isRedirecting,
-    error: checkoutMutation.error
+    error: checkoutMutation.error,
   };
 }
 
@@ -107,7 +108,7 @@ export function useSubscriptionManagement() {
     onSuccess: () => {
       // Invalidate subscription cache to refresh status
       queryClient.invalidateQueries(['subscription']);
-    }
+    },
   });
 
   const reactivateMutation = useMutation({
@@ -115,7 +116,7 @@ export function useSubscriptionManagement() {
     onSuccess: () => {
       // Invalidate subscription cache to refresh status
       queryClient.invalidateQueries(['subscription']);
-    }
+    },
   });
 
   const updatePaymentMutation = useMutation({
@@ -123,7 +124,7 @@ export function useSubscriptionManagement() {
     onSuccess: () => {
       // Invalidate subscription cache
       queryClient.invalidateQueries(['subscription']);
-    }
+    },
   });
 
   return {
@@ -140,7 +141,7 @@ export function useSubscriptionManagement() {
     // Update payment method
     updatePaymentMethod: updatePaymentMutation.mutate,
     isUpdatingPayment: updatePaymentMutation.isLoading,
-    paymentError: updatePaymentMutation.error
+    paymentError: updatePaymentMutation.error,
   };
 }
 
@@ -149,7 +150,9 @@ export function useSubscriptionManagement() {
  * @param feature - Feature to check
  * @returns Boolean indicating if user has access
  */
-export function useFeatureAccess(feature: keyof SubscriptionStatus['features']) {
+export function useFeatureAccess(
+  feature: keyof SubscriptionStatus['features']
+) {
   const { subscription, isLoading } = useSubscription();
 
   if (isLoading) return { hasAccess: false, isLoading: true };
@@ -159,6 +162,6 @@ export function useFeatureAccess(feature: keyof SubscriptionStatus['features']) 
   return {
     hasAccess,
     isLoading: false,
-    requiresUpgrade: !hasAccess && subscription?.tier === 'free'
+    requiresUpgrade: !hasAccess && subscription?.tier === 'free',
   };
 }

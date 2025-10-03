@@ -21,12 +21,7 @@ describe('PlanCard Component', () => {
 
   describe('Rendering', () => {
     it('should render plan card with correct details', () => {
-      render(
-        <PlanCard
-          plan={mockPremiumPlan}
-          onSelect={mockOnSelect}
-        />
-      );
+      render(<PlanCard plan={mockPremiumPlan} onSelect={mockOnSelect} />);
 
       expect(screen.getByText('Premium')).toBeInTheDocument();
       expect(screen.getByText('$9.99')).toBeInTheDocument();
@@ -35,38 +30,23 @@ describe('PlanCard Component', () => {
     });
 
     it('should display all features', () => {
-      render(
-        <PlanCard
-          plan={mockPremiumPlan}
-          onSelect={mockOnSelect}
-        />
-      );
+      render(<PlanCard plan={mockPremiumPlan} onSelect={mockOnSelect} />);
 
-      mockPremiumPlan.features.forEach(feature => {
+      mockPremiumPlan.features.forEach((feature) => {
         expect(screen.getByText(feature)).toBeInTheDocument();
       });
     });
 
     it('should display limitations for free plan', () => {
-      render(
-        <PlanCard
-          plan={mockFreePlan}
-          onSelect={mockOnSelect}
-        />
-      );
+      render(<PlanCard plan={mockFreePlan} onSelect={mockOnSelect} />);
 
-      mockFreePlan.limitations?.forEach(limitation => {
+      mockFreePlan.limitations?.forEach((limitation) => {
         expect(screen.getByText(limitation)).toBeInTheDocument();
       });
     });
 
     it('should show "Most Popular" badge for highlighted plans', () => {
-      render(
-        <PlanCard
-          plan={mockPremiumPlan}
-          onSelect={mockOnSelect}
-        />
-      );
+      render(<PlanCard plan={mockPremiumPlan} onSelect={mockOnSelect} />);
 
       expect(screen.getByText('Most Popular')).toBeInTheDocument();
     });
@@ -87,12 +67,7 @@ describe('PlanCard Component', () => {
 
   describe('Interactions', () => {
     it('should call onSelect when button is clicked', () => {
-      render(
-        <PlanCard
-          plan={mockPremiumPlan}
-          onSelect={mockOnSelect}
-        />
-      );
+      render(<PlanCard plan={mockPremiumPlan} onSelect={mockOnSelect} />);
 
       const button = screen.getByRole('button', { name: /Subscribe Now/i });
       fireEvent.click(button);
@@ -127,12 +102,7 @@ describe('PlanCard Component', () => {
     });
 
     it('should show "Get Started" for free plan', () => {
-      render(
-        <PlanCard
-          plan={mockFreePlan}
-          onSelect={mockOnSelect}
-        />
-      );
+      render(<PlanCard plan={mockFreePlan} onSelect={mockOnSelect} />);
 
       expect(screen.getByText('Get Started')).toBeInTheDocument();
     });
@@ -141,10 +111,7 @@ describe('PlanCard Component', () => {
   describe('Styling', () => {
     it('should apply special styling for highlighted plans', () => {
       const { container } = render(
-        <PlanCard
-          plan={mockPremiumPlan}
-          onSelect={mockOnSelect}
-        />
+        <PlanCard plan={mockPremiumPlan} onSelect={mockOnSelect} />
       );
 
       const card = container.querySelector('.border-primary');
@@ -153,29 +120,19 @@ describe('PlanCard Component', () => {
     });
 
     it('should show green check icons for features', () => {
-      render(
-        <PlanCard
-          plan={mockPremiumPlan}
-          onSelect={mockOnSelect}
-        />
-      );
+      render(<PlanCard plan={mockPremiumPlan} onSelect={mockOnSelect} />);
 
       const checkIcons = screen.getAllByTestId('check-icon');
-      checkIcons.forEach(icon => {
+      checkIcons.forEach((icon) => {
         expect(icon).toHaveClass('text-green-600');
       });
     });
 
     it('should show red X icons for limitations', () => {
-      render(
-        <PlanCard
-          plan={mockFreePlan}
-          onSelect={mockOnSelect}
-        />
-      );
+      render(<PlanCard plan={mockFreePlan} onSelect={mockOnSelect} />);
 
       const xIcons = screen.getAllByTestId('x-icon');
-      xIcons.forEach(icon => {
+      xIcons.forEach((icon) => {
         expect(icon).toHaveClass('text-red-600');
       });
     });

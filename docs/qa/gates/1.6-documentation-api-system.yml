@@ -1,0 +1,59 @@
+schema: 1
+story: '1.6'
+story_title: 'Documentation & API Documentation System'
+gate: CONCERNS
+status_reason: 'Documentation implemented successfully but health endpoints return mock data and components lack tests.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2025-10-02T00:00:00Z'
+
+top_issues:
+  - severity: medium
+    type: technical_debt
+    description: 'Health check endpoints return hardcoded mock data instead of actual component status'
+    refs: ['apps/api/app/api/api_v1/endpoints/health.py:115']
+    suggested_owner: dev
+  - severity: medium
+    type: test_coverage
+    description: 'UI documentation components lack test coverage'
+    refs: ['apps/web/src/components/ui/Tooltip.tsx', 'apps/web/src/components/help/']
+    suggested_owner: dev
+
+waiver: { active: false }
+
+quality_score: 80
+expires: '2025-10-16T00:00:00Z'
+
+evidence:
+  tests_reviewed: 0
+  risks_identified: 3
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6, 7, 8]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'API documentation properly exposes auth requirements and rate limiting'
+  performance:
+    status: PASS
+    notes: 'Documentation components lightweight, using optimized UI primitives'
+  reliability:
+    status: CONCERNS
+    notes: 'Health endpoints return mock data, preventing real monitoring'
+  maintainability:
+    status: PASS
+    notes: 'Well-organized documentation structure with clear separation by audience'
+
+recommendations:
+  immediate:
+    - action: 'Implement actual health checks for database, Redis, and ML service'
+      refs: ['apps/api/app/api/api_v1/endpoints/health.py']
+    - action: 'Add unit tests for Tooltip, HelpIcon, and InAppFAQ components'
+      refs: ['apps/web/src/components/ui/', 'apps/web/src/components/help/']
+  future:
+    - action: 'Add documentation search functionality'
+      refs: ['Task 6 in story']
+    - action: 'Implement onboarding tour'
+      refs: ['Task 6 in story']
+    - action: 'Set up broken link checking for documentation'
+      refs: ['docs/']

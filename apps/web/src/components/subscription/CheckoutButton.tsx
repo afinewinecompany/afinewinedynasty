@@ -12,7 +12,13 @@ import { useToast } from '@/hooks/use-toast';
 
 interface CheckoutButtonProps {
   planId?: string;
-  variant?: 'default' | 'outline' | 'secondary' | 'ghost' | 'link' | 'destructive';
+  variant?:
+    | 'default'
+    | 'outline'
+    | 'secondary'
+    | 'ghost'
+    | 'link'
+    | 'destructive';
   size?: 'default' | 'sm' | 'lg' | 'icon';
   className?: string;
   children?: React.ReactNode;
@@ -29,7 +35,7 @@ export const CheckoutButton: React.FC<CheckoutButtonProps> = ({
   variant = 'default',
   size = 'default',
   className = '',
-  children
+  children,
 }) => {
   const { initiateCheckout, isLoading, error } = useCheckout();
   const { toast } = useToast();
@@ -41,7 +47,7 @@ export const CheckoutButton: React.FC<CheckoutButtonProps> = ({
       toast({
         title: 'Checkout Error',
         description: 'Failed to start checkout process. Please try again.',
-        variant: 'destructive'
+        variant: 'destructive',
       });
     }
   };
@@ -51,7 +57,7 @@ export const CheckoutButton: React.FC<CheckoutButtonProps> = ({
       toast({
         title: 'Checkout Error',
         description: error.message || 'An error occurred during checkout',
-        variant: 'destructive'
+        variant: 'destructive',
       });
     }
   }, [error, toast]);

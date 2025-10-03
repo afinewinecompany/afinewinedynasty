@@ -74,6 +74,7 @@ async def get_prospect_rankings(
     # Pagination
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(50, ge=1, le=100, description="Items per page (25, 50, 100)"),
+    limit: Optional[int] = Query(None, ge=1, le=500, description="Total limit of prospects (premium: up to 500)"),
 
     # Filtering
     position: Optional[List[str]] = Query(None, description="Filter by positions"),
@@ -105,14 +106,43 @@ async def get_prospect_rankings(
     - Configurable pagination (25, 50, 100 per page)
     - Sortable by multiple metrics
     - 30-minute Redis caching for performance
+    - Free tier: Top 100 prospects
+    - Premium tier: Full top 500 prospects
     """
 
     # Validate page_size
     if page_size not in [25, 50, 100]:
         page_size = 50
 
+    # Check user subscription tier to determine prospect limit
+    from app.api.deps import check_subscription_feature
+    from sqlalchemy import select
+
+    # Get user from database to check subscription tier
+    stmt = select(User).where(User.email == current_user.email)
+    result = await db.execute(stmt)
+    user = result.scalar_one_or_none()
+
+    if not user:
+        user_tier = "free"
+    else:
+        user_tier = user.subscription_tier or "free"
+
+    # Determine prospect limit based on tier
+    if limit is None:
+        if user_tier == "premium":
+            max_prospects = 500
+        else:
+            max_prospects = 100
+    else:
+        # User specified a limit, validate based on tier
+        if user_tier == "premium":
+            max_prospects = min(limit, 500)
+        else:
+            max_prospects = min(limit, 100)
+
     # Generate cache key for this specific query
-    cache_key = f"rankings:{page}:{page_size}:{sort_by}:{sort_order}"
+    cache_key = f"rankings:{user_tier}:{page}:{page_size}:{max_prospects}:{sort_by}:{sort_order}"
     filter_dict = {
         "position": position,
         "organization": organization,
@@ -232,6 +262,11 @@ async def get_prospect_rankings(
     ranked_prospects = DynastyRankingService.rank_prospects(
         [(p, s) for p, s, _, _ in prospects_with_scores]
     )
+
+    # Apply prospect limit based on subscription tier (before sorting)
+    # First sort by dynasty rank to get top N prospects
+    ranked_prospects.sort(key=lambda x: x[1]['dynasty_rank'])
+    ranked_prospects = ranked_prospects[:max_prospects]
 
     # Apply sorting
     sort_key_map = {

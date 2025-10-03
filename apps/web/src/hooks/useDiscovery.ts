@@ -103,7 +103,7 @@ export function useDiscovery(params: DiscoveryParams) {
     data: breakoutCandidates,
     isLoading: isLoadingBreakout,
     error: breakoutError,
-    refetch: refetchBreakout
+    refetch: refetchBreakout,
   } = useQuery({
     queryKey: ['breakout-candidates', params],
     queryFn: async () => {
@@ -111,13 +111,13 @@ export function useDiscovery(params: DiscoveryParams) {
         params: {
           lookback_days: params.lookback_days,
           min_improvement_threshold: 0.1,
-          limit: params.limit_per_category
-        }
+          limit: params.limit_per_category,
+        },
       });
       return response.data as BreakoutCandidate[];
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 30 * 60 * 1000 // 30 minutes
+    gcTime: 30 * 60 * 1000, // 30 minutes
   });
 
   // Fetch sleeper prospects
@@ -125,7 +125,7 @@ export function useDiscovery(params: DiscoveryParams) {
     data: sleeperProspects,
     isLoading: isLoadingSleeper,
     error: sleeperError,
-    refetch: refetchSleeper
+    refetch: refetchSleeper,
   } = useQuery({
     queryKey: ['sleeper-prospects', params],
     queryFn: async () => {
@@ -133,13 +133,13 @@ export function useDiscovery(params: DiscoveryParams) {
         params: {
           confidence_threshold: params.confidence_threshold,
           consensus_ranking_gap: 30,
-          limit: params.limit_per_category
-        }
+          limit: params.limit_per_category,
+        },
       });
       return response.data as SleeperProspect[];
     },
     staleTime: 5 * 60 * 1000,
-    gcTime: 30 * 60 * 1000
+    gcTime: 30 * 60 * 1000,
   });
 
   // Fetch complete discovery dashboard
@@ -147,7 +147,7 @@ export function useDiscovery(params: DiscoveryParams) {
     data: dashboardData,
     isLoading: isLoadingDashboard,
     error: dashboardError,
-    refetch: refetchDashboard
+    refetch: refetchDashboard,
   } = useQuery({
     queryKey: ['discovery-dashboard', params],
     queryFn: async () => {
@@ -155,13 +155,13 @@ export function useDiscovery(params: DiscoveryParams) {
         params: {
           lookback_days: params.lookback_days,
           confidence_threshold: params.confidence_threshold,
-          limit_per_category: params.limit_per_category
-        }
+          limit_per_category: params.limit_per_category,
+        },
       });
       return response.data;
     },
     staleTime: 10 * 60 * 1000, // 10 minutes
-    gcTime: 60 * 60 * 1000 // 1 hour
+    gcTime: 60 * 60 * 1000, // 1 hour
   });
 
   // Combined loading state
@@ -175,7 +175,7 @@ export function useDiscovery(params: DiscoveryParams) {
     await Promise.all([
       refetchBreakout(),
       refetchSleeper(),
-      refetchDashboard()
+      refetchDashboard(),
     ]);
   };
 
@@ -197,7 +197,7 @@ export function useDiscovery(params: DiscoveryParams) {
     // Individual refetch functions
     refetchBreakout,
     refetchSleeper,
-    refetchDashboard
+    refetchDashboard,
   };
 }
 
@@ -210,19 +210,24 @@ export function useBreakoutCandidates(
   limit: number = 25
 ) {
   return useQuery({
-    queryKey: ['breakout-candidates', lookbackDays, improvementThreshold, limit],
+    queryKey: [
+      'breakout-candidates',
+      lookbackDays,
+      improvementThreshold,
+      limit,
+    ],
     queryFn: async () => {
       const response = await api.get('/discovery/breakout-candidates', {
         params: {
           lookback_days: lookbackDays,
           min_improvement_threshold: improvementThreshold,
-          limit
-        }
+          limit,
+        },
       });
       return response.data as BreakoutCandidate[];
     },
     staleTime: 5 * 60 * 1000,
-    gcTime: 30 * 60 * 1000
+    gcTime: 30 * 60 * 1000,
   });
 }
 
@@ -241,12 +246,12 @@ export function useSleeperProspects(
         params: {
           confidence_threshold: confidenceThreshold,
           consensus_ranking_gap: consensusGap,
-          limit
-        }
+          limit,
+        },
       });
       return response.data as SleeperProspect[];
     },
     staleTime: 5 * 60 * 1000,
-    gcTime: 30 * 60 * 1000
+    gcTime: 30 * 60 * 1000,
   });
 }

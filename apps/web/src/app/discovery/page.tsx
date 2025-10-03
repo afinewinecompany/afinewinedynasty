@@ -12,7 +12,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   TrendingUp,
   Eye,
@@ -21,7 +27,7 @@ import {
   Settings,
   RefreshCcw,
   Lightbulb,
-  Calendar
+  Calendar,
 } from 'lucide-react';
 
 /**
@@ -58,7 +64,7 @@ export default function DiscoveryPage() {
   const [discoveryParams, setDiscoveryParams] = useState({
     lookback_days: 30,
     confidence_threshold: 0.7,
-    limit_per_category: 10
+    limit_per_category: 10,
   });
 
   const {
@@ -69,11 +75,11 @@ export default function DiscoveryPage() {
     discoveryMetadata,
     isLoading,
     error,
-    refetch
+    refetch,
   } = useDiscovery(discoveryParams);
 
   const handleParamsChange = (newParams: Partial<typeof discoveryParams>) => {
-    setDiscoveryParams(prev => ({ ...prev, ...newParams }));
+    setDiscoveryParams((prev) => ({ ...prev, ...newParams }));
   };
 
   const formatDate = (dateString: string) => {
@@ -81,7 +87,7 @@ export default function DiscoveryPage() {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   };
 
@@ -91,9 +97,12 @@ export default function DiscoveryPage() {
       <div className="mb-8">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Discovery Dashboard</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Discovery Dashboard
+            </h1>
             <p className="text-lg text-gray-600">
-              Identify breakout candidates, sleeper prospects, and market opportunities
+              Identify breakout candidates, sleeper prospects, and market
+              opportunities
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -103,7 +112,9 @@ export default function DiscoveryPage() {
               disabled={isLoading}
               className="flex items-center gap-2"
             >
-              <RefreshCcw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+              <RefreshCcw
+                className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`}
+              />
               Refresh
             </Button>
           </div>
@@ -125,7 +136,9 @@ export default function DiscoveryPage() {
                 </Label>
                 <Select
                   value={discoveryParams.lookback_days.toString()}
-                  onValueChange={(value) => handleParamsChange({ lookback_days: parseInt(value) })}
+                  onValueChange={(value) =>
+                    handleParamsChange({ lookback_days: parseInt(value) })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -140,12 +153,19 @@ export default function DiscoveryPage() {
               </div>
 
               <div>
-                <Label htmlFor="confidence-threshold" className="text-sm font-medium">
+                <Label
+                  htmlFor="confidence-threshold"
+                  className="text-sm font-medium"
+                >
                   ML Confidence Threshold
                 </Label>
                 <Select
                   value={discoveryParams.confidence_threshold.toString()}
-                  onValueChange={(value) => handleParamsChange({ confidence_threshold: parseFloat(value) })}
+                  onValueChange={(value) =>
+                    handleParamsChange({
+                      confidence_threshold: parseFloat(value),
+                    })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -165,7 +185,9 @@ export default function DiscoveryPage() {
                 </Label>
                 <Select
                   value={discoveryParams.limit_per_category.toString()}
-                  onValueChange={(value) => handleParamsChange({ limit_per_category: parseInt(value) })}
+                  onValueChange={(value) =>
+                    handleParamsChange({ limit_per_category: parseInt(value) })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -187,7 +209,8 @@ export default function DiscoveryPage() {
                   Last updated: {formatDate(discoveryMetadata.analysis_date)}
                 </span>
                 <span>
-                  {discoveryMetadata.total_breakout_candidates} breakout candidates
+                  {discoveryMetadata.total_breakout_candidates} breakout
+                  candidates
                 </span>
                 <span>
                   {discoveryMetadata.total_sleeper_prospects} sleeper prospects
@@ -223,7 +246,10 @@ export default function DiscoveryPage() {
               </span>
             )}
           </TabsTrigger>
-          <TabsTrigger value="organizations" className="flex items-center gap-2">
+          <TabsTrigger
+            value="organizations"
+            className="flex items-center gap-2"
+          >
             <Building2 className="h-4 w-4" />
             Organizations
           </TabsTrigger>

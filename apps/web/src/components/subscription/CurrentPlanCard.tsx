@@ -6,11 +6,20 @@
 
 import React from 'react';
 import { Calendar, CreditCard, AlertCircle } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useSubscription, useSubscriptionManagement } from '@/hooks/useSubscription';
+import {
+  useSubscription,
+  useSubscriptionManagement,
+} from '@/hooks/useSubscription';
 import { format } from 'date-fns';
 
 /**
@@ -20,7 +29,8 @@ import { format } from 'date-fns';
  */
 export const CurrentPlanCard: React.FC = () => {
   const { subscription, isLoading } = useSubscription();
-  const { reactivateSubscription, isReactivating } = useSubscriptionManagement();
+  const { reactivateSubscription, isReactivating } =
+    useSubscriptionManagement();
 
   if (isLoading) {
     return (
@@ -78,7 +88,9 @@ export const CurrentPlanCard: React.FC = () => {
             <CardTitle>Current Plan</CardTitle>
             <CardDescription>Premium Subscription</CardDescription>
           </div>
-          <Badge variant={subscription.status === 'active' ? 'default' : 'secondary'}>
+          <Badge
+            variant={subscription.status === 'active' ? 'default' : 'secondary'}
+          >
             {subscription.status}
           </Badge>
         </div>
@@ -88,7 +100,8 @@ export const CurrentPlanCard: React.FC = () => {
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Your subscription will be canceled at the end of the billing period on {nextBillingDate}.
+              Your subscription will be canceled at the end of the billing
+              period on {nextBillingDate}.
               <Button
                 variant="link"
                 size="sm"
@@ -126,7 +139,9 @@ export const CurrentPlanCard: React.FC = () => {
               <Calendar className="h-4 w-4 text-muted-foreground" />
               <div className="flex-1">
                 <p className="text-sm font-medium">Next Billing Date</p>
-                <p className="text-sm text-muted-foreground">{nextBillingDate}</p>
+                <p className="text-sm text-muted-foreground">
+                  {nextBillingDate}
+                </p>
               </div>
             </div>
           )}
@@ -136,19 +151,27 @@ export const CurrentPlanCard: React.FC = () => {
           <h4 className="text-sm font-medium mb-2">Premium Features</h4>
           <div className="grid grid-cols-2 gap-2 text-sm">
             <div className="flex items-center gap-1">
-              <Badge variant="outline" className="text-xs">500</Badge>
+              <Badge variant="outline" className="text-xs">
+                500
+              </Badge>
               <span className="text-muted-foreground">Prospects</span>
             </div>
             <div className="flex items-center gap-1">
-              <Badge variant="outline" className="text-xs">✓</Badge>
+              <Badge variant="outline" className="text-xs">
+                ✓
+              </Badge>
               <span className="text-muted-foreground">Data Export</span>
             </div>
             <div className="flex items-center gap-1">
-              <Badge variant="outline" className="text-xs">✓</Badge>
+              <Badge variant="outline" className="text-xs">
+                ✓
+              </Badge>
               <span className="text-muted-foreground">Comparisons</span>
             </div>
             <div className="flex items-center gap-1">
-              <Badge variant="outline" className="text-xs">✓</Badge>
+              <Badge variant="outline" className="text-xs">
+                ✓
+              </Badge>
               <span className="text-muted-foreground">Advanced Filters</span>
             </div>
           </div>

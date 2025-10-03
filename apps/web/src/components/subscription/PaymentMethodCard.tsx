@@ -6,14 +6,27 @@
 
 import React, { useState } from 'react';
 import { CreditCard, Edit2, Loader2 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { loadStripe } from '@stripe/stripe-js';
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import {
+  Elements,
+  CardElement,
+  useStripe,
+  useElements,
+} from '@stripe/react-stripe-js';
 
 // Initialize Stripe (you'll need to add your publishable key)
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''
+);
 
 interface PaymentMethodCardProps {
   currentPaymentMethod?: {
@@ -28,10 +41,10 @@ interface PaymentMethodCardProps {
 /**
  * Inner component that uses Stripe hooks
  */
-const PaymentMethodForm: React.FC<{ onSuccess: () => void; onCancel: () => void }> = ({
-  onSuccess,
-  onCancel
-}) => {
+const PaymentMethodForm: React.FC<{
+  onSuccess: () => void;
+  onCancel: () => void;
+}> = ({ onSuccess, onCancel }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -62,7 +75,7 @@ const PaymentMethodForm: React.FC<{ onSuccess: () => void; onCancel: () => void 
         toast({
           title: 'Error',
           description: error.message,
-          variant: 'destructive'
+          variant: 'destructive',
         });
       } else if (paymentMethod) {
         // Here you would call your API to update the payment method
@@ -77,7 +90,7 @@ const PaymentMethodForm: React.FC<{ onSuccess: () => void; onCancel: () => void 
       toast({
         title: 'Error',
         description: 'Failed to update payment method',
-        variant: 'destructive'
+        variant: 'destructive',
       });
     } finally {
       setIsProcessing(false);
@@ -128,7 +141,7 @@ const PaymentMethodForm: React.FC<{ onSuccess: () => void; onCancel: () => void 
  */
 export const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
   currentPaymentMethod,
-  onUpdate
+  onUpdate,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
 
@@ -177,10 +190,13 @@ export const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
               {getCardIcon(currentPaymentMethod.card_brand)}
               <div>
                 <p className="font-medium capitalize">
-                  {currentPaymentMethod.card_brand} •••• {currentPaymentMethod.last4}
+                  {currentPaymentMethod.card_brand} ••••{' '}
+                  {currentPaymentMethod.last4}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Expires {currentPaymentMethod.exp_month.toString().padStart(2, '0')}/{currentPaymentMethod.exp_year}
+                  Expires{' '}
+                  {currentPaymentMethod.exp_month.toString().padStart(2, '0')}/
+                  {currentPaymentMethod.exp_year}
                 </p>
               </div>
             </div>

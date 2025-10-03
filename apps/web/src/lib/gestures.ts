@@ -94,7 +94,7 @@ export class GestureDetector {
       swipeTimeout: config.swipeTimeout ?? 300,
       longPressDuration: config.longPressDuration ?? 500,
       doubleTapInterval: config.doubleTapInterval ?? 300,
-      hapticFeedback: config.hapticFeedback ?? true
+      hapticFeedback: config.hapticFeedback ?? true,
     };
     this.listeners = new Map();
 
@@ -105,9 +105,15 @@ export class GestureDetector {
    * Attach event listeners to element
    */
   private attachListeners(): void {
-    this.element.addEventListener('touchstart', this.handleTouchStart, { passive: true });
-    this.element.addEventListener('touchmove', this.handleTouchMove, { passive: true });
-    this.element.addEventListener('touchend', this.handleTouchEnd, { passive: true });
+    this.element.addEventListener('touchstart', this.handleTouchStart, {
+      passive: true,
+    });
+    this.element.addEventListener('touchmove', this.handleTouchMove, {
+      passive: true,
+    });
+    this.element.addEventListener('touchend', this.handleTouchEnd, {
+      passive: true,
+    });
   }
 
   /**
@@ -118,7 +124,7 @@ export class GestureDetector {
     this.touchStart = {
       x: touch.clientX,
       y: touch.clientY,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     // Start long press detection
@@ -160,7 +166,7 @@ export class GestureDetector {
     const touchEnd = {
       x: e.changedTouches[0].clientX,
       y: e.changedTouches[0].clientY,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     const deltaX = touchEnd.x - this.touchStart.x;
@@ -181,7 +187,10 @@ export class GestureDetector {
     }
 
     // Check for swipe
-    if (distance >= this.config.swipeThreshold && deltaTime <= this.config.swipeTimeout) {
+    if (
+      distance >= this.config.swipeThreshold &&
+      deltaTime <= this.config.swipeTimeout
+    ) {
       const absX = Math.abs(deltaX);
       const absY = Math.abs(deltaY);
       const velocity = distance / deltaTime;
@@ -197,7 +206,7 @@ export class GestureDetector {
         type: 'swipe',
         direction,
         distance,
-        velocity
+        velocity,
       });
     }
 
@@ -235,7 +244,7 @@ export class GestureDetector {
   private emit(event: string, data: GestureEvent): void {
     const callbacks = this.listeners.get(event);
     if (callbacks) {
-      callbacks.forEach(callback => callback(data));
+      callbacks.forEach((callback) => callback(data));
     }
   }
 
@@ -285,7 +294,10 @@ export function calculateSwipeVelocity(distance: number, time: number): number {
  * console.log(direction); // 'horizontal'
  * ```
  */
-export function getSwipeOrientation(deltaX: number, deltaY: number): 'horizontal' | 'vertical' {
+export function getSwipeOrientation(
+  deltaX: number,
+  deltaY: number
+): 'horizontal' | 'vertical' {
   return Math.abs(deltaX) > Math.abs(deltaY) ? 'horizontal' : 'vertical';
 }
 

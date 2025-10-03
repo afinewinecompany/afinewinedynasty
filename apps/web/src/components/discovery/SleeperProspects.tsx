@@ -109,10 +109,12 @@ export function SleeperProspects({
   prospects = [],
   isLoading = false,
   error,
-  onRefresh
+  onRefresh,
 }: SleeperProspectsProps) {
   const [selectedProspect, setSelectedProspect] = useState<number | null>(null);
-  const [sortBy, setSortBy] = useState<'sleeper_score' | 'differential' | 'confidence'>('sleeper_score');
+  const [sortBy, setSortBy] = useState<
+    'sleeper_score' | 'differential' | 'confidence'
+  >('sleeper_score');
 
   if (isLoading) {
     return (
@@ -183,7 +185,8 @@ export function SleeperProspects({
                 Sleeper Prospects
               </CardTitle>
               <p className="text-sm text-gray-600 mt-1">
-                Undervalued prospects with high ML confidence vs consensus rankings
+                Undervalued prospects with high ML confidence vs consensus
+                rankings
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -210,11 +213,17 @@ export function SleeperProspects({
                 <Card
                   key={prospect.prospect_id}
                   className={`cursor-pointer transition-all hover:shadow-lg ${
-                    selectedProspect === prospect.prospect_id ? 'ring-2 ring-purple-500' : ''
+                    selectedProspect === prospect.prospect_id
+                      ? 'ring-2 ring-purple-500'
+                      : ''
                   }`}
-                  onClick={() => setSelectedProspect(
-                    selectedProspect === prospect.prospect_id ? null : prospect.prospect_id
-                  )}
+                  onClick={() =>
+                    setSelectedProspect(
+                      selectedProspect === prospect.prospect_id
+                        ? null
+                        : prospect.prospect_id
+                    )
+                  }
                 >
                   <CardContent className="p-4">
                     {/* Header */}
@@ -238,10 +247,16 @@ export function SleeperProspects({
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-1">
-                        <div className={`text-2xl font-bold ${getSleeperScoreColor(prospect.sleeper_score)}`}>
+                        <div
+                          className={`text-2xl font-bold ${getSleeperScoreColor(prospect.sleeper_score)}`}
+                        >
                           {prospect.sleeper_score.toFixed(1)}
                         </div>
-                        <Badge className={getConfidenceBadgeColor(prospect.confidence_level)}>
+                        <Badge
+                          className={getConfidenceBadgeColor(
+                            prospect.confidence_level
+                          )}
+                        >
                           {prospect.confidence_level}
                         </Badge>
                       </div>
@@ -251,11 +266,15 @@ export function SleeperProspects({
                     <div className="grid grid-cols-3 gap-2 mb-3 p-2 bg-gray-50 rounded">
                       <div>
                         <div className="text-xs text-gray-500">ML Rank</div>
-                        <div className="font-semibold">{prospect.ml_ranking}</div>
+                        <div className="font-semibold">
+                          {prospect.ml_ranking}
+                        </div>
                       </div>
                       <div>
                         <div className="text-xs text-gray-500">Consensus</div>
-                        <div className="font-semibold">{prospect.consensus_ranking}</div>
+                        <div className="font-semibold">
+                          {prospect.consensus_ranking}
+                        </div>
                       </div>
                       <div>
                         <div className="text-xs text-gray-500">Gap</div>
@@ -269,7 +288,9 @@ export function SleeperProspects({
                     <div className="mb-3">
                       <div className="flex items-center justify-between text-sm mb-1">
                         <span className="text-gray-600">ML Confidence</span>
-                        <span className="font-medium">{(prospect.ml_confidence * 100).toFixed(0)}%</span>
+                        <span className="font-medium">
+                          {(prospect.ml_confidence * 100).toFixed(0)}%
+                        </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
@@ -282,17 +303,21 @@ export function SleeperProspects({
                     {/* Undervaluation Factors */}
                     {prospect.undervaluation_factors.length > 0 && (
                       <div className="mb-3">
-                        <div className="text-xs text-gray-500 mb-1">Why Undervalued</div>
+                        <div className="text-xs text-gray-500 mb-1">
+                          Why Undervalued
+                        </div>
                         <div className="flex flex-wrap gap-1">
-                          {prospect.undervaluation_factors.map((factor, idx) => (
-                            <Badge
-                              key={idx}
-                              variant="outline"
-                              className="text-xs"
-                            >
-                              {factor}
-                            </Badge>
-                          ))}
+                          {prospect.undervaluation_factors.map(
+                            (factor, idx) => (
+                              <Badge
+                                key={idx}
+                                variant="outline"
+                                className="text-xs"
+                              >
+                                {factor}
+                              </Badge>
+                            )
+                          )}
                         </div>
                       </div>
                     )}
@@ -303,15 +328,28 @@ export function SleeperProspects({
                         {/* Recent Performance */}
                         {prospect.recent_performance.length > 0 && (
                           <div>
-                            <div className="text-sm font-medium mb-2">Recent Performance</div>
+                            <div className="text-sm font-medium mb-2">
+                              Recent Performance
+                            </div>
                             <div className="grid grid-cols-2 gap-2">
                               {prospect.recent_performance.map((stat, idx) => (
-                                <div key={idx} className="flex items-center justify-between text-sm">
-                                  <span className="text-gray-600">{stat.stat_type}</span>
+                                <div
+                                  key={idx}
+                                  className="flex items-center justify-between text-sm"
+                                >
+                                  <span className="text-gray-600">
+                                    {stat.stat_type}
+                                  </span>
                                   <span className="flex items-center gap-1">
-                                    <span className="font-medium">{stat.value.toFixed(3)}</span>
-                                    {stat.trend === 'up' && <TrendingUp className="h-3 w-3 text-green-500" />}
-                                    {stat.trend === 'down' && <TrendingUp className="h-3 w-3 text-red-500 rotate-180" />}
+                                    <span className="font-medium">
+                                      {stat.value.toFixed(3)}
+                                    </span>
+                                    {stat.trend === 'up' && (
+                                      <TrendingUp className="h-3 w-3 text-green-500" />
+                                    )}
+                                    {stat.trend === 'down' && (
+                                      <TrendingUp className="h-3 w-3 text-red-500 rotate-180" />
+                                    )}
                                   </span>
                                 </div>
                               ))}
@@ -351,19 +389,25 @@ export function SleeperProspects({
               <div>
                 <div className="text-sm text-gray-500">Avg Sleeper Score</div>
                 <div className="text-2xl font-bold">
-                  {(prospects.reduce((sum, p) => sum + p.sleeper_score, 0) / prospects.length).toFixed(1)}
+                  {(
+                    prospects.reduce((sum, p) => sum + p.sleeper_score, 0) /
+                    prospects.length
+                  ).toFixed(1)}
                 </div>
               </div>
               <div>
                 <div className="text-sm text-gray-500">Max Ranking Gap</div>
                 <div className="text-2xl font-bold">
-                  +{Math.max(...prospects.map(p => p.ranking_differential))}
+                  +{Math.max(...prospects.map((p) => p.ranking_differential))}
                 </div>
               </div>
               <div>
                 <div className="text-sm text-gray-500">High Confidence</div>
                 <div className="text-2xl font-bold">
-                  {prospects.filter(p => p.confidence_level === 'High').length}
+                  {
+                    prospects.filter((p) => p.confidence_level === 'High')
+                      .length
+                  }
                 </div>
               </div>
             </div>

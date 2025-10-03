@@ -50,6 +50,7 @@ export default function ProspectRankingsDashboard() {
   const { data, isLoading, error, refetch } = useProspectRankings({
     page,
     pageSize,
+    limit: user?.subscriptionTier === 'premium' ? 500 : 100,
     ...filters,
     search: searchQuery,
     ...sortState,
@@ -138,7 +139,9 @@ export default function ProspectRankingsDashboard() {
               Prospect Rankings
             </h1>
             <p className="mt-2 text-gray-600">
-              Top 500 dynasty prospects with ML-powered rankings
+              {user?.subscriptionTier === 'premium'
+                ? 'Top 500 dynasty prospects with ML-powered rankings'
+                : 'Top 100 dynasty prospects with ML-powered rankings (Upgrade for full top 500)'}
             </p>
           </div>
 

@@ -113,6 +113,7 @@ export interface ProspectRankingsResponse {
 export interface ProspectRankingsParams {
   page?: number;
   pageSize?: number;
+  limit?: number;
   position?: string[];
   organization?: string[];
   level?: string[];

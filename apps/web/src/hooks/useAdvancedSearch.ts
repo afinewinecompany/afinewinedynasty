@@ -101,7 +101,7 @@ export function useAdvancedSearch() {
   const [searchCriteria, setSearchCriteria] = useState<AdvancedSearchCriteria>({
     page: 1,
     size: 25,
-    sort_by: 'relevance'
+    sort_by: 'relevance',
   });
   const [hasSearched, setHasSearched] = useState(false);
   const queryClient = useQueryClient();
@@ -116,7 +116,7 @@ export function useAdvancedSearch() {
       setHasSearched(true);
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: ['search-history'] });
-    }
+    },
   });
 
   // Get search criteria options
@@ -125,20 +125,23 @@ export function useAdvancedSearch() {
     queryFn: async () => {
       const response = await api.get('/search/criteria/options');
       return response.data;
-    }
+    },
   });
 
   /**
    * Update search criteria
    */
-  const updateCriteria = useCallback((updates: Partial<AdvancedSearchCriteria>) => {
-    setSearchCriteria(prev => ({
-      ...prev,
-      ...updates,
-      // Reset page when criteria change (unless page is being explicitly set)
-      page: 'page' in updates ? updates.page : 1
-    }));
-  }, []);
+  const updateCriteria = useCallback(
+    (updates: Partial<AdvancedSearchCriteria>) => {
+      setSearchCriteria((prev) => ({
+        ...prev,
+        ...updates,
+        // Reset page when criteria change (unless page is being explicitly set)
+        page: 'page' in updates ? updates.page : 1,
+      }));
+    },
+    []
+  );
 
   /**
    * Execute search with current criteria
@@ -154,7 +157,7 @@ export function useAdvancedSearch() {
     setSearchCriteria({
       page: 1,
       size: 25,
-      sort_by: 'relevance'
+      sort_by: 'relevance',
     });
     setHasSearched(false);
   }, []);
@@ -167,35 +170,36 @@ export function useAdvancedSearch() {
       ...savedSearchCriteria,
       page: 1,
       size: 25,
-      sort_by: savedSearchCriteria.sort_by || 'relevance'
+      sort_by: savedSearchCriteria.sort_by || 'relevance',
     });
   }, []);
 
   /**
    * Update pagination
    */
-  const updatePagination = useCallback((page: number, size?: number) => {
-    updateCriteria({
-      page,
-      ...(size && { size })
-    });
-    // Auto-execute search with new pagination
-    searchMutation.mutate({
-      ...searchCriteria,
-      page,
-      ...(size && { size })
-    });
-  }, [searchCriteria, searchMutation, updateCriteria]);
+  const updatePagination = useCallback(
+    (page: number, size?: number) => {
+      updateCriteria({
+        page,
+        ...(size && { size }),
+      });
+      // Auto-execute search with new pagination
+      searchMutation.mutate({
+        ...searchCriteria,
+        page,
+        ...(size && { size }),
+      });
+    },
+    [searchCriteria, searchMutation, updateCriteria]
+  );
 
   /**
    * Check if criteria has meaningful filters
    */
   const hasActiveFilters = useCallback(() => {
-    const {
-      page, size, sort_by, ...filters
-    } = searchCriteria;
+    const { page, size, sort_by, ...filters } = searchCriteria;
 
-    return Object.values(filters).some(value => {
+    return Object.values(filters).some((value) => {
       if (Array.isArray(value)) {
         return value.length > 0;
       }
@@ -221,6 +225,6 @@ export function useAdvancedSearch() {
 
     // Helpers
     hasActiveFilters: hasActiveFilters(),
-    isSearchValid: hasActiveFilters()
+    isSearchValid: hasActiveFilters(),
   };
 }

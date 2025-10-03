@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from fastapi import APIRouter, Request, HTTPException, status, Depends
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import BaseModel, EmailStr, validator, Field
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,8 +19,9 @@ router = APIRouter()
 
 
 class LoginRequest(BaseModel):
-    email: EmailStr
-    password: str
+    """Login request with email and password"""
+    email: EmailStr = Field(description="User's email address", example="user@example.com")
+    password: str = Field(description="User's password", example="SecurePassword123!")
 
     @validator('email')
     def validate_email(cls, v):
@@ -30,12 +31,31 @@ class LoginRequest(BaseModel):
     def validate_password(cls, v):
         return validate_password_input(v)
 
+    class Config:
+        schema_extra = {
+            "example": {
+                "email": "user@example.com",
+                "password": "SecurePassword123!"
+            }
+        }
+
 
 class LoginResponse(BaseModel):
-    access_token: str
-    refresh_token: str
-    token_type: str
-    expires_in: int
+    """Successful login response with JWT tokens"""
+    access_token: str = Field(description="JWT access token for API requests")
+    refresh_token: str = Field(description="JWT refresh token for token renewal")
+    token_type: str = Field(description="Token type (Bearer)", example="Bearer")
+    expires_in: int = Field(description="Access token expiry time in seconds", example=900)
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                "token_type": "Bearer",
+                "expires_in": 900
+            }
+        }
 
 
 class RegisterRequest(BaseModel):
@@ -117,10 +137,33 @@ class PasswordResetConfirmRequest(BaseModel):
         return validate_password_input(v)
 
 
-@router.post("/login", response_model=LoginResponse)
+@router.post(
+    "/login",
+    response_model=LoginResponse,
+    tags=["auth"],
+    summary="User login",
+    description="Authenticate user with email and password to receive JWT tokens",
+    responses={
+        200: {"description": "Successful authentication", "model": LoginResponse},
+        401: {"description": "Invalid credentials"},
+        429: {"description": "Too many login attempts"}
+    }
+)
 @limiter.limit(f"{settings.AUTH_RATE_LIMIT_ATTEMPTS}/{settings.AUTH_RATE_LIMIT_WINDOW // 60}minute")
 async def login(request: Request, login_request: LoginRequest, db: AsyncSession = Depends(get_db)) -> LoginResponse:
-    """Authenticate user and return access token"""
+    """
+    Authenticate user and return JWT access tokens.
+
+    Rate limit: 5 attempts per minute
+
+    The access token expires in 15 minutes and should be included in the
+    Authorization header for authenticated requests:
+    ```
+    Authorization: Bearer <access_token>
+    ```
+
+    Use the refresh token to obtain new access tokens when they expire.
+    """
     # Authenticate user
     user = await authenticate_user(db, login_request.email, login_request.password)
     if not user:

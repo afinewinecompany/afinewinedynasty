@@ -13,7 +13,7 @@ import {
   Filter,
   Play,
   Clock,
-  RotateCcw
+  RotateCcw,
 } from 'lucide-react';
 
 /**
@@ -82,21 +82,29 @@ interface SearchHistoryProps {
  */
 export function SearchHistory({ onHistoryItemSelect }: SearchHistoryProps) {
   // Fetch search history
-  const { data: searchHistory, isLoading, error } = useQuery({
+  const {
+    data: searchHistory,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['search-history'],
     queryFn: async () => {
       const response = await api.get('/search/history?limit=50');
       return response.data as SearchHistoryEntry[];
-    }
+    },
   });
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    const diffInHours = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60)
+    );
 
     if (diffInHours < 1) {
-      const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+      const diffInMinutes = Math.floor(
+        (now.getTime() - date.getTime()) / (1000 * 60)
+      );
       return `${diffInMinutes} minute${diffInMinutes !== 1 ? 's' : ''} ago`;
     } else if (diffInHours < 24) {
       return `${diffInHours} hour${diffInHours !== 1 ? 's' : ''} ago`;
@@ -108,7 +116,8 @@ export function SearchHistory({ onHistoryItemSelect }: SearchHistoryProps) {
         return date.toLocaleDateString('en-US', {
           month: 'short',
           day: 'numeric',
-          year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+          year:
+            date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
         });
       }
     }
@@ -117,7 +126,7 @@ export function SearchHistory({ onHistoryItemSelect }: SearchHistoryProps) {
   const getActiveFiltersCount = (criteria: any) => {
     if (!criteria) return 0;
     const { page, size, sort_by, ...filters } = criteria;
-    return Object.values(filters).filter(value => {
+    return Object.values(filters).filter((value) => {
       if (Array.isArray(value)) return value.length > 0;
       return value !== undefined && value !== null && value !== '';
     }).length;
@@ -129,8 +138,7 @@ export function SearchHistory({ onHistoryItemSelect }: SearchHistoryProps) {
     if (searchQuery) {
       previews.push(
         <Badge key="query" variant="secondary" className="text-xs">
-          <Search className="h-3 w-3 mr-1" />
-          "{searchQuery}"
+          <Search className="h-3 w-3 mr-1" />"{searchQuery}"
         </Badge>
       );
     }
@@ -151,8 +159,10 @@ export function SearchHistory({ onHistoryItemSelect }: SearchHistoryProps) {
     if (criteria.basic?.min_age || criteria.basic?.max_age) {
       const ageRange = [
         criteria.basic.min_age ? `${criteria.basic.min_age}+` : '',
-        criteria.basic.max_age ? `≤${criteria.basic.max_age}` : ''
-      ].filter(Boolean).join(' ');
+        criteria.basic.max_age ? `≤${criteria.basic.max_age}` : '',
+      ]
+        .filter(Boolean)
+        .join(' ');
       previews.push(
         <Badge key="age" variant="secondary" className="text-xs">
           Age: {ageRange}
@@ -202,9 +212,11 @@ export function SearchHistory({ onHistoryItemSelect }: SearchHistoryProps) {
     const groups: { [key: string]: SearchHistoryEntry[] } = {};
     const now = new Date();
 
-    history.forEach(entry => {
+    history.forEach((entry) => {
       const entryDate = new Date(entry.searched_at);
-      const diffInDays = Math.floor((now.getTime() - entryDate.getTime()) / (1000 * 60 * 60 * 24));
+      const diffInDays = Math.floor(
+        (now.getTime() - entryDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
 
       let groupKey: string;
       if (diffInDays === 0) {
@@ -216,7 +228,10 @@ export function SearchHistory({ onHistoryItemSelect }: SearchHistoryProps) {
       } else {
         groupKey = entryDate.toLocaleDateString('en-US', {
           month: 'long',
-          year: entryDate.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+          year:
+            entryDate.getFullYear() !== now.getFullYear()
+              ? 'numeric'
+              : undefined,
         });
       }
 
@@ -253,7 +268,9 @@ export function SearchHistory({ onHistoryItemSelect }: SearchHistoryProps) {
     return (
       <div className="text-center py-8">
         <History className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">No search history yet</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">
+          No search history yet
+        </h3>
         <p className="text-gray-500">
           Your recent searches will appear here for quick access
         </p>
@@ -282,10 +299,16 @@ export function SearchHistory({ onHistoryItemSelect }: SearchHistoryProps) {
           <div className="space-y-2">
             {entries.map((entry) => {
               const filtersCount = getActiveFiltersCount(entry.search_criteria);
-              const previews = getCriteriaPreview(entry.search_criteria, entry.search_query);
+              const previews = getCriteriaPreview(
+                entry.search_criteria,
+                entry.search_query
+              );
 
               return (
-                <Card key={entry.id} className="hover:shadow-sm transition-shadow">
+                <Card
+                  key={entry.id}
+                  className="hover:shadow-sm transition-shadow"
+                >
                   <CardContent className="p-3">
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
@@ -293,14 +316,18 @@ export function SearchHistory({ onHistoryItemSelect }: SearchHistoryProps) {
                           <Filter className="h-4 w-4 text-gray-400 flex-shrink-0" />
                           {filtersCount > 0 ? (
                             <Badge variant="outline" className="text-xs">
-                              {filtersCount} filter{filtersCount !== 1 ? 's' : ''}
+                              {filtersCount} filter
+                              {filtersCount !== 1 ? 's' : ''}
                             </Badge>
                           ) : (
-                            <span className="text-sm text-gray-500">Empty search</span>
+                            <span className="text-sm text-gray-500">
+                              Empty search
+                            </span>
                           )}
                           {entry.results_count !== null && (
                             <Badge variant="secondary" className="text-xs">
-                              {entry.results_count} result{entry.results_count !== 1 ? 's' : ''}
+                              {entry.results_count} result
+                              {entry.results_count !== 1 ? 's' : ''}
                             </Badge>
                           )}
                           <span className="text-xs text-gray-400 flex items-center gap-1">

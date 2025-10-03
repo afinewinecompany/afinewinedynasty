@@ -48,7 +48,7 @@ export default function AdvancedSearchPage() {
     error,
     executeSearch,
     updateCriteria,
-    resetCriteria
+    resetCriteria,
   } = useAdvancedSearch();
 
   const handleSavedSearchSelect = (savedSearch: any) => {
@@ -67,16 +67,23 @@ export default function AdvancedSearchPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Advanced Search</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          Advanced Search
+        </h1>
         <p className="text-lg text-gray-600">
-          Find prospects using sophisticated criteria combinations and discovery tools
+          Find prospects using sophisticated criteria combinations and discovery
+          tools
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Main Search Interface */}
         <div className="lg:col-span-3">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="search" className="flex items-center gap-2">
                 <Search className="h-4 w-4" />

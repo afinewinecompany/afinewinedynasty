@@ -2,10 +2,31 @@
 
 **Goal:** Establish foundational project infrastructure including authentication, database setup, and basic data pipeline while delivering an initial deployable application that displays prospect data. This epic creates the technical foundation for all future development while providing immediate user value through basic prospect information display.
 
+**CRITICAL NOTE:** Story 1.0 (External Services Setup) MUST be completed by the project owner before any development agent work can begin. This story handles all human-only tasks such as account creation, domain registration, and API key acquisition.
+
+## Story 1.0: External Services Setup & User Prerequisites
+As a project owner,
+I want to complete all external service setup and account creation tasks,
+so that the development agent has all necessary credentials and access to proceed with implementation.
+
+**Acceptance Criteria:**
+1. Google OAuth application created and configured with proper redirect URIs
+2. Stripe account created with API keys obtained (test mode for development)
+3. Domain name registered and DNS configured for the application
+4. Email service provider account created (SendGrid/AWS SES/Postmark)
+5. Cloud provider account setup (AWS/GCP) with billing configured
+6. All credentials securely stored in .env.local for agent access
+7. Backup service alternatives identified for each external dependency
+
+**Dependencies:** None - this is the prerequisite story that blocks all others
+**Owner:** Project Owner/User (cannot be completed by development agent)
+
 ## Story 1.1: Project Setup and Development Environment
 As a developer,
 I want a properly configured development environment with CI/CD pipeline,
 so that I can develop, test, and deploy code efficiently throughout the project.
+
+**Dependencies:** Story 1.0 must be completed first
 
 **Acceptance Criteria:**
 1. Monorepo structure created with apps/ and packages/ directories following Project Brief architecture
@@ -22,12 +43,14 @@ As a potential user,
 I want to register an account and login securely using email/password or Google OAuth,
 so that I can access prospect evaluation features and maintain my preferences.
 
+**Dependencies:** Story 1.0 (for Google OAuth credentials and email service), Story 1.1 (for base infrastructure)
+
 **Acceptance Criteria:**
 1. User registration endpoint with email validation and password hashing
-2. Google OAuth 2.0 integration for registration and login
+2. Google OAuth 2.0 integration for registration and login (using credentials from Story 1.0)
 3. JWT-based authentication with 15-minute access tokens and 7-day refresh tokens
 4. Login/logout functionality with secure token storage for both auth methods
-5. Password reset flow via email verification (email/password users only)
+5. Password reset flow via email verification using configured email service (email/password users only)
 6. Basic user profile management (email, password updates)
 7. Account linking capability (connect Google account to existing email account)
 8. Rate limiting implemented (100 requests/minute baseline)
@@ -78,3 +101,37 @@ so that I can start using the platform for prospect research immediately.
 6. Loading states and error handling for API failures
 7. Basic search functionality for prospect names
 8. Pagination for large prospect lists
+
+## Story 1.6: Documentation & API Documentation System
+As a developer and platform user,
+I want comprehensive documentation for both API endpoints and user features,
+so that developers can integrate with the API and users can effectively use the platform.
+
+**Dependencies:** Stories 1.1-1.5 must be completed first
+
+**Acceptance Criteria:**
+1. FastAPI automatic API documentation enabled with OpenAPI/Swagger UI
+2. API endpoint documentation with request/response examples and authentication requirements
+3. User guide documentation for core platform features
+4. Administrator documentation for subscription management and support tasks
+5. Developer setup guide with prerequisites and troubleshooting
+6. Deployment documentation with production configuration
+7. In-app help system with contextual tooltips and FAQ section
+8. API versioning strategy and deprecation policy documented
+
+## Story 1.7: Monitoring, Observability & Analytics
+As a platform operator,
+I want comprehensive monitoring, error tracking, and analytics,
+so that I can ensure platform health, track user behavior, and make data-driven improvements.
+
+**Dependencies:** Story 1.0 (for monitoring service accounts), Stories 1.1-1.5 (for infrastructure)
+
+**Acceptance Criteria:**
+1. Application performance monitoring with Prometheus metrics and Grafana dashboards
+2. Error tracking and alerting system with Sentry or similar service
+3. User analytics tracking for feature usage and engagement (privacy-compliant)
+4. Custom business metrics dashboard (active users, conversion rates, churn)
+5. Log aggregation and search capability with structured logging
+6. Health check endpoints for all services with detailed status reporting
+7. User feedback collection mechanism integrated into the platform
+8. Uptime monitoring and incident alerting system

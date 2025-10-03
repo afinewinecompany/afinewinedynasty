@@ -21,7 +21,7 @@ export enum SyncType {
   WATCHLIST_REMOVE = 'watchlist_remove',
   COMPARISON_CREATE = 'comparison_create',
   PREFERENCE_UPDATE = 'preference_update',
-  DATA_FETCH = 'data_fetch'
+  DATA_FETCH = 'data_fetch',
 }
 
 /**
@@ -89,7 +89,7 @@ export class SyncManager {
       autoSync: config.autoSync ?? true,
       maxRetries: config.maxRetries ?? 3,
       retryDelay: config.retryDelay ?? 1000,
-      batchSize: config.batchSize ?? 10
+      batchSize: config.batchSize ?? 10,
     };
   }
 
@@ -131,15 +131,17 @@ export class SyncManager {
   private async loadPendingOperations(): Promise<void> {
     try {
       const pending = await offlineStorage.getPendingSync();
-      this.syncQueue = pending.map(item => ({
+      this.syncQueue = pending.map((item) => ({
         id: item.id,
         type: item.type as SyncType,
         data: item.data,
         timestamp: item.data.timestamp || Date.now(),
-        retries: 0
+        retries: 0,
       }));
 
-      console.log(`[SyncManager] Loaded ${this.syncQueue.length} pending operations`);
+      console.log(
+        `[SyncManager] Loaded ${this.syncQueue.length} pending operations`
+      );
     } catch (error) {
       console.error('[SyncManager] Failed to load pending operations:', error);
     }
@@ -158,7 +160,7 @@ export class SyncManager {
       type,
       data,
       timestamp: Date.now(),
-      retries: 0
+      retries: 0,
     };
 
     // Add to queue
@@ -212,7 +214,7 @@ export class SyncManager {
    * @returns Promise resolving when batch synced
    */
   private async syncBatch(batch: SyncOperation[]): Promise<void> {
-    const promises = batch.map(op => this.syncOperation(op));
+    const promises = batch.map((op) => this.syncOperation(op));
     const results = await Promise.allSettled(promises);
 
     // Handle failed operations
@@ -276,7 +278,10 @@ export class SyncManager {
         }
       }, this.config.retryDelay * operation.retries);
     } else {
-      console.error('[SyncManager] Operation failed after max retries:', operation);
+      console.error(
+        '[SyncManager] Operation failed after max retries:',
+        operation
+      );
       // Could notify user of permanent failure
     }
   }
@@ -288,7 +293,7 @@ export class SyncManager {
     const response = await fetch('/api/watchlist', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prospectId: data.prospectId })
+      body: JSON.stringify({ prospectId: data.prospectId }),
     });
 
     if (!response.ok) {
@@ -301,7 +306,7 @@ export class SyncManager {
    */
   private async syncWatchlistRemove(data: any): Promise<void> {
     const response = await fetch(`/api/watchlist/${data.prospectId}`, {
-      method: 'DELETE'
+      method: 'DELETE',
     });
 
     if (!response.ok) {
@@ -316,7 +321,7 @@ export class SyncManager {
     const response = await fetch('/api/comparisons', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prospectIds: data.prospectIds })
+      body: JSON.stringify({ prospectIds: data.prospectIds }),
     });
 
     if (!response.ok) {
@@ -331,7 +336,7 @@ export class SyncManager {
     const response = await fetch('/api/users/preferences', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data.preferences)
+      body: JSON.stringify(data.preferences),
     });
 
     if (!response.ok) {
@@ -373,7 +378,7 @@ export class SyncManager {
     return {
       isSyncing: this.isSyncing,
       pendingCount: this.syncQueue.length,
-      isOnline: navigator.onLine
+      isOnline: navigator.onLine,
     };
   }
 
@@ -385,7 +390,7 @@ export class SyncManager {
   async clearPending(): Promise<void> {
     this.syncQueue = [];
     const pending = await offlineStorage.getPendingSync();
-    await offlineStorage.clearPendingSync(pending.map(p => p.id));
+    await offlineStorage.clearPendingSync(pending.map((p) => p.id));
   }
 }
 

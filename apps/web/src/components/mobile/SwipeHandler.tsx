@@ -77,7 +77,7 @@ export const SwipeHandler: React.FC<SwipeHandlerProps> = ({
   onSwipeDown,
   threshold = 50,
   enabled = true,
-  className = ''
+  className = '',
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -96,7 +96,7 @@ export const SwipeHandler: React.FC<SwipeHandlerProps> = ({
     const handleTouchStart = (e: TouchEvent) => {
       touchStartRef.current = {
         x: e.touches[0].clientX,
-        y: e.touches[0].clientY
+        y: e.touches[0].clientY,
       };
     };
 
@@ -108,7 +108,7 @@ export const SwipeHandler: React.FC<SwipeHandlerProps> = ({
     const handleTouchMove = (e: TouchEvent) => {
       touchEndRef.current = {
         x: e.touches[0].clientX,
-        y: e.touches[0].clientY
+        y: e.touches[0].clientY,
       };
     };
 
@@ -175,7 +175,15 @@ export const SwipeHandler: React.FC<SwipeHandlerProps> = ({
       element.removeEventListener('touchmove', handleTouchMove);
       element.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [enabled, threshold, onSwipe, onSwipeLeft, onSwipeRight, onSwipeUp, onSwipeDown]);
+  }, [
+    enabled,
+    threshold,
+    onSwipe,
+    onSwipeLeft,
+    onSwipeRight,
+    onSwipeUp,
+    onSwipeDown,
+  ]);
 
   return (
     <div ref={containerRef} className={className}>

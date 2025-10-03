@@ -6,9 +6,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import {
   Search,
@@ -19,7 +29,7 @@ import {
   Brain,
   Calendar,
   X,
-  Filter
+  Filter,
 } from 'lucide-react';
 
 /**
@@ -88,47 +98,71 @@ export function AdvancedSearchForm({
   onSearch,
   onReset,
   isLoading,
-  error
+  error,
 }: AdvancedSearchFormProps) {
   const [expandedSections, setExpandedSections] = useState({
     basic: true,
     statistical: false,
     scouting: false,
     ml: false,
-    timeline: false
+    timeline: false,
   });
 
   const toggleSection = (section: keyof typeof expandedSections) => {
-    setExpandedSections(prev => ({
+    setExpandedSections((prev) => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }));
   };
 
-  const positions = ['C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH', 'SP', 'RP'];
+  const positions = [
+    'C',
+    '1B',
+    '2B',
+    '3B',
+    'SS',
+    'LF',
+    'CF',
+    'RF',
+    'DH',
+    'SP',
+    'RP',
+  ];
   const levels = ['MLB', 'AAA', 'AA', 'A+', 'A', 'A-', 'Rookie'];
-  const scoutingSources = ['Fangraphs', 'MLB Pipeline', 'Baseball America', 'Baseball Prospectus'];
+  const scoutingSources = [
+    'Fangraphs',
+    'MLB Pipeline',
+    'Baseball America',
+    'Baseball Prospectus',
+  ];
   const riskLevels = ['Safe', 'Moderate', 'High', 'Extreme'];
   const predictionTypes = ['career_war', 'debut_probability', 'success_rating'];
 
-  const handleArrayFieldChange = (field: keyof AdvancedSearchCriteria, value: string, checked: boolean) => {
+  const handleArrayFieldChange = (
+    field: keyof AdvancedSearchCriteria,
+    value: string,
+    checked: boolean
+  ) => {
     const currentArray = (criteria[field] as string[]) || [];
     const newArray = checked
       ? [...currentArray, value]
-      : currentArray.filter(item => item !== value);
+      : currentArray.filter((item) => item !== value);
 
     onCriteriaChange({ [field]: newArray });
   };
 
-  const removeArrayValue = (field: keyof AdvancedSearchCriteria, value: string) => {
+  const removeArrayValue = (
+    field: keyof AdvancedSearchCriteria,
+    value: string
+  ) => {
     const currentArray = (criteria[field] as string[]) || [];
-    const newArray = currentArray.filter(item => item !== value);
+    const newArray = currentArray.filter((item) => item !== value);
     onCriteriaChange({ [field]: newArray });
   };
 
   const getActiveFiltersCount = () => {
     const { page, size, sort_by, ...filters } = criteria;
-    return Object.values(filters).filter(value => {
+    return Object.values(filters).filter((value) => {
       if (Array.isArray(value)) return value.length > 0;
       return value !== undefined && value !== null && value !== '';
     }).length;
@@ -145,7 +179,8 @@ export function AdvancedSearchForm({
           <span className="text-sm text-gray-600">
             {activeFiltersCount > 0 && (
               <Badge variant="secondary" className="mr-2">
-                {activeFiltersCount} active filter{activeFiltersCount !== 1 ? 's' : ''}
+                {activeFiltersCount} active filter
+                {activeFiltersCount !== 1 ? 's' : ''}
               </Badge>
             )}
           </span>
@@ -154,7 +189,11 @@ export function AdvancedSearchForm({
           <Button variant="outline" onClick={onReset} disabled={isLoading}>
             Clear All
           </Button>
-          <Button onClick={onSearch} disabled={isLoading} className="min-w-[120px]">
+          <Button
+            onClick={onSearch}
+            disabled={isLoading}
+            className="min-w-[120px]"
+          >
             {isLoading ? 'Searching...' : 'Search'}
             <Search className="ml-2 h-4 w-4" />
           </Button>
@@ -179,7 +218,9 @@ export function AdvancedSearchForm({
             <Input
               placeholder="Search by name, organization, or keyword..."
               value={criteria.search_query || ''}
-              onChange={(e) => onCriteriaChange({ search_query: e.target.value })}
+              onChange={(e) =>
+                onCriteriaChange({ search_query: e.target.value })
+              }
               className="flex-1"
             />
             <Select
@@ -226,7 +267,9 @@ export function AdvancedSearchForm({
             <CardContent className="space-y-4">
               {/* Positions */}
               <div>
-                <Label className="text-sm font-medium mb-2 block">Positions</Label>
+                <Label className="text-sm font-medium mb-2 block">
+                  Positions
+                </Label>
                 <div className="flex flex-wrap gap-2">
                   {positions.map((position) => (
                     <div key={position} className="flex items-center space-x-2">
@@ -234,10 +277,17 @@ export function AdvancedSearchForm({
                         id={`position-${position}`}
                         checked={(criteria.positions || []).includes(position)}
                         onCheckedChange={(checked) =>
-                          handleArrayFieldChange('positions', position, checked as boolean)
+                          handleArrayFieldChange(
+                            'positions',
+                            position,
+                            checked as boolean
+                          )
                         }
                       />
-                      <Label htmlFor={`position-${position}`} className="text-sm">
+                      <Label
+                        htmlFor={`position-${position}`}
+                        className="text-sm"
+                      >
                         {position}
                       </Label>
                     </div>
@@ -246,11 +296,17 @@ export function AdvancedSearchForm({
                 {(criteria.positions || []).length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-2">
                     {criteria.positions?.map((position) => (
-                      <Badge key={position} variant="secondary" className="text-xs">
+                      <Badge
+                        key={position}
+                        variant="secondary"
+                        className="text-xs"
+                      >
                         {position}
                         <X
                           className="ml-1 h-3 w-3 cursor-pointer"
-                          onClick={() => removeArrayValue('positions', position)}
+                          onClick={() =>
+                            removeArrayValue('positions', position)
+                          }
                         />
                       </Badge>
                     ))}
@@ -268,7 +324,11 @@ export function AdvancedSearchForm({
                         id={`level-${level}`}
                         checked={(criteria.levels || []).includes(level)}
                         onCheckedChange={(checked) =>
-                          handleArrayFieldChange('levels', level, checked as boolean)
+                          handleArrayFieldChange(
+                            'levels',
+                            level,
+                            checked as boolean
+                          )
                         }
                       />
                       <Label htmlFor={`level-${level}`} className="text-sm">
@@ -282,29 +342,41 @@ export function AdvancedSearchForm({
               {/* Age Range */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="min-age" className="text-sm font-medium">Min Age</Label>
+                  <Label htmlFor="min-age" className="text-sm font-medium">
+                    Min Age
+                  </Label>
                   <Input
                     id="min-age"
                     type="number"
                     min="16"
                     max="35"
                     value={criteria.min_age || ''}
-                    onChange={(e) => onCriteriaChange({
-                      min_age: e.target.value ? parseInt(e.target.value) : undefined
-                    })}
+                    onChange={(e) =>
+                      onCriteriaChange({
+                        min_age: e.target.value
+                          ? parseInt(e.target.value)
+                          : undefined,
+                      })
+                    }
                   />
                 </div>
                 <div>
-                  <Label htmlFor="max-age" className="text-sm font-medium">Max Age</Label>
+                  <Label htmlFor="max-age" className="text-sm font-medium">
+                    Max Age
+                  </Label>
                   <Input
                     id="max-age"
                     type="number"
                     min="16"
                     max="35"
                     value={criteria.max_age || ''}
-                    onChange={(e) => onCriteriaChange({
-                      max_age: e.target.value ? parseInt(e.target.value) : undefined
-                    })}
+                    onChange={(e) =>
+                      onCriteriaChange({
+                        max_age: e.target.value
+                          ? parseInt(e.target.value)
+                          : undefined,
+                      })
+                    }
                   />
                 </div>
               </div>
@@ -341,7 +413,9 @@ export function AdvancedSearchForm({
                 <h4 className="font-medium mb-3">Hitting Statistics</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="min-batting-avg" className="text-sm">Min Batting Avg</Label>
+                    <Label htmlFor="min-batting-avg" className="text-sm">
+                      Min Batting Avg
+                    </Label>
                     <Input
                       id="min-batting-avg"
                       type="number"
@@ -349,13 +423,19 @@ export function AdvancedSearchForm({
                       min="0"
                       max="1"
                       value={criteria.min_batting_avg || ''}
-                      onChange={(e) => onCriteriaChange({
-                        min_batting_avg: e.target.value ? parseFloat(e.target.value) : undefined
-                      })}
+                      onChange={(e) =>
+                        onCriteriaChange({
+                          min_batting_avg: e.target.value
+                            ? parseFloat(e.target.value)
+                            : undefined,
+                        })
+                      }
                     />
                   </div>
                   <div>
-                    <Label htmlFor="max-batting-avg" className="text-sm">Max Batting Avg</Label>
+                    <Label htmlFor="max-batting-avg" className="text-sm">
+                      Max Batting Avg
+                    </Label>
                     <Input
                       id="max-batting-avg"
                       type="number"
@@ -363,13 +443,19 @@ export function AdvancedSearchForm({
                       min="0"
                       max="1"
                       value={criteria.max_batting_avg || ''}
-                      onChange={(e) => onCriteriaChange({
-                        max_batting_avg: e.target.value ? parseFloat(e.target.value) : undefined
-                      })}
+                      onChange={(e) =>
+                        onCriteriaChange({
+                          max_batting_avg: e.target.value
+                            ? parseFloat(e.target.value)
+                            : undefined,
+                        })
+                      }
                     />
                   </div>
                   <div>
-                    <Label htmlFor="min-obp" className="text-sm">Min OBP</Label>
+                    <Label htmlFor="min-obp" className="text-sm">
+                      Min OBP
+                    </Label>
                     <Input
                       id="min-obp"
                       type="number"
@@ -377,13 +463,19 @@ export function AdvancedSearchForm({
                       min="0"
                       max="1"
                       value={criteria.min_on_base_pct || ''}
-                      onChange={(e) => onCriteriaChange({
-                        min_on_base_pct: e.target.value ? parseFloat(e.target.value) : undefined
-                      })}
+                      onChange={(e) =>
+                        onCriteriaChange({
+                          min_on_base_pct: e.target.value
+                            ? parseFloat(e.target.value)
+                            : undefined,
+                        })
+                      }
                     />
                   </div>
                   <div>
-                    <Label htmlFor="min-slugging" className="text-sm">Min Slugging</Label>
+                    <Label htmlFor="min-slugging" className="text-sm">
+                      Min Slugging
+                    </Label>
                     <Input
                       id="min-slugging"
                       type="number"
@@ -391,9 +483,13 @@ export function AdvancedSearchForm({
                       min="0"
                       max="3"
                       value={criteria.min_slugging_pct || ''}
-                      onChange={(e) => onCriteriaChange({
-                        min_slugging_pct: e.target.value ? parseFloat(e.target.value) : undefined
-                      })}
+                      onChange={(e) =>
+                        onCriteriaChange({
+                          min_slugging_pct: e.target.value
+                            ? parseFloat(e.target.value)
+                            : undefined,
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -404,7 +500,9 @@ export function AdvancedSearchForm({
                 <h4 className="font-medium mb-3">Pitching Statistics</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="max-era" className="text-sm">Max ERA</Label>
+                    <Label htmlFor="max-era" className="text-sm">
+                      Max ERA
+                    </Label>
                     <Input
                       id="max-era"
                       type="number"
@@ -412,13 +510,19 @@ export function AdvancedSearchForm({
                       min="0"
                       max="20"
                       value={criteria.max_era || ''}
-                      onChange={(e) => onCriteriaChange({
-                        max_era: e.target.value ? parseFloat(e.target.value) : undefined
-                      })}
+                      onChange={(e) =>
+                        onCriteriaChange({
+                          max_era: e.target.value
+                            ? parseFloat(e.target.value)
+                            : undefined,
+                        })
+                      }
                     />
                   </div>
                   <div>
-                    <Label htmlFor="max-whip" className="text-sm">Max WHIP</Label>
+                    <Label htmlFor="max-whip" className="text-sm">
+                      Max WHIP
+                    </Label>
                     <Input
                       id="max-whip"
                       type="number"
@@ -426,9 +530,13 @@ export function AdvancedSearchForm({
                       min="0"
                       max="5"
                       value={criteria.max_whip || ''}
-                      onChange={(e) => onCriteriaChange({
-                        max_whip: e.target.value ? parseFloat(e.target.value) : undefined
-                      })}
+                      onChange={(e) =>
+                        onCriteriaChange({
+                          max_whip: e.target.value
+                            ? parseFloat(e.target.value)
+                            : undefined,
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -464,36 +572,50 @@ export function AdvancedSearchForm({
               {/* Overall Grade */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="min-overall-grade" className="text-sm">Min Overall Grade</Label>
+                  <Label htmlFor="min-overall-grade" className="text-sm">
+                    Min Overall Grade
+                  </Label>
                   <Input
                     id="min-overall-grade"
                     type="number"
                     min="20"
                     max="80"
                     value={criteria.min_overall_grade || ''}
-                    onChange={(e) => onCriteriaChange({
-                      min_overall_grade: e.target.value ? parseInt(e.target.value) : undefined
-                    })}
+                    onChange={(e) =>
+                      onCriteriaChange({
+                        min_overall_grade: e.target.value
+                          ? parseInt(e.target.value)
+                          : undefined,
+                      })
+                    }
                   />
                 </div>
                 <div>
-                  <Label htmlFor="max-overall-grade" className="text-sm">Max Overall Grade</Label>
+                  <Label htmlFor="max-overall-grade" className="text-sm">
+                    Max Overall Grade
+                  </Label>
                   <Input
                     id="max-overall-grade"
                     type="number"
                     min="20"
                     max="80"
                     value={criteria.max_overall_grade || ''}
-                    onChange={(e) => onCriteriaChange({
-                      max_overall_grade: e.target.value ? parseInt(e.target.value) : undefined
-                    })}
+                    onChange={(e) =>
+                      onCriteriaChange({
+                        max_overall_grade: e.target.value
+                          ? parseInt(e.target.value)
+                          : undefined,
+                      })
+                    }
                   />
                 </div>
               </div>
 
               {/* Risk Levels */}
               <div>
-                <Label className="text-sm font-medium mb-2 block">Risk Levels</Label>
+                <Label className="text-sm font-medium mb-2 block">
+                  Risk Levels
+                </Label>
                 <div className="flex gap-4">
                   {riskLevels.map((risk) => (
                     <div key={risk} className="flex items-center space-x-2">
@@ -501,7 +623,11 @@ export function AdvancedSearchForm({
                         id={`risk-${risk}`}
                         checked={(criteria.risk_levels || []).includes(risk)}
                         onCheckedChange={(checked) =>
-                          handleArrayFieldChange('risk_levels', risk, checked as boolean)
+                          handleArrayFieldChange(
+                            'risk_levels',
+                            risk,
+                            checked as boolean
+                          )
                         }
                       />
                       <Label htmlFor={`risk-${risk}`} className="text-sm">
@@ -541,7 +667,9 @@ export function AdvancedSearchForm({
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="min-success-prob" className="text-sm">Min Success Probability</Label>
+                  <Label htmlFor="min-success-prob" className="text-sm">
+                    Min Success Probability
+                  </Label>
                   <Input
                     id="min-success-prob"
                     type="number"
@@ -549,13 +677,19 @@ export function AdvancedSearchForm({
                     min="0"
                     max="1"
                     value={criteria.min_success_probability || ''}
-                    onChange={(e) => onCriteriaChange({
-                      min_success_probability: e.target.value ? parseFloat(e.target.value) : undefined
-                    })}
+                    onChange={(e) =>
+                      onCriteriaChange({
+                        min_success_probability: e.target.value
+                          ? parseFloat(e.target.value)
+                          : undefined,
+                      })
+                    }
                   />
                 </div>
                 <div>
-                  <Label htmlFor="min-confidence" className="text-sm">Min Confidence Score</Label>
+                  <Label htmlFor="min-confidence" className="text-sm">
+                    Min Confidence Score
+                  </Label>
                   <Input
                     id="min-confidence"
                     type="number"
@@ -563,9 +697,13 @@ export function AdvancedSearchForm({
                     min="0"
                     max="1"
                     value={criteria.min_confidence_score || ''}
-                    onChange={(e) => onCriteriaChange({
-                      min_confidence_score: e.target.value ? parseFloat(e.target.value) : undefined
-                    })}
+                    onChange={(e) =>
+                      onCriteriaChange({
+                        min_confidence_score: e.target.value
+                          ? parseFloat(e.target.value)
+                          : undefined,
+                      })
+                    }
                   />
                 </div>
               </div>

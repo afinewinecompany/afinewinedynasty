@@ -6,7 +6,13 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Target, TrendingUp, TrendingDown, AlertTriangle, Info } from 'lucide-react';
+import {
+  Target,
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
+  Info,
+} from 'lucide-react';
 
 interface PositionScarcityData {
   position: string;
@@ -79,7 +85,7 @@ export function PositionScarcity({
   scarcityData = [],
   isLoading = false,
   error,
-  onRefresh
+  onRefresh,
 }: PositionScarcityProps) {
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'scarcity' | 'value'>('scarcity');
@@ -125,9 +131,12 @@ export function PositionScarcity({
   };
 
   const getScarcityBadge = (score: number) => {
-    if (score >= 80) return { color: 'bg-red-100 text-red-800', label: 'Critical' };
-    if (score >= 60) return { color: 'bg-orange-100 text-orange-800', label: 'High' };
-    if (score >= 40) return { color: 'bg-yellow-100 text-yellow-800', label: 'Moderate' };
+    if (score >= 80)
+      return { color: 'bg-red-100 text-red-800', label: 'Critical' };
+    if (score >= 60)
+      return { color: 'bg-orange-100 text-orange-800', label: 'High' };
+    if (score >= 40)
+      return { color: 'bg-yellow-100 text-yellow-800', label: 'Moderate' };
     return { color: 'bg-green-100 text-green-800', label: 'Low' };
   };
 
@@ -193,15 +202,17 @@ export function PositionScarcity({
                     className={`cursor-pointer transition-all hover:shadow-lg ${
                       isSelected ? 'ring-2 ring-blue-500' : ''
                     }`}
-                    onClick={() => setSelectedPosition(
-                      isSelected ? null : position.position
-                    )}
+                    onClick={() =>
+                      setSelectedPosition(isSelected ? null : position.position)
+                    }
                   >
                     <CardContent className="p-4">
                       {/* Header */}
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <h3 className="text-lg font-semibold">{position.position}</h3>
+                          <h3 className="text-lg font-semibold">
+                            {position.position}
+                          </h3>
                           <div className="flex items-center gap-2 mt-1">
                             <Badge className={scarcityBadge.color}>
                               {scarcityBadge.label} Scarcity
@@ -215,7 +226,9 @@ export function PositionScarcity({
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className={`text-2xl font-bold ${getScarcityColor(position.scarcity_score)}`}>
+                          <div
+                            className={`text-2xl font-bold ${getScarcityColor(position.scarcity_score)}`}
+                          >
                             {position.scarcity_score}
                           </div>
                           <div className="text-xs text-gray-500">Scarcity</div>
@@ -225,27 +238,47 @@ export function PositionScarcity({
                       {/* Key Metrics */}
                       <div className="grid grid-cols-2 gap-2 mb-3">
                         <div className="p-2 bg-gray-50 rounded">
-                          <div className="text-xs text-gray-500">Total Prospects</div>
-                          <div className="font-semibold">{position.total_prospects}</div>
+                          <div className="text-xs text-gray-500">
+                            Total Prospects
+                          </div>
+                          <div className="font-semibold">
+                            {position.total_prospects}
+                          </div>
                         </div>
                         <div className="p-2 bg-gray-50 rounded">
-                          <div className="text-xs text-gray-500">Elite Prospects</div>
-                          <div className="font-semibold">{position.elite_prospects}</div>
+                          <div className="text-xs text-gray-500">
+                            Elite Prospects
+                          </div>
+                          <div className="font-semibold">
+                            {position.elite_prospects}
+                          </div>
                         </div>
                         <div className="p-2 bg-gray-50 rounded">
-                          <div className="text-xs text-gray-500">Dynasty Value</div>
-                          <div className="font-semibold">{position.avg_dynasty_value.toFixed(1)}</div>
+                          <div className="text-xs text-gray-500">
+                            Dynasty Value
+                          </div>
+                          <div className="font-semibold">
+                            {position.avg_dynasty_value.toFixed(1)}
+                          </div>
                         </div>
                         <div className="p-2 bg-gray-50 rounded">
-                          <div className="text-xs text-gray-500">Supply/Demand</div>
-                          <div className="font-semibold">{position.supply_demand_ratio.toFixed(2)}</div>
+                          <div className="text-xs text-gray-500">
+                            Supply/Demand
+                          </div>
+                          <div className="font-semibold">
+                            {position.supply_demand_ratio.toFixed(2)}
+                          </div>
                         </div>
                       </div>
 
                       {/* Dynasty Context */}
                       <div className="flex items-center justify-between text-sm mb-3">
-                        <span className="text-gray-600">Replacement Difficulty</span>
-                        <span className={`font-medium ${getDifficultyColor(position.dynasty_context.replacement_difficulty)}`}>
+                        <span className="text-gray-600">
+                          Replacement Difficulty
+                        </span>
+                        <span
+                          className={`font-medium ${getDifficultyColor(position.dynasty_context.replacement_difficulty)}`}
+                        >
                           {position.dynasty_context.replacement_difficulty}
                         </span>
                       </div>
@@ -253,13 +286,22 @@ export function PositionScarcity({
                       {/* Position Premium Bar */}
                       <div className="mb-3">
                         <div className="flex items-center justify-between text-sm mb-1">
-                          <span className="text-gray-600">Position Premium</span>
-                          <span className="font-medium">{(position.dynasty_context.position_premium * 100).toFixed(0)}%</span>
+                          <span className="text-gray-600">
+                            Position Premium
+                          </span>
+                          <span className="font-medium">
+                            {(
+                              position.dynasty_context.position_premium * 100
+                            ).toFixed(0)}
+                            %
+                          </span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div
                             className="bg-blue-600 h-2 rounded-full transition-all"
-                            style={{ width: `${position.dynasty_context.position_premium * 100}%` }}
+                            style={{
+                              width: `${position.dynasty_context.position_premium * 100}%`,
+                            }}
                           />
                         </div>
                       </div>
@@ -269,47 +311,66 @@ export function PositionScarcity({
                         <div className="mt-3 pt-3 border-t space-y-3">
                           {/* ETA Distribution */}
                           <div>
-                            <div className="text-sm font-medium mb-2">Projected Supply Timeline</div>
+                            <div className="text-sm font-medium mb-2">
+                              Projected Supply Timeline
+                            </div>
                             <div className="flex items-end gap-1 h-16">
-                              {Object.entries(position.projected_eta_distribution).slice(0, 4).map(([year, count]) => {
-                                const maxCount = Math.max(...Object.values(position.projected_eta_distribution));
-                                const height = (count / maxCount) * 100;
-                                return (
-                                  <div
-                                    key={year}
-                                    className="flex-1 flex flex-col items-center"
-                                  >
+                              {Object.entries(
+                                position.projected_eta_distribution
+                              )
+                                .slice(0, 4)
+                                .map(([year, count]) => {
+                                  const maxCount = Math.max(
+                                    ...Object.values(
+                                      position.projected_eta_distribution
+                                    )
+                                  );
+                                  const height = (count / maxCount) * 100;
+                                  return (
                                     <div
-                                      className="w-full bg-indigo-500 rounded-t text-xs text-white flex items-end justify-center pb-1"
-                                      style={{ height: `${height}%` }}
+                                      key={year}
+                                      className="flex-1 flex flex-col items-center"
                                     >
-                                      {count}
+                                      <div
+                                        className="w-full bg-indigo-500 rounded-t text-xs text-white flex items-end justify-center pb-1"
+                                        style={{ height: `${height}%` }}
+                                      >
+                                        {count}
+                                      </div>
+                                      <div className="text-xs mt-1">{year}</div>
                                     </div>
-                                    <div className="text-xs mt-1">{year}</div>
-                                  </div>
-                                );
-                              })}
+                                  );
+                                })}
                             </div>
                           </div>
 
                           {/* Top Prospects */}
                           <div>
-                            <div className="text-sm font-medium mb-2">Top Available Prospects</div>
+                            <div className="text-sm font-medium mb-2">
+                              Top Available Prospects
+                            </div>
                             <div className="space-y-1">
-                              {position.top_prospects.slice(0, 3).map((prospect) => (
-                                <div
-                                  key={prospect.id}
-                                  className="flex items-center justify-between text-sm p-1 hover:bg-gray-50 rounded"
-                                >
-                                  <span>{prospect.name}</span>
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-gray-500 text-xs">{prospect.organization}</span>
-                                    <Badge variant="outline" className="text-xs">
-                                      {prospect.grade}
-                                    </Badge>
+                              {position.top_prospects
+                                .slice(0, 3)
+                                .map((prospect) => (
+                                  <div
+                                    key={prospect.id}
+                                    className="flex items-center justify-between text-sm p-1 hover:bg-gray-50 rounded"
+                                  >
+                                    <span>{prospect.name}</span>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-gray-500 text-xs">
+                                        {prospect.organization}
+                                      </span>
+                                      <Badge
+                                        variant="outline"
+                                        className="text-xs"
+                                      >
+                                        {prospect.grade}
+                                      </Badge>
+                                    </div>
                                   </div>
-                                </div>
-                              ))}
+                                ))}
                             </div>
                           </div>
 
@@ -318,14 +379,29 @@ export function PositionScarcity({
                             <div className="flex items-start gap-2">
                               <Info className="h-4 w-4 text-blue-600 mt-0.5" />
                               <div className="text-xs text-blue-900">
-                                <div className="font-medium mb-1">Dynasty Insight</div>
+                                <div className="font-medium mb-1">
+                                  Dynasty Insight
+                                </div>
                                 <div>
-                                  Average roster need: {position.dynasty_context.avg_roster_need.toFixed(1)} players.
+                                  Average roster need:{' '}
+                                  {position.dynasty_context.avg_roster_need.toFixed(
+                                    1
+                                  )}{' '}
+                                  players.
                                   {position.scarcity_score >= 60 && (
-                                    <span> Consider prioritizing {position.position} prospects in upcoming drafts.</span>
+                                    <span>
+                                      {' '}
+                                      Consider prioritizing {
+                                        position.position
+                                      }{' '}
+                                      prospects in upcoming drafts.
+                                    </span>
                                   )}
                                   {position.market_trend === 'increasing' && (
-                                    <span> Demand trending up - secure talent early.</span>
+                                    <span>
+                                      {' '}
+                                      Demand trending up - secure talent early.
+                                    </span>
                                   )}
                                 </div>
                               </div>
@@ -366,15 +442,22 @@ export function PositionScarcity({
                 </div>
               </div>
               <div>
-                <div className="text-sm text-gray-500">Total Elite Prospects</div>
+                <div className="text-sm text-gray-500">
+                  Total Elite Prospects
+                </div>
                 <div className="text-xl font-bold">
                   {scarcityData.reduce((sum, p) => sum + p.elite_prospects, 0)}
                 </div>
               </div>
               <div>
-                <div className="text-sm text-gray-500">Positions Trending Up</div>
+                <div className="text-sm text-gray-500">
+                  Positions Trending Up
+                </div>
                 <div className="text-xl font-bold">
-                  {scarcityData.filter(p => p.market_trend === 'increasing').length}
+                  {
+                    scarcityData.filter((p) => p.market_trend === 'increasing')
+                      .length
+                  }
                 </div>
               </div>
             </div>

@@ -26,14 +26,7 @@ import {
   CartesianGrid,
   Tooltip,
 } from 'recharts';
-import {
-  Eye,
-  TrendingUp,
-  Clock,
-  Info,
-  Star,
-  Filter,
-} from 'lucide-react';
+import { Eye, TrendingUp, Clock, Info, Star, Filter } from 'lucide-react';
 
 interface ScoutingGrade {
   source: string;

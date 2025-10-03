@@ -84,7 +84,7 @@ export const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({
   enabled = true,
   longPressDuration = 500,
   hapticFeedback = true,
-  className = ''
+  className = '',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -216,7 +216,7 @@ export const QuickActionsMenu: React.FC<QuickActionsMenuProps> = ({
       position: 'fixed' as const,
       left: `${x}px`,
       top: `${y}px`,
-      zIndex: 1000
+      zIndex: 1000,
     };
   };
 

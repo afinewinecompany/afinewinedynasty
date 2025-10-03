@@ -8,7 +8,9 @@ interface SelectContextValue {
   setOpen: (open: boolean) => void;
 }
 
-const SelectContext = React.createContext<SelectContextValue | undefined>(undefined);
+const SelectContext = React.createContext<SelectContextValue | undefined>(
+  undefined
+);
 
 interface SelectProps {
   value: string;
@@ -21,9 +23,7 @@ const Select = ({ value, onValueChange, children }: SelectProps) => {
 
   return (
     <SelectContext.Provider value={{ value, onValueChange, open, setOpen }}>
-      <div className="relative">
-        {children}
-      </div>
+      <div className="relative">{children}</div>
     </SelectContext.Provider>
   );
 };
@@ -92,7 +92,8 @@ const SelectContent = React.forwardRef<
 });
 SelectContent.displayName = 'SelectContent';
 
-interface SelectItemProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface SelectItemProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   value: string;
 }
 

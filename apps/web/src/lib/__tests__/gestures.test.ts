@@ -7,7 +7,7 @@ import {
   calculateSwipeVelocity,
   getSwipeOrientation,
   isTouchDevice,
-  debounceTouchHandler
+  debounceTouchHandler,
 } from '@/lib/gestures';
 
 describe('Gesture Utilities', () => {
@@ -49,25 +49,25 @@ describe('Gesture Utilities', () => {
       // Test with ontouchstart
       Object.defineProperty(window, 'ontouchstart', {
         value: () => {},
-        configurable: true
+        configurable: true,
       });
       expect(isTouchDevice()).toBe(true);
 
       // Test with maxTouchPoints
       Object.defineProperty(window, 'ontouchstart', {
         value: undefined,
-        configurable: true
+        configurable: true,
       });
       Object.defineProperty(navigator, 'maxTouchPoints', {
         value: 2,
-        configurable: true
+        configurable: true,
       });
       expect(isTouchDevice()).toBe(true);
 
       // Test without touch support
       Object.defineProperty(navigator, 'maxTouchPoints', {
         value: 0,
-        configurable: true
+        configurable: true,
       });
       expect(isTouchDevice()).toBe(false);
 
@@ -75,12 +75,12 @@ describe('Gesture Utilities', () => {
       if (originalOntouchstart !== undefined) {
         Object.defineProperty(window, 'ontouchstart', {
           value: originalOntouchstart,
-          configurable: true
+          configurable: true,
         });
       }
       Object.defineProperty(navigator, 'maxTouchPoints', {
         value: originalMaxTouchPoints,
-        configurable: true
+        configurable: true,
       });
     });
   });
@@ -150,7 +150,7 @@ describe('Gesture Utilities', () => {
     it('should detect swipe gestures', (done) => {
       detector = new GestureDetector(element, {
         swipeThreshold: 50,
-        swipeTimeout: 300
+        swipeTimeout: 300,
       });
 
       detector.on('swipe', (event) => {
@@ -162,10 +162,10 @@ describe('Gesture Utilities', () => {
 
       // Simulate swipe right
       const touchStart = new TouchEvent('touchstart', {
-        touches: [{ clientX: 0, clientY: 50 } as Touch]
+        touches: [{ clientX: 0, clientY: 50 } as Touch],
       });
       const touchEnd = new TouchEvent('touchend', {
-        changedTouches: [{ clientX: 100, clientY: 50 } as Touch]
+        changedTouches: [{ clientX: 100, clientY: 50 } as Touch],
       });
 
       element.dispatchEvent(touchStart);
@@ -178,7 +178,7 @@ describe('Gesture Utilities', () => {
       jest.useFakeTimers();
 
       detector = new GestureDetector(element, {
-        longPressDuration: 500
+        longPressDuration: 500,
       });
 
       detector.on('longpress', (event) => {
@@ -188,7 +188,7 @@ describe('Gesture Utilities', () => {
 
       // Simulate long press
       const touchStart = new TouchEvent('touchstart', {
-        touches: [{ clientX: 50, clientY: 50 } as Touch]
+        touches: [{ clientX: 50, clientY: 50 } as Touch],
       });
 
       element.dispatchEvent(touchStart);
@@ -199,7 +199,7 @@ describe('Gesture Utilities', () => {
 
     it('should detect double tap', () => {
       detector = new GestureDetector(element, {
-        doubleTapInterval: 300
+        doubleTapInterval: 300,
       });
 
       const mockCallback = jest.fn();
@@ -207,10 +207,10 @@ describe('Gesture Utilities', () => {
 
       // Simulate double tap
       const touchStart = new TouchEvent('touchstart', {
-        touches: [{ clientX: 50, clientY: 50 } as Touch]
+        touches: [{ clientX: 50, clientY: 50 } as Touch],
       });
       const touchEnd = new TouchEvent('touchend', {
-        changedTouches: [{ clientX: 50, clientY: 50 } as Touch]
+        changedTouches: [{ clientX: 50, clientY: 50 } as Touch],
       });
 
       // First tap
@@ -231,7 +231,7 @@ describe('Gesture Utilities', () => {
       jest.useFakeTimers();
 
       detector = new GestureDetector(element, {
-        longPressDuration: 500
+        longPressDuration: 500,
       });
 
       const mockCallback = jest.fn();
@@ -239,13 +239,13 @@ describe('Gesture Utilities', () => {
 
       // Start touch
       const touchStart = new TouchEvent('touchstart', {
-        touches: [{ clientX: 50, clientY: 50 } as Touch]
+        touches: [{ clientX: 50, clientY: 50 } as Touch],
       });
       element.dispatchEvent(touchStart);
 
       // Move finger (cancel long press)
       const touchMove = new TouchEvent('touchmove', {
-        touches: [{ clientX: 80, clientY: 80 } as Touch]
+        touches: [{ clientX: 80, clientY: 80 } as Touch],
       });
       element.dispatchEvent(touchMove);
 

@@ -53,7 +53,7 @@ interface BottomNavigationProps {
  * ```
  */
 export const BottomNavigation: React.FC<BottomNavigationProps> = ({
-  className = ''
+  className = '',
 }) => {
   const pathname = usePathname();
 
@@ -62,32 +62,32 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
       label: 'Home',
       href: '/',
       icon: '🏠',
-      ariaLabel: 'Rankings dashboard'
+      ariaLabel: 'Rankings dashboard',
     },
     {
       label: 'Search',
       href: '/search',
       icon: '🔍',
-      ariaLabel: 'Prospect discovery'
+      ariaLabel: 'Prospect discovery',
     },
     {
       label: 'Compare',
       href: '/compare',
       icon: '⚖️',
-      ariaLabel: 'Active comparisons'
+      ariaLabel: 'Active comparisons',
     },
     {
       label: 'Watch',
       href: '/watchlist',
       icon: '⭐',
-      ariaLabel: 'User watchlist'
+      ariaLabel: 'User watchlist',
     },
     {
       label: 'Profile',
       href: '/profile',
       icon: '👤',
-      ariaLabel: 'Account and settings'
-    }
+      ariaLabel: 'Account and settings',
+    },
   ];
 
   const isActive = (href: string) => {
@@ -115,9 +115,8 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
                 flex flex-col items-center justify-center
                 min-w-[44px] min-h-[44px] px-2
                 transition-colors duration-200
-                ${active
-                  ? 'text-blue-600'
-                  : 'text-gray-600 hover:text-gray-900'
+                ${
+                  active ? 'text-blue-600' : 'text-gray-600 hover:text-gray-900'
                 }
               `}
               aria-label={item.ariaLabel}
@@ -126,12 +125,8 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
               <span className="text-xl mb-1" role="img" aria-hidden="true">
                 {item.icon}
               </span>
-              <span className="text-xs font-medium">
-                {item.label}
-              </span>
-              {active && (
-                <span className="sr-only">Current page</span>
-              )}
+              <span className="text-xs font-medium">{item.label}</span>
+              {active && <span className="sr-only">Current page</span>}
             </Link>
           );
         })}

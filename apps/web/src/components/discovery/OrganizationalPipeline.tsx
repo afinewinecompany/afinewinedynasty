@@ -6,7 +6,14 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Building2, Users, TrendingUp, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
+import {
+  Building2,
+  Users,
+  TrendingUp,
+  AlertTriangle,
+  ChevronDown,
+  ChevronUp,
+} from 'lucide-react';
 
 interface ProspectByPosition {
   position: string;
@@ -80,7 +87,7 @@ export function OrganizationalPipeline({
   insights = [],
   isLoading = false,
   error,
-  onRefresh
+  onRefresh,
 }: OrganizationalPipelineProps) {
   const [expandedOrg, setExpandedOrg] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'depth' | 'opportunity'>('depth');
@@ -172,7 +179,9 @@ export function OrganizationalPipeline({
             <div className="space-y-4">
               {sortedInsights.map((org) => {
                 const isExpanded = expandedOrg === org.organization;
-                const opportunityIndicator = getOpportunityIndicator(org.opportunity_score);
+                const opportunityIndicator = getOpportunityIndicator(
+                  org.opportunity_score
+                );
 
                 return (
                   <Card
@@ -185,16 +194,22 @@ export function OrganizationalPipeline({
                       {/* Header */}
                       <div
                         className="cursor-pointer"
-                        onClick={() => setExpandedOrg(isExpanded ? null : org.organization)}
+                        onClick={() =>
+                          setExpandedOrg(isExpanded ? null : org.organization)
+                        }
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-3">
-                              <h3 className="text-lg font-semibold">{org.organization}</h3>
+                              <h3 className="text-lg font-semibold">
+                                {org.organization}
+                              </h3>
                               <Badge variant="outline">
                                 #{org.system_ranking} System
                               </Badge>
-                              <Badge className={`${opportunityIndicator.color} text-white`}>
+                              <Badge
+                                className={`${opportunityIndicator.color} text-white`}
+                              >
                                 {opportunityIndicator.label} Opportunity
                               </Badge>
                             </div>
@@ -203,7 +218,9 @@ export function OrganizationalPipeline({
                                 <Users className="h-4 w-4 text-gray-500" />
                                 {org.total_prospects} prospects
                               </span>
-                              <span className={`font-semibold ${getDepthScoreColor(org.depth_score)}`}>
+                              <span
+                                className={`font-semibold ${getDepthScoreColor(org.depth_score)}`}
+                              >
                                 Depth: {org.depth_score}/100
                               </span>
                               <span className="font-semibold text-purple-600">
@@ -223,29 +240,40 @@ export function OrganizationalPipeline({
                         {/* Quick Stats */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
                           <div className="text-center p-2 bg-gray-50 rounded">
-                            <div className="text-xs text-gray-500">Strengths</div>
+                            <div className="text-xs text-gray-500">
+                              Strengths
+                            </div>
                             <div className="text-sm font-medium mt-1">
                               {org.strengths.slice(0, 2).join(', ')}
                             </div>
                           </div>
                           <div className="text-center p-2 bg-gray-50 rounded">
-                            <div className="text-xs text-gray-500">Weaknesses</div>
+                            <div className="text-xs text-gray-500">
+                              Weaknesses
+                            </div>
                             <div className="text-sm font-medium mt-1">
                               {org.weaknesses.slice(0, 2).join(', ') || 'None'}
                             </div>
                           </div>
                           <div className="text-center p-2 bg-gray-50 rounded">
-                            <div className="text-xs text-gray-500">Top Position</div>
+                            <div className="text-xs text-gray-500">
+                              Top Position
+                            </div>
                             <div className="text-sm font-medium mt-1">
-                              {org.prospects_by_position[0]?.position || 'N/A'}
-                              ({org.prospects_by_position[0]?.count || 0})
+                              {org.prospects_by_position[0]?.position || 'N/A'}(
+                              {org.prospects_by_position[0]?.count || 0})
                             </div>
                           </div>
                           <div className="text-center p-2 bg-gray-50 rounded">
-                            <div className="text-xs text-gray-500">Next Wave</div>
+                            <div className="text-xs text-gray-500">
+                              Next Wave
+                            </div>
                             <div className="text-sm font-medium mt-1">
-                              {Object.keys(org.eta_distribution)[0] || 'N/A'}
-                              ({org.eta_distribution[Object.keys(org.eta_distribution)[0]] || 0})
+                              {Object.keys(org.eta_distribution)[0] || 'N/A'}(
+                              {org.eta_distribution[
+                                Object.keys(org.eta_distribution)[0]
+                              ] || 0}
+                              )
                             </div>
                           </div>
                         </div>
@@ -267,7 +295,9 @@ export function OrganizationalPipeline({
                                   className="flex items-center justify-between p-2 bg-gray-50 rounded"
                                 >
                                   <div>
-                                    <div className="font-medium">{pos.position}</div>
+                                    <div className="font-medium">
+                                      {pos.position}
+                                    </div>
                                     <div className="text-xs text-gray-500">
                                       {pos.count} prospects
                                     </div>
@@ -292,22 +322,27 @@ export function OrganizationalPipeline({
                               ETA Timeline Distribution
                             </h4>
                             <div className="flex items-end gap-2 h-24">
-                              {Object.entries(org.eta_distribution).map(([year, count]) => {
-                                const maxCount = Math.max(...Object.values(org.eta_distribution));
-                                const height = (count / maxCount) * 100;
-                                return (
-                                  <div
-                                    key={year}
-                                    className="flex-1 flex flex-col items-center"
-                                  >
-                                    <div className="w-full bg-blue-500 rounded-t transition-all hover:bg-blue-600"
-                                      style={{ height: `${height}%` }}
-                                      title={`${count} prospects`}
-                                    />
-                                    <div className="text-xs mt-1">{year}</div>
-                                  </div>
-                                );
-                              })}
+                              {Object.entries(org.eta_distribution).map(
+                                ([year, count]) => {
+                                  const maxCount = Math.max(
+                                    ...Object.values(org.eta_distribution)
+                                  );
+                                  const height = (count / maxCount) * 100;
+                                  return (
+                                    <div
+                                      key={year}
+                                      className="flex-1 flex flex-col items-center"
+                                    >
+                                      <div
+                                        className="w-full bg-blue-500 rounded-t transition-all hover:bg-blue-600"
+                                        style={{ height: `${height}%` }}
+                                        title={`${count} prospects`}
+                                      />
+                                      <div className="text-xs mt-1">{year}</div>
+                                    </div>
+                                  );
+                                }
+                              )}
                             </div>
                           </div>
 
@@ -318,37 +353,46 @@ export function OrganizationalPipeline({
                               Position Opportunities
                             </h4>
                             <div className="space-y-2">
-                              {org.competitive_depth.slice(0, 5).map((depth, idx) => (
-                                <div
-                                  key={idx}
-                                  className="flex items-center justify-between p-2 bg-gray-50 rounded"
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-medium">{depth.position}</span>
-                                    {depth.current_mlb_blocked && (
-                                      <Badge variant="outline" className="text-xs">
-                                        Blocked
+                              {org.competitive_depth
+                                .slice(0, 5)
+                                .map((depth, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="flex items-center justify-between p-2 bg-gray-50 rounded"
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-medium">
+                                        {depth.position}
+                                      </span>
+                                      {depth.current_mlb_blocked && (
+                                        <Badge
+                                          variant="outline"
+                                          className="text-xs"
+                                        >
+                                          Blocked
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <div className="flex items-center gap-3 text-sm">
+                                      <span className="text-gray-600">
+                                        {depth.depth_ahead} ahead
+                                      </span>
+                                      <Badge
+                                        className={`text-xs ${
+                                          depth.opportunity_window ===
+                                          'Immediate'
+                                            ? 'bg-green-100 text-green-800'
+                                            : depth.opportunity_window ===
+                                                '1-2 years'
+                                              ? 'bg-yellow-100 text-yellow-800'
+                                              : 'bg-gray-100 text-gray-800'
+                                        }`}
+                                      >
+                                        {depth.opportunity_window}
                                       </Badge>
-                                    )}
+                                    </div>
                                   </div>
-                                  <div className="flex items-center gap-3 text-sm">
-                                    <span className="text-gray-600">
-                                      {depth.depth_ahead} ahead
-                                    </span>
-                                    <Badge
-                                      className={`text-xs ${
-                                        depth.opportunity_window === 'Immediate'
-                                          ? 'bg-green-100 text-green-800'
-                                          : depth.opportunity_window === '1-2 years'
-                                          ? 'bg-yellow-100 text-yellow-800'
-                                          : 'bg-gray-100 text-gray-800'
-                                      }`}
-                                    >
-                                      {depth.opportunity_window}
-                                    </Badge>
-                                  </div>
-                                </div>
-                              ))}
+                                ))}
                             </div>
                           </div>
 
@@ -358,11 +402,14 @@ export function OrganizationalPipeline({
                               Top Prospects in System
                             </h4>
                             <div className="flex flex-wrap gap-2">
-                              {org.prospects_by_position.flatMap(p => p.top_prospects).slice(0, 8).map((name, idx) => (
-                                <Badge key={idx} variant="outline">
-                                  {name}
-                                </Badge>
-                              ))}
+                              {org.prospects_by_position
+                                .flatMap((p) => p.top_prospects)
+                                .slice(0, 8)
+                                .map((name, idx) => (
+                                  <Badge key={idx} variant="outline">
+                                    {name}
+                                  </Badge>
+                                ))}
                             </div>
                           </div>
                         </div>
@@ -394,13 +441,16 @@ export function OrganizationalPipeline({
               <div>
                 <div className="text-sm text-gray-500">Avg Depth Score</div>
                 <div className="text-2xl font-bold">
-                  {(insights.reduce((sum, org) => sum + org.depth_score, 0) / insights.length).toFixed(0)}
+                  {(
+                    insights.reduce((sum, org) => sum + org.depth_score, 0) /
+                    insights.length
+                  ).toFixed(0)}
                 </div>
               </div>
               <div>
                 <div className="text-sm text-gray-500">High Opportunity</div>
                 <div className="text-2xl font-bold">
-                  {insights.filter(org => org.opportunity_score >= 80).length}
+                  {insights.filter((org) => org.opportunity_score >= 80).length}
                 </div>
               </div>
             </div>

@@ -25,33 +25,38 @@ interface UpgradePromptProps {
 export const UpgradePrompt: React.FC<UpgradePromptProps> = ({
   feature = 'general',
   variant = 'alert',
-  className = ''
+  className = '',
 }) => {
   const featureMessages = {
     prospects: {
       icon: <TrendingUp className="h-5 w-5" />,
       title: 'Access All 500+ Prospects',
-      description: 'Upgrade to Premium to view the complete top 500 prospects ranking and unlock detailed analytics for every player.',
+      description:
+        'Upgrade to Premium to view the complete top 500 prospects ranking and unlock detailed analytics for every player.',
     },
     export: {
       icon: <Download className="h-5 w-5" />,
       title: 'Export Your Data',
-      description: 'Premium members can export prospect data in CSV or JSON format for custom analysis and integration.',
+      description:
+        'Premium members can export prospect data in CSV or JSON format for custom analysis and integration.',
     },
     comparison: {
       icon: <Sparkles className="h-5 w-5" />,
       title: 'Compare Prospects Side-by-Side',
-      description: 'Unlock the comparison tool to analyze multiple prospects simultaneously with advanced metrics and visualizations.',
+      description:
+        'Unlock the comparison tool to analyze multiple prospects simultaneously with advanced metrics and visualizations.',
     },
     filters: {
       icon: <Lock className="h-5 w-5" />,
       title: 'Advanced Filtering & Search',
-      description: 'Get access to advanced filters, custom searches, and ML-powered prospect discovery tools.',
+      description:
+        'Get access to advanced filters, custom searches, and ML-powered prospect discovery tools.',
     },
     general: {
       icon: <Sparkles className="h-5 w-5" />,
       title: 'Upgrade to Premium',
-      description: 'Unlock all features including 500+ prospects, advanced analytics, comparison tools, and data export.',
+      description:
+        'Unlock all features including 500+ prospects, advanced analytics, comparison tools, and data export.',
     },
   };
 
@@ -59,7 +64,9 @@ export const UpgradePrompt: React.FC<UpgradePromptProps> = ({
 
   if (variant === 'inline') {
     return (
-      <div className={`flex items-center gap-2 p-4 bg-muted/50 rounded-lg ${className}`}>
+      <div
+        className={`flex items-center gap-2 p-4 bg-muted/50 rounded-lg ${className}`}
+      >
         <Lock className="h-4 w-4 text-muted-foreground" />
         <span className="text-sm text-muted-foreground flex-1">
           {message.description}
@@ -86,9 +93,7 @@ export const UpgradePrompt: React.FC<UpgradePromptProps> = ({
               </p>
             </div>
             <div className="pt-2">
-              <CheckoutButton>
-                Upgrade to Premium - $9.99/month
-              </CheckoutButton>
+              <CheckoutButton>Upgrade to Premium - $9.99/month</CheckoutButton>
             </div>
             <p className="text-xs text-muted-foreground">
               Cancel anytime. No hidden fees.
@@ -111,9 +116,7 @@ export const UpgradePrompt: React.FC<UpgradePromptProps> = ({
               {message.description}
             </AlertDescription>
           </div>
-          <CheckoutButton size="sm">
-            Upgrade Now
-          </CheckoutButton>
+          <CheckoutButton size="sm">Upgrade Now</CheckoutButton>
         </div>
       </div>
     </Alert>

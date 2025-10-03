@@ -34,14 +34,14 @@ interface CancelSubscriptionModalProps {
  * @param {CancelSubscriptionModalProps} props - Component props
  * @returns {JSX.Element} Rendered cancellation modal
  */
-export const CancelSubscriptionModal: React.FC<CancelSubscriptionModalProps> = ({
-  isOpen,
-  onClose,
-  onSuccess,
-  currentPeriodEnd
-}) => {
-  const [cancellationType, setCancellationType] = useState<'end_of_period' | 'immediate'>('end_of_period');
-  const { cancelSubscription, isCanceling, cancelError } = useSubscriptionManagement();
+export const CancelSubscriptionModal: React.FC<
+  CancelSubscriptionModalProps
+> = ({ isOpen, onClose, onSuccess, currentPeriodEnd }) => {
+  const [cancellationType, setCancellationType] = useState<
+    'end_of_period' | 'immediate'
+  >('end_of_period');
+  const { cancelSubscription, isCanceling, cancelError } =
+    useSubscriptionManagement();
   const { toast } = useToast();
 
   const handleCancel = async () => {
@@ -65,7 +65,7 @@ export const CancelSubscriptionModal: React.FC<CancelSubscriptionModalProps> = (
       toast({
         title: 'Cancellation Failed',
         description: 'Failed to cancel subscription. Please try again.',
-        variant: 'destructive'
+        variant: 'destructive',
       });
     }
   };
@@ -75,7 +75,7 @@ export const CancelSubscriptionModal: React.FC<CancelSubscriptionModalProps> = (
       toast({
         title: 'Error',
         description: 'An error occurred while canceling your subscription.',
-        variant: 'destructive'
+        variant: 'destructive',
       });
     }
   }, [cancelError, toast]);
@@ -89,7 +89,8 @@ export const CancelSubscriptionModal: React.FC<CancelSubscriptionModalProps> = (
             Cancel Subscription
           </DialogTitle>
           <DialogDescription>
-            Are you sure you want to cancel your premium subscription? You'll lose access to premium features.
+            Are you sure you want to cancel your premium subscription? You'll
+            lose access to premium features.
           </DialogDescription>
         </DialogHeader>
 
@@ -111,23 +112,32 @@ export const CancelSubscriptionModal: React.FC<CancelSubscriptionModalProps> = (
             <Label>When should we cancel?</Label>
             <RadioGroup
               value={cancellationType}
-              onValueChange={(value) => setCancellationType(value as 'end_of_period' | 'immediate')}
+              onValueChange={(value) =>
+                setCancellationType(value as 'end_of_period' | 'immediate')
+              }
             >
               <div className="flex items-start space-x-2">
                 <RadioGroupItem value="end_of_period" id="end_of_period" />
                 <div className="grid gap-1">
-                  <Label htmlFor="end_of_period" className="font-normal cursor-pointer">
+                  <Label
+                    htmlFor="end_of_period"
+                    className="font-normal cursor-pointer"
+                  >
                     At the end of billing period
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    Keep access until {currentPeriodEnd || 'your current billing period ends'}
+                    Keep access until{' '}
+                    {currentPeriodEnd || 'your current billing period ends'}
                   </p>
                 </div>
               </div>
               <div className="flex items-start space-x-2">
                 <RadioGroupItem value="immediate" id="immediate" />
                 <div className="grid gap-1">
-                  <Label htmlFor="immediate" className="font-normal cursor-pointer">
+                  <Label
+                    htmlFor="immediate"
+                    className="font-normal cursor-pointer"
+                  >
                     Cancel immediately
                   </Label>
                   <p className="text-sm text-muted-foreground">

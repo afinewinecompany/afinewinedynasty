@@ -9,7 +9,13 @@ import React, { useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 
 /**
@@ -73,7 +79,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
   onClose,
   filters,
   onApplyFilters,
-  activeFilterCount = 0
+  activeFilterCount = 0,
 }) => {
   const [localFilters, setLocalFilters] = React.useState<FilterConfig>(filters);
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -184,13 +190,20 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
         <CardContent className="pb-20">
           {/* Quick Filter Chips */}
           <div className="mb-4">
-            <Label className="text-sm font-medium mb-2 block">Quick Filters</Label>
+            <Label className="text-sm font-medium mb-2 block">
+              Quick Filters
+            </Label>
             <div className="flex flex-wrap gap-2">
               <Button
                 variant={localFilters.position === 'OF' ? 'default' : 'outline'}
                 size="sm"
                 className="min-h-[44px]"
-                onClick={() => setLocalFilters({ ...localFilters, position: localFilters.position === 'OF' ? undefined : 'OF' })}
+                onClick={() =>
+                  setLocalFilters({
+                    ...localFilters,
+                    position: localFilters.position === 'OF' ? undefined : 'OF',
+                  })
+                }
               >
                 Outfielders
               </Button>
@@ -198,7 +211,12 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
                 variant={localFilters.position === 'P' ? 'default' : 'outline'}
                 size="sm"
                 className="min-h-[44px]"
-                onClick={() => setLocalFilters({ ...localFilters, position: localFilters.position === 'P' ? undefined : 'P' })}
+                onClick={() =>
+                  setLocalFilters({
+                    ...localFilters,
+                    position: localFilters.position === 'P' ? undefined : 'P',
+                  })
+                }
               >
                 Pitchers
               </Button>
@@ -206,7 +224,12 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
                 variant={localFilters.maxRank === 25 ? 'default' : 'outline'}
                 size="sm"
                 className="min-h-[44px]"
-                onClick={() => setLocalFilters({ ...localFilters, maxRank: localFilters.maxRank === 25 ? undefined : 25 })}
+                onClick={() =>
+                  setLocalFilters({
+                    ...localFilters,
+                    maxRank: localFilters.maxRank === 25 ? undefined : 25,
+                  })
+                }
               >
                 Top 25
               </Button>
@@ -214,7 +237,12 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
                 variant={localFilters.eta === '2024' ? 'default' : 'outline'}
                 size="sm"
                 className="min-h-[44px]"
-                onClick={() => setLocalFilters({ ...localFilters, eta: localFilters.eta === '2024' ? undefined : '2024' })}
+                onClick={() =>
+                  setLocalFilters({
+                    ...localFilters,
+                    eta: localFilters.eta === '2024' ? undefined : '2024',
+                  })
+                }
               >
                 MLB Ready
               </Button>
@@ -223,20 +251,30 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
 
           {/* Position Filter */}
           <div className="mb-4">
-            <Label htmlFor="position" className="text-sm font-medium mb-2 block">
+            <Label
+              htmlFor="position"
+              className="text-sm font-medium mb-2 block"
+            >
               Position
             </Label>
             <Select
               value={localFilters.position || ''}
-              onValueChange={(value) => setLocalFilters({ ...localFilters, position: value || undefined })}
+              onValueChange={(value) =>
+                setLocalFilters({
+                  ...localFilters,
+                  position: value || undefined,
+                })
+              }
             >
               <SelectTrigger id="position" className="min-h-[44px]">
                 <SelectValue placeholder="All positions" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">All positions</SelectItem>
-                {positions.map(pos => (
-                  <SelectItem key={pos} value={pos}>{pos}</SelectItem>
+                {positions.map((pos) => (
+                  <SelectItem key={pos} value={pos}>
+                    {pos}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -244,20 +282,30 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
 
           {/* Organization Filter */}
           <div className="mb-4">
-            <Label htmlFor="organization" className="text-sm font-medium mb-2 block">
+            <Label
+              htmlFor="organization"
+              className="text-sm font-medium mb-2 block"
+            >
               Level
             </Label>
             <Select
               value={localFilters.organization || ''}
-              onValueChange={(value) => setLocalFilters({ ...localFilters, organization: value || undefined })}
+              onValueChange={(value) =>
+                setLocalFilters({
+                  ...localFilters,
+                  organization: value || undefined,
+                })
+              }
             >
               <SelectTrigger id="organization" className="min-h-[44px]">
                 <SelectValue placeholder="All levels" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">All levels</SelectItem>
-                {organizations.map(org => (
-                  <SelectItem key={org} value={org}>{org}</SelectItem>
+                {organizations.map((org) => (
+                  <SelectItem key={org} value={org}>
+                    {org}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -270,15 +318,19 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
             </Label>
             <Select
               value={localFilters.eta || ''}
-              onValueChange={(value) => setLocalFilters({ ...localFilters, eta: value || undefined })}
+              onValueChange={(value) =>
+                setLocalFilters({ ...localFilters, eta: value || undefined })
+              }
             >
               <SelectTrigger id="eta" className="min-h-[44px]">
                 <SelectValue placeholder="Any ETA" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">Any ETA</SelectItem>
-                {etaOptions.map(eta => (
-                  <SelectItem key={eta} value={eta}>{eta}</SelectItem>
+                {etaOptions.map((eta) => (
+                  <SelectItem key={eta} value={eta}>
+                    {eta}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -286,9 +338,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
 
           {/* Age Range Filter */}
           <div className="mb-4">
-            <Label className="text-sm font-medium mb-2 block">
-              Age Range
-            </Label>
+            <Label className="text-sm font-medium mb-2 block">Age Range</Label>
             <div className="flex gap-2 items-center">
               <input
                 type="number"
@@ -296,7 +346,14 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
                 min="16"
                 max="30"
                 value={localFilters.minAge || ''}
-                onChange={(e) => setLocalFilters({ ...localFilters, minAge: e.target.value ? parseInt(e.target.value) : undefined })}
+                onChange={(e) =>
+                  setLocalFilters({
+                    ...localFilters,
+                    minAge: e.target.value
+                      ? parseInt(e.target.value)
+                      : undefined,
+                  })
+                }
                 className="flex-1 min-h-[44px] px-3 py-2 border border-gray-300 rounded-md"
               />
               <span className="text-gray-500">to</span>
@@ -306,7 +363,14 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
                 min="16"
                 max="30"
                 value={localFilters.maxAge || ''}
-                onChange={(e) => setLocalFilters({ ...localFilters, maxAge: e.target.value ? parseInt(e.target.value) : undefined })}
+                onChange={(e) =>
+                  setLocalFilters({
+                    ...localFilters,
+                    maxAge: e.target.value
+                      ? parseInt(e.target.value)
+                      : undefined,
+                  })
+                }
                 className="flex-1 min-h-[44px] px-3 py-2 border border-gray-300 rounded-md"
               />
             </div>
@@ -314,9 +378,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
 
           {/* Rank Range Filter */}
           <div className="mb-6">
-            <Label className="text-sm font-medium mb-2 block">
-              Rank Range
-            </Label>
+            <Label className="text-sm font-medium mb-2 block">Rank Range</Label>
             <div className="flex gap-2 items-center">
               <input
                 type="number"
@@ -324,7 +386,14 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
                 min="1"
                 max="500"
                 value={localFilters.minRank || ''}
-                onChange={(e) => setLocalFilters({ ...localFilters, minRank: e.target.value ? parseInt(e.target.value) : undefined })}
+                onChange={(e) =>
+                  setLocalFilters({
+                    ...localFilters,
+                    minRank: e.target.value
+                      ? parseInt(e.target.value)
+                      : undefined,
+                  })
+                }
                 className="flex-1 min-h-[44px] px-3 py-2 border border-gray-300 rounded-md"
               />
               <span className="text-gray-500">to</span>
@@ -334,7 +403,14 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
                 min="1"
                 max="500"
                 value={localFilters.maxRank || ''}
-                onChange={(e) => setLocalFilters({ ...localFilters, maxRank: e.target.value ? parseInt(e.target.value) : undefined })}
+                onChange={(e) =>
+                  setLocalFilters({
+                    ...localFilters,
+                    maxRank: e.target.value
+                      ? parseInt(e.target.value)
+                      : undefined,
+                  })
+                }
                 className="flex-1 min-h-[44px] px-3 py-2 border border-gray-300 rounded-md"
               />
             </div>
