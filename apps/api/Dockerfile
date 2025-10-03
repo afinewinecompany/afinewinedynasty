@@ -19,14 +19,14 @@ RUN groupadd --gid 1001 appuser && \
 WORKDIR /app
 
 # Install Python dependencies
-COPY requirements.txt pyproject.toml ./
+COPY requirements.txt ./
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY app/ ./app/
-COPY alembic/ ./alembic/ 2>/dev/null || true
-COPY alembic.ini ./ 2>/dev/null || true
+COPY alembic/ ./alembic/
+COPY alembic.ini ./
 
 # Change ownership to appuser
 RUN chown -R appuser:appuser /app
@@ -40,4 +40,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl --fail http://localhost:8000/health || exit 1
 
 # Run the application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD /bin/bash -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"
