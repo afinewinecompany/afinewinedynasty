@@ -1,11 +1,13 @@
 from fastapi import APIRouter
 
-from app.api.api_v1.endpoints import health, auth, prospects, users, admin, ml_predictions, monitoring, search, discovery, notifications, subscriptions, webhooks, fantrax, recommendations
+from app.api.api_v1.endpoints import health, auth, prospects, users, admin, ml_predictions, monitoring, search, discovery, notifications, subscriptions, webhooks, fantrax, recommendations, onboarding, watchlist
 
 api_router = APIRouter()
 api_router.include_router(health.router, prefix="/health", tags=["health"])
 api_router.include_router(auth.router, prefix="/auth", tags=["authentication"])
 api_router.include_router(users.router, prefix="/users", tags=["users"])
+api_router.include_router(onboarding.router, prefix="/onboarding", tags=["onboarding"])
+api_router.include_router(watchlist.router, prefix="/watchlist", tags=["watchlist"])
 api_router.include_router(prospects.router, prefix="/prospects", tags=["prospects"])
 api_router.include_router(search.router, prefix="/search", tags=["search"])
 api_router.include_router(discovery.router, prefix="/discovery", tags=["discovery"])

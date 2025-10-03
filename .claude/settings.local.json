@@ -29,7 +29,12 @@
       "Bash(git add:*)",
       "Bash(rm:*)",
       "Bash(git commit:*)",
-      "Bash(alembic upgrade:*)"
+      "Bash(alembic upgrade:*)",
+      "Bash(set PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1)",
+      "Bash(where python)",
+      "Bash(curl:*)",
+      "Bash(winget search:*)",
+      "Bash(winget uninstall:*)"
     ],
     "deny": [],
     "ask": []
