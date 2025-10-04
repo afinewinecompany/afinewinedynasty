@@ -10,7 +10,7 @@ class Settings(BaseSettings):
 
     # CORS Origins - restrict in production
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
-    ALLOWED_HOSTS: List[str] = ["localhost", "127.0.0.1"]
+    ALLOWED_HOSTS: List[str] = ["localhost", "127.0.0.1", "healthcheck.railway.app", "*"]
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod
