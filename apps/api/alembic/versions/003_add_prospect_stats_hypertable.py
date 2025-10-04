@@ -57,7 +57,19 @@ def upgrade() -> None:
 
     # Convert to TimescaleDB hypertable with monthly partitioning
     # This requires TimescaleDB extension to be enabled in the database
-    op.execute("SELECT create_hypertable('prospect_stats', 'date_recorded', chunk_time_interval => INTERVAL '1 month');")
+    # Gracefully skip if TimescaleDB is not available (e.g., in development or Railway)
+    op.execute("""
+        DO $$
+        BEGIN
+            IF EXISTS (
+                SELECT 1 FROM pg_extension WHERE extname = 'timescaledb'
+            ) THEN
+                PERFORM create_hypertable('prospect_stats', 'date_recorded', chunk_time_interval => INTERVAL '1 month');
+            ELSE
+                RAISE NOTICE 'TimescaleDB extension not found, skipping hypertable creation';
+            END IF;
+        END $$;
+    """)
 
 
 def downgrade() -> None:
