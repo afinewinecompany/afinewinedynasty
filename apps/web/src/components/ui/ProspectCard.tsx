@@ -4,26 +4,34 @@ import ProspectOutlook from '@/components/prospects/ProspectOutlook';
 
 interface ProspectCardProps {
   prospect: Prospect;
-  rank: number;
+  rank?: number;
   showOutlook?: boolean;
+  showRanking?: boolean;
+  showConfidence?: boolean;
 }
 
-export default function ProspectCard({
+export function ProspectCard({
   prospect,
   rank,
   showOutlook = false,
+  showRanking = false,
+  showConfidence = false,
 }: ProspectCardProps) {
+  // Use dynastyRank from prospect if rank prop not provided and showRanking is true
+  const displayRank = rank ?? (showRanking && 'dynastyRank' in prospect ? prospect.dynastyRank : undefined);
   return (
     <div className="rounded-lg border border-gray-200 bg-white hover:border-gray-300 hover:shadow-md transition-all duration-200">
       <Link href={`/prospects/${prospect.id}`} className="block p-4">
         <div className="flex items-center justify-between">
           <div className="flex-1 min-w-0">
             <div className="flex items-center space-x-3">
-              <div className="flex-shrink-0">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-800">
-                  #{rank}
+              {displayRank && (
+                <div className="flex-shrink-0">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-800">
+                    #{displayRank}
+                  </div>
                 </div>
-              </div>
+              )}
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-gray-900">
                   {prospect.name}
@@ -49,6 +57,11 @@ export default function ProspectCard({
                 </>
               )}
             </div>
+            {showConfidence && 'confidenceLevel' in prospect && (
+              <div className="text-xs font-medium text-gray-700 mt-1">
+                {prospect.confidenceLevel}
+              </div>
+            )}
           </div>
         </div>
       </Link>
@@ -62,3 +75,5 @@ export default function ProspectCard({
     </div>
   );
 }
+
+export default ProspectCard;
