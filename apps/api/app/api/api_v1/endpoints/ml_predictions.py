@@ -14,7 +14,7 @@ from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
-from ....core.database import get_db
+from app.db.database import get_db
 from ....core.cache_manager import CacheManager
 from ....core.auth import get_current_user
 from ....core.rate_limiting import RateLimiter

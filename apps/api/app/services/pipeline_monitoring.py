@@ -17,7 +17,7 @@ import psutil
 import time
 
 from app.core.config import settings
-from app.core.database import get_db
+from app.db.database import get_db
 
 logger = logging.getLogger(__name__)
 

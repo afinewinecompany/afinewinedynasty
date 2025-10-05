@@ -65,7 +65,7 @@ class UserPreferencesResponse(BaseModel):
 
 class UserPreferencesUpdate(BaseModel):
     """User preferences update request"""
-    risk_tolerance: Optional[str] = Field(None, regex="^(conservative|balanced|aggressive)$")
+    risk_tolerance: Optional[str] = Field(None, pattern="^(conservative|balanced|aggressive)$")
     prefer_win_now: Optional[bool] = None
     prefer_rebuild: Optional[bool] = None
     position_priorities: Optional[Dict[str, Any]] = None

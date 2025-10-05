@@ -77,7 +77,7 @@ class FeatureRequestResponse(BaseModel):
 
 
 @router.post("/tickets", response_model=TicketResponse)
-@limiter.limit("10/hour")
+# @limiter.limit("10/hour")
 async def create_support_ticket(
     request: CreateTicketRequest,
     current_user: User = Depends(get_current_user),
@@ -144,7 +144,7 @@ async def create_support_ticket(
 
 
 @router.get("/tickets", response_model=List[TicketResponse])
-@limiter.limit("100/minute")
+# @limiter.limit("100/minute")
 async def get_user_tickets(
     status: Optional[str] = Query(None, description="Filter by status: open, in_progress, resolved, closed"),
     limit: int = Query(50, ge=1, le=100, description="Maximum tickets to return"),
@@ -195,7 +195,7 @@ async def get_user_tickets(
 
 
 @router.post("/tickets/{ticket_id}/messages")
-@limiter.limit("50/hour")
+# @limiter.limit("50/hour")
 async def add_ticket_message(
     ticket_id: int,
     request: TicketMessageRequest,
@@ -249,7 +249,7 @@ async def add_ticket_message(
 
 
 @router.post("/feature-requests", response_model=FeatureRequestResponse)
-@limiter.limit("5/day")
+# @limiter.limit("5/day")
 @subscription_tier_required("premium")
 async def create_feature_request(
     request: CreateFeatureRequest,
@@ -321,7 +321,7 @@ async def create_feature_request(
 
 
 @router.post("/feature-requests/{request_id}/vote")
-@limiter.limit("50/day")
+# @limiter.limit("50/day")
 @subscription_tier_required("premium")
 async def vote_for_feature(
     request_id: int,
@@ -390,7 +390,7 @@ async def vote_for_feature(
 
 
 @router.get("/feature-requests", response_model=List[FeatureRequestResponse])
-@limiter.limit("100/minute")
+# @limiter.limit("100/minute")
 async def get_feature_requests(
     category: Optional[str] = Query(None, description="Filter by category"),
     status: Optional[str] = Query(None, description="Filter by status"),
@@ -450,7 +450,7 @@ async def get_feature_requests(
 
 
 @router.get("/support/metrics")
-@limiter.limit("10/minute")
+# @limiter.limit("10/minute")
 async def get_support_metrics(
     days: int = Query(30, ge=1, le=365, description="Number of days to analyze"),
     current_user: User = Depends(get_current_user),

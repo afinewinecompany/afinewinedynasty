@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   api:
@@ -11,8 +11,8 @@ services:
   web:
     build:
       context: ./apps/web
-      dockerfile: Dockerfile.dev
-    command: npm run dev
+      dockerfile: Dockerfile
+    command: npm start
     volumes:
       - ./apps/web:/app
       - /app/node_modules

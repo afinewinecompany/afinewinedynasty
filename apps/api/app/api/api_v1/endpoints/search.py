@@ -75,7 +75,7 @@ class AdvancedSearchRequest(BaseModel):
     # Pagination and sorting
     page: int = Field(1, ge=1)
     size: int = Field(25, ge=1, le=100)
-    sort_by: str = Field("relevance", regex="^(relevance|name|age|eta_year|organization)$")
+    sort_by: str = Field("relevance", pattern="^(relevance|name|age|eta_year|organization)$")
 
 
 class AdvancedSearchResponse(BaseModel):
@@ -92,7 +92,7 @@ class AdvancedSearchResponse(BaseModel):
 
 
 @router.post("/advanced", response_model=AdvancedSearchResponse)
-@limiter.limit("30/minute")
+# @limiter.limit("30/minute")
 async def advanced_search_prospects(
     search_request: AdvancedSearchRequest,
     db: AsyncSession = Depends(get_db),
@@ -294,7 +294,7 @@ async def advanced_search_prospects(
 
 
 @router.get("/criteria/options")
-@limiter.limit("60/minute")
+# @limiter.limit("60/minute")
 async def get_search_criteria_options(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user)
@@ -353,7 +353,7 @@ class SavedSearchResponse(BaseModel):
 
 
 @router.post("/saved", response_model=SavedSearchResponse)
-@limiter.limit("20/minute")
+# @limiter.limit("20/minute")
 async def create_saved_search(
     request: SavedSearchCreate,
     db: AsyncSession = Depends(get_db),
@@ -406,7 +406,7 @@ async def create_saved_search(
 
 
 @router.get("/saved", response_model=List[SavedSearchResponse])
-@limiter.limit("60/minute")
+# @limiter.limit("60/minute")
 async def get_saved_searches(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
@@ -453,7 +453,7 @@ async def get_saved_searches(
 
 
 @router.get("/saved/{search_id}", response_model=SavedSearchResponse)
-@limiter.limit("60/minute")
+# @limiter.limit("60/minute")
 async def get_saved_search(
     search_id: int,
     db: AsyncSession = Depends(get_db),
@@ -514,7 +514,7 @@ async def get_saved_search(
 
 
 @router.put("/saved/{search_id}", response_model=SavedSearchResponse)
-@limiter.limit("20/minute")
+# @limiter.limit("20/minute")
 async def update_saved_search(
     search_id: int,
     request: SavedSearchUpdate,
@@ -578,7 +578,7 @@ async def update_saved_search(
 
 
 @router.delete("/saved/{search_id}")
-@limiter.limit("20/minute")
+# @limiter.limit("20/minute")
 async def delete_saved_search(
     search_id: int,
     db: AsyncSession = Depends(get_db),
@@ -644,7 +644,7 @@ class ProspectViewResponse(BaseModel):
 
 
 @router.get("/history", response_model=List[SearchHistoryResponse])
-@limiter.limit("60/minute")
+# @limiter.limit("60/minute")
 async def get_search_history(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
@@ -696,7 +696,7 @@ async def get_search_history(
 
 
 @router.get("/recently-viewed", response_model=List[ProspectViewResponse])
-@limiter.limit("60/minute")
+# @limiter.limit("60/minute")
 async def get_recently_viewed_prospects(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
@@ -751,7 +751,7 @@ async def get_recently_viewed_prospects(
 
 
 @router.post("/track-view")
-@limiter.limit("100/minute")
+# @limiter.limit("100/minute")
 async def track_prospect_view(
     prospect_id: int,
     view_duration: Optional[int] = None,

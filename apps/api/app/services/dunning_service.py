@@ -169,10 +169,10 @@ class DunningService:
                 await db.commit()
                 return True
 
-        except stripe.error.CardError as e:
+        except stripe.CardError as e:
             # Card was declined
             await self._handle_retry_failure(db, subscription, e)
-        except stripe.error.StripeError as e:
+        except stripe.StripeError as e:
             # Other Stripe errors
             print(f"Payment retry error: {str(e)}")
 
@@ -368,7 +368,7 @@ class DunningService:
         print(f"Payment retry scheduled for subscription {subscription.id} at {next_retry}")
 
     async def _handle_retry_failure(
-        self, db: AsyncSession, subscription: Subscription, error: stripe.error.CardError
+        self, db: AsyncSession, subscription: Subscription, error: stripe.CardError
     ):
         """Handle failed retry attempt."""
         # Create failure event

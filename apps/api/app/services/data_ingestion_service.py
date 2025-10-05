@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_
 from sqlalchemy.orm import selectinload
 
-from app.db.database import get_async_session
+# from app.db.database import get_async_session
 from app.db.models import Prospect, ProspectStats, User
 from app.services.mlb_api_service import MLBAPIClient, MLBStatsAPIError
 from app.core.config import settings
@@ -48,25 +48,25 @@ class DataIngestionService:
             # Reset statistics
             self._reset_stats()
 
-            async with self.mlb_client as client:
-                # Get database session
-                async for session in get_async_session():
-                    try:
-                        # Step 1: Ingest prospect basic information
-                        await self._ingest_prospects_data(client, session)
+            # async with self.mlb_client as client:
+            #     # Get database session
+            #     async for session in get_async_session():
+            #         try:
+            #             # Step 1: Ingest prospect basic information
+            #             await self._ingest_prospects_data(client, session)
 
-                        # Step 2: Ingest current season statistics
-                        await self._ingest_current_season_stats(client, session)
+            #             # Step 2: Ingest current season statistics
+            #             await self._ingest_current_season_stats(client, session)
 
-                        # Commit all changes
-                        await session.commit()
+            #             # Commit all changes
+            #             await session.commit()
 
-                    except Exception as e:
-                        await session.rollback()
-                        raise
-                    finally:
-                        await session.close()
-                    break  # Only take first session from generator
+            #         except Exception as e:
+            #             await session.rollback()
+            #             raise
+            #         finally:
+            #             await session.close()
+            #         break  # Only take first session from generator
 
             end_time = datetime.now()
             duration = (end_time - start_time).total_seconds()

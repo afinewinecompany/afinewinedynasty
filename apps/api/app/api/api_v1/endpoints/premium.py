@@ -72,7 +72,7 @@ class EnhancedOutlookRequest(BaseModel):
 
 
 @router.post("/advanced-filter", response_model=Dict[str, Any])
-@limiter.limit("100/minute")
+# @limiter.limit("100/minute")
 @subscription_tier_required("premium")
 async def advanced_filter_prospects(
     request: AdvancedFilterRequest,
@@ -135,7 +135,7 @@ async def advanced_filter_prospects(
 
 
 @router.post("/saved-searches", response_model=Dict[str, Any])
-@limiter.limit("50/hour")
+# @limiter.limit("50/hour")
 @subscription_tier_required("premium")
 async def create_saved_search(
     request: SavedSearchRequest,
@@ -208,7 +208,7 @@ async def create_saved_search(
 
 
 @router.get("/saved-searches", response_model=List[Dict[str, Any]])
-@limiter.limit("100/minute")
+# @limiter.limit("100/minute")
 @subscription_tier_required("premium")
 async def get_saved_searches(
     include_public: bool = Query(False, description="Include public searches from other users"),
@@ -264,7 +264,7 @@ async def get_saved_searches(
 
 
 @router.post("/batch-compare", response_model=Dict[str, Any])
-@limiter.limit("50/hour")
+# @limiter.limit("50/hour")
 @subscription_tier_required("premium")
 async def batch_compare_prospects(
     request: BatchComparisonRequest,
@@ -372,7 +372,7 @@ async def batch_compare_prospects(
 
 
 @router.post("/export", response_model=Dict[str, Any])
-@limiter.limit("10/hour")
+# @limiter.limit("10/hour")
 @subscription_tier_required("premium")
 async def export_data(
     request: ExportRequest,

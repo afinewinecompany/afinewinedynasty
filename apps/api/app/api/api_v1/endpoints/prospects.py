@@ -69,7 +69,7 @@ class ProspectSearchSuggestion(BaseModel):
 
 
 @router.get("/", response_model=ProspectRankingsPage)
-@limiter.limit("100/minute")
+# @limiter.limit("100/minute")
 async def get_prospect_rankings(
     # Pagination
     page: int = Query(1, ge=1, description="Page number"),
@@ -352,7 +352,7 @@ async def get_prospect_rankings(
 
 
 @router.get("/search/autocomplete", response_model=List[ProspectSearchSuggestion])
-@limiter.limit("200/minute")
+# @limiter.limit("200/minute")
 async def prospect_autocomplete(
     q: str = Query(..., min_length=1, max_length=50, description="Search prefix"),
     limit: int = Query(5, ge=1, le=10, description="Maximum suggestions"),
@@ -377,7 +377,7 @@ async def prospect_autocomplete(
 
 
 @router.get("/{prospect_id}", response_model=ProspectRankingResponse)
-@limiter.limit("100/minute")
+# @limiter.limit("100/minute")
 async def get_prospect(
     prospect_id: int,
     current_user: User = Depends(get_current_user),
@@ -477,7 +477,7 @@ async def get_prospect(
 
 
 @router.get("/{prospect_id}/profile")
-@limiter.limit("100/minute")
+# @limiter.limit("100/minute")
 async def get_prospect_profile(
     prospect_id: int,
     include_stats: bool = True,
@@ -636,7 +636,7 @@ async def get_prospect_profile(
 
 
 @router.get("/{prospect_id}/stats")
-@limiter.limit("100/minute")
+# @limiter.limit("100/minute")
 async def get_prospect_stats_history(
     prospect_id: int,
     level: Optional[str] = None,
@@ -663,7 +663,7 @@ async def get_prospect_stats_history(
 
 
 @router.get("/{prospect_id}/comparisons")
-@limiter.limit("100/minute")
+# @limiter.limit("100/minute")
 async def get_prospect_comparisons(
     prospect_id: int,
     limit: int = Query(5, ge=1, le=10),
@@ -688,7 +688,7 @@ async def get_prospect_comparisons(
 
 
 @router.get("/{prospect_id}/organizational-context")
-@limiter.limit("100/minute")
+# @limiter.limit("100/minute")
 async def get_prospect_organizational_context(
     prospect_id: int,
     current_user: User = Depends(get_current_user),
@@ -709,7 +709,7 @@ async def get_prospect_organizational_context(
 
 
 @router.get("/{prospect_id}/injury-history")
-@limiter.limit("100/minute")
+# @limiter.limit("100/minute")
 async def get_prospect_injury_history(
     prospect_id: int,
     current_user: User = Depends(get_current_user),
@@ -735,7 +735,7 @@ async def get_prospect_injury_history(
 
 
 @router.get("/compare")
-@limiter.limit("50/minute")
+# @limiter.limit("50/minute")
 async def compare_prospects(
     prospect_ids: str = Query(..., description="Comma-separated prospect IDs (2-4 prospects)"),
     include_stats: bool = Query(True, description="Include statistical comparison"),
@@ -892,7 +892,7 @@ async def compare_prospects(
 
 
 @router.get("/compare/analogs")
-@limiter.limit("50/minute")
+# @limiter.limit("50/minute")
 async def get_comparison_analogs(
     prospect_ids: str = Query(..., description="Comma-separated prospect IDs"),
     limit: int = Query(3, ge=1, le=5, description="Number of analogs per prospect"),
@@ -937,7 +937,7 @@ async def get_comparison_analogs(
 
 
 @router.post("/compare/export")
-@limiter.limit("20/hour")
+# @limiter.limit("20/hour")
 async def export_comparison(
     prospect_ids: str,
     format: str = Query(..., regex="^(pdf|csv)$", description="Export format: 'pdf' or 'csv'"),
@@ -1164,7 +1164,7 @@ def _generate_statistical_comparison(prospects_data: List[Dict[str, Any]]) -> Di
 
 
 @router.get("/export/csv")
-@limiter.limit("10/hour")
+# @limiter.limit("10/hour")
 async def export_prospects_csv(
     # Same filters as main endpoint
     position: Optional[List[str]] = Query(None, description="Filter by positions"),

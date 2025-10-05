@@ -144,8 +144,8 @@ class TestDunningService:
         mock_list.return_value = Mock(data=[mock_invoice])
 
         # Simulate card error
-        import stripe.error
-        mock_pay.side_effect = stripe.error.CardError(
+        import stripe
+        mock_pay.side_effect = stripe.CardError(
             message="Card declined",
             param="payment_method",
             code="card_declined"

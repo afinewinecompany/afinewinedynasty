@@ -23,7 +23,7 @@ router = APIRouter()
 
 class CheckoutSessionRequest(BaseModel):
     """Request model for creating checkout session."""
-    plan_id: str = Field(default="premium", regex="^(free|premium)$", description="Subscription plan ID")
+    plan_id: str = Field(default="premium", pattern="^(free|premium)$", description="Subscription plan ID")
 
     @validator("plan_id")
     def validate_plan_id(cls, v):
