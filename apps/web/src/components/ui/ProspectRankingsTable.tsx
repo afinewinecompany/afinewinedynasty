@@ -38,14 +38,19 @@ export default function ProspectRankingsTable({
   const getConfidenceColor = (level: string) => {
     switch (level) {
       case 'High':
-        return 'text-green-600 bg-green-50';
+        return 'text-green-600';
       case 'Medium':
-        return 'text-yellow-600 bg-yellow-50';
+        return 'text-yellow-600';
       case 'Low':
-        return 'text-red-600 bg-red-50';
+        return 'text-red-600';
       default:
-        return 'text-gray-600 bg-gray-50';
+        return 'text-gray-600';
     }
+  };
+
+  const getConfidenceDot = (level: string) => {
+    const color = getConfidenceColor(level);
+    return <span className={`text-2xl ${color}`}>●</span>;
   };
 
   const formatNumber = (
@@ -145,9 +150,9 @@ export default function ProspectRankingsTable({
               </div>
             </th>
 
-            {/* Confidence */}
+            {/* ML Indicator */}
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Confidence
+              ML
             </th>
 
             {/* Stats */}
@@ -220,15 +225,19 @@ export default function ProspectRankingsTable({
                 </div>
               </td>
 
-              {/* Confidence */}
+              {/* ML Indicator */}
               <td className="px-4 py-4 whitespace-nowrap">
-                <span
-                  className={`px-2 py-1 text-xs font-medium rounded-full ${getConfidenceColor(
-                    prospect.confidenceLevel
-                  )}`}
-                >
-                  {prospect.confidenceLevel}
-                </span>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      {getConfidenceDot(prospect.confidenceLevel)}
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="font-medium">{prospect.confidenceLevel} Confidence</p>
+                      <p className="text-xs text-gray-400">ML Success Probability</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </td>
 
               {/* Stats */}
