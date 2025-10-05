@@ -2,22 +2,94 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Dark mode by default - Wine Dynasty Theme */
+    --background: 13 13 15;           /* Rich dark background */
+    --foreground: 231 229 228;        /* Soft white text */
+
+    --card: 23 23 26;                 /* Slightly lighter than bg */
+    --card-foreground: 231 229 228;
+
+    --popover: 23 23 26;
+    --popover-foreground: 231 229 228;
+
+    --primary: 108 70 79;             /* Wine deep #6C464F */
+    --primary-foreground: 231 229 228;
+
+    --secondary: 158 118 143;         /* Wine rose #9E768F */
+    --secondary-foreground: 231 229 228;
+
+    --muted: 39 39 42;                /* Muted dark */
+    --muted-foreground: 161 161 170;  /* Muted text */
+
+    --accent: 159 164 196;            /* Wine periwinkle #9FA4C4 */
+    --accent-foreground: 13 13 15;
+
+    --success: 199 240 189;           /* Wine mint #C7F0BD */
+    --success-foreground: 13 13 15;
+
+    --destructive: 239 68 68;         /* Red for errors */
+    --destructive-foreground: 250 250 250;
+
+    --border: 39 39 42;
+    --input: 39 39 42;
+    --ring: 158 118 143;              /* Wine rose for focus */
+
+    --radius: 0.5rem;
+
+    /* Wine Dynasty specific colors */
+    --wine-deep: 108 70 79;           /* #6C464F */
+    --wine-rose: 158 118 143;         /* #9E768F */
+    --wine-periwinkle: 159 164 196;   /* #9FA4C4 */
+    --wine-cyan: 179 205 209;         /* #B3CDD1 */
+    --wine-mint: 199 240 189;         /* #C7F0BD */
+  }
+
+  /* Light mode override (optional) */
+  .light {
+    --background: 255 255 255;
+    --foreground: 23 23 26;
+
+    --card: 255 255 255;
+    --card-foreground: 23 23 26;
+
+    --popover: 255 255 255;
+    --popover-foreground: 23 23 26;
+
+    --primary: 108 70 79;
+    --primary-foreground: 250 250 250;
+
+    --secondary: 158 118 143;
+    --secondary-foreground: 250 250 250;
+
+    --muted: 244 244 245;
+    --muted-foreground: 113 113 122;
+
+    --accent: 159 164 196;
+    --accent-foreground: 23 23 26;
+
+    --success: 199 240 189;
+    --success-foreground: 23 23 26;
+
+    --destructive: 239 68 68;
+    --destructive-foreground: 250 250 250;
+
+    --border: 228 228 231;
+    --input: 228 228 231;
+    --ring: 158 118 143;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
 }
 
 @layer utilities {
