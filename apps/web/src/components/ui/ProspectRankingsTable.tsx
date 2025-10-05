@@ -9,7 +9,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from './tooltip';
+} from '@/components/ui/tooltip';
 
 interface ProspectRankingsTableProps {
   prospects: ProspectRanking[];
