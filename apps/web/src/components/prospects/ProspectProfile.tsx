@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SocialShare } from '@/components/ui/SocialShare';
-import { Share2, Star, TrendingUp, Users, ExternalLink } from 'lucide-react';
+import { Share2, Star, TrendingUp, Users, ExternalLink, Calendar, ArrowLeft } from 'lucide-react';
 
 interface ProspectProfileProps {
   id: string;
@@ -96,22 +96,14 @@ function MLPredictionCard({ prediction }: MLPredictionCardProps) {
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-6">
-      <h3 className="text-lg font-medium text-gray-900 mb-4">ML Prediction</h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        MLB Success Probability
+      </h3>
       <div className="space-y-4">
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-600">Success Probability</span>
-            <span
-              className={`text-2xl font-bold ${getProbabilityColor(
-                prediction.success_probability
-              )}`}
-            >
-              {Math.round(prediction.success_probability * 100)}%
-            </span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-gray-200 rounded-full h-3 mb-3">
             <div
-              className={`h-2 rounded-full ${
+              className={`h-3 rounded-full transition-all ${
                 prediction.success_probability >= 0.7
                   ? 'bg-green-500'
                   : prediction.success_probability >= 0.4
@@ -121,26 +113,30 @@ function MLPredictionCard({ prediction }: MLPredictionCardProps) {
               style={{ width: `${prediction.success_probability * 100}%` }}
             />
           </div>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-600">Confidence Level</span>
-          <span
-            className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${getConfidenceColor(
-              prediction.confidence_level
-            )}`}
-          >
-            {prediction.confidence_level}
-          </span>
+          <div className="flex items-center justify-between">
+            <span
+              className={`text-3xl font-bold ${getProbabilityColor(
+                prediction.success_probability
+              )}`}
+            >
+              {Math.round(prediction.success_probability * 100)}%
+            </span>
+            <span
+              className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${getConfidenceColor(
+                prediction.confidence_level
+              )}`}
+            >
+              {prediction.confidence_level.toUpperCase()} CONFIDENCE
+            </span>
+          </div>
         </div>
         {prediction.explanation && (
-          <div>
-            <span className="text-sm text-gray-600 block mb-2">Analysis</span>
-            <p className="text-sm text-gray-800">{prediction.explanation}</p>
+          <div className="pt-3 border-t border-gray-200">
+            <p className="text-sm text-gray-700 leading-relaxed italic">
+              &ldquo;{prediction.explanation}&rdquo;
+            </p>
           </div>
         )}
-        <div className="text-xs text-gray-500">
-          Generated on {new Date(prediction.generated_at).toLocaleDateString()}
-        </div>
       </div>
     </div>
   );
@@ -880,81 +876,76 @@ export default function ProspectProfile({ id }: ProspectProfileProps) {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Breadcrumb Navigation */}
-      <nav className="mb-6" aria-label="Breadcrumb">
-        <ol className="flex items-center space-x-2 text-sm">
-          <li>
-            <Link
-              href="/prospects"
-              className="text-gray-500 hover:text-gray-700"
-            >
-              Prospect Rankings
-            </Link>
-          </li>
-          <li>
-            <svg
-              className="h-4 w-4 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </li>
-          <li className="text-gray-900 font-medium">{prospect.name}</li>
-        </ol>
-      </nav>
+    <div className="container mx-auto px-4 py-8 bg-gray-50 min-h-screen">
+      {/* Back Navigation */}
+      <div className="mb-6 flex items-center justify-between">
+        <Link
+          href="/"
+          className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Rankings
+        </Link>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="sm">
+            <Star className="h-4 w-4 mr-2" />
+            Add to Watchlist
+          </Button>
+          <Button variant="default" size="sm" className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600">
+            <TrendingUp className="h-4 w-4 mr-2" />
+            Upgrade
+          </Button>
+        </div>
+      </div>
 
-      {/* Prospect Header */}
-      <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6">
-        <div className="flex items-start space-x-6">
-          {/* Placeholder for prospect photo */}
-          <div className="flex-shrink-0">
-            <div className="h-24 w-24 rounded-lg bg-gray-200 flex items-center justify-center">
-              <svg
-                className="h-12 w-12 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
+      {/* Prospect Header with ML Prediction - Side by Side */}
+      <div className="mb-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Prospect Header Card */}
+        <div className="rounded-lg border border-gray-200 bg-white p-6">
+          <div className="flex items-start space-x-6">
+            {/* Prospect Photo */}
+            <div className="flex-shrink-0">
+              <div className="h-32 w-32 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                <svg
+                  className="h-16 w-16 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+              </div>
             </div>
-          </div>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {prospect.name}
-            </h1>
-            <div className="flex flex-wrap items-center space-x-4 text-sm text-gray-600">
-              <span className="font-medium text-blue-600">
-                {prospect.position}
-              </span>
-              <span>•</span>
-              <span>{prospect.organization}</span>
-              <span>•</span>
-              <span>{prospect.level}</span>
-              <span>•</span>
-              <span>Age {prospect.age}</span>
-              {prospect.eta_year && (
-                <>
-                  <span>•</span>
-                  <span>ETA {prospect.eta_year}</span>
-                </>
-              )}
+            {/* Prospect Info */}
+            <div className="flex-1 min-w-0">
+              <h1 className="text-3xl font-bold text-gray-900 mb-3">
+                {prospect.name}
+              </h1>
+              <div className="space-y-2">
+                <div className="flex items-center text-sm">
+                  <span className="font-semibold text-blue-600 text-lg">
+                    {prospect.position}
+                  </span>
+                  <span className="mx-2 text-gray-400">|</span>
+                  <span className="text-gray-700">{prospect.organization}</span>
+                </div>
+                <div className="flex items-center text-sm text-gray-600">
+                  <span>Age {prospect.age}</span>
+                  <span className="mx-2">|</span>
+                  <span>ETA {prospect.eta_year || 'TBD'}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+
+        {/* ML Prediction Card */}
+        <MLPredictionCard prediction={prospect.ml_prediction} />
       </div>
 
       {/* Tabs Navigation */}

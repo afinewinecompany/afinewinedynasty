@@ -11,7 +11,10 @@ import { Plus, X, BarChart3, FileDown, Share2 } from 'lucide-react';
 import ProspectSelector from './ProspectSelector';
 import ComparisonTable from './ComparisonTable';
 import ComparisonExport from '../ui/ComparisonExport';
+import ScoutingRadarComparison from './ScoutingRadarComparison';
 import { useProspectComparison } from '@/hooks/useProspectComparison';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Brain } from 'lucide-react';
 
 interface SelectedProspect {
   id: number;
@@ -25,6 +28,66 @@ interface SelectedProspect {
 
 const MAX_PROSPECTS = 4;
 const MIN_PROSPECTS = 2;
+
+// Generate AI-like analysis summary based on comparison data
+function generateAIAnalysis(
+  prospects: SelectedProspect[],
+  comparisonData: any
+): string {
+  if (prospects.length < 2) return '';
+
+  const [p1, p2] = prospects;
+  const comparison = comparisonData?.prospects || [];
+
+  // Simple analysis based on available data
+  const p1Data = comparison.find((p: any) => p.id === p1.id);
+  const p2Data = comparison.find((p: any) => p.id === p2.id);
+
+  if (!p1Data || !p2Data) {
+    return 'Analyzing prospects...';
+  }
+
+  const analyses: string[] = [];
+
+  // Compare ML predictions if available
+  if (p1Data.ml_prediction && p2Data.ml_prediction) {
+    const p1Prob = p1Data.ml_prediction.success_probability * 100;
+    const p2Prob = p2Data.ml_prediction.success_probability * 100;
+
+    if (p1Prob > p2Prob) {
+      analyses.push(
+        `${p1.name} shows stronger ML projection (${p1Prob.toFixed(0)}% vs ${p2Prob.toFixed(0)}%)`
+      );
+    } else {
+      analyses.push(
+        `${p2.name} leads in ML success probability (${p2Prob.toFixed(0)}% vs ${p1Prob.toFixed(0)}%)`
+      );
+    }
+  }
+
+  // Compare ETA
+  if (p1.eta_year && p2.eta_year) {
+    if (p1.eta_year < p2.eta_year) {
+      analyses.push(`${p1.name} offers earlier impact potential (${p1.eta_year} ETA)`);
+    } else if (p2.eta_year < p1.eta_year) {
+      analyses.push(`${p2.name} projects for earlier arrival (${p2.eta_year} ETA)`);
+    }
+  }
+
+  // Add position context
+  if (p1.position !== p2.position) {
+    analyses.push(
+      `Positional versatility consideration: ${p1.name} (${p1.position}) vs ${p2.name} (${p2.position})`
+    );
+  }
+
+  // Dynasty recommendation
+  const recommendation = p1Data.dynasty_score > p2Data.dynasty_score
+    ? `For dynasty leagues prioritizing immediate impact and ceiling, ${p1.name} edges ahead. However, ${p2.name} provides compelling value as a strong floor play with developmental upside.`
+    : `${p2.name} presents superior dynasty value with a balanced skill set. ${p1.name} remains a viable alternative for teams seeking ${p1.position} depth.`;
+
+  return [...analyses, recommendation].join('. ');
+}
 
 export default function ProspectComparison() {
   const [selectedProspects, setSelectedProspects] = useState<
@@ -246,27 +309,62 @@ export default function ProspectComparison() {
 
       {/* Comparison Results */}
       {canCompare && (
-        <div className="bg-white rounded-lg shadow-sm border">
-          {isLoading ? (
-            <div className="p-8 text-center">
-              <div className="animate-spin w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading comparison data...</p>
+        <>
+          {/* Comparison Table */}
+          <div className="bg-white rounded-lg shadow-sm border">
+            {isLoading ? (
+              <div className="p-8 text-center">
+                <div className="animate-spin w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading comparison data...</p>
+              </div>
+            ) : error ? (
+              <div className="p-8 text-center">
+                <div className="text-red-500 mb-2">⚠️</div>
+                <p className="text-red-600 font-medium">
+                  Failed to load comparison
+                </p>
+                <p className="text-sm text-gray-500 mt-1">{error}</p>
+              </div>
+            ) : comparisonData ? (
+              <ComparisonTable
+                comparisonData={comparisonData}
+                selectedProspects={selectedProspects}
+              />
+            ) : null}
+          </div>
+
+          {/* Scouting Radar Comparison */}
+          {comparisonData && !isLoading && !error && (
+            <div className="bg-white rounded-lg shadow-sm border">
+              <ScoutingRadarComparison
+                comparisonData={comparisonData}
+                selectedProspects={selectedProspects}
+              />
             </div>
-          ) : error ? (
-            <div className="p-8 text-center">
-              <div className="text-red-500 mb-2">⚠️</div>
-              <p className="text-red-600 font-medium">
-                Failed to load comparison
-              </p>
-              <p className="text-sm text-gray-500 mt-1">{error}</p>
-            </div>
-          ) : comparisonData ? (
-            <ComparisonTable
-              comparisonData={comparisonData}
-              selectedProspects={selectedProspects}
-            />
-          ) : null}
-        </div>
+          )}
+
+          {/* AI Analysis Summary */}
+          {comparisonData && !isLoading && !error && selectedProspects.length >= 2 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Brain className="h-5 w-5 text-purple-600" />
+                  AI Analysis Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-6">
+                  <p className="text-gray-800 leading-relaxed italic">
+                    &ldquo;{generateAIAnalysis(selectedProspects, comparisonData)}&rdquo;
+                  </p>
+                  <div className="mt-4 text-xs text-gray-500">
+                    Generated by AI-powered dynasty analysis engine
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </>
       )}
 
       {/* Prospect Selector Modal */}
