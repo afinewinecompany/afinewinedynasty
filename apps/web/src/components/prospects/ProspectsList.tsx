@@ -8,7 +8,7 @@ import { ProspectListParams } from '@/types/prospect';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import SearchBar from '@/components/ui/SearchBar';
-import FilterPanel from '@/components/ui/FilterPanel';
+import ProspectsFilterPanel from './ProspectsFilterPanel';
 import Pagination from '@/components/ui/Pagination';
 import ProspectCard from '@/components/ui/ProspectCard';
 
@@ -130,7 +130,7 @@ export default function ProspectsList() {
     if (sortConfig.key !== key) {
       return (
         <svg
-          className="ml-1 h-4 w-4 text-gray-400"
+          className="ml-1 h-4 w-4 text-muted-foreground"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -147,7 +147,7 @@ export default function ProspectsList() {
 
     return sortConfig.direction === 'asc' ? (
       <svg
-        className="ml-1 h-4 w-4 text-blue-600"
+        className="ml-1 h-4 w-4 text-wine-periwinkle"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -161,7 +161,7 @@ export default function ProspectsList() {
       </svg>
     ) : (
       <svg
-        className="ml-1 h-4 w-4 text-blue-600"
+        className="ml-1 h-4 w-4 text-wine-periwinkle"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -191,10 +191,10 @@ export default function ProspectsList() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="font-display text-4xl font-bold bg-gradient-to-r from-wine-rose via-wine-periwinkle to-wine-cyan bg-clip-text text-transparent mb-3">
           Prospect Rankings
         </h1>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground text-lg">
           Top 100 MLB prospects with detailed stats and analysis
         </p>
       </div>
@@ -203,7 +203,7 @@ export default function ProspectsList() {
         {/* Desktop Filter Panel */}
         {!isMobile && (
           <div className="w-full lg:w-64 flex-shrink-0">
-            <FilterPanel
+            <ProspectsFilterPanel
               selectedPosition={params.position || ''}
               selectedOrganization={params.organization || ''}
               onPositionChange={handlePositionChange}
@@ -226,7 +226,7 @@ export default function ProspectsList() {
             </div>
             {isMobile && (
               <div className="flex-shrink-0">
-                <FilterPanel
+                <ProspectsFilterPanel
                   selectedPosition={params.position || ''}
                   selectedOrganization={params.organization || ''}
                   onPositionChange={handlePositionChange}
@@ -248,7 +248,7 @@ export default function ProspectsList() {
           {/* Results */}
           {!loading && data && (
             <>
-              <div className="mb-4 text-sm text-gray-500">
+              <div className="mb-4 text-sm text-muted-foreground">
                 Showing {data.prospects.length} of {data.total} prospects
               </div>
 
@@ -265,16 +265,16 @@ export default function ProspectsList() {
                 </div>
               ) : (
                 /* Desktop Table View */
-                <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+                <div className="overflow-hidden rounded-lg border border-border bg-card shadow-lg">
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
+                    <table className="min-w-full divide-y divide-border">
+                      <thead className="bg-muted/50">
                         <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                             Rank
                           </th>
                           <th
-                            className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100"
+                            className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground hover:bg-muted transition-colors"
                             onClick={() => handleSortChange('name')}
                           >
                             <div className="flex items-center">
@@ -282,11 +282,11 @@ export default function ProspectsList() {
                               {getSortIcon('name')}
                             </div>
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                             Position
                           </th>
                           <th
-                            className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100"
+                            className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground hover:bg-muted transition-colors"
                             onClick={() => handleSortChange('organization')}
                           >
                             <div className="flex items-center">
@@ -295,7 +295,7 @@ export default function ProspectsList() {
                             </div>
                           </th>
                           <th
-                            className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100"
+                            className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground hover:bg-muted transition-colors"
                             onClick={() => handleSortChange('level')}
                           >
                             <div className="flex items-center">
@@ -304,7 +304,7 @@ export default function ProspectsList() {
                             </div>
                           </th>
                           <th
-                            className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100"
+                            className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground hover:bg-muted transition-colors"
                             onClick={() => handleSortChange('age')}
                           >
                             <div className="flex items-center">
@@ -312,38 +312,38 @@ export default function ProspectsList() {
                               {getSortIcon('age')}
                             </div>
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                          <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                             ETA
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-200 bg-white">
+                      <tbody className="divide-y divide-border bg-card">
                         {data.prospects.map((prospect, index) => (
-                          <tr key={prospect.id} className="hover:bg-gray-50">
-                            <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
+                          <tr key={prospect.id} className="hover:bg-accent/10 transition-colors">
+                            <td className="whitespace-nowrap px-6 py-4 text-sm text-foreground font-medium">
                               #{(data.page - 1) * data.limit + index + 1}
                             </td>
-                            <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                            <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-foreground">
                               <Link
                                 href={`/prospects/${prospect.id}`}
-                                className="text-blue-600 hover:text-blue-800 hover:underline"
+                                className="text-wine-periwinkle hover:text-wine-cyan hover:underline transition-colors"
                               >
                                 {prospect.name}
                               </Link>
                             </td>
-                            <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                            <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
                               {prospect.position}
                             </td>
-                            <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                            <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
                               {prospect.organization}
                             </td>
-                            <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                            <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
                               {prospect.level}
                             </td>
-                            <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                            <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
                               {prospect.age}
                             </td>
-                            <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                            <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
                               {prospect.eta_year || '-'}
                             </td>
                           </tr>
@@ -372,7 +372,7 @@ export default function ProspectsList() {
           {!loading && data && data.prospects.length === 0 && (
             <div className="text-center py-12">
               <svg
-                className="mx-auto h-12 w-12 text-gray-400"
+                className="mx-auto h-12 w-12 text-muted-foreground"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -384,10 +384,10 @@ export default function ProspectsList() {
                   d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                 />
               </svg>
-              <h3 className="mt-2 text-sm font-medium text-gray-900">
+              <h3 className="mt-2 text-sm font-medium text-foreground">
                 No prospects found
               </h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-muted-foreground">
                 Try adjusting your search or filter criteria.
               </p>
             </div>
