@@ -11,9 +11,9 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_, desc
 
 from ..core.cache_manager import CacheManager
-from ..models.prospect import Prospect
-from ..models.prospect_stats import ProspectStats
-from ..models.scouting_grades import ScoutingGrades
+from app.models.prospect import ProspectInDB
+from ..models.prospect_stats import ProspectStatsInDB
+from ..models.scouting_grades import ScoutingGradesInDB
 
 logger = logging.getLogger(__name__)
 
@@ -75,23 +75,23 @@ class ProspectFeatureExtractor:
         """Extract raw prospect data from database."""
 
         # Get basic prospect information
-        prospect = db.query(Prospect).filter(Prospect.id == prospect_id).first()
+        prospect = db.query(ProspectInDB).filter(ProspectInDB.id == prospect_id).first()
         if not prospect:
             return None
 
         # Get recent performance statistics (last 2 years)
         cutoff_date = datetime.utcnow() - timedelta(days=730)
-        recent_stats = db.query(ProspectStats).filter(
+        recent_stats = db.query(ProspectStatsInDB).filter(
             and_(
-                ProspectStats.prospect_id == prospect_id,
-                ProspectStats.date >= cutoff_date
+                ProspectStatsInDB.prospect_id == prospect_id,
+                ProspectStatsInDB.date >= cutoff_date
             )
-        ).order_by(desc(ProspectStats.date)).all()
+        ).order_by(desc(ProspectStatsInDB.date)).all()
 
         # Get latest scouting grades
-        latest_grades = db.query(ScoutingGrades).filter(
-            ScoutingGrades.prospect_id == prospect_id
-        ).order_by(desc(ScoutingGrades.updated_at)).first()
+        latest_grades = db.query(ScoutingGradesInDB).filter(
+            ScoutingGradesInDB.prospect_id == prospect_id
+        ).order_by(desc(ScoutingGradesInDB.updated_at)).first()
 
         # Organize raw features
         raw_features = {

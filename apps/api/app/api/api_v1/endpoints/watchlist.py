@@ -9,7 +9,7 @@ API endpoints for watchlist management
 from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
-from app.db.database import get_async_db
+from app.db.database import get_db
 from app.api.deps import get_current_user
 from app.models.user import UserLogin
 from app.services.watchlist_service import WatchlistService
@@ -30,7 +30,7 @@ router = APIRouter()
 async def add_to_watchlist(
     request: WatchlistAddRequest,
     current_user: UserLogin = Depends(get_current_user),
-    db: AsyncSession = Depends(get_async_db)
+    db: AsyncSession = Depends(get_db)
 ):
     """
     Add prospect to watchlist
@@ -64,7 +64,7 @@ async def add_to_watchlist(
 @router.get("/", response_model=List[WatchlistEntry])
 async def get_watchlist(
     current_user: UserLogin = Depends(get_current_user),
-    db: AsyncSession = Depends(get_async_db)
+    db: AsyncSession = Depends(get_db)
 ):
     """
     Get user's watchlist
@@ -90,7 +90,7 @@ async def get_watchlist(
 async def remove_from_watchlist(
     prospect_id: int,
     current_user: UserLogin = Depends(get_current_user),
-    db: AsyncSession = Depends(get_async_db)
+    db: AsyncSession = Depends(get_db)
 ):
     """
     Remove prospect from watchlist
@@ -123,7 +123,7 @@ async def update_watchlist_notes(
     prospect_id: int,
     request: WatchlistUpdateNotesRequest,
     current_user: UserLogin = Depends(get_current_user),
-    db: AsyncSession = Depends(get_async_db)
+    db: AsyncSession = Depends(get_db)
 ):
     """
     Update watchlist entry notes
@@ -158,7 +158,7 @@ async def toggle_notifications(
     prospect_id: int,
     request: WatchlistToggleNotificationsRequest,
     current_user: UserLogin = Depends(get_current_user),
-    db: AsyncSession = Depends(get_async_db)
+    db: AsyncSession = Depends(get_db)
 ):
     """
     Toggle change notifications

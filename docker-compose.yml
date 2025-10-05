@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # PostgreSQL Database with TimescaleDB
@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: afinewinedynasty
-      TIMESCALEDB_TELEMETRY: 'off'
+      TIMESCALEDB_TELEMETRY: "off"
     ports:
       - "5432:5432"
     volumes:
@@ -54,7 +54,7 @@ services:
       POSTGRES_PORT: "5432"
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      BACKEND_CORS_ORIGINS: "http://localhost:3000,http://web:3000"
+      BACKEND_CORS_ORIGINS: '["http://localhost:3000", "http://web:3000"]'
     ports:
       - "8000:8000"
     depends_on:
@@ -72,7 +72,7 @@ services:
   web:
     build:
       context: ./apps/web
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: afwd_web
     environment:
       NEXT_PUBLIC_API_URL: "http://localhost:8000"
@@ -97,7 +97,7 @@ services:
       - ./apps/ml-pipeline:/app
     networks:
       - afwd_network
-    command: ["sleep", "infinity"]  # Placeholder - will be replaced with actual ML service
+    command: ["sleep", "infinity"] # Placeholder - will be replaced with actual ML service
 
 networks:
   afwd_network:

@@ -149,7 +149,7 @@ class PasswordResetConfirmRequest(BaseModel):
         429: {"description": "Too many login attempts"}
     }
 )
-@limiter.limit(f"{settings.AUTH_RATE_LIMIT_ATTEMPTS}/{settings.AUTH_RATE_LIMIT_WINDOW // 60}minute")
+# @limiter.limit(f"{settings.AUTH_RATE_LIMIT_ATTEMPTS}/{settings.AUTH_RATE_LIMIT_WINDOW // 60}minute")
 async def login(request: Request, login_request: LoginRequest, db: AsyncSession = Depends(get_db)) -> LoginResponse:
     """
     Authenticate user and return JWT access tokens.
@@ -190,7 +190,7 @@ async def login(request: Request, login_request: LoginRequest, db: AsyncSession 
 
 
 @router.post("/register", response_model=RegisterResponse)
-@limiter.limit(f"{settings.SENSITIVE_RATE_LIMIT_ATTEMPTS}/{settings.SENSITIVE_RATE_LIMIT_WINDOW // 3600}hour")
+# @limiter.limit(f"{settings.SENSITIVE_RATE_LIMIT_ATTEMPTS}/{settings.SENSITIVE_RATE_LIMIT_WINDOW // 3600}hour")
 async def register(request: Request, register_request: RegisterRequest, db: AsyncSession = Depends(get_db)) -> RegisterResponse:
     """Register a new user"""
     try:
@@ -218,7 +218,7 @@ async def register(request: Request, register_request: RegisterRequest, db: Asyn
 
 
 @router.post("/refresh", response_model=RefreshTokenResponse)
-@limiter.limit(f"{settings.AUTH_RATE_LIMIT_ATTEMPTS}/{settings.AUTH_RATE_LIMIT_WINDOW // 60}minute")
+# @limiter.limit(f"{settings.AUTH_RATE_LIMIT_ATTEMPTS}/{settings.AUTH_RATE_LIMIT_WINDOW // 60}minute")
 async def refresh_access_token(request: Request, refresh_request: RefreshTokenRequest, db: AsyncSession = Depends(get_db)) -> RefreshTokenResponse:
     """Refresh access token using refresh token"""
     # Verify refresh token
@@ -280,7 +280,7 @@ async def logout(current_user: UserLogin = Depends(get_current_user), db: AsyncS
 
 
 @router.post("/password-reset")
-@limiter.limit(f"{settings.SENSITIVE_RATE_LIMIT_ATTEMPTS}/{settings.SENSITIVE_RATE_LIMIT_WINDOW // 3600}hour")
+# @limiter.limit(f"{settings.SENSITIVE_RATE_LIMIT_ATTEMPTS}/{settings.SENSITIVE_RATE_LIMIT_WINDOW // 3600}hour")
 async def request_password_reset(request: Request, reset_request: PasswordResetRequest, db: AsyncSession = Depends(get_db)):
     """Request a password reset"""
     try:
@@ -300,7 +300,7 @@ async def request_password_reset(request: Request, reset_request: PasswordResetR
 
 
 @router.put("/password-reset")
-@limiter.limit(f"{settings.SENSITIVE_RATE_LIMIT_ATTEMPTS}/{settings.SENSITIVE_RATE_LIMIT_WINDOW // 3600}hour")
+# @limiter.limit(f"{settings.SENSITIVE_RATE_LIMIT_ATTEMPTS}/{settings.SENSITIVE_RATE_LIMIT_WINDOW // 3600}hour")
 async def confirm_password_reset(request: Request, reset_confirm: PasswordResetConfirmRequest, db: AsyncSession = Depends(get_db)):
     """Complete password reset with token"""
     try:
@@ -332,7 +332,7 @@ async def confirm_password_reset(request: Request, reset_confirm: PasswordResetC
 
 
 @router.post("/google/login", response_model=GoogleOAuthResponse)
-@limiter.limit(f"{settings.AUTH_RATE_LIMIT_ATTEMPTS}/{settings.AUTH_RATE_LIMIT_WINDOW // 60}minute")
+# @limiter.limit(f"{settings.AUTH_RATE_LIMIT_ATTEMPTS}/{settings.AUTH_RATE_LIMIT_WINDOW // 60}minute")
 async def google_oauth_login(request: Request, oauth_request: GoogleOAuthRequest, db: AsyncSession = Depends(get_db)) -> GoogleOAuthResponse:
     """Authenticate user with Google OAuth"""
     try:
@@ -383,7 +383,7 @@ async def google_oauth_login(request: Request, oauth_request: GoogleOAuthRequest
 
 
 @router.post("/google/link")
-@limiter.limit(f"{settings.SENSITIVE_RATE_LIMIT_ATTEMPTS}/{settings.SENSITIVE_RATE_LIMIT_WINDOW // 3600}hour")
+# @limiter.limit(f"{settings.SENSITIVE_RATE_LIMIT_ATTEMPTS}/{settings.SENSITIVE_RATE_LIMIT_WINDOW // 3600}hour")
 async def link_google_account(request: Request, link_request: AccountLinkRequest, db: AsyncSession = Depends(get_db)):
     """Link Google account to existing email/password account"""
     try:

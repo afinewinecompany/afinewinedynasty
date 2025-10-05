@@ -13,7 +13,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.core.rate_limiter import limiter
 from app.db.database import get_db
-from app.api.deps import get_current_user, require_premium_tier
+from app.api.deps import get_current_user
+from app.core.security import require_premium_tier
 from app.models.user import User as UserModel
 from app.services.fantrax_oauth_service import FantraxOAuthService
 from app.services.fantrax_api_service import FantraxAPIService
@@ -186,7 +187,7 @@ class ProspectRecommendation(BaseModel):
 # === OAuth Flow Endpoints ===
 
 @router.get("/auth", response_model=FantraxAuthResponse)
-@limiter.limit("10/minute")
+# @limiter.limit("10/minute")
 async def get_fantrax_auth_url(
     request: Request,
     current_user: UserModel = Depends(get_current_user)
@@ -217,7 +218,7 @@ async def get_fantrax_auth_url(
 
 
 @router.post("/callback", response_model=FantraxCallbackResponse)
-@limiter.limit("5/minute")
+# @limiter.limit("5/minute")
 async def handle_fantrax_callback(
     request: Request,
     callback: FantraxCallbackRequest,
@@ -281,7 +282,7 @@ async def handle_fantrax_callback(
 
 
 @router.post("/disconnect")
-@limiter.limit("5/minute")
+# @limiter.limit("5/minute")
 async def disconnect_fantrax(
     request: Request,
     current_user: UserModel = Depends(get_current_user),
@@ -309,8 +310,8 @@ async def disconnect_fantrax(
 # === Data Sync Endpoints ===
 
 @router.get("/leagues", response_model=List[FantraxLeague])
-@limiter.limit("20/minute")
-@require_premium_tier
+# @limiter.limit("20/minute")
+# @require_premium_tier
 async def get_user_leagues(
     request: Request,
     current_user: UserModel = Depends(get_current_user),
@@ -327,6 +328,9 @@ async def get_user_leagues(
 
     @since 1.0.0
     """
+    # Premium tier check
+    require_premium_tier(current_user)
+
     # Validate Fantrax connection
     if not await FantraxOAuthService.validate_connection(db, current_user.id):
         raise HTTPException(
@@ -354,8 +358,8 @@ async def get_user_leagues(
 
 
 @router.post("/roster/sync", response_model=RosterSyncResponse)
-@limiter.limit("10/minute")
-@require_premium_tier
+# @limiter.limit("10/minute")
+# @require_premium_tier
 async def sync_roster(
     request: Request,
     sync_request: RosterSyncRequest,
@@ -373,6 +377,9 @@ async def sync_roster(
 
     @since 1.0.0
     """
+    # Premium tier check
+    require_premium_tier(current_user)
+
     # Validate Fantrax connection
     if not await FantraxOAuthService.validate_connection(db, current_user.id):
         raise HTTPException(
@@ -402,8 +409,8 @@ async def sync_roster(
 
 
 @router.get("/roster/{league_id}")
-@limiter.limit("30/minute")
-@require_premium_tier
+# @limiter.limit("30/minute")
+# @require_premium_tier
 async def get_roster(
     league_id: str,
     request: Request,
@@ -421,6 +428,9 @@ async def get_roster(
 
     @since 1.0.0
     """
+    # Premium tier check
+    require_premium_tier(current_user)
+    
     # Validate Fantrax connection
     if not await FantraxOAuthService.validate_connection(db, current_user.id):
         raise HTTPException(
@@ -444,8 +454,8 @@ async def get_roster(
 # === Analysis & Recommendations Endpoints ===
 
 @router.get("/analysis/{league_id}", response_model=TeamAnalysis)
-@limiter.limit("20/minute")
-@require_premium_tier
+# @limiter.limit("20/minute")
+# @require_premium_tier
 async def get_team_analysis(
     league_id: str,
     request: Request,
@@ -464,6 +474,9 @@ async def get_team_analysis(
 
     @since 1.0.0
     """
+    # Premium tier check
+    require_premium_tier(current_user)
+
     # Validate Fantrax connection
     if not await FantraxOAuthService.validate_connection(db, current_user.id):
         raise HTTPException(
@@ -487,8 +500,8 @@ async def get_team_analysis(
 
 
 @router.get("/recommendations/{league_id}", response_model=List[ProspectRecommendation])
-@limiter.limit("20/minute")
-@require_premium_tier
+# @limiter.limit("20/minute")
+# @require_premium_tier
 async def get_personalized_recommendations(
     league_id: str,
     request: Request,
@@ -507,6 +520,9 @@ async def get_personalized_recommendations(
 
     @since 1.0.0
     """
+    # Premium tier check
+    require_premium_tier(current_user)
+
     # Validate Fantrax connection
     if not await FantraxOAuthService.validate_connection(db, current_user.id):
         raise HTTPException(
@@ -537,8 +553,8 @@ async def get_personalized_recommendations(
 
 
 @router.post("/trade-analysis")
-@limiter.limit("10/minute")
-@require_premium_tier
+# @limiter.limit("10/minute")
+# @require_premium_tier
 async def analyze_trade(
     request: Request,
     trade_data: Dict[str, Any],
@@ -556,6 +572,9 @@ async def analyze_trade(
 
     @since 1.0.0
     """
+    # Premium tier check
+    require_premium_tier(current_user)
+    
     # Validate Fantrax connection
     if not await FantraxOAuthService.validate_connection(db, current_user.id):
         raise HTTPException(

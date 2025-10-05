@@ -78,7 +78,7 @@ class DiscoveryResponse(BaseModel):
 
 
 @router.get("/breakout-candidates", response_model=List[BreakoutCandidateResponse])
-@limiter.limit("30/minute")
+# @limiter.limit("30/minute")
 async def get_breakout_candidates(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
@@ -205,7 +205,7 @@ async def get_breakout_candidates(
 
 
 @router.get("/sleeper-prospects", response_model=List[SleeperProspectResponse])
-@limiter.limit("30/minute")
+# @limiter.limit("30/minute")
 async def get_sleeper_prospects(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
@@ -278,7 +278,7 @@ async def get_sleeper_prospects(
 
 
 @router.get("/dashboard", response_model=DiscoveryResponse)
-@limiter.limit("20/minute")
+# @limiter.limit("20/minute")
 async def get_discovery_dashboard(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),

@@ -12,14 +12,14 @@ import logging
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_
 
-from app.services.base_service import BaseService
+# from app.services.base_service import BaseService
 from app.db.models import UserPushSubscription, User
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
 
-class NotificationService(BaseService):
+class NotificationService:
     """
     Service for managing push notifications and subscriptions
 

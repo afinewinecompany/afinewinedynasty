@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
 
 from app.api import deps
-from app.db.session import get_db
+from app.db.database import get_db
 from app.db.models import User, UserRecommendationPreference, RecommendationHistory, FantraxLeague
 from app.schemas.recommendations import (
     TeamNeedsResponse,
@@ -32,7 +32,7 @@ router = APIRouter()
 
 
 @router.get("/team-needs/{league_id}", response_model=TeamNeedsResponse)
-@limiter.limit("60/hour")
+# @limiter.limit("60/hour")
 async def get_team_needs(
     request: Request,
     league_id: str,
@@ -68,12 +68,12 @@ async def get_team_needs(
 
 
 @router.get("/prospects/{league_id}", response_model=ProspectRecommendationResponse)
-@limiter.limit("60/hour")
+# @limiter.limit("60/hour")
 async def get_prospect_recommendations(
     request: Request,
     league_id: str,
     limit: int = Query(20, ge=1, le=50, description="Number of recommendations"),
-    risk_tolerance: Optional[str] = Query(None, regex="^(conservative|balanced|aggressive)$"),
+    risk_tolerance: Optional[str] = Query(None, pattern="^(conservative|balanced|aggressive)$"),
     current_user: User = Depends(deps.get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> ProspectRecommendationResponse:
@@ -129,7 +129,7 @@ async def get_prospect_recommendations(
 
 
 @router.get("/trade-targets/{league_id}", response_model=TradeTargetsResponse)
-@limiter.limit("60/hour")
+# @limiter.limit("60/hour")
 async def get_trade_targets(
     request: Request,
     league_id: str,
@@ -201,7 +201,7 @@ async def get_trade_targets(
 
 
 @router.get("/draft-strategy/{league_id}", response_model=DraftStrategyResponse)
-@limiter.limit("60/hour")
+# @limiter.limit("60/hour")
 async def get_draft_strategy(
     request: Request,
     league_id: str,
@@ -273,7 +273,7 @@ async def get_draft_strategy(
 
 
 @router.get("/stash-candidates/{league_id}", response_model=StashCandidatesResponse)
-@limiter.limit("60/hour")
+# @limiter.limit("60/hour")
 async def get_stash_candidates(
     request: Request,
     league_id: str,
@@ -341,7 +341,7 @@ async def get_stash_candidates(
 
 
 @router.get("/preferences", response_model=UserPreferencesResponse)
-@limiter.limit("100/hour")
+# @limiter.limit("100/hour")
 async def get_user_preferences(
     request: Request,
     current_user: User = Depends(deps.get_current_user),
@@ -386,7 +386,7 @@ async def get_user_preferences(
 
 
 @router.put("/preferences", response_model=UserPreferencesResponse)
-@limiter.limit("100/hour")
+# @limiter.limit("100/hour")
 async def update_user_preferences(
     request: Request,
     preferences: UserPreferencesUpdate,

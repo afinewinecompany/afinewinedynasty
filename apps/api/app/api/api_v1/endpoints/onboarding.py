@@ -12,7 +12,7 @@ including step progression, completion, skip, and reset functionality.
 
 from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.db.database import get_async_db
+from app.db.database import get_db
 from app.api.deps import get_current_user
 from app.models.user import UserLogin
 from app.services.onboarding_service import OnboardingService
@@ -32,7 +32,7 @@ router = APIRouter()
 @router.post("/start", response_model=OnboardingStatus, status_code=status.HTTP_200_OK)
 async def start_onboarding(
     current_user: UserLogin = Depends(get_current_user),
-    db: AsyncSession = Depends(get_async_db)
+    db: AsyncSession = Depends(get_db)
 ) -> OnboardingStatus:
     """
     Start onboarding flow for current user
@@ -76,7 +76,7 @@ async def start_onboarding(
 @router.get("/status", response_model=OnboardingStatus, status_code=status.HTTP_200_OK)
 async def get_onboarding_status(
     current_user: UserLogin = Depends(get_current_user),
-    db: AsyncSession = Depends(get_async_db)
+    db: AsyncSession = Depends(get_db)
 ) -> OnboardingStatus:
     """
     Get current onboarding status for authenticated user
@@ -125,7 +125,7 @@ async def get_onboarding_status(
 async def progress_onboarding(
     request: OnboardingProgressRequest,
     current_user: UserLogin = Depends(get_current_user),
-    db: AsyncSession = Depends(get_async_db)
+    db: AsyncSession = Depends(get_db)
 ) -> OnboardingStatus:
     """
     Progress user to specified onboarding step
@@ -180,7 +180,7 @@ async def progress_onboarding(
 @router.post("/complete", response_model=OnboardingCompletionResponse, status_code=status.HTTP_200_OK)
 async def complete_onboarding(
     current_user: UserLogin = Depends(get_current_user),
-    db: AsyncSession = Depends(get_async_db)
+    db: AsyncSession = Depends(get_db)
 ) -> OnboardingCompletionResponse:
     """
     Mark onboarding as completed for authenticated user
@@ -224,7 +224,7 @@ async def complete_onboarding(
 @router.post("/skip", response_model=OnboardingCompletionResponse, status_code=status.HTTP_200_OK)
 async def skip_onboarding(
     current_user: UserLogin = Depends(get_current_user),
-    db: AsyncSession = Depends(get_async_db)
+    db: AsyncSession = Depends(get_db)
 ) -> OnboardingCompletionResponse:
     """
     Skip onboarding flow for authenticated user
@@ -268,7 +268,7 @@ async def skip_onboarding(
 @router.post("/reset", response_model=OnboardingResetResponse, status_code=status.HTTP_200_OK)
 async def reset_onboarding(
     current_user: UserLogin = Depends(get_current_user),
-    db: AsyncSession = Depends(get_async_db)
+    db: AsyncSession = Depends(get_db)
 ) -> OnboardingResetResponse:
     """
     Reset onboarding progress for authenticated user

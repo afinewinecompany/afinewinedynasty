@@ -2,7 +2,7 @@
 
 from typing import Optional
 from datetime import datetime
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class ProspectStatsBase(BaseModel):
@@ -31,7 +31,8 @@ class ProspectStatsBase(BaseModel):
     woba: Optional[float] = Field(None, ge=0, le=1)
     wrc_plus: Optional[float] = Field(None, ge=0, le=500)
 
-    @validator('batting_avg', 'on_base_pct', 'slugging_pct', 'woba')
+    @field_validator('batting_avg', 'on_base_pct', 'slugging_pct', 'woba')
+    @classmethod
     def validate_percentages(cls, v, field):
         """Ensure percentage stats are in proper decimal format."""
         if v is not None:
@@ -42,7 +43,8 @@ class ProspectStatsBase(BaseModel):
                 return v / 1000
         return v
 
-    @validator('hits')
+    @field_validator('hits')
+    @classmethod
     def validate_hits(cls, v, values):
         """Hits cannot exceed at bats."""
         if v is not None and 'at_bats' in values:
@@ -51,7 +53,8 @@ class ProspectStatsBase(BaseModel):
                 raise ValueError('Hits cannot exceed at bats')
         return v
 
-    @validator('era', 'whip')
+    @field_validator('era', 'whip')
+    @classmethod
     def validate_pitching_rates(cls, v):
         """Validate pitching rate stats are reasonable."""
         if v is not None:

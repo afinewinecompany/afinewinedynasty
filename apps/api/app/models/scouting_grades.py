@@ -2,7 +2,7 @@
 
 from typing import Optional
 from datetime import datetime
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class ScoutingGradesBase(BaseModel):
@@ -18,7 +18,8 @@ class ScoutingGradesBase(BaseModel):
     arm_grade: Optional[float] = Field(None, ge=20, le=80)
     date_recorded: datetime = Field(..., description="When grades were recorded")
 
-    @validator('source')
+    @field_validator('source')
+    @classmethod
     def validate_source(cls, v):
         """Validate and standardize scouting source."""
         source_map = {
@@ -31,7 +32,8 @@ class ScoutingGradesBase(BaseModel):
         }
         return source_map.get(v.lower(), v)
 
-    @validator('overall_grade', 'hit_grade', 'power_grade', 'speed_grade', 'field_grade', 'arm_grade')
+    @field_validator('overall_grade', 'hit_grade', 'power_grade', 'speed_grade', 'field_grade', 'arm_grade')
+    @classmethod
     def validate_grade_scale(cls, v):
         """Ensure grades are on 20-80 scale."""
         if v is not None:

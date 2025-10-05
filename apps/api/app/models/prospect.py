@@ -2,7 +2,7 @@
 
 from typing import Optional
 from datetime import datetime
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class ProspectBase(BaseModel):
@@ -16,7 +16,8 @@ class ProspectBase(BaseModel):
     age: Optional[int] = Field(None, ge=16, le=50)
     eta_year: Optional[int] = Field(None, ge=2024, le=2030)
 
-    @validator('position')
+    @field_validator('position')
+    @classmethod
     def validate_position(cls, v):
         """Validate position is a valid baseball position."""
         valid_positions = [
@@ -28,7 +29,8 @@ class ProspectBase(BaseModel):
             pass
         return v
 
-    @validator('level')
+    @field_validator('level')
+    @classmethod
     def validate_level(cls, v):
         """Validate minor league level."""
         valid_levels = [

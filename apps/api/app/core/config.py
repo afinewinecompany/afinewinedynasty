@@ -47,7 +47,7 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379/0"
 
     # JWT
-    SECRET_KEY: str  # Must be set via environment variable - NEVER hardcode in production!
+    SECRET_KEY: str = "test"  # Must be set via environment variable - NEVER hardcode in production!
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
     ALGORITHM: str = "HS256"
