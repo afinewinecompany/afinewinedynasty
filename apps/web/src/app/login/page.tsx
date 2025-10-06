@@ -56,7 +56,7 @@ export default function LoginPage() {
             </span>
           </Link>
           <h1 className="text-2xl font-bold text-foreground mt-4">
-            Welcome Back
+            Sign In
           </h1>
           <p className="text-muted-foreground mt-2">
             Sign in to access your fantasy baseball dynasty
