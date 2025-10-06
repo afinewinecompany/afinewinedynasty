@@ -33,6 +33,14 @@ export function getGoogleAuthUrl(): string {
     sessionStorage.setItem('oauth_state', state);
   }
 
+  // Debug: Log client ID status
+  if (!GOOGLE_CLIENT_ID) {
+    console.error('❌ NEXT_PUBLIC_GOOGLE_CLIENT_ID is not set! Check your .env.local file and restart your dev server.');
+    throw new Error('Google OAuth is not configured. Please set NEXT_PUBLIC_GOOGLE_CLIENT_ID in your .env.local file and restart the dev server.');
+  }
+
+  console.log('✅ Google Client ID configured:', GOOGLE_CLIENT_ID.substring(0, 15) + '...');
+
   const params = new URLSearchParams({
     client_id: GOOGLE_CLIENT_ID,
     redirect_uri: redirectUri,
