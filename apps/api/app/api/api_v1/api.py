@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.api_v1.endpoints import health, auth, prospects, users, admin, ml_predictions, monitoring, search, discovery, notifications, subscriptions, webhooks, fantrax, recommendations, onboarding, watchlist, email_preferences, achievements, referrals, feedback, analytics
+from app.api.api_v1.endpoints import health, auth, prospects, users, admin, ml_predictions, monitoring, search, discovery, notifications, subscriptions, webhooks, fantrax, recommendations, onboarding, watchlist, email_preferences, achievements, referrals, feedback, analytics, prospect_predictions
 
 api_router = APIRouter()
 api_router.include_router(health.router, prefix="/health", tags=["health"])
@@ -14,6 +14,7 @@ api_router.include_router(referrals.router, prefix="/referrals", tags=["referral
 api_router.include_router(feedback.router, prefix="/feedback", tags=["feedback"])
 api_router.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
 api_router.include_router(prospects.router, prefix="/prospects", tags=["prospects"])
+api_router.include_router(prospect_predictions.router, prefix="/prospect-predictions", tags=["prospect-predictions"])
 api_router.include_router(search.router, prefix="/search", tags=["search"])
 api_router.include_router(discovery.router, prefix="/discovery", tags=["discovery"])
 api_router.include_router(ml_predictions.router, prefix="/ml", tags=["ml-predictions"])
