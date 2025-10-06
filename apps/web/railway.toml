@@ -1,5 +1,6 @@
 [build]
 builder = "DOCKERFILE"
+buildCommand = "docker build --build-arg NEXT_PUBLIC_GOOGLE_CLIENT_ID=${NEXT_PUBLIC_GOOGLE_CLIENT_ID} --build-arg NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} -t web ."
 
 [deploy]
 healthcheckPath = "/"
