@@ -1,6 +1,6 @@
 from datetime import datetime, date
 from typing import Optional
-from sqlalchemy import Boolean, DateTime, String, Integer, Text, ForeignKey, CheckConstraint, Float, Date, Index
+from sqlalchemy import Boolean, DateTime, String, Integer, Text, ForeignKey, CheckConstraint, Float, Date, Index, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import JSONB
 from app.db.database import Base
@@ -54,6 +54,8 @@ class User(Base):
     subscription: Mapped[Optional["Subscription"]] = relationship("Subscription", back_populates="user", uselist=False)
     payment_methods: Mapped[list["PaymentMethod"]] = relationship("PaymentMethod", back_populates="user", cascade="all, delete-orphan")
     invoices: Mapped[list["Invoice"]] = relationship("Invoice", back_populates="user", cascade="all, delete-orphan")
+    # Lineup relationships
+    lineups: Mapped[list["UserLineup"]] = relationship("UserLineup", back_populates="user", cascade="all, delete-orphan")
 
     __table_args__ = (
         CheckConstraint(
@@ -97,6 +99,7 @@ class Prospect(Base):
     # Relationships
     stats: Mapped[list["ProspectStats"]] = relationship("ProspectStats", back_populates="prospect", cascade="all, delete-orphan")
     scouting_grades: Mapped[list["ScoutingGrades"]] = relationship("ScoutingGrades", back_populates="prospect", cascade="all, delete-orphan")
+    lineup_entries: Mapped[list["LineupProspect"]] = relationship("LineupProspect", back_populates="prospect", cascade="all, delete-orphan")
 
     __table_args__ = (
         CheckConstraint(
@@ -238,6 +241,53 @@ class MLPrediction(Base):
             "prediction_type IN ('career_war', 'debut_probability', 'success_rating')",
             name='valid_prediction_type'
         ),
+    )
+
+
+class UserLineup(Base):
+    """User-created prospect lineups/collections"""
+    __tablename__ = "user_lineups"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    is_public: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    lineup_type: Mapped[str] = mapped_column(String(20), default='custom', nullable=False, index=True)
+    settings: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True, default={})
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
+
+    # Relationships
+    user: Mapped["User"] = relationship("User", back_populates="lineups")
+    prospects: Mapped[list["LineupProspect"]] = relationship("LineupProspect", back_populates="lineup", cascade="all, delete-orphan")
+
+    __table_args__ = (
+        CheckConstraint(
+            "lineup_type IN ('custom', 'fantrax_sync', 'watchlist')",
+            name='valid_lineup_type'
+        ),
+    )
+
+
+class LineupProspect(Base):
+    """Junction table for lineup-prospect relationships with metadata"""
+    __tablename__ = "lineup_prospects"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    lineup_id: Mapped[int] = mapped_column(Integer, ForeignKey("user_lineups.id", ondelete="CASCADE"), nullable=False, index=True)
+    prospect_id: Mapped[int] = mapped_column(Integer, ForeignKey("prospects.id", ondelete="CASCADE"), nullable=False, index=True)
+    position: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
+    rank: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    added_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
+
+    # Relationships
+    lineup: Mapped["UserLineup"] = relationship("UserLineup", back_populates="prospects")
+    prospect: Mapped["Prospect"] = relationship("Prospect", back_populates="lineup_entries")
+
+    __table_args__ = (
+        UniqueConstraint('lineup_id', 'prospect_id', name='uq_lineup_prospect'),
     )
 
 
