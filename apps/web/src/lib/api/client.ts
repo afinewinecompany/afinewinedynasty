@@ -59,6 +59,17 @@ export class APIClient {
     };
   }
 
+  private getAuthHeaders(): HeadersInit {
+    // Check if we're in browser environment
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('access_token');
+      if (token) {
+        return { Authorization: `Bearer ${token}` };
+      }
+    }
+    return {};
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {},
@@ -83,6 +94,7 @@ export class APIClient {
         ...options,
         headers: {
           ...this.config.headers,
+          ...this.getAuthHeaders(),
           ...options.headers,
         },
         signal: controller.signal,

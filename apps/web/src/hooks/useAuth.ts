@@ -63,9 +63,30 @@ export function useAuth(): UseAuthReturn {
 
       const profile = await AuthAPI.getUserProfile();
 
-      // TODO: Fetch actual subscription tier from API
-      // For now, defaulting to 'free' - this should be replaced with actual API call
-      const subscriptionTier: 'free' | 'premium' = 'free';
+      // Fetch actual subscription tier from API
+      let subscriptionTier: 'free' | 'premium' = 'free';
+      try {
+        const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+
+        if (token) {
+          const response = await fetch(`${API_BASE_URL}/api/v1/subscriptions/status`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (response.ok) {
+            const subscriptionData = await response.json();
+            // Map subscription tier from API response
+            subscriptionTier = subscriptionData.tier === 'premium' ? 'premium' : 'free';
+          }
+        }
+      } catch (subscriptionError) {
+        console.warn('Failed to fetch subscription status, defaulting to free:', subscriptionError);
+        // Continue with default 'free' tier if subscription fetch fails
+      }
 
       setUser({
         ...profile,
