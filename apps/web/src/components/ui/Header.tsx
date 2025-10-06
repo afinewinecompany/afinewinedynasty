@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Search, User, Zap, Menu, Wine } from 'lucide-react';
+import { Search, User, Zap, Menu, Wine, Brain } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from './button';
 
@@ -17,6 +17,7 @@ const Header: React.FC = () => {
   const navLinks = [
     { href: '/', label: 'Dashboard' },
     { href: '/prospects', label: 'Prospects' },
+    { href: '/ml-predictions', label: 'ML Predictions' },
     { href: '/discovery', label: 'Tools' },
     { href: '/account/subscription', label: 'Account' },
   ];
@@ -41,12 +42,13 @@ const Header: React.FC = () => {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`text-sm font-medium transition-all relative ${
+                className={`text-sm font-medium transition-all relative flex items-center gap-1.5 ${
                   isActive(link.href)
                     ? 'text-wine-periwinkle after:absolute after:bottom-[-20px] after:left-0 after:right-0 after:h-0.5 after:bg-wine-periwinkle'
                     : 'text-foreground/80 hover:text-wine-rose'
                 }`}
               >
+                {link.href === '/ml-predictions' && <Brain className="w-4 h-4" />}
                 {link.label}
               </Link>
             ))}
@@ -101,12 +103,13 @@ const Header: React.FC = () => {
                 key={link.href}
                 href={link.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium transition-colors ${
                   isActive(link.href)
                     ? 'bg-accent/20 text-accent'
                     : 'text-foreground/80 hover:bg-muted'
                 }`}
               >
+                {link.href === '/ml-predictions' && <Brain className="w-4 h-4" />}
                 {link.label}
               </Link>
             ))}
