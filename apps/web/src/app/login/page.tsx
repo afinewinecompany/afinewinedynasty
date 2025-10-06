@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Wine } from 'lucide-react';
 import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
+import OAuthDiagnostics from '@/components/auth/OAuthDiagnostics';
 import { useAuth } from '@/hooks/useAuth';
 
 /**
@@ -168,6 +169,9 @@ export default function LoginPage() {
           </Link>
         </div>
       </div>
+
+      {/* OAuth Diagnostics - Only shows in development */}
+      <OAuthDiagnostics />
     </div>
   );
 }
