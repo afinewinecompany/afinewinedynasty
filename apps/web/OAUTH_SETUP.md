@@ -79,9 +79,27 @@ If you see the error message, **restart your dev server**.
 
 ## Production Deployment
 
-For production, set these environment variables in your deployment platform:
+### Railway Deployment
 
-- **Vercel/Railway/Netlify:** Add in dashboard under Environment Variables
+**📋 See [../../RAILWAY_OAUTH_SETUP.md](../../RAILWAY_OAUTH_SETUP.md) for complete Railway deployment instructions.**
+
+You need to add environment variables to **both** Railway services:
+
+**Backend API Service:**
+```bash
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+```
+
+**Frontend Web Service:**
+```bash
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+NEXT_PUBLIC_API_URL=https://your-api.railway.app
+```
+
+### Other Platforms
+
+- **Vercel/Netlify:** Add in dashboard under Environment Variables
 - **Docker:** Pass via `docker run -e` or `docker-compose.yml`
 
 ```yaml
