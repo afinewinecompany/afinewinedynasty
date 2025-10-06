@@ -3,7 +3,6 @@
  */
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
 
 export interface AuthTokens {
   access_token: string;
@@ -24,6 +23,9 @@ export interface User {
  * Get Google OAuth authorization URL
  */
 export function getGoogleAuthUrl(): string {
+  // Read env var inside function to ensure it's available at runtime
+  const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
+
   const redirectUri = `${window.location.origin}/auth/callback`;
   const scope = 'openid email profile';
   const state = generateRandomState();
