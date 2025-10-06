@@ -65,22 +65,23 @@ For support, please contact: support@afinewinedynasty.com
     ]
 )
 
-# Setup rate limiting
-app = setup_rate_limiter(app)
-
-# Add security middleware
-app = add_security_middleware(app)
-
-# Set CORS with security restrictions
+# CORS MUST be added FIRST - before rate limiting and security middleware
+# This ensures OPTIONS preflight requests are handled correctly
 cors_origins = [str(origin) for origin in settings.BACKEND_CORS_ORIGINS] if settings.BACKEND_CORS_ORIGINS else ["http://localhost:3000"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "Accept", "X-Requested-With"],
     expose_headers=["X-Total-Count"],
 )
+
+# Setup rate limiting (after CORS)
+app = setup_rate_limiter(app)
+
+# Add security middleware (after CORS)
+app = add_security_middleware(app)
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
