@@ -68,6 +68,15 @@ For support, please contact: support@afinewinedynasty.com
 # CORS MUST be added FIRST - before rate limiting and security middleware
 # This ensures OPTIONS preflight requests are handled correctly
 cors_origins = [str(origin) for origin in settings.BACKEND_CORS_ORIGINS] if settings.BACKEND_CORS_ORIGINS else ["http://localhost:3000"]
+
+# Debug: Log CORS configuration at startup
+import logging
+logger = logging.getLogger(__name__)
+logger.info(f"🔧 CORS Configuration:")
+logger.info(f"   Raw BACKEND_CORS_ORIGINS: {settings.BACKEND_CORS_ORIGINS}")
+logger.info(f"   Processed cors_origins: {cors_origins}")
+logger.info(f"   Total origins: {len(cors_origins)}")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
