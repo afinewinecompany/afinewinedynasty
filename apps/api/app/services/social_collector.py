@@ -14,7 +14,6 @@ import os
 from sqlalchemy.orm import Session
 
 from app.models.hype import SocialMention, PlayerHype
-from app.services.sentiment_analyzer import SentimentAnalyzer
 
 logger = logging.getLogger(__name__)
 
