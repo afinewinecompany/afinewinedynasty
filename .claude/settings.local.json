@@ -3,7 +3,10 @@
     "allow": [
       "Bash(python run_collection.py:*)",
       "Bash(python test_db_connection.py:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(git push:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
