@@ -90,11 +90,17 @@ export default function HypePage() {
       const token = localStorage.getItem('token');
 
       const params = filterType !== 'all' ? `?player_type=${filterType}` : '';
+
+      // Build headers - only add Authorization if token exists
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${apiUrl}/api/v1/hype/leaderboard${params}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers,
       });
 
       if (response.ok) {
@@ -121,11 +127,16 @@ export default function HypePage() {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
       const token = localStorage.getItem('token');
 
+      // Build headers - only add Authorization if token exists
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${apiUrl}/api/v1/hype/player/${playerId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers,
       });
 
       if (response.ok) {
