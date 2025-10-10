@@ -196,8 +196,11 @@ class SocialMediaCollector:
             if not token:
                 return {'status': 'error', 'message': 'Failed to get Reddit token'}
 
-            # Search relevant subreddits
-            subreddits = ['baseball', 'mlb', 'fantasybaseball', 'baseballcards']
+            # Search relevant subreddits - expanded list for prospects
+            subreddits = [
+                'baseball', 'mlb', 'fantasybaseball', 'baseballcards',
+                'MLBProspects', 'dynastybaseball', 'mlbtheshow'
+            ]
             all_posts = []
 
             for subreddit in subreddits:

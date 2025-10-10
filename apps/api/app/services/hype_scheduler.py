@@ -12,10 +12,11 @@ from apscheduler.triggers.interval import IntervalTrigger
 from sqlalchemy.orm import Session
 
 from app.db.database import SyncSessionLocal as SessionLocal
-from app.models.hype import PlayerHype
+from app.models.hype import PlayerHype, SocialMention, HypeHistory
 from app.db.models import Prospect
 from app.services.social_collector import SocialMediaCollector
 from app.services.hype_calculator import HypeCalculator
+from app.services.rss_collector import collect_rss_feeds
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +64,15 @@ class HypeScheduler:
             IntervalTrigger(hours=1),
             id='collect_all_players',
             name='Collect HYPE data for all players',
+            max_instances=1
+        )
+
+        # Collect RSS feeds every 2 hours
+        self.scheduler.add_job(
+            self.collect_rss_feeds,
+            IntervalTrigger(hours=2),
+            id='collect_rss',
+            name='Collect RSS news feeds',
             max_instances=1
         )
 
@@ -205,6 +215,19 @@ class HypeScheduler:
 
         except Exception as e:
             logger.error(f"Error in HYPE score calculation: {e}")
+        finally:
+            db.close()
+
+    async def collect_rss_feeds(self):
+        """Collect news from RSS feeds"""
+        logger.info("Starting RSS feed collection")
+
+        db = SessionLocal()
+        try:
+            results = await collect_rss_feeds(db)
+            logger.info(f"RSS collection completed: {results}")
+        except Exception as e:
+            logger.error(f"Error in RSS collection: {e}")
         finally:
             db.close()
 
