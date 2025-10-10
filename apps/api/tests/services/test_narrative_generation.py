@@ -7,8 +7,7 @@ from unittest.mock import Mock, patch, AsyncMock
 from datetime import datetime
 
 from app.services.narrative_generation_service import NarrativeGenerationService
-from app.models.prospect import Prospect
-from app.models.scouting_grades import ScoutingGrades
+from app.db.models import Prospect, ScoutingGrades
 from app.schemas.ml_predictions import PredictionResponse
 
 

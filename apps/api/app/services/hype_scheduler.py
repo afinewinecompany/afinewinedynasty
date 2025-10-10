@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 
 from app.db.database import SyncSessionLocal as SessionLocal
 from app.models.hype import PlayerHype
-from app.models.prospect import Prospect
+from app.db.models import Prospect
 from app.services.social_collector import SocialMediaCollector
 from app.services.hype_calculator import HypeCalculator
 
