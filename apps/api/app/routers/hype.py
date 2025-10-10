@@ -183,24 +183,23 @@ async def get_social_feed(
     sentiment: Optional[str] = None,
     limit: int = Query(20, le=100),
     offset: int = 0,
-    db: AsyncSession = Depends(get_db),
-    current_user = Depends(get_current_user)
+    db: AsyncSession = Depends(get_db)
 ):
-    """Get recent social media mentions for a player"""
+    """Get recent social media mentions for a player (public endpoint)"""
 
-    query = db.query(SocialMention).join(PlayerHype).filter(
+    stmt = select(SocialMention).join(PlayerHype).filter(
         PlayerHype.player_id == player_id
     )
 
     if platform:
-        query = query.filter(SocialMention.platform == platform)
+        stmt = stmt.filter(SocialMention.platform == platform)
 
     if sentiment:
-        query = query.filter(SocialMention.sentiment == sentiment)
+        stmt = stmt.filter(SocialMention.sentiment == sentiment)
 
-    mentions = query.order_by(
-        desc(SocialMention.posted_at)
-    ).limit(limit).offset(offset).all()
+    stmt = stmt.order_by(desc(SocialMention.posted_at)).limit(limit).offset(offset)
+    result = await db.execute(stmt)
+    mentions = result.scalars().all()
 
     return [
         SocialFeedItem(

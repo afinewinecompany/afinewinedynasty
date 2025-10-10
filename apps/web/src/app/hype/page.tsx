@@ -56,6 +56,18 @@ interface LeaderboardItem {
   sentiment: string;
 }
 
+interface SocialMention {
+  id: number;
+  platform: string;
+  author_handle: string;
+  content: string;
+  url: string;
+  likes: number;
+  shares: number;
+  sentiment: string;
+  posted_at: string;
+}
+
 export default function HypePage() {
   const [selectedPlayer, setSelectedPlayer] = useState<HypeData | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardItem[]>([]);
@@ -65,6 +77,8 @@ export default function HypePage() {
   const [filterType, setFilterType] = useState<'all' | 'prospect' | 'mlb'>('all');
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'social' | 'media' | 'alerts'>('overview');
+  const [socialMentions, setSocialMentions] = useState<SocialMention[]>([]);
+  const [loadingSocial, setLoadingSocial] = useState(false);
 
   // Fetch data from API
   useEffect(() => {
@@ -142,11 +156,45 @@ export default function HypePage() {
       if (response.ok) {
         const data = await response.json();
         setSelectedPlayer(data);
+        // Fetch social mentions when player is selected
+        fetchSocialMentions(playerId);
       } else {
         console.error('Failed to fetch player details:', response.status);
       }
     } catch (error) {
       console.error('Error fetching player details:', error);
+    }
+  };
+
+  const fetchSocialMentions = async (playerId: string) => {
+    try {
+      setLoadingSocial(true);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
+      const token = localStorage.getItem('token');
+
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${apiUrl}/api/v1/hype/player/${playerId}/social-feed?limit=10`, {
+        headers,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSocialMentions(data);
+      } else {
+        console.error('Failed to fetch social mentions:', response.status);
+        setSocialMentions([]);
+      }
+    } catch (error) {
+      console.error('Error fetching social mentions:', error);
+      setSocialMentions([]);
+    } finally {
+      setLoadingSocial(false);
     }
   };
 
@@ -168,6 +216,46 @@ export default function HypePage() {
     if (score >= 60) return 'from-green-600 to-blue-600';
     if (score >= 40) return 'from-yellow-600 to-green-600';
     return 'from-gray-600 to-yellow-600';
+  };
+
+  const getPlatformIcon = (platform: string) => {
+    switch (platform.toLowerCase()) {
+      case 'twitter':
+      case 'x':
+        return <div className="w-4 h-4 text-blue-400">𝕏</div>;
+      case 'bluesky':
+        return <Cloud className="w-4 h-4 text-sky-400" />;
+      case 'reddit':
+        return <div className="w-4 h-4 text-orange-500">▲</div>;
+      case 'instagram':
+        return <div className="w-4 h-4 text-pink-400">📷</div>;
+      case 'tiktok':
+        return <div className="w-4 h-4 text-black">🎵</div>;
+      case 'facebook':
+        return <div className="w-4 h-4 text-blue-600">f</div>;
+      default:
+        return <MessageSquare className="w-4 h-4 text-gray-400" />;
+    }
+  };
+
+  const getPlatformColor = (platform: string) => {
+    switch (platform.toLowerCase()) {
+      case 'twitter':
+      case 'x':
+        return 'text-blue-400';
+      case 'bluesky':
+        return 'text-sky-400';
+      case 'reddit':
+        return 'text-orange-500';
+      case 'instagram':
+        return 'text-pink-400';
+      case 'tiktok':
+        return 'text-black';
+      case 'facebook':
+        return 'text-blue-600';
+      default:
+        return 'text-gray-400';
+    }
   };
 
   return (
@@ -482,21 +570,53 @@ export default function HypePage() {
 
                   {activeTab === 'social' && (
                     <div className="space-y-4">
-                      {selectedPlayer.total_mentions_24h > 0 ? (
-                        <div className="bg-gray-700/30 p-4 rounded-lg">
-                          <div className="flex items-center gap-2 mb-2">
-                            <MessageSquare className="w-4 h-4 text-purple-400" />
-                            <span className="font-medium">Social Activity</span>
-                          </div>
-                          <p className="text-sm text-gray-400 mb-3">
-                            {selectedPlayer.player_name} has generated{' '}
-                            <span className="text-white font-medium">{selectedPlayer.total_mentions_24h.toLocaleString()}</span>{' '}
-                            mentions in the last 24 hours across social platforms.
-                          </p>
-                          <div className="text-xs text-gray-500">
-                            Social feed integration coming soon with real-time posts from X, Bluesky, Reddit, and more.
-                          </div>
+                      {loadingSocial ? (
+                        <div className="bg-gray-700/30 p-4 rounded-lg text-center py-8">
+                          <MessageSquare className="w-12 h-12 mx-auto mb-3 text-gray-600 animate-pulse" />
+                          <p className="text-gray-400">Loading social mentions...</p>
                         </div>
+                      ) : socialMentions.length > 0 ? (
+                        socialMentions.map((mention) => (
+                          <a
+                            key={mention.id}
+                            href={mention.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block bg-gray-700/30 p-4 rounded-lg hover:bg-gray-700/50 transition-all hover:scale-[1.01] cursor-pointer group"
+                          >
+                            <div className="flex items-center gap-2 mb-3">
+                              {getPlatformIcon(mention.platform)}
+                              <span className={`font-medium text-sm ${getPlatformColor(mention.platform)}`}>
+                                {mention.platform.charAt(0).toUpperCase() + mention.platform.slice(1)}
+                              </span>
+                              <span className="text-gray-500 text-sm">@{mention.author_handle}</span>
+                              <span className="ml-auto text-xs text-gray-500">
+                                {new Date(mention.posted_at).toLocaleDateString()}
+                              </span>
+                              <ExternalLink className="w-3 h-3 text-gray-600 group-hover:text-purple-400 transition-colors" />
+                            </div>
+                            <p className="text-sm text-gray-300 mb-3 leading-relaxed group-hover:text-white transition-colors">
+                              {mention.content}
+                            </p>
+                            <div className="flex items-center gap-4 text-xs text-gray-500">
+                              <div className="flex items-center gap-1">
+                                <Heart className="w-3 h-3" />
+                                <span>{mention.likes.toLocaleString()}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Share2 className="w-3 h-3" />
+                                <span>{mention.shares.toLocaleString()}</span>
+                              </div>
+                              <span className={`ml-auto px-2 py-0.5 rounded-full text-xs ${
+                                mention.sentiment === 'positive' ? 'bg-green-500/20 text-green-400' :
+                                mention.sentiment === 'negative' ? 'bg-red-500/20 text-red-400' :
+                                'bg-gray-500/20 text-gray-400'
+                              }`}>
+                                {mention.sentiment}
+                              </span>
+                            </div>
+                          </a>
+                        ))
                       ) : (
                         <div className="bg-gray-700/30 p-4 rounded-lg text-center py-8">
                           <MessageSquare className="w-12 h-12 mx-auto mb-3 text-gray-600" />
