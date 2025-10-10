@@ -439,23 +439,42 @@ export default function HypePage() {
                       <div className="bg-gray-700/30 p-4 rounded-lg">
                         <h4 className="font-medium mb-2">HYPE Analysis</h4>
                         <p className="text-sm text-gray-400">
-                          {selectedPlayer.player_name} is currently experiencing{' '}
-                          <span className="text-purple-400 font-medium">
-                            very high social engagement
+                          {selectedPlayer.player_name} is currently {selectedPlayer.hype_score >= 70 ? 'experiencing' : 'showing'}{' '}
+                          <span className={`font-medium ${selectedPlayer.hype_score >= 70 ? 'text-purple-400' : selectedPlayer.hype_score >= 40 ? 'text-yellow-400' : 'text-gray-400'}`}>
+                            {selectedPlayer.hype_score >= 70 ? 'high' : selectedPlayer.hype_score >= 40 ? 'moderate' : 'low'} social engagement
                           </span>{' '}
-                          with overwhelmingly positive sentiment. The virality score
-                          indicates strong momentum across multiple platforms.
+                          with{' '}
+                          <span className={getSentimentColor(selectedPlayer.sentiment_score)}>
+                            {selectedPlayer.sentiment_score > 0.3 ? 'positive' : selectedPlayer.sentiment_score < -0.3 ? 'negative' : 'neutral'}
+                          </span>{' '}
+                          sentiment. The virality score of{' '}
+                          <span className="text-pink-400 font-medium">{selectedPlayer.virality_score.toFixed(1)}</span>{' '}
+                          indicates {selectedPlayer.virality_score >= 70 ? 'strong' : selectedPlayer.virality_score >= 40 ? 'moderate' : 'limited'} momentum across platforms.
                         </p>
+                        <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                          <div>
+                            <span className="text-gray-500">24h Mentions:</span>{' '}
+                            <span className="text-white font-medium">{selectedPlayer.total_mentions_24h.toLocaleString()}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">7d Mentions:</span>{' '}
+                            <span className="text-white font-medium">{selectedPlayer.total_mentions_7d.toLocaleString()}</span>
+                          </div>
+                        </div>
                       </div>
                       <div className="bg-gray-700/30 p-4 rounded-lg">
                         <h4 className="font-medium mb-2">Investment Signal</h4>
                         <p className="text-sm text-gray-400">
                           Based on current HYPE metrics, this player shows{' '}
-                          <span className="text-green-400 font-medium">
-                            strong buy signals
-                          </span>
-                          . The positive trend and high engagement suggest increasing
-                          market value.
+                          <span className={`font-medium ${selectedPlayer.hype_trend > 10 ? 'text-green-400' : selectedPlayer.hype_trend < -10 ? 'text-red-400' : 'text-yellow-400'}`}>
+                            {selectedPlayer.hype_trend > 10 ? 'strong buy' : selectedPlayer.hype_trend < -10 ? 'caution' : 'hold'}
+                          </span>{' '}
+                          signals. The{' '}
+                          {selectedPlayer.hype_trend > 0 ? 'positive' : 'negative'} trend of{' '}
+                          <span className={selectedPlayer.hype_trend > 0 ? 'text-green-400' : 'text-red-400'}>
+                            {selectedPlayer.hype_trend > 0 ? '+' : ''}{selectedPlayer.hype_trend.toFixed(1)}%
+                          </span>{' '}
+                          suggests {selectedPlayer.hype_trend > 5 ? 'increasing' : selectedPlayer.hype_trend < -5 ? 'decreasing' : 'stable'} market value.
                         </p>
                       </div>
                     </div>
@@ -463,94 +482,91 @@ export default function HypePage() {
 
                   {activeTab === 'social' && (
                     <div className="space-y-4">
-                      {/* X/Twitter Post */}
-                      <div className="bg-gray-700/30 p-4 rounded-lg">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="w-4 h-4 text-blue-400">𝕏</div>
-                          <span className="font-medium">Latest Post on X</span>
+                      {selectedPlayer.total_mentions_24h > 0 ? (
+                        <div className="bg-gray-700/30 p-4 rounded-lg">
+                          <div className="flex items-center gap-2 mb-2">
+                            <MessageSquare className="w-4 h-4 text-purple-400" />
+                            <span className="font-medium">Social Activity</span>
+                          </div>
+                          <p className="text-sm text-gray-400 mb-3">
+                            {selectedPlayer.player_name} has generated{' '}
+                            <span className="text-white font-medium">{selectedPlayer.total_mentions_24h.toLocaleString()}</span>{' '}
+                            mentions in the last 24 hours across social platforms.
+                          </p>
+                          <div className="text-xs text-gray-500">
+                            Social feed integration coming soon with real-time posts from X, Bluesky, Reddit, and more.
+                          </div>
                         </div>
-                        <p className="text-sm text-gray-400">
-                          "Jackson Holliday with another BOMB! This kid is special!
-                          #FutureOriole #TopProspect"
-                        </p>
-                        <div className="flex gap-4 mt-2 text-xs text-gray-500">
-                          <span>2.3k likes</span>
-                          <span>421 reposts</span>
-                          <span>89 comments</span>
+                      ) : (
+                        <div className="bg-gray-700/30 p-4 rounded-lg text-center py-8">
+                          <MessageSquare className="w-12 h-12 mx-auto mb-3 text-gray-600" />
+                          <p className="text-gray-400">No recent social mentions found</p>
+                          <p className="text-xs text-gray-500 mt-2">
+                            Social data collection is currently being developed
+                          </p>
                         </div>
-                      </div>
-
-                      {/* Bluesky Post */}
-                      <div className="bg-gray-700/30 p-4 rounded-lg">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Cloud className="w-4 h-4 text-sky-400" />
-                          <span className="font-medium">Trending on Bluesky</span>
-                        </div>
-                        <p className="text-sm text-gray-400">
-                          "Holliday's approach at the plate is already MLB-ready.
-                          The Orioles have something special here."
-                        </p>
-                        <div className="flex gap-4 mt-2 text-xs text-gray-500">
-                          <span>892 likes</span>
-                          <span>156 reposts</span>
-                          <span>43 replies</span>
-                        </div>
-                      </div>
-
-                      {/* Reddit Post */}
-                      <div className="bg-gray-700/30 p-4 rounded-lg">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="w-4 h-4 text-orange-500">▲</div>
-                          <span className="font-medium">Hot on r/baseball</span>
-                        </div>
-                        <p className="text-sm text-gray-400">
-                          "[Highlight] Jackson Holliday goes yard for the 3rd time
-                          this spring, now batting .385"
-                        </p>
-                        <div className="flex gap-4 mt-2 text-xs text-gray-500">
-                          <span>1.2k upvotes</span>
-                          <span>234 comments</span>
-                        </div>
-                      </div>
+                      )}
                     </div>
                   )}
 
                   {activeTab === 'media' && (
                     <div className="space-y-4">
-                      <div className="bg-gray-700/30 p-4 rounded-lg">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Newspaper className="w-4 h-4 text-gray-400" />
-                          <span className="font-medium">ESPN</span>
-                        </div>
-                        <h5 className="text-sm font-medium mb-1">
-                          "Jackson Holliday continues to dominate in Spring Training"
-                        </h5>
-                        <p className="text-xs text-gray-500">Published 2 hours ago</p>
+                      <div className="bg-gray-700/30 p-4 rounded-lg text-center py-8">
+                        <Newspaper className="w-12 h-12 mx-auto mb-3 text-gray-600" />
+                        <p className="text-gray-400">No recent media coverage found</p>
+                        <p className="text-xs text-gray-500 mt-2">
+                          Media article aggregation is currently being developed
+                        </p>
                       </div>
                     </div>
                   )}
 
                   {activeTab === 'alerts' && (
                     <div className="space-y-4">
-                      {selectedPlayer.recent_alerts.map((alert, idx) => (
-                        <div key={idx} className="bg-gray-700/30 p-4 rounded-lg">
-                          <div className="flex items-start gap-3">
-                            <AlertCircle className="w-5 h-5 text-yellow-400 mt-0.5" />
-                            <div className="flex-1">
-                              <h5 className="font-medium">{alert.title}</h5>
-                              <p className="text-sm text-gray-400 mt-1">
-                                HYPE score increased by{' '}
-                                <span className="text-green-400 font-medium">
-                                  +{alert.change}%
-                                </span>
-                              </p>
-                              <p className="text-xs text-gray-500 mt-2">
-                                {new Date(alert.created_at).toLocaleString()}
-                              </p>
+                      {selectedPlayer.recent_alerts && selectedPlayer.recent_alerts.length > 0 ? (
+                        selectedPlayer.recent_alerts.map((alert, idx) => (
+                          <div key={idx} className="bg-gray-700/30 p-4 rounded-lg">
+                            <div className="flex items-start gap-3">
+                              <AlertCircle className={`w-5 h-5 mt-0.5 ${
+                                alert.severity === 'high' ? 'text-red-400' :
+                                alert.severity === 'medium' ? 'text-yellow-400' :
+                                'text-blue-400'
+                              }`} />
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h5 className="font-medium">{alert.title}</h5>
+                                  <span className={`text-xs px-2 py-0.5 rounded ${
+                                    alert.severity === 'high' ? 'bg-red-500/20 text-red-400' :
+                                    alert.severity === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
+                                    'bg-blue-500/20 text-blue-400'
+                                  }`}>
+                                    {alert.severity}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-gray-400 mt-1">
+                                  {alert.type === 'surge' ? 'HYPE score increased' :
+                                   alert.type === 'crash' ? 'HYPE score decreased' :
+                                   'Notable change detected'} by{' '}
+                                  <span className={`font-medium ${alert.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                    {alert.change >= 0 ? '+' : ''}{alert.change}%
+                                  </span>
+                                </p>
+                                <p className="text-xs text-gray-500 mt-2">
+                                  {new Date(alert.created_at).toLocaleString()}
+                                </p>
+                              </div>
                             </div>
                           </div>
+                        ))
+                      ) : (
+                        <div className="bg-gray-700/30 p-4 rounded-lg text-center py-8">
+                          <AlertCircle className="w-12 h-12 mx-auto mb-3 text-gray-600" />
+                          <p className="text-gray-400">No active alerts</p>
+                          <p className="text-xs text-gray-500 mt-2">
+                            Alerts will appear here when significant HYPE changes are detected
+                          </p>
                         </div>
-                      ))}
+                      )}
                     </div>
                   )}
                 </div>
