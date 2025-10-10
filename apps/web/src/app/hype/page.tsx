@@ -65,69 +65,65 @@ export default function HypePage() {
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'social' | 'media' | 'alerts'>('overview');
 
-  // Mock data for demonstration
+  // Fetch data from API
   useEffect(() => {
-    // In production, fetch from API
-    const mockLeaderboard: LeaderboardItem[] = [
-      {
-        rank: 1,
-        player_id: 'jackson-holiday',
-        player_name: 'Jackson Holliday',
-        hype_score: 95.2,
-        change_24h: 12.5,
-        change_7d: 28.3,
-        sentiment: 'positive'
-      },
-      {
-        rank: 2,
-        player_id: 'paul-skenes',
-        player_name: 'Paul Skenes',
-        hype_score: 92.8,
-        change_24h: -2.1,
-        change_7d: 15.7,
-        sentiment: 'positive'
-      },
-      {
-        rank: 3,
-        player_id: 'wyatt-langford',
-        player_name: 'Wyatt Langford',
-        hype_score: 88.4,
-        change_24h: 8.9,
-        change_7d: -5.2,
-        sentiment: 'neutral'
-      },
-    ];
-    setLeaderboard(mockLeaderboard);
+    fetchLeaderboard();
+  }, [filterType]);
 
-    // Mock selected player data
-    const mockHypeData: HypeData = {
-      player_id: 'jackson-holiday',
-      player_name: 'Jackson Holliday',
-      player_type: 'prospect',
-      hype_score: 95.2,
-      hype_trend: 12.5,
-      sentiment_score: 0.78,
-      virality_score: 88.5,
-      total_mentions_24h: 15234,
-      total_mentions_7d: 89421,
-      engagement_rate: 4.8,
-      trending_topics: [
-        { topic: '#FutureOriole', type: 'hashtag', mentions: 3421, sentiment: 0.82 },
-        { topic: 'Spring Training', type: 'event', mentions: 2156, sentiment: 0.75 },
-        { topic: 'Top Prospect', type: 'achievement', mentions: 1893, sentiment: 0.91 },
-      ],
-      recent_alerts: [
-        {
-          type: 'surge',
-          severity: 'high',
-          title: 'Viral highlight reel gaining traction',
-          change: 45.2,
-          created_at: '2024-01-10T14:30:00Z'
+  const fetchLeaderboard = async () => {
+    try {
+      setRefreshing(true);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
+      const token = localStorage.getItem('token');
+
+      const params = filterType !== 'all' ? `?player_type=${filterType}` : '';
+      const response = await fetch(`${apiUrl}/api/hype/leaderboard${params}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
-      ],
-    };
-    setSelectedPlayer(mockHypeData);
-  }, []);
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setLeaderboard(data);
+
+        // Auto-select first player if none selected
+        if (data.length > 0 && !selectedPlayer) {
+          fetchPlayerDetails(data[0].player_id);
+        }
+      } else {
+        console.error('Failed to fetch leaderboard:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching leaderboard:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const fetchPlayerDetails = async (playerId: string) => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
+      const token = localStorage.getItem('token');
+
+      const response = await fetch(`${apiUrl}/api/hype/player/${playerId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSelectedPlayer(data);
+      } else {
+        console.error('Failed to fetch player details:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching player details:', error);
+    }
+  };
 
   const getSentimentColor = (score: number) => {
     if (score > 0.5) return 'text-green-500';
@@ -163,10 +159,11 @@ export default function HypePage() {
             </p>
           </div>
           <button
-            onClick={() => setRefreshing(!refreshing)}
+            onClick={() => fetchLeaderboard()}
             className={`p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition-all ${
               refreshing ? 'animate-spin' : ''
             }`}
+            disabled={refreshing}
           >
             <RefreshCw className="w-5 h-5" />
           </button>
@@ -215,10 +212,7 @@ export default function HypePage() {
                 <motion.div
                   key={player.player_id}
                   whileHover={{ scale: 1.02 }}
-                  onClick={() => {
-                    // In production, fetch player data
-                    console.log('Selected player:', player);
-                  }}
+                  onClick={() => fetchPlayerDetails(player.player_id)}
                   className="p-4 bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-700 transition-all"
                 >
                   <div className="flex justify-between items-start">
