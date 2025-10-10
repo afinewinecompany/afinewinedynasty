@@ -50,3 +50,6 @@ tenacity>=9.0.0
 
 # Scheduling Dependencies
 apscheduler>=3.10.0
+
+# RSS Feed Collection
+feedparser>=6.0.0
