@@ -1,16 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(done)",
-      "Bash(npm test:*)",
-      "Bash(npm run lint)",
-      "Bash(npm run lint:*)",
-      "Bash(find:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(rm:*)",
-      "Bash(git push:*)",
-      "Bash(git fetch:*)"
+      "Bash(python run_collection.py:*)",
+      "Bash(python test_db_connection.py:*)",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []

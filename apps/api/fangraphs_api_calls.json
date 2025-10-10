@@ -1,0 +1,530 @@
+{
+  "hitters": [
+    {
+      "url": "https://plus.fangraphs.com/?fgapi_ajax",
+      "data_sample": "{'user_id': False, 'user_name': False, 'group': 0}"
+    },
+    {
+      "url": "https://www.fangraphs.com/api/menu/menu-blog",
+      "data_sample": "[{'title': 'A Hardball Times Update', 'url': '//www.fangraphs.com/tht/a-hardball-times-update', 'blog': 'tht'}, {'title': 'Get Your Opening Day Results Here', 'url': '//www.fangraphs.com/tht/get-your-opening-day-results-here', 'blog': 'tht'}, {'title': \"Reviewing OOPSY's Debut Season\", 'url': '//www.fangraphs.com/blogs/reviewing-oopsys-debut-season', 'blog': 'blogs'}, {'title': 'All You Need Is Judge: Slugger Powers Yankees To Win Over Blue Jays in ALDS Game 3', 'url': '//www.fangraphs.com/blogs"
+    },
+    {
+      "url": "https://www.fangraphs.com/api/scores/most-recent",
+      "data_sample": "[{'schedule': {'GameDateTimeUTC': '2025-10-07T20:05:00Z', 'GameDateParam': '2025-10-07', 'Season': 2025, 'GameId': 20252447, 'TempDate': '10/7/2025', 'TempTime': '16:05', 'DH': 0, 'AwayTeamId': 11, 'HomeTeamId': 6, 'GameDate': '2025-10-07T00:00:00', 'Hour': 28, 'Minute': 5, 'ProbHome': 17479, 'ProbAway': 22250, 'MLBGameId': 813056, 'gamestate': 'S', 'HomeStarter': 'Jack Flaherty', 'AwayStarter': 'Logan Gilbert', 'HomeTeamName': 'Tigers', 'AwayTeamName': 'Mariners', 'HomeTeamAbbName': 'DET', 'Awa"
+    },
+    {
+      "url": "https://www.fangraphs.com/api/menu/menu-standings",
+      "data_sample": "[{'teamid': 22, 'shortName': 'Dodgers', 'AbbName': 'LAD', 'League': 'NL', 'Division': 'W', 'W': 93, 'L': 69, 'GB': 0.0}, {'teamid': 26, 'shortName': 'Phillies', 'AbbName': 'PHI', 'League': 'NL', 'Division': 'E', 'W': 96, 'L': 66, 'GB': 0.0}, {'teamid': 11, 'shortName': 'Mariners', 'AbbName': 'SEA', 'League': 'AL', 'Division': 'W', 'W': 90, 'L': 72, 'GB': 0.0}, {'teamid': 5, 'shortName': 'Guardians', 'AbbName': 'CLE', 'League': 'AL', 'Division': 'C', 'W': 88, 'L': 74, 'GB': 0.0}, {'teamid': 14, '"
+    },
+    {
+      "url": "https://www.fangraphs.com/api/prospects/team-box/combined?curseason=2025&prevseason=2024&curreporttermid=4089&curprelimtermid=4090&prevtermid=4064",
+      "data_sample": "[{'timeframe': 'report', 'cat': '|Angels|Featured|Featured Prospects|Prospect List|Prospects|Prospects Report 2024|', 'mainlink': 'https://blogs.fangraphs.com/', 'post_name': 'los-angeles-angels-top-24-prospects-2024', 'season': 2024}, {'timeframe': 'report', 'cat': '|Featured|Featured Prospects|Orioles|Prospect List|Prospects|Prospects Report 2024|', 'mainlink': 'https://blogs.fangraphs.com/', 'post_name': 'baltimore-orioles-top-45-prospects-2024', 'season': 2024}, {'timeframe': 'report', 'cat'"
+    },
+    {
+      "url": "https://www.fangraphs.com/api/tools/search/current-popular",
+      "data_sample": "[{'leagueType': None, 'playerName': 'Aaron Judge', 'firstName': 'Aaron', 'lastName': 'Judge', 'views': 1075, 'timeSpan': '2016 - 2025', 'birthdate': '4/26/1992', 'lastSeason': '2025', 'UPID': '15640', 'playerId': '15640', 'position': 'OF', 'UPURL': '/players/aaron-judge/15640/stats?position=OF', 'level': ['minor', 'mlb', 'proj'], 'koreanName': None, 'teamId': 9, 'abbName': 'NYY'}, {'leagueType': None, 'playerName': 'Shohei Ohtani', 'firstName': 'Shohei', 'lastName': 'Ohtani', 'views': 686, 'time"
+    },
+    {
+      "url": "https://plus.fangraphs.com/?fgapi_ajax=logout",
+      "data_sample": "{'user_id': False, 'user_name': False, 'group': 0, 'logout_nonce': '7f43a36943'}"
+    },
+    {
+      "url": "https://www.fangraphs.com/api/custom/pp-custom-card/rules?collection=PP_WEB_MAIN",
+      "data_sample": "[]"
+    },
+    {
+      "url": "https://www.fangraphs.com/api/banner/chat",
+      "data_sample": "{'chatText': None, 'chatLink': None, 'defaultText': None, 'defaultLink': None, 'shouldShowBanner': False}"
+    },
+    {
+      "url": "https://securepubads.g.doubleclick.net/pagead/ppub_config?ippd=www.fangraphs.com",
+      "data_sample": "[['fangraphs.com', None, 'www.fangraphs.com', None, None, ['1128006', '136431902', '170737076', '172968584', '175840252', '21725819945', '21734706084', '21747486121', '21939239661', '22917490941', '65889844', '7047', '7103', '92056281']], [[['1128006', None, 2]]], [[['21725819945', None, 1, None, [[1]]], ['136431902', None, 1, None, [[1]]], ['7047', None, 1, None, [[2]]]]], None, [[None, None, None, [None, ['8669512719038466611']]]], [['1128006', [['pubcid.org', None, 1], ['id5-sync.com', 'https"
+    },
+    {
+      "url": "https://pixel.quantserve.com/cs?a=p-8dBx9wgQFa1M6&gdpr=0&__qcmcs=1",
+      "data_sample": "{'partners': ['https://idsync.rlcdn.com/380609.gif?gdpr=0&ct=2&cv=&partner_uid=']}"
+    },
+    {
+      "url": "https://c.amazon-adsystem.com/cdn/prod/config?src=600&u=https%3A%2F%2Fwww.fangraphs.com&pubid=54eeeb9c-d6c6-4712-bb2a-e2aed51c3eb7",
+      "data_sample": "{'3pvendor': 'if (!window.PublisherCommonId) {\\n    var pubcommonScript = document.createElement(\\'script\\');\\n    pubcommonScript.src = \\'//secure.cdn.fastclick.net/js/pubcid/latest/pubcid.min.js\\';\\n    document.head.appendChild(pubcommonScript);\\n};[\"window.creativeVendorLibraryLoaded = true;\"];var id5PropertyId = \\'1377\\';\\nif (id5PropertyId && id5PropertyId.charAt(0) !== \\'%\\') {\\n    var id5Script = document.createElement(\\'script\\');\\n    id5Script.src = \\'//cdn.id5-sync.com/api/1.0/id5-a"
+    },
+    {
+      "url": "https://match.adsrvr.org/track/rid?ttd_pid=cele3t6&fmt=json",
+      "data_sample": "{'TDID': '5e5656e8-1ca7-4e0a-86dc-723107fa15fc', 'TDID_LOOKUP': 'FALSE', 'TDID_CREATED_AT': '2025-10-08T16:10:00'}"
+    },
+    {
+      "url": "https://id5-sync.com/api/config/prebid",
+      "data_sample": "{'fetchCall': {'url': 'https://id5-sync.com/g/v2/1377.json', 'overrides': {'pbExtensions': {'bounce': {'setCookie': True}}}}, 'extensionsCall': {'url': 'https://lb.eu-1-id5-sync.com/lb/v1', 'method': 'GET'}}"
+    },
+    {
+      "url": "https://trw2xasmrszrn7qwk.ay.delivery/hash?e=tRW2xasmrSZrN7QWk&k=%7C347%7Con%7C1%7C202%7C101%7C0&v=5000",
+      "data_sample": "1343"
+    },
+    {
+      "url": "https://aax.amazon-adsystem.com/e/dtb/bid",
+      "data_sample": "{'contextual': {'slots': [{'targeting': ['amzniid', 'amznp', 'amznsz', 'amznbid', 'amznactt'], 'amzniid': 'JIp2WWCneGB0Touvt8hQ80QAAAGZxJYxyAEAAAJYAQBhcHNfdHhuX2JpZDIgICBhcHNfdHhuX2ltcDEgICA7wKvR', 'size': '728x90', 'meta': ['slotID', 'mediaType', 'size'], 'amznactt': 'OPEN', 'amznsz': '728x90', 'slotID': 'ay_top_banner__ayManagerEnv__1_9549e738', 'amznp': 'af5534', 'mediaType': 'd', 'amznbid': '1ny4nwg'}, {'targeting': ['amzniid', 'amznp', 'amznsz', 'amznbid', 'amznactt'], 'amzniid': 'JIFssuOqQ"
+    },
+    {
+      "url": "https://apex.go.sonobi.com/trinity.json",
+      "data_sample": "{'slots': {'34a70d62fbd1ead': {}, '3573c1efd2ea37b8': {}}, 'sbi_dc': 'iad-2-', 'pv': '1432f315-3daa-4937-b595-588f9747e9cf', 'sbi_px': [{'code': 'zt', 'url': 'https://p.rfihub.com/cm?pub=35683&in=1', 'type': 'image'}, {'code': 'bw', 'url': 'https://x.bidswitch.net/sync?ssp=sonobi&gdpr=0&gdpr_consent=&expires=365', 'type': 'image'}, {'code': 'tu', 'url': 'https://www.temu.com/api/adx/cm/pixel-sonobi?id=c8245273-9d15-4496-bf83-7d27f34448b9&redir=https%3A%2F%2Fsync.go.sonobi.com%2Fus.gif%3Fnw%3Dtu%"
+    },
+    {
+      "url": "https://fastlane.rubiconproject.com/a/api/fastlane.json?account_id=26488&site_id=541318&zone_id=3344548&size_id=2&alt_size_ids=55&eid_pubcid.org=94322e80-0967-403d-8136-1ec2b0b68f4d%5E1%5E%5E%5E%5E%5E&rf=https%3A%2F%2Fwww.fangraphs.com%2Fprospects%2Fthe-board%2F2025-in-season-prospect-list%2Fscouting-position&tg_i.domain=fangraphs.com&tg_i.page=https%3A%2F%2Fwww.fangraphs.com%2Fprospects%2Fthe-board%2F2025-in-season-prospect-list%2Fscouting-position&tg_i.cat=IAB17&tg_i.sectioncat=IAB17-2&tg_i.pagecat=IAB17-2&tg_i.documentLang=en&tg_i.divId=sticky_footer__ayManagerEnv__1_5f201413&tg_i.placement=sticky_footer&tk_flint=pbjs_lite_v9.53.2&x_source.tid=cfdd0939-cb43-4e1a-87af-235c4ef36d85&l_pb_bid_id=73a991eb4efe17e&p_screen_res=1280x720&rp_secure=1&x_imp.ext.tid=ff7a1440-d435-4d28-b5b1-60b462305638&p_gpid=%2F1128006%2Fay_sticky_footer&m_ch_ua=%22Chromium%22%7Cv%3D%22140%22%2C%22Not%3DA%3FBrand%22%7Cv%3D%2224%22%2C%22HeadlessChrome%22%7Cv%3D%22140%22&m_ch_mobile=%3F0&m_ch_platform=Windows&slots=1&rand=0.9628627367260798",
+      "data_sample": "{'status': 'ok', 'account_id': 26488, 'site_id': 541318, 'zone_id': 3344548, 'size_id': 2, 'alt_size_ids': [55], 'tracking': '', 'inventory': {'sectioncat': 'IAB17-2', 'placement': 'sticky_footer', 'cat': 'IAB17', 'page': 'https://www.fangraphs.com/prospects/the-board/2025-in-season-prospect-list/scouting-position', 'documentLang': 'en', 'divId': 'sticky_footer__ayManagerEnv__1_5f201413', 'domain': 'fangraphs.com', 'pagecat': 'IAB17-2'}, 'ads': [{'status': 'no-ads', 'reason': 'no-compatible-ads'"
+    },
+    {
+      "url": "https://fastlane.rubiconproject.com/a/api/fastlane.json?account_id=26488&site_id=541318&zone_id=3344548&size_id=2&alt_size_ids=55%2C57&eid_pubcid.org=94322e80-0967-403d-8136-1ec2b0b68f4d%5E1%5E%5E%5E%5E%5E&rf=https%3A%2F%2Fwww.fangraphs.com%2Fprospects%2Fthe-board%2F2025-in-season-prospect-list%2Fscouting-position&tg_i.domain=fangraphs.com&tg_i.page=https%3A%2F%2Fwww.fangraphs.com%2Fprospects%2Fthe-board%2F2025-in-season-prospect-list%2Fscouting-position&tg_i.cat=IAB17&tg_i.sectioncat=IAB17-2&tg_i.pagecat=IAB17-2&tg_i.documentLang=en&tg_i.divId=ay_top_banner__ayManagerEnv__1_9549e738&tg_i.placement=top_banner&tk_flint=pbjs_lite_v9.53.2&x_source.tid=cfdd0939-cb43-4e1a-87af-235c4ef36d85&l_pb_bid_id=749c9a15714fe6e&p_screen_res=1280x720&rp_secure=1&x_imp.ext.tid=0477b5c4-964f-4c29-a15e-87d1dbe4fbcf&p_gpid=%2F1128006%2Fay_fg_top_banner&m_ch_ua=%22Chromium%22%7Cv%3D%22140%22%2C%22Not%3DA%3FBrand%22%7Cv%3D%2224%22%2C%22HeadlessChrome%22%7Cv%3D%22140%22&m_ch_mobile=%3F0&m_ch_platform=Windows&slots=1&rand=0.6846059746918352",
+      "data_sample": "{'status': 'ok', 'account_id': 26488, 'site_id': 541318, 'zone_id': 3344548, 'size_id': 2, 'alt_size_ids': [55, 57], 'tracking': '', 'inventory': {'sectioncat': 'IAB17-2', 'placement': 'top_banner', 'cat': 'IAB17', 'page': 'https://www.fangraphs.com/prospects/the-board/2025-in-season-prospect-list/scouting-position', 'documentLang': 'en', 'divId': 'ay_top_banner__ayManagerEnv__1_9549e738', 'domain': 'fangraphs.com', 'pagecat': 'IAB17-2'}, 'ads': [{'status': 'no-ads', 'reason': 'no-compatible-ads"
+    },
+    {
+      "url": "https://tlx.3lift.com/header/auction?lib=prebid&v=9.53.2&referrer=https%3A%2F%2Fwww.fangraphs.com%2Fprospects%2Fthe-board%2F2025-in-season-prospect-list%2Fscouting-position&tmax=2000",
+      "data_sample": "{'status': 'no_bid'}"
+    },
+    {
+      "url": "https://hb.shemediax.com/hb-multi",
+      "data_sample": "{'params': {'sessionId': '511169fa79f2d3b8', 'publisherId': '68db8d0a0c6f16000154bce2', 'userSyncURL': 'https://sdk.shemediax.com/cs-config/cs.html?org=68db8d0a0c6f16000154bce2&tc=68db90c90c6f16000154be4b&as=68db90c90c6f16000154be4d&type=hb&wd=cs.shemediax.com&domain=fangraphs.com&us_privacy=1NNN'}, 'bids': [{'requestId': '5215a76a3a6713c', 'mediaType': 'banner', 'cpm': 0.14703225, 'width': 728, 'height': 90, 'ttl': 300, 'creativeId': '611071812', 'ad': '<span class=\"PubAPIAd\"  id=\"0FE62525-A892"
+    },
+    {
+      "url": "https://ap.lijit.com/rtb/bid?src=prebid_prebid_9.53.2",
+      "data_sample": "{'id': '76feca695a9430a8', 'seatbid': [{'bid': [{'id': 'a_1116908_c997249134a14e4cb27e2ff1df9bb325/GCwUEoaiX5C0rQVtdLQL', 'impid': '37d780b2108925f', 'price': 0.0032466906378400395, 'nurl': 'https://imp-ue1-primary.lijit.com/rtb/impression?i_data=Q_goIkONP72ckZvSDiC8ZAOiseSkT16jIYwazw3E8KIad8O6hv6BTnYqz06kvjXU_eFH7UqkNgGH2tUUvGIuXu8di4v4kYZC4bMHku9uZn3_5a-V3BsfyGLbOZsO6GbS1PrPNiQmAhmjfxooaXsZb-615RzAf7a9R12eVArSWEwCVQGd4ymd1NsKMgfr2n_WW9MyA9BZAkIv2q6hephsjkI4an34KYce5gabE7pOy-i4UQYyEkt0yqvnmWdSM"
+    },
+    {
+      "url": "https://targeting.unrulymedia.com/unruly_prebid",
+      "data_sample": "{'bids': []}"
+    },
+    {
+      "url": "https://targeting.unrulymedia.com/unruly_prebid",
+      "data_sample": "{'bids': []}"
+    },
+    {
+      "url": "https://s.seedtag.com/c/hb/bid",
+      "data_sample": "{'bids': [{'bidId': '718342f89336c548', 'content': '<script>\\n      window.hbResponse = JSON.parse(decodeURIComponent(atob(\"JTdCJTIyYmlkUmVzcG9uc2VzJTIyJTNBJTVCJTdCJTIycHJvZHVjdFNob3J0Q29kZSUyMiUzQSUyMk9NOTcweDI1MCUyMiUyQyUyMnByb2R1Y3RUeXBlJTIyJTNBJTIyZGlzcGxheSUyMiUyQyUyMnByb2R1Y3RNYXJrZXQlMjIlM0ElMjJvcGVuJTIyJTJDJTIyd2lkdGglMjIlM0E5NzAlMkMlMjJoZWlnaHQlMjIlM0EyNTAlMkMlMjJjb250ZW50JTIyJTNBJTIyJTNDaWZyYW1lJTIwc3JjJTNEJTVDJTIyaHR0cHMlM0ElMkYlMkZjc3luYy1nbG9iYWwuc21hcnRhZHNlcnZlci5jb20lMkYzMDUwJTJG"
+    },
+    {
+      "url": "https://mp.4dex.io/prebid",
+      "data_sample": "{'data': {'user_syncs': [{'html': \"<iframe id='adg-0-sync' height='0' width='0' marginwidth='0' marginheight='0' scrolling='no' frameborder='0' src='https://ads.pubmatic.com/AdServer/js/user_sync.html?p=159110&predirect=https%3A%2F%2Fu.4dex.io%2Fsetuid%3Fbidder%3Dpubmatic%26it%3Dadg-pb-clt%26uid%3D(PM_UID)' style='border: 0px; display: none;'></iframe>\"}, {'html': \"<img id='adg-1-sync' style='position:absolute; display:none; height:0; width:0;' src='https://u.openx.net/w/1.0/cm?id=3cc4b2f6-c7e1-"
+    },
+    {
+      "url": "https://prebid.media.net/rtb/prebid?cid=8CUD48V3F",
+      "data_sample": "{'id': 'cfdd0939-cb43-4e1a-87af-235c4ef36d85', 'bidList': [{'no_bid': False, 'requestId': '400159ef9f32d288', 'cpm': 0.33, 'ad': '<div id=\"mnet-vtgt-3ebf58a3c0d392c802937580548f3551\"><script>function canAccessWindowTop(){try{return!!window.top.location.href}catch(c){return!1}}; try{new Image().src=\"https://hblg.media.net/log?logid=kfke&evtid=plutol1&__q=AdQEewaELAQCEAABAIAAAgAAAAAAAAEABgAAQIABAAgAINCYCXBGkQFSMTE1MDI0MjEzMjk3NDlfMTU2MDQ4OTM3N18xNjEyNzE5NTcyNTExXzBAODQ3YWZmOGFlMjljNmIwMmQ4M2Y0ZDYy"
+    },
+    {
+      "url": "https://prebid.smilewanted.com/",
+      "data_sample": "{'ad': '<iframe id=\"iframe_display_sw_749954bd-9fe1-4a78-91a3-62d35316fde8\" frameborder=\"0\" style=\"overflow:hidden;overflow-x:hidden;overflow-y:hidden;height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px\" height=\"100%\" width=\"100%\"></iframe><script>document.getElementById(\"iframe_display_sw_749954bd-9fe1-4a78-91a3-62d35316fde8\")\\n.contentWindow.document.write(    \"<img src=\\\\\"\\\\\" style=\\\\\"position:absolute; visibility:hidden; display:none\\\\\" width=\\\\\"0\\\\\" height=\\\\\"0\\\\\""
+    },
+    {
+      "url": "https://prebid.smilewanted.com/",
+      "data_sample": "{'ad': '<iframe id=\"iframe_display_sw_ffc0e6bb-b284-449c-a557-8d466fe5fbbe\" frameborder=\"0\" style=\"overflow:hidden;overflow-x:hidden;overflow-y:hidden;height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px\" height=\"100%\" width=\"100%\"></iframe><script>document.getElementById(\"iframe_display_sw_ffc0e6bb-b284-449c-a557-8d466fe5fbbe\")\\n.contentWindow.document.write(    \"<img src=\\\\\"\\\\\" style=\\\\\"position:absolute; visibility:hidden; display:none\\\\\" width=\\\\\"0\\\\\" height=\\\\\"0\\\\\""
+    },
+    {
+      "url": "https://api.id5-sync.com/analytics/1377/id5-api-js",
+      "data_sample": "{'additionalCleanupRules': {'auctionEnd': [{'apply': 'erase', 'match': [['adUnits']]}, {'apply': 'erase', 'match': [['bidderRequests'], ['*'], ['bids'], ['*'], ['params', 'userIdAsEids', 'ortb2Imp', 'mediaTypes', 'sizes', 'metrics', 'ortb2']]}, {'apply': 'erase', 'match': [['bidderRequests'], ['*'], ['refererInfo', 'metrics', 'ortb2']]}, {'apply': 'erase', 'match': [['noBids'], ['*'], ['!bidId']]}, {'apply': 'erase', 'match': [['metrics']]}, {'apply': 'erase', 'match': [['bidsReceived'], ['*'], "
+    },
+    {
+      "url": "https://exchange.cootlogix.com/prebid/multi/64130f63abc4d862b32d8199",
+      "data_sample": "{'results': [{'cookies': [], 'ad': '<script src=\"https://cadmus.script.ac/d3rtd2fz2u3gv4/script.js\"\\n                        data-creative-id=\"8341_232773_591696992014091672\"\\n                        data-seat-id=\"undefined\"\\n                        data-dsp-id=\"undefined\"\\n                        data-site-id=\"64130f63abc4d862b32d8199\"\\n                        data-pub-id=\"6412e7276caeccee1d8618d7\"\\n                        data-referrer-domain=\"\"\\n                        data-client-key=\"cd0914"
+    },
+    {
+      "url": "https://hb.minutemedia-prebid.com/hb-mm-multi",
+      "data_sample": "{'params': {'sessionId': '42de9ac4748bcd1', 'publisherId': '64188c5f2563760001e33ec6', 'userSyncURL': 'https://sdk.minutemedia-prebid.com/cs-config/cs.html?org=64188c5f2563760001e33ec6&tc=64188ca91efbc40001ae0428&as=64188ca91efbc40001ae042a&type=hb&wd=cs.minutemedia-prebid.com&domain=fangraphs.com&us_privacy=1NNN'}, 'bids': [{'requestId': '443c0f28506f4fd', 'mediaType': 'banner', 'cpm': 0.5759879999999999, 'width': 728, 'height': 90, 'ttl': 300, 'creativeId': '2662_193861_7929250', 'ad': '<scrip"
+    },
+    {
+      "url": "https://ex.ingage.tech/v1/openrtb",
+      "data_sample": "{'id': '150f22825d437e6', 'bidid': '01K729CEFSB639BJ8TXWRNADW6', 'cur': 'USD', 'nbr': 0, 'ext': {'sync': [{'type': 'iframe', 'url': 'https://x.bidswitch.net/sync?ssp=insticator&gdpr=0'}, {'type': 'iframe', 'url': 'https://secure-assets.rubiconproject.com/utils/xapi/multi-sync.html?endpoint=us-east&p=insticator'}, {'type': 'iframe', 'url': 'https://match.sharethrough.com/universal/v1?supply_id=jc3Tkmr6&gdpr=0'}, {'type': 'iframe', 'url': 'https://cs-rtb.minutemedia-prebid.com/sync-iframe?redirect"
+    },
+    {
+      "url": "https://lb.eu-1-id5-sync.com/lb/v1",
+      "data_sample": "{'lb': 'O29J///oifK0cxRJ0QUcvg==', 'ttl': 28800}"
+    },
+    {
+      "url": "https://lbs.eu-1-id5-sync.com/lbs/v1",
+      "data_sample": "{'lbs': 'XDfNHdBpVRqABNKsEWpxQqJPa+x2KUzR7xnHxxE5HGJS4oW8FyKe5TMBloRn9Ayv'}"
+    },
+    {
+      "url": "https://hbopenbid.pubmatic.com/translator?source=prebid-client&gzip=1",
+      "data_sample": "{'id': '44fe5cec-5074-4e96-9b79-f5d7b8c7dc04', 'cur': 'USD', 'seatbid': [{'seat': '14715', 'bid': [{'id': '7F5AE20F-6EB0-4F16-9A80-B383695ECC09', 'impid': '49346d9887c9153', 'price': 0.096751, 'adm': '<span class=\"PubAPIAd\"  id=\"7F5AE20F-6EB0-4F16-9A80-B383695ECC09\"><DIV STYLE=\"position: absolute; left: 0px; top: 0px; visibility: hidden;\"><IMG SRC=\"https://pagead2.googlesyndication.com/pagead/gen_204?id=xbid&dbm_b=AKAmf-C8eucVw0anuEkBNKEiInCPv7tD1km8ubbub7ny7FsXDRHJBtvrXXNle5G9ZyBholTqsJ4upfv5tZ"
+    },
+    {
+      "url": "https://id5-sync.com/gm/v3",
+      "data_sample": "{'generic': {'signature': 'ID5_Ao4t7I6NrllTLk-DFjqOpkvr5D3V5epIrsTdES42X6bpSxu866kkI0cQYHpA8WtfkhUbbBjBrD3hBpECz38K2nKhWhLaJ0XKkeiSrGttpdsOsghzFMUlF3JyaNKa1zN7oSNcuyTsWXW7y48J25n0jNaroq1UPCNWZJka1kiKLaDxSQHbAzk', 'created_at': '2025-10-08T16:10:00.749Z', 'id5_consent': True, 'original_uid': 'ID5*hV3--gmNNaVZO3Zy20vho_KFVgjCweg4zO_KUqLlChr__2jmjN1aAAEBCmjmjNgAU7pQbwdJyx1gox25wSs4Ng', 'universal_uid': 'ID5*0eIay9imvD9_JJP945f0wA3g8jDYLvL75J9KhAlgDv7__2jmjN1aAAEBCmjmjNgAU7pjBTQ-mcaBP0ylOJnmTQ', 'li"
+    },
+    {
+      "url": "https://ut.pubmatic.com/geo?pubid=159110",
+      "data_sample": "{'cc': 'US', 'sc': 'nh'}"
+    },
+    {
+      "url": "https://lb.eu-1-id5-sync.com/lb/v1",
+      "data_sample": "{'lb': 'qtVAaymJ8nLqum+5tgO3oQ==', 'ttl': 28800}"
+    },
+    {
+      "url": "https://lbs.eu-1-id5-sync.com/lbs/v1",
+      "data_sample": "{'lbs': 'XDfNHdBpVRqABNKsEWpxQqJPa+x2KUzR7xnHxxE5HGK7vBzyTN6UXykvqRlpcsL9'}"
+    },
+    {
+      "url": "https://token.rubiconproject.com/khaos.json?",
+      "data_sample": "{'c': 1}"
+    },
+    {
+      "url": "https://id5-sync.com/gm/v3",
+      "data_sample": "{'generic': {'signature': 'ID5_Ak9g8NZjupS8xyDeYQGImld3BBwBDe7xlAM-mf5ixSR0jbsByu7Mzn1xP6a67WJYcNe0eyz2Wpd5YPzUT855JHQz1JMgbZIYtD2PoIwA7KCvG2HH4qTZzPefBSjteTP0XnMq-mTbSbdHT1-cIOkwm0tBqmoGZH16Y8LwEiQkyOweTaEAuyw', 'created_at': '2025-10-08T16:10:00.749Z', 'id5_consent': True, 'original_uid': 'ID5*oWL7Iy2yMHx9BHOr_3Tketa6U9Hm_u3h6NDPi4baD8P__2jmjORaAAEBCmjmjNgAU7qP1fgn0HojSvdOgV-rVg', 'universal_uid': 'ID5*WFZ9E1ES2-f2kPQlaiOTGIRUlehRmpUjbSstXIDUaSb__2jmjORaAAEBCmjmjNgAU7oG8sLpbj3GlrXFTMG13g', 'li"
+    },
+    {
+      "url": "https://ut.pubmatic.com/geo?pubid=156011",
+      "data_sample": "{'cc': 'US', 'sc': 'nh'}"
+    },
+    {
+      "url": "https://lexicon.33across.com/v1/envelope?pid=0015a00002y7TWTAA2&src=ima&ver=1.18.0",
+      "data_sample": "{'succeeded': True, 'data': {'envelope': 'v1.0015a00002y7TWTAA2.1046.JsBHp1Y2k2wbnb055QuUAYY7Xmc+QWGH51YQV92Zwhw='}}"
+    },
+    {
+      "url": "https://bcp.crwdcntrl.net/6/map",
+      "data_sample": "{'pid': '3113a1d2e22d18d20967a1c584a5ca7c', 'c': [{'k': '_cc_id', 'v': '3113a1d2e22d18d20967a1c584a5ca7c', 'e': 23328000}], 'ids': [{'i': '8af333dda7202e28147f3104d4bfa9fb927a08a654c67d8cec06e19b5dabe3e6', 't': 'c', 'c': 'core', 'e': '1760026217245'}]}"
+    },
+    {
+      "url": "https://id5-sync.com/gm/v3",
+      "data_sample": "{'generic': {'signature': 'ID5_AqsWndxs4Te7gNvwBJWumiwtBTSDFgYTpO6KQNtwK1IxWQoe250SR_TKCUYuXtvR7SrE4Mm6qHoyK1BSgJmQbqCnCpen9AxrAJKHom9AMH49YAW4qmDs8i5__8K3BhZTEDek45Npteh_RnFfb2jWbLZU9KoI2fXiR_BxYbQZFb3QalLwx2U', 'created_at': '2025-10-08T16:10:00.749Z', 'id5_consent': True, 'original_uid': 'ID5*FPCPApggRF3IlgeKSuaQW2MoJ_BTbJnAXUK7qjNIe-L__2jmjOlaAAEBCmjmjNgAU7pbj7ado1aCulwlY16WtQ', 'universal_uid': 'ID5*V7IDwl72pTb5dIr0ZcftyYuw6zlefuvyYs9TjY8wF_f__2jmjOlaAAEBCmjmjNgAU7qrVYv-NOWHt5vEeVrr8Q', 'li"
+    },
+    {
+      "url": "https://uid2.hadron.ad.gt/v1/hadron.json?_it=tag&partner_id=800&sync=0&domain=&url=about:blank&v=06",
+      "data_sample": "{'base_id': 'wnDWaZ33333431303235323736000000', 'guid': '3S9C7nWmKRV', 'addr': '2601:188:c082:2fa0:71c3:5f6e:c723:fffc', 'domain': '', 'debug_info': {'uid2_able': True}}"
+    },
+    {
+      "url": "https://token.rubiconproject.com/khaos.json?khaos=MGI6PURG-A-IWG6",
+      "data_sample": "{'c': 1}"
+    },
+    {
+      "url": "https://token.rubiconproject.com/khaos.json?khaos=MGI6PURG-A-IWG6",
+      "data_sample": "{'c': 1}"
+    },
+    {
+      "url": "https://id5-sync.com/gm/v3",
+      "data_sample": "{'generic': {'signature': 'ID5_Avzvbb-ol97sIi05WIiQi8kF9DqEqCyY0PJIYKUxgZN7ZRJLa-f1Fri72COS5VUz7ab4KWDH8gqAabq9LwSy9qIAMgqQb3-grrPubB2VM8ID_jSQ1JumswmkXhSTziY7OjyMx9y-XSOSguzUDzqkF_wz-090yUd3aE-bBLl76YEq-ERjGzA', 'created_at': '2025-10-08T16:10:00.749Z', 'id5_consent': True, 'original_uid': 'ID5*BKJpIYhyon7YxOGpWrR2eHN6wdNDPn_jTRBdiSMancH__2jmjOlaAAEBCmjmjNgAU7pFGAKiFgyDVBqKKyZ6RQ', 'universal_uid': 'ID5*UBUM_llRqgr-04XIYmDi9YwX5AVZ2eTOZWhcsYiXGMv__2jmjOlaAAEBCmjmjNgAU7rTp1ZRdcyDfxH7YJmTGA', 'li"
+    },
+    {
+      "url": "https://ut.pubmatic.com/geo?pubid=164929",
+      "data_sample": "{'cc': 'US', 'sc': 'nh'}"
+    },
+    {
+      "url": "https://c.amazon-adsystem.com/cdn/prod/config?src=600&u=https%3A%2F%2Fwww.fangraphs.com&pubid=54eeeb9c-d6c6-4712-bb2a-e2aed51c3eb7",
+      "data_sample": "{'3pvendor': 'if (!window.PublisherCommonId) {\\n    var pubcommonScript = document.createElement(\\'script\\');\\n    pubcommonScript.src = \\'//secure.cdn.fastclick.net/js/pubcid/latest/pubcid.min.js\\';\\n    document.head.appendChild(pubcommonScript);\\n};[\"window.creativeVendorLibraryLoaded = true;\"];var id5PropertyId = \\'1377\\';\\nif (id5PropertyId && id5PropertyId.charAt(0) !== \\'%\\') {\\n    var id5Script = document.createElement(\\'script\\');\\n    id5Script.src = \\'//cdn.id5-sync.com/api/1.0/id5-a"
+    },
+    {
+      "url": "https://securepubads.g.doubleclick.net/pagead/ima_ppub_config?ippd=https%3A%2F%2Fwww.fangraphs.com%2Fprospects%2Fthe-board%2F2025-in-season-prospect-list%2Fscouting-position",
+      "data_sample": "[None, [[['1128006'], ['136431902'], ['170737076'], ['172968584'], ['175840252'], ['21725819945'], ['21734706084'], ['21747486121'], ['21939239661'], ['22917490941'], ['65889844'], ['7047'], ['7103'], ['92056281'], ['60963084']]], [[['1128006', 1], ['136431902', 1], ['170737076', 1], ['172968584', 1], ['175840252', 1], ['21725819945', 1], ['21734706084', 1], ['21747486121', 1], ['21939239661', 1], ['22917490941', 1], ['60963084', 1], ['65889844', 1], ['7047', 1], ['7103', 0], ['92056281', 1]]], "
+    },
+    {
+      "url": "https://token.rubiconproject.com/khaos.json?khaos=MGI6PURG-A-IWG6",
+      "data_sample": "{'c': 1}"
+    },
+    {
+      "url": "https://bidder-front-08.smilewanted.com/call/NmIzYTIxZjk2OTc3ZjU1OWE3MmQ3NDQ0NDRjYzA5YWYjIyN1bmtub3duIyMjNzI4eDkwIyMjc2xpZGVzaG93IyMjZGVmYXVsdCMjIzIwMDAjIyM4MCMjI3NtYXJ0X3Yx",
+      "data_sample": "{'open_close': False, 'ad_content': '<span class=\"PubAPIAd\"  id=\"0A73E5F5-58E4-45C6-A17A-A7C9EE5804B0\"><script type=\"text/javascript\" src=\"https://pn.ybp.yahoo.com/ab/imp/aEDrTFhuzSLwV06WtKL4JpdssLjLe79t7elmOHGVKPtKJhUYQ8-o4l_zaFgYPIxxTLrvSjm2yqhm5QTJjADbeGg4uxn_zD0j-n7DvMIQw_T6ryCQoQ9OY5JxSDSLLYWK0u1PuRDTaVFC1JWf_pF5PKU0Es0LA8gNvI79upZbjP5ltX3cuywVQ1krsJX6caSmoqp9fJ0VXfQ3_DKBJLdkMROZlxuv6klR7ksyQYUk8WfmdpGHvyHgOr2hsue1RvJFO3FVyL-RBzeazPesa3SEaakewobnp8i4k0HbNYF5eyvoDOlg4vsht8usTQK89YmMftMCI-yEk"
+    },
+    {
+      "url": "https://token.rubiconproject.com/khaos.json?khaos=MGI6PURG-A-IWG6",
+      "data_sample": "{'c': 1}"
+    },
+    {
+      "url": "https://ut.pubmatic.com/geo?pubid=156344",
+      "data_sample": "{'cc': 'US', 'sc': 'nh'}"
+    },
+    {
+      "url": "https://aax.amazon-adsystem.com/e/dtb/bid",
+      "data_sample": "{'contextual': {'cmp': 'https://s.amazon-adsystem.com/iu3?cm3ppd=1&d=dtb-pub&csif=t&dl=n-smaato_pm-db5_n-Ogury_n-OMS', 'cb': '0'}}"
+    },
+    {
+      "url": "https://token.rubiconproject.com/khaos.json?khaos=MGI6PURG-A-IWG6",
+      "data_sample": "{'c': 1}"
+    },
+    {
+      "url": "https://token.rubiconproject.com/khaos.json?khaos=MGI6PURG-A-IWG6",
+      "data_sample": "{'c': 1}"
+    },
+    {
+      "url": "https://ut.pubmatic.com/geo?pubid=157743",
+      "data_sample": "{'cc': 'US', 'sc': 'nh'}"
+    },
+    {
+      "url": "https://rp.liadm.com/j?dtstmp=1759939819600&did=did-003y&se=e30&duid=ba1275917a72--01k729csk2wvpc4kqchzbq1cy8&tv=v3.13.1&pu=https%3A%2F%2Fwww.fangraphs.com%2Fprospects%2Fthe-board%2F2025-in-season-prospect-list%2Fscouting-position&ext__pubcid=4efbcac4-38d5-4936-bc7e-aaa3527fbfde&wpn=lc-bundle&wpv=v3.13.1&cd=.fangraphs.com&pv=99e03cdd-6650-4f0c-ab1c-156df26c1eb6",
+      "data_sample": "{'bakers': []}"
+    },
+    {
+      "url": "https://token.rubiconproject.com/khaos.json?gdpr=0&khaos=MGI6PURG-A-IWG6",
+      "data_sample": "{'c': 1}"
+    },
+    {
+      "url": "https://token.rubiconproject.com/khaos.json?khaos=MGI6PURG-A-IWG6",
+      "data_sample": "{'c': 1}"
+    },
+    {
+      "url": "https://bidder-front-08.smilewanted.com/call/NmIzYTIxZjk2OTc3ZjU1OWE3MmQ3NDQ0NDRjYzA5YWYjIyN1bmtub3duIyMjNzI4eDkwIyMjc2xpZGVzaG93IyMjZGVmYXVsdCMjIzIwMDAjIyM4MCMjI3NtYXJ0X3Yx",
+      "data_sample": "{'open_close': False, 'ad_content': '<span class=\"PubAPIAd\"  id=\"A4904F4A-319D-444A-B398-1D98FBAF7A4B\"><script type=\"text/javascript\" src=\"https://pn.ybp.yahoo.com/ab/imp/PaieQ53gsBtns7_ucr3G1OYWg419JqAZgUZBREvo97XOtSvJTVCPWvsQ-_OtSuFzT5gU62DHMvnsMmZKQXD6R-XB_HH8E4i6DnzNqPrI0apjNk6Hs-HdmJeX0NZhZ7BDqNvpx1erf7429-epgTV9fqXqudSeDGeR3kM2-e7bcObxYUdMtNaCLd0WxmRE7L6AmnAGbmP5-egLSLHSRblxK0FJI25xWy-TSk98L5CAuPCU2fGYudeoxRzYIhyiO5wbWkEULCRXh03Waqua9S8UwsewzHOXA5YbfhD4uMol1X7mh1___NZMXM7eszIfK3xiH9tfWlWEn"
+    },
+    {
+      "url": "https://id5-sync.com/gm/v3",
+      "data_sample": "{'generic': {'signature': 'ID5_Aqn9Q-T8QzUt7xB0V9HhdhNFVZI-tvYJvwKw-gnklcp0jtBt9yoR3ePWLMrP2x_3drVzIqMrtcuw2NInowVYVc7GXtCMTBqVd9LS2cAa1o_lq3Ys2NiglRFSP-3gsxtqjuXVA3lTvdXLPR1YwlPEwz3WUHITV8UL6JQ9YHjjzyUzZ4zVSWA', 'created_at': '2025-10-08T16:10:00.749Z', 'id5_consent': True, 'original_uid': 'ID5*lK4a1Rh-0YpIyJJdyrgFjON2sifTMgwX3RwufbMW7jX__2jmjP1aAAEBCmjmjNgAU7rg1SwganisSUpMGgeZqw', 'universal_uid': 'ID5*TSO6rURnHFnj5TObf1ZUppEhUlZE71KdeF7q4pWhrpj__2jmjP1aAAEBCmjmjNgAU7qVrzZUbt5MtilOuPXhdQ', 'li"
+    },
+    {
+      "url": "https://ut.pubmatic.com/geo?pubid=156423",
+      "data_sample": "{'cc': 'US', 'sc': 'nh'}"
+    },
+    {
+      "url": "https://aax.amazon-adsystem.com/e/dtb/bid",
+      "data_sample": "{'contextual': {'cmp': 'https://s.amazon-adsystem.com/iu3?cm3ppd=1&d=dtb-pub&csif=t&gdpr=0&dl=n-smaato_pm-db5_n-Ogury_n-OMS', 'cb': '1'}}"
+    },
+    {
+      "url": "https://token.rubiconproject.com/khaos.json?gdpr=0&khaos=MGI6PURG-A-IWG6",
+      "data_sample": "{'c': 1}"
+    },
+    {
+      "url": "https://uid2.hadron.ad.gt/v1/hadron.json?_it=0&partner_id=800&sync=1&domain=www.fangraphs.com&url=https://www.fangraphs.com/prospects/the-board/2025-in-season-prospect-list/scouting-position&v=06",
+      "data_sample": "{'base_id': 'wnDWaZ34303635383837353100000000', 'guid': '3S9C8KMtt4L', 'addr': '24.60.13.79', 'domain': 'fangraphs.com', 'debug_info': {'uid2_able': True}}"
+    },
+    {
+      "url": "https://aax.amazon-adsystem.com/e/dtb/bid",
+      "data_sample": "{'contextual': {'slots': [{'targeting': ['amzniid', 'amznp', 'amznsz', 'amznbid', 'amznactt'], 'amzniid': 'JHkHbY4Ld1wZV2xo5dYBzlUAAAGZxJbEjQEAAAJYAQBhcHNfdHhuX2JpZDEgICBhcHNfdHhuX2ltcDEgICBCZcSw', 'size': '728x90', 'meta': ['slotID', 'mediaType', 'size'], 'amznactt': 'OPEN', 'amznsz': '728x90', 'slotID': 'sticky_footer__ayManagerEnv__1_5f201413', 'amznp': 'af5534', 'mediaType': 'd', 'amznbid': '1yhiww'}], 'host': 'https://aax-events-cell01-cf.us-east.aps.axp.amazon-adsystem.com', 'cfe': True, '"
+    },
+    {
+      "url": "https://apex.go.sonobi.com/trinity.json",
+      "data_sample": "{'slots': {'113ff5e068b65ee38': {}}, 'sbi_dc': 'iad-2-', 'pv': '1432f315-3daa-4937-b595-588f9747e9cf', 'sbi_px': [{'code': 'rh', 'url': 'https://creativecdn.com/cm-notify?pi=sonobi', 'type': 'image'}, {'code': 'if', 'url': 'https://sync.mathtag.com/sync/img?cs_wd_sy=1&dp=43&redir=https%3A%2F%2Fsync.go.sonobi.com%2Fus.gif%3Fnw%3Dif%26nuid%3D[MM_UUID]%26uid%3Dc8245273-9d15-4496-bf83-7d27f34448b9', 'type': 'image'}, {'code': 'tp', 'url': 'https://pixel.tapad.com/idsync/ex/receive?partner_id=3061&pa"
+    },
+    {
+      "url": "https://token.rubiconproject.com/khaos.json?khaos=MGI6PURG-A-IWG6",
+      "data_sample": "{'c': 1}"
+    },
+    {
+      "url": "https://prebid.media.net/rtb/prebid?cid=8CUD48V3F",
+      "data_sample": "{'id': 'd3884231-5f50-49d4-afee-ba8c4ec9df75', 'bidList': [{'no_bid': False, 'requestId': '1174967fe240cfb18', 'cpm': 0.4, 'ad': '<div id=\"mnet-vtgt-7e3a6e6b98ce76322f02c3d04aeaf6f8\"><script>function canAccessWindowTop(){try{return!!window.top.location.href}catch(c){return!1}}; try{new Image().src=\"https://hblg.media.net/log?logid=kfke&evtid=plutol1&__q=AdQEewKELAQCEAABAIAAAgAAAAAAAAEABgAAQIABAAgAINCYCXBGkQFQNDI1OTUyNzcyNzA1Nl8yMTI2NzkzODk0XzIzMjU0Mjc1MTI1MTFfMEBjOWMzZTYzMWE1OGIyMDFkODZlMjYzYWE2"
+    },
+    {
+      "url": "https://tlx.3lift.com/header/auction?lib=prebid&v=9.53.2&referrer=https%3A%2F%2Fwww.fangraphs.com%2Fprospects%2Fthe-board%2F2025-in-season-prospect-list%2Fscouting-position&tmax=2000",
+      "data_sample": "{'status': 'no_bid'}"
+    },
+    {
+      "url": "https://ex.ingage.tech/v1/openrtb",
+      "data_sample": "{'id': '1321b2e64ab8d0ae', 'seatbid': [{'bid': [{'id': 'E28BB067-0749-4DF3-A51E-21B72391DB78', 'impid': '13383146159bfed2', 'price': 0.14127234, 'adm': '<span class=\"PubAPIAd\"  id=\"E28BB067-0749-4DF3-A51E-21B72391DB78\"><DIV STYLE=\"position: absolute; left: 0px; top: 0px; visibility: hidden;\"><IMG SRC=\"https://pagead2.googlesyndication.com/pagead/gen_204?id=xbid&dbm_b=AKAmf-D91wvSN5_IcFSY_U7HChkt69dViTSnmQ4-5ivsvPy4CoHnMZsdNJORzlNoBbkYxkJ4Yw4btBFx-Vd_89VgOyKwA_7tf9yGqBKDL2_O4ZpK1lg-nLc\" BORDER=0 "
+    },
+    {
+      "url": "https://exchange.cootlogix.com/prebid/multi/64130f63abc4d862b32d8199",
+      "data_sample": "{'results': [{'cookies': [], 'ad': '<!-- Sovrn Creative creativeId:\"23233041658515628\" seatId:\"233041\" dspId:\"23\" siteId:\"1251457\" pubId:\"222372\" referrerDomain:\"www.fangraphs.com\" deliveryType:\"display\"--><DIV STYLE=\"position: absolute; left: 0px; top: 0px; visibility: hidden;\"><IMG SRC=\"https://pagead2.googlesyndication.com/pagead/gen_204?id=xbid&dbm_b=AKAmf-B2Le77725olP08sQYGb2RxuEJYZKnVt-kq90FL-cJFsFHmHNCfxk6nZ8v-SYFefhfunFHtYlySEVILmsx1ZhZymGqy9Qw08MbqsIRVK1SSgV3F4d0\" BORDER=0 WIDTH=1 HEIGH"
+    },
+    {
+      "url": "https://targeting.unrulymedia.com/unruly_prebid",
+      "data_sample": "{'bids': []}"
+    },
+    {
+      "url": "https://hb.shemediax.com/hb-multi",
+      "data_sample": "{'params': {'sessionId': '15422ac37da1114b8', 'publisherId': '68db8d0a0c6f16000154bce2', 'userSyncURL': 'https://sdk.shemediax.com/cs-config/cs.html?org=68db8d0a0c6f16000154bce2&tc=68db90c90c6f16000154be4b&as=68db90c90c6f16000154be4d&type=hb&wd=cs.shemediax.com&domain=fangraphs.com&us_privacy=1NNN'}}"
+    },
+    {
+      "url": "https://s.seedtag.com/c/hb/bid",
+      "data_sample": "{'bids': []}"
+    },
+    {
+      "url": "https://mp.4dex.io/prebid",
+      "data_sample": "{'data': {'user_syncs': [{'html': \"<iframe id='adg-0-sync' height='0' width='0' marginwidth='0' marginheight='0' scrolling='no' frameborder='0' src='https://ap.lijit.com/beacon/prebid-server/?gdpr=0&gdpr_consent=&url=https%3A%2F%2Fu.4dex.io%2Fsetuid%3Fbidder%3Dsovrn%26it%3Dadg-pb-clt%26uid%3D%24UID' style='border: 0px; display: none;'></iframe>\"}, {'html': \"<img id='adg-1-sync' style='position:absolute; display:none; height:0; width:0;' src='https://sync.adkernel.com/user-sync?zone=256788&t=imag"
+    },
+    {
+      "url": "https://ap.lijit.com/rtb/bid?src=prebid_prebid_9.53.2",
+      "data_sample": "{'id': '1586aa1efd48d5718', 'bidid': '0aedcb51-0399-404e-8c49-8f00bd9d46e2', 'ext': {'iid': 10846689, 'sync': {'pixels': [{'url': 'https://ap.lijit.com/dsp/google/cookiematch/dv?gdpr=&gdpr_consent=&gpp_sid='}, {'url': 'https://data.adsrvr.org/track/cmf/generic?ttd_pid=federatedmedia&gdpr=&gdpr_consent=&gpp_sid='}, {'url': 'https://x.bidswitch.net/sync?ssp=fmx&us_privacy=&gdpr=&gdpr_consent=&gpp_sid='}, {'url': 'https://pixel-us-east.rubiconproject.com/exchange/sync.php?p=sovrn&gdpr=&gdpr_consent"
+    },
+    {
+      "url": "https://hb.minutemedia-prebid.com/hb-mm-multi",
+      "data_sample": "{'params': {'sessionId': '148a3e39fb5942f98', 'publisherId': '64188c5f2563760001e33ec6', 'userSyncURL': 'https://sdk.minutemedia-prebid.com/cs-config/cs.html?org=64188c5f2563760001e33ec6&tc=64188ca91efbc40001ae0428&as=64188ca91efbc40001ae042a&type=hb&wd=cs.minutemedia-prebid.com&domain=fangraphs.com&us_privacy=1NNN'}, 'bids': [{'requestId': '14958a3002db8254', 'mediaType': 'banner', 'cpm': 0.14531999999999998, 'width': 970, 'height': 250, 'ttl': 300, 'creativeId': '678331907', 'ad': '<!-- Exchan"
+    },
+    {
+      "url": "https://prebid.smilewanted.com/",
+      "data_sample": "{'ad': '<iframe id=\"iframe_display_sw_c5e118e2-4192-4d50-b322-d535054b93fb\" frameborder=\"0\" style=\"overflow:hidden;overflow-x:hidden;overflow-y:hidden;height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px\" height=\"100%\" width=\"100%\"></iframe><script>document.getElementById(\"iframe_display_sw_c5e118e2-4192-4d50-b322-d535054b93fb\")\\n.contentWindow.document.write(    \"<img src=\\\\\"\\\\\" style=\\\\\"position:absolute; visibility:hidden; display:none\\\\\" width=\\\\\"0\\\\\" height=\\\\\"0\\\\\""
+    },
+    {
+      "url": "https://mp.4dex.io/prebid",
+      "data_sample": "{'data': {'user_syncs': [{'html': \"<img id='adg-0-sync' style='position:absolute; display:none; height:0; width:0;' src='https://ice.360yield.com/server_match?partner_id=1790&r=https%3A%2F%2Fu.4dex.io%2Fsetuid%3Fbidder%3Dimprovedigital%26it%3Dadg-pb-clt%26uid%3D%7BPUB_USER_ID%7D' />\"}, {'html': \"<img id='adg-1-sync' style='position:absolute; display:none; height:0; width:0;' src='https://sync.adkernel.com/user-sync?zone=256788&t=image&gdpr=0&gdpr_consent=&us_privacy=&gpp=&gpp_sid=&r=https%3A%2F%"
+    },
+    {
+      "url": "https://fastlane.rubiconproject.com/a/api/fastlane.json?account_id=26488&site_id=541318&zone_id=3344548&size_id=2&alt_size_ids=55%2C57&eid_pubcid.org=94322e80-0967-403d-8136-1ec2b0b68f4d%5E1%5E%5E%5E%5E%5E&eid_adserver.org=5e5656e8-1ca7-4e0a-86dc-723107fa15fc%5E1%5E%5Eadserver.org%5Eadserver.org%5E4%5ETDID&rf=https%3A%2F%2Fwww.fangraphs.com%2Fprospects%2Fthe-board%2F2025-in-season-prospect-list%2Fscouting-position&tg_i.domain=fangraphs.com&tg_i.page=https%3A%2F%2Fwww.fangraphs.com%2Fprospects%2Fthe-board%2F2025-in-season-prospect-list%2Fscouting-position&tg_i.cat=IAB17&tg_i.sectioncat=IAB17-2&tg_i.pagecat=IAB17-2&tg_i.documentLang=en&tg_i.divId=ay_top_banner__ayManagerEnv__1_9549e738&tg_i.placement=top_banner&tg_i.pbadslot=%2F1128006%2Fay_fg_top_banner&tk_flint=pbjs_lite_v9.53.2&x_source.tid=d3884231-5f50-49d4-afee-ba8c4ec9df75&l_pb_bid_id=127a6668d9c4d03b8&p_screen_res=1280x720&rp_secure=1&x_imp.ext.tid=d9e776af-cb24-43a3-9b6e-fcdbde707326&rp_hard_floor=0.01&p_gpid=%2F1128006%2Fay_fg_top_banner&m_ch_ua=%22Chromium%22%7Cv%3D%22140%22%2C%22Not%3DA%3FBrand%22%7Cv%3D%2224%22%2C%22HeadlessChrome%22%7Cv%3D%22140%22&m_ch_mobile=%3F0&m_ch_platform=Windows&slots=1&rand=0.6481795192224533",
+      "data_sample": "{'status': 'ok', 'account_id': 26488, 'site_id': 541318, 'zone_id': 3344548, 'size_id': 2, 'alt_size_ids': [55, 57], 'tracking': '', 'inventory': {'sectioncat': 'IAB17-2', 'placement': 'top_banner', 'cat': 'IAB17', 'page': 'https://www.fangraphs.com/prospects/the-board/2025-in-season-prospect-list/scouting-position', 'documentLang': 'en', 'pbadslot': '%2F1128006%2Fay_fg_top_banner', 'divId': 'ay_top_banner__ayManagerEnv__1_9549e738', 'domain': 'fangraphs.com', 'pagecat': 'IAB17-2'}, 'ads': [{'st"
+    },
+    {
+      "url": "https://fastlane.rubiconproject.com/a/api/fastlane.json?account_id=26488&site_id=541318&zone_id=3344548&size_id=2&alt_size_ids=55&eid_pubcid.org=94322e80-0967-403d-8136-1ec2b0b68f4d%5E1%5E%5E%5E%5E%5E&eid_adserver.org=5e5656e8-1ca7-4e0a-86dc-723107fa15fc%5E1%5E%5Eadserver.org%5Eadserver.org%5E4%5ETDID&rf=https%3A%2F%2Fwww.fangraphs.com%2Fprospects%2Fthe-board%2F2025-in-season-prospect-list%2Fscouting-position&tg_i.domain=fangraphs.com&tg_i.page=https%3A%2F%2Fwww.fangraphs.com%2Fprospects%2Fthe-board%2F2025-in-season-prospect-list%2Fscouting-position&tg_i.cat=IAB17&tg_i.sectioncat=IAB17-2&tg_i.pagecat=IAB17-2&tg_i.documentLang=en&tg_i.divId=sticky_footer__ayManagerEnv__1_5f201413&tg_i.placement=sticky_footer&tg_i.pbadslot=%2F1128006%2Fay_sticky_footer&tk_flint=pbjs_lite_v9.53.2&x_source.tid=90e5a32c-daec-49c1-8e71-b161d0fcb274&l_pb_bid_id=1899b4e3b052a2f78&p_screen_res=1280x720&rp_secure=1&x_imp.ext.tid=7dd63001-ef40-4496-9b54-935f9ab0f975&rp_hard_floor=0.01&p_gpid=%2F1128006%2Fay_sticky_footer&m_ch_ua=%22Chromium%22%7Cv%3D%22140%22%2C%22Not%3DA%3FBrand%22%7Cv%3D%2224%22%2C%22HeadlessChrome%22%7Cv%3D%22140%22&m_ch_mobile=%3F0&m_ch_platform=Windows&slots=1&rand=0.03842436982187536",
+      "data_sample": "{'status': 'ok', 'account_id': 26488, 'site_id': 541318, 'zone_id': 3344548, 'size_id': 2, 'alt_size_ids': [55], 'tracking': '', 'inventory': {'sectioncat': 'IAB17-2', 'placement': 'sticky_footer', 'cat': 'IAB17', 'page': 'https://www.fangraphs.com/prospects/the-board/2025-in-season-prospect-list/scouting-position', 'documentLang': 'en', 'pbadslot': '%2F1128006%2Fay_sticky_footer', 'divId': 'sticky_footer__ayManagerEnv__1_5f201413', 'domain': 'fangraphs.com', 'pagecat': 'IAB17-2'}, 'ads': [{'sta"
+    },
+    {
+      "url": "https://hb.shemediax.com/hb-multi",
+      "data_sample": "{'params': {'sessionId': '194cf5c075c22a1d8', 'publisherId': '68db8d0a0c6f16000154bce2', 'userSyncURL': 'https://sdk.shemediax.com/cs-config/cs.html?org=68db8d0a0c6f16000154bce2&tc=68db90c90c6f16000154be4b&as=68db90c90c6f16000154be4d&type=hb&wd=cs.shemediax.com&domain=fangraphs.com&us_privacy=1NNN'}}"
+    },
+    {
+      "url": "https://targeting.unrulymedia.com/unruly_prebid",
+      "data_sample": "{'bids': []}"
+    },
+    {
+      "url": "https://ap.lijit.com/rtb/bid?src=prebid_prebid_9.53.2",
+      "data_sample": "{'id': '20874021a5675b1c', 'seatbid': [{'bid': [{'id': 'a_1116908_f964c3a6e05743b59418fb17ad5b1bc4/0', 'impid': '173c30cbf525cca78', 'price': 0.59486562, 'nurl': 'https://imp-ue1-secondary.lijit.com/rtb/impression?i_data=Jm_fPseLxjVkZ8ryISX8nvlAPg05N19_XJ_0LqD3lQPeN3DK-EmHM7kW7kA6YWDYC328P0OKn-H-RIqaKbbZyx0DYxM8Kpzm-839bg_so7ojdXp0RExl7MKGpqcSUdCuEWzgSJJ-qfbOaZRgvKhfRfxpg4zaEcf85FvdvRkVRYKtegZeIDCnh9K1Pi5rcgwofsZDm1P6xss1YD1un0KGalCFccyMQv35xNbApjNnrJngevHStOV6a6iILmxvld3rvCiE8iOrSbV9uTy9bHqGmgT"
+    },
+    {
+      "url": "https://hb.minutemedia-prebid.com/hb-mm-multi",
+      "data_sample": "{'params': {'sessionId': '168d2b6a5f3f36b1', 'publisherId': '64188c5f2563760001e33ec6', 'userSyncURL': 'https://sdk.minutemedia-prebid.com/cs-config/cs.html?org=64188c5f2563760001e33ec6&tc=64188ca91efbc40001ae0428&as=64188ca91efbc40001ae042a&type=hb&wd=cs.minutemedia-prebid.com&domain=fangraphs.com&us_privacy=1NNN'}, 'bids': [{'requestId': '169ec02466653c55', 'mediaType': 'banner', 'cpm': 0.42336, 'width': 728, 'height': 90, 'ttl': 300, 'creativeId': '658515628', 'ad': '<!-- Exchange: OpenX DSPI"
+    },
+    {
+      "url": "https://prebid.media.net/rtb/prebid?cid=8CUD48V3F",
+      "data_sample": "{'id': '90e5a32c-daec-49c1-8e71-b161d0fcb274', 'bidList': [{'no_bid': False, 'requestId': '201e390d24569a198', 'cpm': 0.27, 'ad': '<div id=\"mnet-vtgt-5964e0e576b522c2aee8b87da288d7d0\"><script>function canAccessWindowTop(){try{return!!window.top.location.href}catch(c){return!1}}; try{new Image().src=\"https://hblg.media.net/log?logid=kfke&evtid=plutol1&__q=AdQEewaELAQCEAABAIAAAgAAAAAAAAEABgAAQIABAAgAINCYCXBGkQFSMjc2Njg2MzU0MzQ3NTVfMTQ0MDE2NTAyM18xNjEyNzE5NTcyNTExXzBANzE1Y2Y5MGM4OGJhMTc0ZjIxOTUxNTk"
+    },
+    {
+      "url": "https://s.seedtag.com/c/hb/bid",
+      "data_sample": "{'bids': [{'bidId': '1670d9d6e9d1be0f', 'content': '<script>\\n      window.hbResponse = JSON.parse(decodeURIComponent(atob(\"JTdCJTIyYmlkUmVzcG9uc2VzJTIyJTNBJTVCJTdCJTIycHJvZHVjdFNob3J0Q29kZSUyMiUzQSUyMk9NOTcweDI1MCUyMiUyQyUyMnByb2R1Y3RUeXBlJTIyJTNBJTIyZGlzcGxheSUyMiUyQyUyMnByb2R1Y3RNYXJrZXQlMjIlM0ElMjJvcGVuJTIyJTJDJTIyd2lkdGglMjIlM0E5NzAlMkMlMjJoZWlnaHQlMjIlM0EyNTAlMkMlMjJjb250ZW50JTIyJTNBJTIyJTNDRElWJTIwU1RZTEUlM0QlNUMlMjJwb3NpdGlvbiUzQSUyMGFic29sdXRlJTNCJTIwbGVmdCUzQSUyMDBweCUzQiUyMHRvcCUzQSUy"
+    },
+    {
+      "url": "https://ex.ingage.tech/v1/openrtb",
+      "data_sample": "{'id': '1748f4d1c288d2c9', 'seatbid': [{'bid': [{'id': '8EC78804-5C29-468F-9FD5-A734EBE56CC4', 'impid': '175b0cecbf91e9d', 'price': 0.240017778, 'nurl': 'https://evt.minutemedia-prebid.com/x?a=wn&add=americanexpress.com&ai=pubmatic-mm&aid=01K729DMK26SBGG0TKHHFMWAAG&ar=0.519&as=d&asv=viewability&at=banner&au=RV&b=Other&bas=pubmatic-mm&bl0dr=s2s-mm_new-s2s-mm_unfiltered&bl0r=s2s-mm_new-s2s-mm_unfiltered&bl0sr=bl0s-s2s-mm_bl0-supply-s2s-mm_unfiltered&blf=mm-s2s-ban-0.00-3.00-multi_mm-s2s-ban-NG-uni"
+    },
+    {
+      "url": "https://tlx.3lift.com/header/auction?lib=prebid&v=9.53.2&referrer=https%3A%2F%2Fwww.fangraphs.com%2Fprospects%2Fthe-board%2F2025-in-season-prospect-list%2Fscouting-position&tmax=2000",
+      "data_sample": "{'status': 'no_bid'}"
+    },
+    {
+      "url": "https://apex.go.sonobi.com/trinity.json",
+      "data_sample": "{'slots': {'177d03ace24a3c4d8': {}}, 'sbi_dc': 'iad-2-', 'pv': '1432f315-3daa-4937-b595-588f9747e9cf', 'sbi_px': [{'code': 'rh', 'url': 'https://creativecdn.com/cm-notify?pi=sonobi', 'type': 'image'}, {'code': 'if', 'url': 'https://sync.mathtag.com/sync/img?cs_wd_sy=1&dp=43&redir=https%3A%2F%2Fsync.go.sonobi.com%2Fus.gif%3Fnw%3Dif%26nuid%3D[MM_UUID]%26uid%3Dc8245273-9d15-4496-bf83-7d27f34448b9', 'type': 'image'}, {'code': 'eb', 'url': 'https://cm.g.doubleclick.net/pixel?google_nid=sonobi&google_"
+    },
+    {
+      "url": "https://prebid.smilewanted.com/",
+      "data_sample": "{'ad': '<iframe id=\"iframe_display_sw_8d8087b5-6026-4808-9e16-84e943e1e203\" frameborder=\"0\" style=\"overflow:hidden;overflow-x:hidden;overflow-y:hidden;height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px\" height=\"100%\" width=\"100%\"></iframe><script>document.getElementById(\"iframe_display_sw_8d8087b5-6026-4808-9e16-84e943e1e203\")\\n.contentWindow.document.write(    \"<img src=\\\\\"\\\\\" style=\\\\\"position:absolute; visibility:hidden; display:none\\\\\" width=\\\\\"0\\\\\" height=\\\\\"0\\\\\""
+    },
+    {
+      "url": "https://exchange.cootlogix.com/prebid/multi/64130f63abc4d862b32d8199",
+      "data_sample": "{'results': [{'cookies': [], 'ad': '<script>document.createElement(\\'IMG\\').src=\"https://tlx.3lift.com/s2s/notify?px=1&pr=0.312&ts=1759939842&aid=25915114041382230105460&ec=5989_28016_679610933&n=GgDyAogDCIKamscGEhcyNTkxNTExNDA0MTM4MjIzMDEwNTQ2MBgAIAEo5S4w8NoBQAFIAVABYApoAHDEKZABAJgBAKgBALgBhALAAbgCyAHlA%2FABAPgB7wOAArgCkQIAAAAAAADwP5kCzm4xd2ea1z%2BoAgCwAgHIAgTYAgD4AoUvgAPYBYgDWpADAJgDAaADAbgD9ETIAwDSAwk2Nzk2MTA5MzPaAwc0ODc0NjM44APEtdulAekDexSuR%2BF6lD%2FwA%2B8D%2BQMAAAAAAAAAAIAECYkEUrgehetRyD%2"
+    },
+    {
+      "url": "https://aax.amazon-adsystem.com/e/dtb/bid",
+      "data_sample": "{'contextual': {'cmp': 'https://s.amazon-adsystem.com/iu3?cm3ppd=1&d=dtb-pub&csif=t&dl=n-smaato_pm-db5_n-Ogury_n-OMS', 'cb': '1'}}"
+    },
+    {
+      "url": "https://token.rubiconproject.com/khaos.json?khaos=MGI6PURG-A-IWG6",
+      "data_sample": "{'c': 1}"
+    },
+    {
+      "url": "https://token.rubiconproject.com/khaos.json?khaos=MGI6PURG-A-IWG6",
+      "data_sample": "{'c': 1}"
+    },
+    {
+      "url": "https://token.rubiconproject.com/khaos.json?khaos=MGI6PURG-A-IWG6",
+      "data_sample": "{'c': 1}"
+    },
+    {
+      "url": "https://hb.yellowblue.io/hb-multi",
+      "data_sample": "{'params': {'sessionId': '43cd6cd15527368', 'publisherId': '60053eeffc482800014c29be', 'userSyncURL': 'https://sdk.streamrail.com/cs-config/cs.html?org=60053eeffc482800014c29be&tc=66653c7875a93f0001fbf432&as=66653c7875a93f0001fbf434&type=hb&wd=cs.yellowblue.io&domain=fangraphs.com&us_privacy=1NNN'}}"
+    },
+    {
+      "url": "https://token.rubiconproject.com/khaos.json?khaos=MGI6PURG-A-IWG6",
+      "data_sample": "{'c': 1}"
+    },
+    {
+      "url": "https://token.rubiconproject.com/khaos.json?khaos=MGI6PURG-A-IWG6",
+      "data_sample": "{'c': 1}"
+    },
+    {
+      "url": "https://bidder-front-08.smilewanted.com/call/NmIzYTIxZjk2OTc3ZjU1OWE3MmQ3NDQ0NDRjYzA5YWYjIyN1bmtub3duIyMjNzI4eDkwIyMjc2xpZGVzaG93IyMjZGVmYXVsdCMjIzIwMDAjIyM3MCMjI3NtYXJ0X3Yx",
+      "data_sample": "{'open_close': False, 'ad_content': '<span class=\"PubAPIAd\"  id=\"2352DC8B-0872-45D3-A25D-42E547C98C48\"><script type=\"text/javascript\" src=\"https://pn.ybp.yahoo.com/ab/imp/MEDGRKNW_CwH6drR25-l_4my3Z22A3LA-wcMCxB41GONlwKRtehIJ0wbaZKO05NCS78wd2XKKEf8rGHcrthCkme6ZQeaPGLv3DcnDqY-2qE5b--jgn4tQcNphUcUgHt1oaKaC9XO_qD970o-Vz08nuHHmLNUOOPTgOTHP0vqTAno4XEmNbVww2IK3FUMKNBYZa3rO01OsD4IDsTTbPdVYpOLwwCYUTPtMsO6Rn8J5c1wWPG8NyrQwwhK8hiLCkrTQmr5Df0DM9ztpoxpXtHbrsWBUmOzJ7y_kJ4CaUhGfthA_VIg1Agm6Z_pKPgXGESvXQOec61Hz"
+    },
+    {
+      "url": "https://ut.pubmatic.com/geo?pubid=156011",
+      "data_sample": "{'cc': 'US', 'sc': 'nh'}"
+    },
+    {
+      "url": "https://token.rubiconproject.com/khaos.json?khaos=MGI6PURG-A-IWG6",
+      "data_sample": "{'c': 1}"
+    },
+    {
+      "url": "https://aax.amazon-adsystem.com/e/dtb/bid",
+      "data_sample": "{'contextual': {'cmp': 'https://s.amazon-adsystem.com/iu3?cm3ppd=1&d=dtb-pub&csif=t&dl=n-smaato_pm-db5_n-Ogury_n-OMS', 'cb': '2'}}"
+    },
+    {
+      "url": "https://ut.pubmatic.com/geo?pubid=156212",
+      "data_sample": "{'cc': 'US', 'sc': 'nh'}"
+    },
+    {
+      "url": "https://bidder-front-08.smilewanted.com/call/NmIzYTIxZjk2OTc3ZjU1OWE3MmQ3NDQ0NDRjYzA5YWYjIyN1bmtub3duIyMjNzI4eDkwIyMjc2xpZGVzaG93IyMjZGVmYXVsdCMjIzIwMDAjIyM3MCMjI3NtYXJ0X3Yx",
+      "data_sample": "{'open_close': False, 'ad_content': '<span class=\"PubAPIAd\"  id=\"67FD8CC0-98B7-4282-8682-6696E4CC9E5A\"><script type=\"text/javascript\" src=\"https://pn.ybp.yahoo.com/ab/imp/L2UbkCw2lZDqCjQjJ47ti0fMtG9bc0p98YYyycGrzCckCTt2vOKhFpT7qqC0RfMD5VSrnHHEBU0Otp1_7Z_sGKQNserOz9Ee66P-WTBMmoroRfIhK04m0X0bFZ5ZvitnprrmgchFI99x9Ck_R7pDcsmpTSY6ndERsSxzvTDmn9bzIfdGIqiRbJTc9kBlyybRZrqOmEJD6mziTzyZNsDtI7kiwIym9PSfyJa4IlWWvSKH4NVaHuc8_MxjZlR8_BAofOIr1kPHYgewvBQ6sthmisjObXwNusHnkCCAoO1QwnK6R4N1alG5iMEfPEkuZU1f7ApEmOnkY"
+    },
+    {
+      "url": "https://hb.yellowblue.io/hb-multi",
+      "data_sample": "{'params': {'sessionId': '67a907d60918f18', 'publisherId': '60053eeffc482800014c29be', 'userSyncURL': 'https://sdk.streamrail.com/cs-config/cs.html?org=60053eeffc482800014c29be&tc=66653c7875a93f0001fbf432&as=66653c7875a93f0001fbf434&type=hb&wd=cs.yellowblue.io&domain=fangraphs.com&us_privacy=1NNN'}}"
+    },
+    {
+      "url": "https://ut.pubmatic.com/geo?pubid=156212",
+      "data_sample": "{'cc': 'US', 'sc': 'nh'}"
+    },
+    {
+      "url": "https://token.rubiconproject.com/khaos.json?khaos=MGI6PURG-A-IWG6",
+      "data_sample": "{'c': 1}"
+    },
+    {
+      "url": "https://ut.pubmatic.com/geo?pubid=156631",
+      "data_sample": "{'cc': 'US', 'sc': 'nh'}"
+    },
+    {
+      "url": "https://ut.pubmatic.com/geo?pubid=137711",
+      "data_sample": "{'cc': 'US', 'sc': 'nh'}"
+    },
+    {
+      "url": "https://ut.pubmatic.com/geo?pubid=158810",
+      "data_sample": "{'cc': 'US', 'sc': 'nh'}"
+    },
+    {
+      "url": "https://token.rubiconproject.com/khaos.json?khaos=MGI6PURG-A-IWG6",
+      "data_sample": "{'c': 1}"
+    },
+    {
+      "url": "https://token.rubiconproject.com/khaos.json?gdpr=0&khaos=MGI6PURG-A-IWG6",
+      "data_sample": "{'c': 1}"
+    },
+    {
+      "url": "https://token.rubiconproject.com/khaos.json?khaos=MGI6PURG-A-IWG6",
+      "data_sample": "{'c': 1}"
+    },
+    {
+      "url": "https://token.rubiconproject.com/khaos.json?khaos=MGI6PURG-A-IWG6",
+      "data_sample": "{'c': 1}"
+    },
+    {
+      "url": "https://ut.pubmatic.com/geo?pubid=95054",
+      "data_sample": "{'cc': 'US', 'sc': 'nh'}"
+    },
+    {
+      "url": "https://plus.fangraphs.com/?fgapi_ajax",
+      "data_sample": "{'user_id': False, 'user_name': False, 'group': 0}"
+    },
+    {
+      "url": "https://www.fangraphs.com/api/scores/most-recent",
+      "data_sample": "[{'schedule': {'GameDateTimeUTC': '2025-10-07T20:05:00Z', 'GameDateParam': '2025-10-07', 'Season': 2025, 'GameId': 20252447, 'TempDate': '10/7/2025', 'TempTime': '16:05', 'DH': 0, 'AwayTeamId': 11, 'HomeTeamId': 6, 'GameDate': '2025-10-07T00:00:00', 'Hour': 28, 'Minute': 5, 'ProbHome': 17479, 'ProbAway': 22250, 'MLBGameId': 813056, 'gamestate': 'S', 'HomeStarter': 'Jack Flaherty', 'AwayStarter': 'Logan Gilbert', 'HomeTeamName': 'Tigers', 'AwayTeamName': 'Mariners', 'HomeTeamAbbName': 'DET', 'Awa"
+    },
+    {
+      "url": "https://www.fangraphs.com/api/menu/menu-standings",
+      "data_sample": "[{'teamid': 22, 'shortName': 'Dodgers', 'AbbName': 'LAD', 'League': 'NL', 'Division': 'W', 'W': 93, 'L': 69, 'GB': 0.0}, {'teamid': 26, 'shortName': 'Phillies', 'AbbName': 'PHI', 'League': 'NL', 'Division': 'E', 'W': 96, 'L': 66, 'GB': 0.0}, {'teamid': 11, 'shortName': 'Mariners', 'AbbName': 'SEA', 'League': 'AL', 'Division': 'W', 'W': 90, 'L': 72, 'GB': 0.0}, {'teamid': 5, 'shortName': 'Guardians', 'AbbName': 'CLE', 'League': 'AL', 'Division': 'C', 'W': 88, 'L': 74, 'GB': 0.0}, {'teamid': 14, '"
+    },
+    {
+      "url": "https://www.fangraphs.com/api/menu/menu-blog",
+      "data_sample": "[{'title': 'A Hardball Times Update', 'url': '//www.fangraphs.com/tht/a-hardball-times-update', 'blog': 'tht'}, {'title': 'Get Your Opening Day Results Here', 'url': '//www.fangraphs.com/tht/get-your-opening-day-results-here', 'blog': 'tht'}, {'title': \"Reviewing OOPSY's Debut Season\", 'url': '//www.fangraphs.com/blogs/reviewing-oopsys-debut-season', 'blog': 'blogs'}, {'title': 'All You Need Is Judge: Slugger Powers Yankees To Win Over Blue Jays in ALDS Game 3', 'url': '//www.fangraphs.com/blogs"
+    }
+  ],
+  "pitchers": [
+    {
+      "url": "https://ut.pubmatic.com/geo?pubid=95054",
+      "data_sample": "{'cc': 'US', 'sc': 'nh'}"
+    },
+    {
+      "url": "https://plus.fangraphs.com/?fgapi_ajax",
+      "data_sample": "{'user_id': False, 'user_name': False, 'group': 0}"
+    },
+    {
+      "url": "https://www.fangraphs.com/api/scores/most-recent",
+      "data_sample": "[{'schedule': {'GameDateTimeUTC': '2025-10-07T20:05:00Z', 'GameDateParam': '2025-10-07', 'Season': 2025, 'GameId': 20252447, 'TempDate': '10/7/2025', 'TempTime': '16:05', 'DH': 0, 'AwayTeamId': 11, 'HomeTeamId': 6, 'GameDate': '2025-10-07T00:00:00', 'Hour': 28, 'Minute': 5, 'ProbHome': 17479, 'ProbAway': 22250, 'MLBGameId': 813056, 'gamestate': 'S', 'HomeStarter': 'Jack Flaherty', 'AwayStarter': 'Logan Gilbert', 'HomeTeamName': 'Tigers', 'AwayTeamName': 'Mariners', 'HomeTeamAbbName': 'DET', 'Awa"
+    },
+    {
+      "url": "https://www.fangraphs.com/api/menu/menu-standings",
+      "data_sample": "[{'teamid': 22, 'shortName': 'Dodgers', 'AbbName': 'LAD', 'League': 'NL', 'Division': 'W', 'W': 93, 'L': 69, 'GB': 0.0}, {'teamid': 26, 'shortName': 'Phillies', 'AbbName': 'PHI', 'League': 'NL', 'Division': 'E', 'W': 96, 'L': 66, 'GB': 0.0}, {'teamid': 11, 'shortName': 'Mariners', 'AbbName': 'SEA', 'League': 'AL', 'Division': 'W', 'W': 90, 'L': 72, 'GB': 0.0}, {'teamid': 5, 'shortName': 'Guardians', 'AbbName': 'CLE', 'League': 'AL', 'Division': 'C', 'W': 88, 'L': 74, 'GB': 0.0}, {'teamid': 14, '"
+    },
+    {
+      "url": "https://www.fangraphs.com/api/menu/menu-blog",
+      "data_sample": "[{'title': 'A Hardball Times Update', 'url': '//www.fangraphs.com/tht/a-hardball-times-update', 'blog': 'tht'}, {'title': 'Get Your Opening Day Results Here', 'url': '//www.fangraphs.com/tht/get-your-opening-day-results-here', 'blog': 'tht'}, {'title': \"Reviewing OOPSY's Debut Season\", 'url': '//www.fangraphs.com/blogs/reviewing-oopsys-debut-season', 'blog': 'blogs'}, {'title': 'All You Need Is Judge: Slugger Powers Yankees To Win Over Blue Jays in ALDS Game 3', 'url': '//www.fangraphs.com/blogs"
+    }
+  ]
+}
