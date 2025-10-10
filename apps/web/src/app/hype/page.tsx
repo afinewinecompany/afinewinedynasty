@@ -18,6 +18,9 @@ import {
   BarChart3,
   Zap,
   Cloud,
+  ExternalLink,
+  Heart,
+  Share2,
 } from 'lucide-react';
 
 interface HypeData {
