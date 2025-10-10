@@ -23,7 +23,7 @@ class FangraphsScoutingGrades(BaseModel):
         return v
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "hit": 55,
                 "power": 60,
@@ -127,7 +127,7 @@ class FangraphsProspectData(BaseModel):
     profile_url: Optional[str] = None
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "name": "Jackson Holliday",
                 "source": "fangraphs",

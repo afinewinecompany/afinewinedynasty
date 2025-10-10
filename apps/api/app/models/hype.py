@@ -5,7 +5,7 @@ HYPE Feature Models - Track media and social interactions for players
 from datetime import datetime
 from sqlalchemy import Column, String, Integer, Float, DateTime, ForeignKey, JSON, Text, Boolean
 from sqlalchemy.orm import relationship
-from app.database import Base
+from app.db.database import Base
 
 
 class PlayerHype(Base):

@@ -9,12 +9,12 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc, func
 from pydantic import BaseModel
 
-from app.database import get_db
+from app.db.database import get_db
 from app.models.hype import (
     PlayerHype, SocialMention, MediaArticle,
     HypeHistory, HypeAlert, TrendingTopic
 )
-from app.utils.auth import get_current_user
+from app.core.auth import get_current_user
 
 
 router = APIRouter(prefix="/api/hype", tags=["hype"])

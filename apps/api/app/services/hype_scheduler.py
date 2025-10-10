@@ -11,7 +11,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from sqlalchemy.orm import Session
 
-from app.database import SessionLocal
+from app.db.database import SyncSessionLocal as SessionLocal
 from app.models.hype import PlayerHype
 from app.models.prospect import Prospect
 from app.services.social_collector import SocialMediaCollector

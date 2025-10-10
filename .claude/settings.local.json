@@ -6,7 +6,9 @@
       "Bash(python:*)",
       "Bash(git push:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Read(//c/Users/lilra/Downloads/**)",
+      "Bash(pip show:*)"
     ],
     "deny": [],
     "ask": []

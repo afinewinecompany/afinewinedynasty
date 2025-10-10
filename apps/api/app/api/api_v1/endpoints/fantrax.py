@@ -35,7 +35,7 @@ class FantraxAuthResponse(BaseModel):
     state: str = Field(description="State token for CSRF protection")
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "authorization_url": "https://www.fantrax.com/oauth/authorize?client_id=...",
                 "state": "abc123xyz789"
@@ -49,7 +49,7 @@ class FantraxCallbackRequest(BaseModel):
     state: str = Field(description="State token for validation")
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "code": "auth_code_from_fantrax",
                 "state": "123:abc123xyz789"
@@ -64,7 +64,7 @@ class FantraxCallbackResponse(BaseModel):
     fantrax_user_id: Optional[str] = Field(None, description="Connected Fantrax user ID")
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "success": True,
                 "message": "Successfully connected to Fantrax",
@@ -85,7 +85,7 @@ class FantraxLeague(BaseModel):
     last_sync: Optional[datetime] = Field(None, description="Last roster sync timestamp")
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "league_id": "league_123",
                 "league_name": "Dynasty Baseball Champions",
@@ -105,7 +105,7 @@ class RosterSyncRequest(BaseModel):
     force_refresh: bool = Field(False, description="Force refresh even if recently synced")
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "league_id": "league_123",
                 "force_refresh": False
@@ -121,7 +121,7 @@ class RosterSyncResponse(BaseModel):
     message: str = Field(description="Success or error message")
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "success": True,
                 "players_synced": 40,
@@ -142,7 +142,7 @@ class TeamAnalysis(BaseModel):
     recommendations_count: int = Field(description="Number of recommended prospects")
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "league_id": "league_123",
                 "strengths": ["SP", "1B", "OF"],
@@ -170,7 +170,7 @@ class ProspectRecommendation(BaseModel):
     trade_value: str = Field(description="Current trade value tier")
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "prospect_id": 123,
                 "prospect_name": "John Doe",

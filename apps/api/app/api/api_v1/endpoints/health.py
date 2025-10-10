@@ -23,7 +23,7 @@ class HealthResponse(BaseModel):
     version: str = Field(description="Current API version")
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "status": "healthy",
                 "service": "A Fine Wine Dynasty API",
@@ -45,7 +45,7 @@ class DetailedHealthResponse(BaseModel):
     )
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "status": "healthy",
                 "service": "A Fine Wine Dynasty API",
