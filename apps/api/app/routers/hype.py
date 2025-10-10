@@ -5,8 +5,8 @@ HYPE Feature API Routes
 from datetime import datetime, timedelta
 from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
-from sqlalchemy.orm import Session
-from sqlalchemy import desc, func
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import desc, func, select
 from pydantic import BaseModel
 
 from app.db.database import get_db
@@ -79,7 +79,7 @@ class HypeLeaderboardItem(BaseModel):
 @router.get("/player/{player_id}", response_model=HypeScoreResponse)
 async def get_player_hype(
     player_id: str,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
     """Get current HYPE data for a specific player"""
@@ -136,7 +136,7 @@ async def get_hype_history(
     player_id: str,
     period: str = Query("7d", regex="^(24h|7d|30d|3m|1y)$"),
     granularity: str = Query("daily", regex="^(hourly|daily|weekly)$"),
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
     """Get historical HYPE data for a player"""
@@ -180,7 +180,7 @@ async def get_social_feed(
     sentiment: Optional[str] = None,
     limit: int = Query(20, le=100),
     offset: int = 0,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
     """Get recent social media mentions for a player"""
@@ -220,7 +220,7 @@ async def get_media_feed(
     source: Optional[str] = None,
     limit: int = Query(20, le=100),
     offset: int = 0,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
     """Get recent media articles for a player"""
@@ -253,17 +253,18 @@ async def get_media_feed(
 async def get_hype_leaderboard(
     player_type: Optional[str] = None,
     limit: int = Query(20, le=100),
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    db: AsyncSession = Depends(get_db)
 ):
-    """Get HYPE leaderboard"""
+    """Get HYPE leaderboard (public endpoint)"""
 
-    query = db.query(PlayerHype)
+    stmt = select(PlayerHype)
 
     if player_type:
-        query = query.filter(PlayerHype.player_type == player_type)
+        stmt = stmt.filter(PlayerHype.player_type == player_type)
 
-    players = query.order_by(desc(PlayerHype.hype_score)).limit(limit).all()
+    stmt = stmt.order_by(desc(PlayerHype.hype_score)).limit(limit)
+    result = await db.execute(stmt)
+    players = result.scalars().all()
 
     leaderboard = []
     for idx, player in enumerate(players, 1):
@@ -292,7 +293,7 @@ async def get_hype_leaderboard(
 async def get_trending_players(
     timeframe: str = Query("24h", regex="^(1h|6h|24h|7d)$"),
     limit: int = Query(10, le=50),
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
     """Get currently trending players based on HYPE momentum"""
@@ -317,7 +318,7 @@ async def get_trending_players(
 async def refresh_player_hype(
     player_id: str,
     background_tasks: BackgroundTasks,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
     """Trigger a refresh of HYPE data for a specific player"""
@@ -347,7 +348,7 @@ async def refresh_player_hype(
 async def get_active_alerts(
     severity: Optional[str] = None,
     limit: int = Query(20, le=100),
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
     """Get active HYPE alerts"""
@@ -377,7 +378,7 @@ async def get_active_alerts(
 @router.post("/alerts/{alert_id}/acknowledge")
 async def acknowledge_alert(
     alert_id: int,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
     """Acknowledge a HYPE alert"""
@@ -394,7 +395,7 @@ async def acknowledge_alert(
 
 
 # Background task placeholder
-async def calculate_hype_score(player_id: str, db: Session):
+async def calculate_hype_score(player_id: str, db: AsyncSession):
     """
     Calculate HYPE score for a player
     This would integrate with various APIs:
