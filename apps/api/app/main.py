@@ -5,6 +5,7 @@ from app.api.api_v1.api import api_router
 from app.core.config import settings
 from app.core.rate_limiter import setup_rate_limiter
 from app.middleware.security_middleware import add_security_middleware
+from app.services.hype_scheduler import start_hype_scheduler, stop_hype_scheduler
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -103,3 +104,25 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "service": "api"}
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize services on startup"""
+    logger.info("Starting HYPE scheduler...")
+    try:
+        start_hype_scheduler()
+        logger.info("HYPE scheduler started successfully")
+    except Exception as e:
+        logger.error(f"Failed to start HYPE scheduler: {e}")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Clean up on shutdown"""
+    logger.info("Stopping HYPE scheduler...")
+    try:
+        stop_hype_scheduler()
+        logger.info("HYPE scheduler stopped successfully")
+    except Exception as e:
+        logger.error(f"Error stopping HYPE scheduler: {e}")

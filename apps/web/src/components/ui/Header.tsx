@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Search, User, Zap, Menu, Wine, Brain } from 'lucide-react';
+import { Search, User, Zap, Menu, Wine, Brain, TrendingUp } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from './button';
 
@@ -17,7 +17,8 @@ const Header: React.FC = () => {
   const navLinks = [
     { href: '/', label: 'Dashboard' },
     { href: '/prospects', label: 'Prospects' },
-    { href: '/ml-predictions', label: 'ML Predictions' },
+    { href: '/hype', label: 'HYPE', icon: 'trending' },
+    { href: '/ml-predictions', label: 'ML Predictions', icon: 'brain' },
     { href: '/discovery', label: 'Tools' },
     { href: '/account/subscription', label: 'Account' },
   ];
@@ -48,7 +49,8 @@ const Header: React.FC = () => {
                     : 'text-foreground/80 hover:text-wine-rose'
                 }`}
               >
-                {link.href === '/ml-predictions' && <Brain className="w-4 h-4" />}
+                {link.icon === 'brain' && <Brain className="w-4 h-4" />}
+                {link.icon === 'trending' && <TrendingUp className="w-4 h-4" />}
                 {link.label}
               </Link>
             ))}
@@ -125,7 +127,8 @@ const Header: React.FC = () => {
                     : 'text-foreground/80 hover:bg-muted'
                 }`}
               >
-                {link.href === '/ml-predictions' && <Brain className="w-4 h-4" />}
+                {link.icon === 'brain' && <Brain className="w-4 h-4" />}
+                {link.icon === 'trending' && <TrendingUp className="w-4 h-4" />}
                 {link.label}
               </Link>
             ))}
