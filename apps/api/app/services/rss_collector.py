@@ -24,20 +24,40 @@ class RSSCollector:
     def __init__(self, db: Session):
         self.db = db
 
-        # Configure RSS feed sources - start with core feeds
+        # Configure RSS feed sources - comprehensive list
         self.feeds = {
             # Primary feeds
             'rotowire': 'https://www.rotowire.com/rss/news.php?sport=MLB',
             'mlb_news': 'https://www.mlb.com/feeds/news/rss.xml',
             'mlb_pipeline': 'https://www.mlb.com/feeds/prospects/rss.xml',
+            'mlb_trade_rumors': 'https://www.mlbtraderumors.com/feed',
 
-            # Add The Athletic team feeds selectively (ones that work)
-            'athletic_mlb': 'https://theathletic.com/mlb?rss',
+            # Analytics sites
+            'fangraphs': 'https://www.fangraphs.com/feed/',
+            'fangraphs_blogs': 'https://blogs.fangraphs.com/feed',
+            'razzball': 'https://razzball.com/feed/',
+            'baseball_prospectus': 'https://www.baseballprospectus.com/feed/',
 
-            # ESPN and others
+            # Team blogs - SB Nation
+            'red_leg_nation': 'https://www.redlegnation.com/feed/',
+            'brew_crew_ball': 'https://www.brewcrewball.com/rss/current.xml',
+            'federal_baseball': 'https://www.federalbaseball.com/rss/current.xml',
+            'purple_row': 'https://www.purplerow.com/rss/current.xml',
+            'gaslamp_ball': 'https://www.gaslampball.com/rss/current.xml',
+            'south_side_sox': 'https://www.southsidesox.com/rss/current.xml',
+            'royals_review': 'https://www.royalsreview.com/rss/current',
+
+            # Team blogs - Independent
+            'dodgers_digest': 'https://dodgersdigest.com/feed/',
+            'twins_daily': 'https://twinsdaily.com/rss/2-community-blogs.xml/',
+            'blue_jays_nation': 'https://bluejaysnation.com/feed',
+            'surviving_grady': 'https://survivinggrady.com/feed',
+            'steel_city_pirates': 'https://steelcitypirates.com/feed/',
+
+            # Other sources
             'espn_mlb': 'http://www.espn.com/espn/rss/mlb/news',
             'ba_prospects': 'https://www.baseballamerica.com/feed/',
-            'fangraphs': 'https://www.fangraphs.com/feed/',
+            'athletic_mlb': 'https://theathletic.com/mlb?rss',
         }
 
     async def collect_all_feeds(self) -> Dict:
@@ -220,21 +240,31 @@ class RSSCollector:
         """Format source name for display"""
         source_names = {
             'rotowire': 'Rotowire',
-            'athletic_national': 'The Athletic',
             'mlb_news': 'MLB.com',
             'mlb_pipeline': 'MLB Pipeline',
+            'mlb_trade_rumors': 'MLB Trade Rumors',
             'espn_mlb': 'ESPN',
             'ba_prospects': 'Baseball America',
             'fangraphs': 'FanGraphs',
-        }
+            'fangraphs_blogs': 'FanGraphs Blogs',
+            'razzball': 'Razzball',
+            'baseball_prospectus': 'Baseball Prospectus',
+            'athletic_mlb': 'The Athletic',
 
-        # Handle team-specific Athletic feeds
-        if source.startswith('athletic_'):
-            if source == 'athletic_national':
-                return 'The Athletic'
-            else:
-                team = source.replace('athletic_', '').replace('_', ' ').title()
-                return f'The Athletic ({team})'
+            # Team blogs
+            'red_leg_nation': 'Red Leg Nation (Reds)',
+            'brew_crew_ball': 'Brew Crew Ball (Brewers)',
+            'federal_baseball': 'Federal Baseball (Nationals)',
+            'purple_row': 'Purple Row (Rockies)',
+            'gaslamp_ball': 'Gaslamp Ball (Padres)',
+            'south_side_sox': 'South Side Sox (White Sox)',
+            'royals_review': 'Royals Review',
+            'dodgers_digest': 'Dodgers Digest',
+            'twins_daily': 'Twins Daily',
+            'blue_jays_nation': 'Blue Jays Nation',
+            'surviving_grady': 'Surviving Grady (Red Sox)',
+            'steel_city_pirates': 'Steel City Pirates',
+        }
 
         return source_names.get(source, source.replace('_', ' ').title())
 
