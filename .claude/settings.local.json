@@ -12,7 +12,8 @@
       "Bash(npm run dev:*)",
       "Bash(uvicorn:*)",
       "Bash(curl:*)",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(git reset:*)"
     ],
     "deny": [],
     "ask": []
