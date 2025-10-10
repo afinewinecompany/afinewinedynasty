@@ -79,29 +79,32 @@ class HypeLeaderboardItem(BaseModel):
 @router.get("/player/{player_id}", response_model=HypeScoreResponse)
 async def get_player_hype(
     player_id: str,
-    db: AsyncSession = Depends(get_db),
-    current_user = Depends(get_current_user)
+    db: AsyncSession = Depends(get_db)
 ):
-    """Get current HYPE data for a specific player"""
+    """Get current HYPE data for a specific player (public endpoint)"""
 
-    player_hype = db.query(PlayerHype).filter(
-        PlayerHype.player_id == player_id
-    ).first()
+    stmt = select(PlayerHype).filter(PlayerHype.player_id == player_id)
+    result = await db.execute(stmt)
+    player_hype = result.scalar_one_or_none()
 
     if not player_hype:
         raise HTTPException(status_code=404, detail="Player HYPE data not found")
 
     # Get trending topics
-    trending_topics = db.query(TrendingTopic).filter(
+    topics_stmt = select(TrendingTopic).filter(
         TrendingTopic.player_id == player_id,
         TrendingTopic.is_active == True
-    ).order_by(desc(TrendingTopic.mention_count)).limit(5).all()
+    ).order_by(desc(TrendingTopic.mention_count)).limit(5)
+    topics_result = await db.execute(topics_stmt)
+    trending_topics = topics_result.scalars().all()
 
     # Get recent alerts
-    recent_alerts = db.query(HypeAlert).filter(
+    alerts_stmt = select(HypeAlert).filter(
         HypeAlert.player_id == player_id,
         HypeAlert.is_active == True
-    ).order_by(desc(HypeAlert.created_at)).limit(3).all()
+    ).order_by(desc(HypeAlert.created_at)).limit(3)
+    alerts_result = await db.execute(alerts_stmt)
+    recent_alerts = alerts_result.scalars().all()
 
     return HypeScoreResponse(
         player_id=player_hype.player_id,
