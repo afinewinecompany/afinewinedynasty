@@ -59,6 +59,7 @@ interface LeaderboardItem {
 export default function HypePage() {
   const [selectedPlayer, setSelectedPlayer] = useState<HypeData | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardItem[]>([]);
+  const [filteredLeaderboard, setFilteredLeaderboard] = useState<LeaderboardItem[]>([]);
   const [trendingPlayers, setTrendingPlayers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'prospect' | 'mlb'>('all');
@@ -70,6 +71,18 @@ export default function HypePage() {
     fetchLeaderboard();
   }, [filterType]);
 
+  // Filter leaderboard based on search query
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setFilteredLeaderboard(leaderboard);
+    } else {
+      const filtered = leaderboard.filter((player) =>
+        player.player_name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredLeaderboard(filtered);
+    }
+  }, [searchQuery, leaderboard]);
+
   const fetchLeaderboard = async () => {
     try {
       setRefreshing(true);
@@ -77,7 +90,7 @@ export default function HypePage() {
       const token = localStorage.getItem('token');
 
       const params = filterType !== 'all' ? `?player_type=${filterType}` : '';
-      const response = await fetch(`${apiUrl}/api/hype/leaderboard${params}`, {
+      const response = await fetch(`${apiUrl}/api/v1/hype/leaderboard${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -87,6 +100,7 @@ export default function HypePage() {
       if (response.ok) {
         const data = await response.json();
         setLeaderboard(data);
+        setFilteredLeaderboard(data);
 
         // Auto-select first player if none selected
         if (data.length > 0 && !selectedPlayer) {
@@ -107,7 +121,7 @@ export default function HypePage() {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`${apiUrl}/api/hype/player/${playerId}`, {
+      const response = await fetch(`${apiUrl}/api/v1/hype/player/${playerId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -203,12 +217,20 @@ export default function HypePage() {
         {/* Left Column - Leaderboard */}
         <div className="lg:col-span-1 space-y-4">
           <div className="bg-gray-800 rounded-xl p-6">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-purple-400" />
-              HYPE Leaderboard
-            </h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-purple-400" />
+                HYPE Leaderboard
+              </h2>
+              {searchQuery && (
+                <span className="text-sm text-gray-400">
+                  {filteredLeaderboard.length} results
+                </span>
+              )}
+            </div>
             <div className="space-y-3">
-              {leaderboard.map((player) => (
+              {filteredLeaderboard.length > 0 ? (
+                filteredLeaderboard.map((player) => (
                 <motion.div
                   key={player.player_id}
                   whileHover={{ scale: 1.02 }}
@@ -249,7 +271,18 @@ export default function HypePage() {
                     </div>
                   </div>
                 </motion.div>
-              ))}
+              ))
+              ) : (
+                <div className="text-center py-8">
+                  <Search className="w-12 h-12 mx-auto mb-3 text-gray-600" />
+                  <p className="text-gray-400">
+                    {searchQuery
+                      ? `No players found matching "${searchQuery}"`
+                      : 'No players available'
+                    }
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 

@@ -17,7 +17,7 @@ from app.models.hype import (
 from app.core.auth import get_current_user
 
 
-router = APIRouter(prefix="/api/hype", tags=["hype"])
+router = APIRouter(prefix="/hype", tags=["hype"])
 
 
 # Pydantic models
