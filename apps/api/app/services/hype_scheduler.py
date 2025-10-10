@@ -100,36 +100,37 @@ class HypeScheduler:
 
         db = SessionLocal()
         try:
-            # Get top prospects from FanGraphs grades
-            # Order by id (newest first) to get recently added prospects
-            top_prospects = db.query(Prospect).order_by(
-                Prospect.id.desc()
-            ).limit(50).all()
-
-            # Get trending players (high HYPE score or trend)
+            # Get trending players (high HYPE score or trend) and recently added players
             trending_players = db.query(PlayerHype).filter(
                 (PlayerHype.hype_score > 70) | (PlayerHype.hype_trend > 10)
             ).all()
 
-            # Combine player lists
-            players_to_update = []
+            # Get recently added players (top 20 by ID)
+            recent_players = db.query(PlayerHype).order_by(
+                PlayerHype.id.desc()
+            ).limit(20).all()
 
-            for prospect in top_prospects:
-                players_to_update.append({
-                    'id': f"prospect_{prospect.mlb_id}",  # Use mlb_id as unique identifier
-                    'name': prospect.name  # Use the single name field
-                })
+            # Combine and deduplicate player lists
+            players_to_update = {}
 
             for player in trending_players:
-                if player.player_id not in [p['id'] for p in players_to_update]:
-                    players_to_update.append({
+                players_to_update[player.player_id] = {
+                    'id': player.player_id,
+                    'name': player.player_name
+                }
+
+            for player in recent_players:
+                if player.player_id not in players_to_update:
+                    players_to_update[player.player_id] = {
                         'id': player.player_id,
                         'name': player.player_name
-                    })
+                    }
 
             # Collect data for each player
             collector = SocialMediaCollector(db)
-            for player in players_to_update[:20]:  # Limit to top 20 for rate limiting
+            players_list = list(players_to_update.values())[:20]  # Limit to top 20 for rate limiting
+
+            for player in players_list:
                 try:
                     await collector.collect_all_platforms(
                         player['name'],

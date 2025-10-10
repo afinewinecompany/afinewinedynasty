@@ -205,13 +205,24 @@ class RSSCollector:
                     )
 
                     self.db.add(media_article)
-                    processed_count += 1
+
+                    # Commit each article individually to handle unique constraint violations
+                    try:
+                        self.db.commit()
+                        processed_count += 1
+                    except Exception as commit_error:
+                        self.db.rollback()
+                        # Skip if duplicate URL (same article for multiple players with unique constraint)
+                        if 'duplicate key' in str(commit_error).lower() or 'unique constraint' in str(commit_error).lower():
+                            logger.debug(f"Article already exists: {article['url']}")
+                        else:
+                            logger.error(f"Error committing article: {commit_error}")
 
             except Exception as e:
                 logger.error(f"Error processing article: {e}")
+                self.db.rollback()
                 continue
 
-        self.db.commit()
         return processed_count
 
     def _format_source_name(self, source: str) -> str:
