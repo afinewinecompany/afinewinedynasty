@@ -408,3 +408,76 @@ async def calculate_hype_score(player_id: str, db: AsyncSession):
     """
     # Placeholder for actual implementation
     pass
+
+
+@router.post("/admin/collect-social-data")
+async def trigger_social_collection(
+    player_id: Optional[str] = None,
+    limit: int = Query(10, le=50),
+    background_tasks: BackgroundTasks = BackgroundTasks(),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Manually trigger social data collection (admin endpoint)
+    If player_id is provided, collects only for that player.
+    Otherwise, collects for top players.
+    """
+    from app.db.database import SyncSessionLocal
+    from app.services.social_collector import SocialMediaCollector
+    from app.db.models import Prospect
+
+    # Get sync session for background collection
+    sync_db = SyncSessionLocal()
+
+    try:
+        if player_id:
+            # Collect for specific player
+            player_hype_stmt = select(PlayerHype).filter(PlayerHype.player_id == player_id)
+            result = await db.execute(player_hype_stmt)
+            player_hype = result.scalar_one_or_none()
+
+            if not player_hype:
+                raise HTTPException(status_code=404, detail="Player not found")
+
+            collector = SocialMediaCollector(sync_db)
+            results = await collector.collect_all_platforms(player_hype.player_name, player_id)
+
+            return {
+                "status": "success",
+                "message": f"Collected social data for {player_hype.player_name}",
+                "player_id": player_id,
+                "results": results
+            }
+        else:
+            # Collect for top players
+            # Get top prospects
+            top_prospects = sync_db.query(Prospect).order_by(
+                Prospect.id.desc()
+            ).limit(limit).all()
+
+            collector = SocialMediaCollector(sync_db)
+            collected_count = 0
+            errors = []
+
+            for prospect in top_prospects:
+                try:
+                    player_id_val = f"prospect_{prospect.mlb_id}"
+                    await collector.collect_all_platforms(prospect.name, player_id_val)
+                    collected_count += 1
+                except Exception as e:
+                    errors.append({
+                        "player": prospect.name,
+                        "error": str(e)
+                    })
+
+            return {
+                "status": "success",
+                "message": f"Collected social data for {collected_count} players",
+                "collected_count": collected_count,
+                "errors": errors if errors else None
+            }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Collection failed: {str(e)}")
+    finally:
+        sync_db.close()
