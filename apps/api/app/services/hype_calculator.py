@@ -456,13 +456,14 @@ class HypeCalculator:
         now: datetime
     ):
         """Update PlayerHype record with calculated values"""
-        player_hype.hype_score = round(score, 2)
-        player_hype.hype_trend = trend
-        player_hype.sentiment_score = round(sentiment, 3)
-        player_hype.virality_score = round(virality, 2)
-        player_hype.total_mentions_24h = social_metrics.get('total_mentions_24h', 0)
-        player_hype.total_mentions_7d = social_metrics.get('total_mentions_7d', 0)
-        player_hype.engagement_rate = self._calculate_engagement_rate(social_metrics)
+        # Convert to Python float to avoid numpy type issues with PostgreSQL
+        player_hype.hype_score = float(round(score, 2))
+        player_hype.hype_trend = float(round(trend, 2))
+        player_hype.sentiment_score = float(round(sentiment, 3))
+        player_hype.virality_score = float(round(virality, 2))
+        player_hype.total_mentions_24h = int(social_metrics.get('total_mentions_24h', 0))
+        player_hype.total_mentions_7d = int(social_metrics.get('total_mentions_7d', 0))
+        player_hype.engagement_rate = float(self._calculate_engagement_rate(social_metrics))
         player_hype.last_calculated = now
         player_hype.updated_at = now
 

@@ -33,8 +33,8 @@ class RSSCollector:
             'mlb_trade_rumors': 'https://www.mlbtraderumors.com/feed',
 
             # Analytics sites
-            'fangraphs': 'https://www.fangraphs.com/feed/',
-            'fangraphs_blogs': 'https://blogs.fangraphs.com/feed',
+            # Note: fangraphs main site doesn't have RSS, using blogs feed instead
+            'fangraphs_blogs': 'https://blogs.fangraphs.com/feed/',
             'razzball': 'https://razzball.com/feed/',
             'baseball_prospectus': 'https://www.baseballprospectus.com/feed/',
 
@@ -97,7 +97,7 @@ class RSSCollector:
             feed = feedparser.parse(content)
 
             articles = []
-            for entry in feed.entries[:50]:  # Limit to recent 50 entries
+            for entry in feed.entries[:100]:  # Limit to recent 100 entries
                 article = {
                     'source': source,
                     'title': entry.get('title', ''),
