@@ -376,41 +376,20 @@ class SocialMediaCollector:
                 logger.error(f"Bluesky authentication failed: {auth_error}")
                 return {'status': 'error', 'message': f'Authentication failed: {auth_error}'}
 
-            # Search for posts about the player
-            query = f'{player_name} baseball'
+            # Search for posts about the player - use just the name for better results
+            query = player_name
 
             # Run the synchronous SDK call in an executor
             response = await loop.run_in_executor(
                 executor,
                 lambda: client.app.bsky.feed.search_posts(
-                    {'q': query, 'limit': 50}
+                    {'q': query, 'limit': 25}
                 )
             )
 
-            # Convert SDK response to dictionary format for processing
-            posts_data = []
-            for post in response.posts:
-                posts_data.append({
-                    'uri': post.uri,
-                    'cid': post.cid,
-                    'author': {
-                        'handle': post.author.handle,
-                        'followersCount': getattr(post.author, 'followers_count', 0)
-                    },
-                    'record': {
-                        'text': post.record.text,
-                        'createdAt': post.record.created_at,
-                        'facets': getattr(post.record, 'facets', [])
-                    },
-                    'likeCount': getattr(post, 'like_count', 0),
-                    'repostCount': getattr(post, 'repost_count', 0),
-                    'replyCount': getattr(post, 'reply_count', 0),
-                    'quoteCount': getattr(post, 'quote_count', 0)
-                })
-
-            # Process posts
+            # Process posts directly from SDK response
             processed_posts = await self._process_bluesky_data(
-                {'posts': posts_data},
+                response.posts,
                 player_id
             )
 
@@ -424,11 +403,11 @@ class SocialMediaCollector:
             logger.error(f"Bluesky collection error: {e}")
             return {'status': 'error', 'message': str(e)}
 
-    async def _process_bluesky_data(self, bluesky_response: Dict, player_id: str) -> List[Dict]:
-        """Process and store Bluesky data"""
+    async def _process_bluesky_data(self, posts: list, player_id: str) -> List[Dict]:
+        """Process and store Bluesky data from AT Protocol SDK"""
         processed = []
 
-        if 'posts' not in bluesky_response:
+        if not posts:
             return processed
 
         # Get player HYPE record
@@ -439,11 +418,11 @@ class SocialMediaCollector:
         if not player_hype:
             return processed
 
-        for post in bluesky_response.get('posts', []):
+        for post in posts:
             try:
                 # Generate unique ID for deduplication
-                post_uri = post.get('uri', '')
-                post_id = f"bluesky_{post_uri.split('/')[-1] if post_uri else post.get('cid', '')}"
+                post_uri = getattr(post, 'uri', '')
+                post_id = f"bluesky_{post_uri.split('/')[-1] if post_uri else getattr(post, 'cid', '')}"
 
                 # Check if already exists
                 existing = self.db.query(SocialMention).filter(
@@ -453,28 +432,31 @@ class SocialMediaCollector:
                 if existing:
                     continue
 
-                # Extract post content
-                record = post.get('record', {})
-                content = record.get('text', '')
+                # Extract post content from SDK object
+                content = getattr(post.record, 'text', '')
 
                 # Extract author info
-                author = post.get('author', {})
-                author_handle = author.get('handle', 'unknown')
-                author_followers = author.get('followersCount', 0)
+                author_handle = getattr(post.author, 'handle', 'unknown')
+                author_followers = getattr(post.author, 'followers_count', 0)
 
                 # Extract engagement metrics
-                like_count = post.get('likeCount', 0)
-                reply_count = post.get('replyCount', 0)
-                repost_count = post.get('repostCount', 0)
-                quote_count = post.get('quoteCount', 0)
+                like_count = getattr(post, 'like_count', 0)
+                reply_count = getattr(post, 'reply_count', 0)
+                repost_count = getattr(post, 'repost_count', 0)
+                quote_count = getattr(post, 'quote_count', 0)
 
                 # Extract hashtags from facets (Bluesky's way of storing rich text)
                 hashtags = []
-                facets = record.get('facets', [])
-                for facet in facets:
-                    for feature in facet.get('features', []):
-                        if feature.get('$type') == 'app.bsky.richtext.facet#tag':
-                            hashtags.append(feature.get('tag', ''))
+                facets = getattr(post.record, 'facets', None)
+                if facets:
+                    for facet in facets:
+                        features = getattr(facet, 'features', [])
+                        if features:
+                            for feature in features:
+                                if hasattr(feature, 'py_type') and feature.py_type == 'app.bsky.richtext.facet#tag':
+                                    tag = getattr(feature, 'tag', '')
+                                    if tag:
+                                        hashtags.append(tag)
 
                 # Analyze sentiment
                 sentiment_result = await self.sentiment_analyzer.analyze(content)
@@ -499,7 +481,7 @@ class SocialMediaCollector:
                     sentiment=sentiment_result['sentiment'],
                     sentiment_confidence=sentiment_result['confidence'],
                     keywords=sentiment_result.get('keywords', []),
-                    posted_at=datetime.fromisoformat(record.get('createdAt', '').replace('Z', '+00:00')) if record.get('createdAt') else datetime.utcnow(),
+                    posted_at=datetime.fromisoformat(getattr(post.record, 'created_at', '').replace('Z', '+00:00')) if getattr(post.record, 'created_at', None) else datetime.utcnow(),
                     collected_at=datetime.utcnow()
                 )
 
