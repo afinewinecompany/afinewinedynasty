@@ -222,21 +222,20 @@ async def get_media_feed(
     source: Optional[str] = None,
     limit: int = Query(20, le=100),
     offset: int = 0,
-    db: AsyncSession = Depends(get_db),
-    current_user = Depends(get_current_user)
+    db: AsyncSession = Depends(get_db)
 ):
-    """Get recent media articles for a player"""
+    """Get recent media articles for a player (public endpoint)"""
 
-    query = db.query(MediaArticle).join(PlayerHype).filter(
+    stmt = select(MediaArticle).join(PlayerHype).filter(
         PlayerHype.player_id == player_id
     )
 
     if source:
-        query = query.filter(MediaArticle.source == source)
+        stmt = stmt.filter(MediaArticle.source == source)
 
-    articles = query.order_by(
-        desc(MediaArticle.published_at)
-    ).limit(limit).offset(offset).all()
+    stmt = stmt.order_by(desc(MediaArticle.published_at)).limit(limit).offset(offset)
+    result = await db.execute(stmt)
+    articles = result.scalars().all()
 
     return [
         MediaFeedItem(

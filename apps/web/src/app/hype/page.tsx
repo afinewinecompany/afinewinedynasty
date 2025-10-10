@@ -71,6 +71,16 @@ interface SocialMention {
   posted_at: string;
 }
 
+interface MediaArticle {
+  id: number;
+  source: string;
+  title: string;
+  url: string;
+  summary: string;
+  sentiment: string;
+  published_at: string;
+}
+
 export default function HypePage() {
   const [selectedPlayer, setSelectedPlayer] = useState<HypeData | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardItem[]>([]);
@@ -82,6 +92,8 @@ export default function HypePage() {
   const [activeTab, setActiveTab] = useState<'overview' | 'social' | 'media' | 'alerts'>('overview');
   const [socialMentions, setSocialMentions] = useState<SocialMention[]>([]);
   const [loadingSocial, setLoadingSocial] = useState(false);
+  const [mediaArticles, setMediaArticles] = useState<MediaArticle[]>([]);
+  const [loadingMedia, setLoadingMedia] = useState(false);
 
   // Fetch data from API
   useEffect(() => {
@@ -159,8 +171,9 @@ export default function HypePage() {
       if (response.ok) {
         const data = await response.json();
         setSelectedPlayer(data);
-        // Fetch social mentions when player is selected
+        // Fetch social mentions and media articles when player is selected
         fetchSocialMentions(playerId);
+        fetchMediaArticles(playerId);
       } else {
         console.error('Failed to fetch player details:', response.status);
       }
@@ -198,6 +211,28 @@ export default function HypePage() {
       setSocialMentions([]);
     } finally {
       setLoadingSocial(false);
+    }
+  };
+
+  const fetchMediaArticles = async (playerId: string) => {
+    try {
+      setLoadingMedia(true);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
+
+      const response = await fetch(`${apiUrl}/api/v1/hype/player/${playerId}/media-feed?limit=10`);
+
+      if (response.ok) {
+        const data = await response.json();
+        setMediaArticles(data);
+      } else {
+        console.error('Failed to fetch media articles:', response.status);
+        setMediaArticles([]);
+      }
+    } catch (error) {
+      console.error('Error fetching media articles:', error);
+      setMediaArticles([]);
+    } finally {
+      setLoadingMedia(false);
     }
   };
 
@@ -634,13 +669,56 @@ export default function HypePage() {
 
                   {activeTab === 'media' && (
                     <div className="space-y-4">
-                      <div className="bg-gray-700/30 p-4 rounded-lg text-center py-8">
-                        <Newspaper className="w-12 h-12 mx-auto mb-3 text-gray-600" />
-                        <p className="text-gray-400">No recent media coverage found</p>
-                        <p className="text-xs text-gray-500 mt-2">
-                          Media article aggregation is currently being developed
-                        </p>
-                      </div>
+                      {loadingMedia ? (
+                        <div className="bg-gray-700/30 p-4 rounded-lg text-center py-8">
+                          <Newspaper className="w-12 h-12 mx-auto mb-3 text-gray-600 animate-pulse" />
+                          <p className="text-gray-400">Loading media articles...</p>
+                        </div>
+                      ) : mediaArticles.length > 0 ? (
+                        mediaArticles.map((article) => (
+                          <a
+                            key={article.id}
+                            href={article.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block bg-gray-700/30 p-4 rounded-lg hover:bg-gray-700/50 transition-all hover:scale-[1.01] cursor-pointer group"
+                          >
+                            <div className="flex items-center gap-2 mb-3">
+                              <Newspaper className="w-4 h-4 text-blue-400" />
+                              <span className="font-medium text-sm text-blue-400">
+                                {article.source}
+                              </span>
+                              <span className="ml-auto text-xs text-gray-500">
+                                {new Date(article.published_at).toLocaleDateString()}
+                              </span>
+                              <ExternalLink className="w-3 h-3 text-gray-600 group-hover:text-purple-400 transition-colors" />
+                            </div>
+                            <h4 className="text-md font-medium text-white mb-2 group-hover:text-purple-300 transition-colors">
+                              {article.title}
+                            </h4>
+                            <p className="text-sm text-gray-400 mb-3 leading-relaxed line-clamp-3">
+                              {article.summary}
+                            </p>
+                            <div className="flex items-center gap-4">
+                              <span className={`px-2 py-0.5 rounded-full text-xs ${
+                                article.sentiment === 'positive' ? 'bg-green-500/20 text-green-400' :
+                                article.sentiment === 'negative' ? 'bg-red-500/20 text-red-400' :
+                                'bg-gray-500/20 text-gray-400'
+                              }`}>
+                                {article.sentiment}
+                              </span>
+                            </div>
+                          </a>
+                        ))
+                      ) : (
+                        <div className="bg-gray-700/30 p-4 rounded-lg text-center py-8">
+                          <Newspaper className="w-12 h-12 mx-auto mb-3 text-gray-600" />
+                          <p className="text-gray-400">No recent media coverage found</p>
+                          <p className="text-xs text-gray-500 mt-2">
+                            RSS feed collection runs every 2 hours
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
 

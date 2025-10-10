@@ -8,7 +8,11 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Read(//c/Users/lilra/Downloads/**)",
-      "Bash(pip show:*)"
+      "Bash(pip show:*)",
+      "Bash(npm run dev:*)",
+      "Bash(uvicorn:*)",
+      "Bash(curl:*)",
+      "Bash(pip install:*)"
     ],
     "deny": [],
     "ask": []

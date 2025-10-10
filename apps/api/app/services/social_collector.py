@@ -479,6 +479,10 @@ class SocialMediaCollector:
                 # Analyze sentiment
                 sentiment_result = await self.sentiment_analyzer.analyze(content)
 
+                # Extract post rkey from URI
+                # URI format: at://did:plc:xxx/app.bsky.feed.post/xxxxx
+                post_rkey = post_uri.split('/')[-1] if post_uri else ''
+
                 # Create mention record
                 mention = SocialMention(
                     player_hype_id=player_hype.id,
@@ -487,7 +491,7 @@ class SocialMediaCollector:
                     author_handle=author_handle,
                     author_followers=author_followers,
                     content=content,
-                    url=f"https://bsky.app/profile/{author_handle}/post/{post_uri.split('/')[-1] if post_uri else ''}",
+                    url=f"https://bsky.app/profile/{author_handle}/post/{post_rkey}",
                     hashtags=hashtags,
                     likes=like_count,
                     shares=repost_count + quote_count,  # Combine reposts and quotes

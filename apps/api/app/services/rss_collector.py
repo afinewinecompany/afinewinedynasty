@@ -205,28 +205,6 @@ class RSSCollector:
                     )
 
                     self.db.add(media_article)
-
-                    # Also create a social mention for unified display
-                    social_mention = SocialMention(
-                        player_hype_id=player_hype.id,
-                        platform='news',  # Use 'news' as platform for RSS feeds
-                        post_id=f"rss_{article['source']}_{hash(article['url'])}",
-                        author_handle=self._format_source_name(article['source']),
-                        author_followers=0,
-                        content=f"{article['title']}\n\n{article['summary'][:500]}",
-                        url=article['url'],
-                        hashtags=[],
-                        likes=0,
-                        shares=0,
-                        comments=0,
-                        sentiment=sentiment['sentiment'],
-                        sentiment_confidence=sentiment['confidence'],
-                        keywords=[player_name],
-                        posted_at=article['published'],
-                        collected_at=datetime.utcnow()
-                    )
-
-                    self.db.add(social_mention)
                     processed_count += 1
 
             except Exception as e:
