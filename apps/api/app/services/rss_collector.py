@@ -132,29 +132,28 @@ class RSSCollector:
     async def process_articles_for_players(self, articles: List[Dict]) -> int:
         """Process articles and extract player mentions"""
 
-        # Get all prospects to search for
-        prospects = self.db.query(Prospect).all()
+        # Get all PlayerHype records to search for
+        # Note: We only use PlayerHype, not Prospect table, to avoid ID mismatch issues
         player_hypes = self.db.query(PlayerHype).all()
+
+        logger.info(f"Processing {len(articles)} articles against {len(player_hypes)} PlayerHype records")
 
         # Create player name lookup (including variations)
         player_names = {}
 
-        for prospect in prospects:
-            name = prospect.name
-            player_names[name.lower()] = f"prospect_{prospect.mlb_id}"
-            # Add last name only for common references
-            last_name = name.split()[-1] if ' ' in name else name
-            if len(last_name) > 4:  # Avoid short common names
-                player_names[last_name.lower()] = f"prospect_{prospect.mlb_id}"
-
         for player_hype in player_hypes:
             name = player_hype.player_name
             player_names[name.lower()] = player_hype.player_id
+
+            # Add last name only for common references
             last_name = name.split()[-1] if ' ' in name else name
-            if len(last_name) > 4:
+            if len(last_name) > 4:  # Avoid short common names like "Lee", "Kim"
                 player_names[last_name.lower()] = player_hype.player_id
 
+        logger.info(f"Built player name lookup with {len(player_names)} entries")
+
         processed_count = 0
+        articles_with_matches = 0
 
         for article in articles:
             try:
@@ -167,6 +166,10 @@ class RSSCollector:
                     if player_name in full_text:
                         mentioned_players.append((player_name, player_id))
 
+                if mentioned_players:
+                    articles_with_matches += 1
+                    logger.debug(f"Article '{article['title'][:50]}...' mentions: {[p[0] for p in mentioned_players]}")
+
                 # Create entries for each mentioned player
                 for player_name, player_id in mentioned_players:
                     # Get player hype record
@@ -175,6 +178,7 @@ class RSSCollector:
                     ).first()
 
                     if not player_hype:
+                        logger.debug(f"No PlayerHype found for ID: {player_id} (matched '{player_name}')")
                         continue
 
                     # Check if article already exists
@@ -210,11 +214,12 @@ class RSSCollector:
                     try:
                         self.db.commit()
                         processed_count += 1
+                        logger.info(f"Saved article for {player_hype.player_name}: {article['title'][:60]}...")
                     except Exception as commit_error:
                         self.db.rollback()
                         # Skip if duplicate URL (same article for multiple players with unique constraint)
                         if 'duplicate key' in str(commit_error).lower() or 'unique constraint' in str(commit_error).lower():
-                            logger.debug(f"Article already exists: {article['url']}")
+                            logger.debug(f"Article URL already exists (unique constraint): {article['url']}")
                         else:
                             logger.error(f"Error committing article: {commit_error}")
 
@@ -223,6 +228,7 @@ class RSSCollector:
                 self.db.rollback()
                 continue
 
+        logger.info(f"Finished processing: {articles_with_matches} articles had player mentions, {processed_count} articles successfully saved")
         return processed_count
 
     def _format_source_name(self, source: str) -> str:

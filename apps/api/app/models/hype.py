@@ -3,7 +3,7 @@ HYPE Feature Models - Track media and social interactions for players
 """
 
 from datetime import datetime
-from sqlalchemy import Column, String, Integer, Float, DateTime, ForeignKey, JSON, Text, Boolean
+from sqlalchemy import Column, String, Integer, Float, DateTime, ForeignKey, JSON, Text, Boolean, UniqueConstraint
 from sqlalchemy.orm import relationship
 from app.db.database import Base
 
@@ -86,6 +86,11 @@ class SocialMention(Base):
 class MediaArticle(Base):
     """Track media articles and news coverage"""
     __tablename__ = 'media_articles'
+    __table_args__ = (
+        # Composite unique constraint: same article can be linked to multiple players
+        # but each player can only have the article once
+        UniqueConstraint('url', 'player_hype_id', name='uq_media_article_player'),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     player_hype_id = Column(Integer, ForeignKey('player_hype.id'))
@@ -93,7 +98,7 @@ class MediaArticle(Base):
     # Article information
     source = Column(String, nullable=False)  # ESPN, MLB.com, etc.
     title = Column(String, nullable=False)
-    url = Column(String, unique=True, nullable=False)
+    url = Column(String, nullable=False)  # Removed unique=True, now uses composite constraint
     author = Column(String)
 
     # Content analysis
