@@ -140,6 +140,14 @@ class SocialMediaCollector:
                 if existing:
                     continue
 
+                # VALIDATE: Skip if the tweet doesn't actually mention the player's FULL name
+                player_name_lower = player_hype.player_name.lower()
+                tweet_text_lower = tweet['text'].lower()
+
+                if player_name_lower not in tweet_text_lower:
+                    logger.debug(f"Skipping tweet - doesn't mention full name '{player_hype.player_name}': {tweet['text'][:60]}...")
+                    continue
+
                 # Get author info
                 author = users.get(tweet.get('author_id', ''), {})
 
@@ -305,6 +313,14 @@ class SocialMediaCollector:
                 # Combine title and selftext for sentiment analysis
                 content = f"{post_data['title']} {post_data.get('selftext', '')}"
 
+                # VALIDATE: Skip if the post doesn't actually mention the player's FULL name
+                player_name_lower = player_hype.player_name.lower()
+                content_lower = content.lower()
+
+                if player_name_lower not in content_lower:
+                    logger.debug(f"Skipping Reddit post - doesn't mention full name '{player_hype.player_name}': {post_data['title'][:60]}...")
+                    continue
+
                 # Analyze sentiment
                 sentiment_result = await self.sentiment_analyzer.analyze(content)
 
@@ -434,6 +450,15 @@ class SocialMediaCollector:
 
                 # Extract post content from SDK object
                 content = getattr(post.record, 'text', '')
+
+                # VALIDATE: Skip if the post doesn't actually mention the player's FULL name
+                # Bluesky search returns any post with matching words, not necessarily the full name
+                player_name_lower = player_hype.player_name.lower()
+                content_lower = content.lower()
+
+                if player_name_lower not in content_lower:
+                    logger.debug(f"Skipping Bluesky post - doesn't mention full name '{player_hype.player_name}': {content[:60]}...")
+                    continue
 
                 # Extract author info
                 author_handle = getattr(post.author, 'handle', 'unknown')

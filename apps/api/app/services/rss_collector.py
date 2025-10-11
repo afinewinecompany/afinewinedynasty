@@ -138,19 +138,15 @@ class RSSCollector:
 
         logger.info(f"Processing {len(articles)} articles against {len(player_hypes)} PlayerHype records")
 
-        # Create player name lookup (including variations)
+        # Create player name lookup - ONLY using full names to avoid false positives
+        # Do NOT match on last name only (e.g., "Smith" would match too many articles)
         player_names = {}
 
         for player_hype in player_hypes:
             name = player_hype.player_name
             player_names[name.lower()] = player_hype.player_id
 
-            # Add last name only for common references
-            last_name = name.split()[-1] if ' ' in name else name
-            if len(last_name) > 4:  # Avoid short common names like "Lee", "Kim"
-                player_names[last_name.lower()] = player_hype.player_id
-
-        logger.info(f"Built player name lookup with {len(player_names)} entries")
+        logger.info(f"Built player name lookup with {len(player_names)} entries (full names only)")
 
         processed_count = 0
         articles_with_matches = 0
