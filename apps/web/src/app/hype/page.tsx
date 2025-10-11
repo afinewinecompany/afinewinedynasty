@@ -118,7 +118,13 @@ export default function HypePage() {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
       const token = localStorage.getItem('token');
 
-      const params = filterType !== 'all' ? `?player_type=${filterType}` : '';
+      // Build params with limit=100 to get all players (API max)
+      const queryParams = new URLSearchParams();
+      queryParams.append('limit', '100'); // Get all players for searchability
+      if (filterType !== 'all') {
+        queryParams.append('player_type', filterType);
+      }
+      const params = `?${queryParams.toString()}`;
 
       // Build headers - only add Authorization if token exists
       const headers: HeadersInit = {
