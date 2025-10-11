@@ -492,7 +492,7 @@ class HypeCalculator:
                 'severity': 'high' if trend > 50 else 'medium',
                 'title': f'HYPE surge detected for {player_hype.player_name}',
                 'description': f'HYPE score increased by {trend:.1f}% in the last period',
-                'change_percentage': trend,
+                'change_percentage': float(trend),
             })
 
         # Check for crash (>25% decrease)
@@ -502,7 +502,7 @@ class HypeCalculator:
                 'severity': 'high' if trend < -50 else 'medium',
                 'title': f'HYPE crash detected for {player_hype.player_name}',
                 'description': f'HYPE score decreased by {abs(trend):.1f}% in the last period',
-                'change_percentage': trend,
+                'change_percentage': float(trend),
             })
 
         # Check for high virality
@@ -528,8 +528,8 @@ class HypeCalculator:
             if not existing_alert:
                 alert = HypeAlert(
                     player_id=player_hype.player_id,
-                    hype_score_before=current_score - (current_score * trend / 100),
-                    hype_score_after=current_score,
+                    hype_score_before=float(current_score - (current_score * trend / 100)),
+                    hype_score_after=float(current_score),
                     expires_at=datetime.utcnow() + timedelta(days=7),
                     **alert_data
                 )
@@ -603,12 +603,13 @@ class HypeCalculator:
         now = datetime.utcnow()
         period_start = now - timedelta(hours=1)
 
+        # Convert to Python native types to avoid numpy type issues with PostgreSQL
         history = HypeHistory(
             player_hype_id=player_hype_id,
-            hype_score=score,
-            sentiment_score=sentiment_metrics['average'],
-            virality_score=0,  # Would be calculated separately
-            total_mentions=social_metrics.get('total_mentions_24h', 0),
+            hype_score=float(score),
+            sentiment_score=float(sentiment_metrics['average']),
+            virality_score=int(0),
+            total_mentions=int(social_metrics.get('total_mentions_24h', 0)),
             period_start=period_start,
             period_end=now,
             granularity='hourly'
