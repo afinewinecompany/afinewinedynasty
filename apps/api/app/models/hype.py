@@ -49,13 +49,18 @@ class PlayerHype(Base):
 class SocialMention(Base):
     """Track individual social media mentions"""
     __tablename__ = 'social_mentions'
+    __table_args__ = (
+        # Composite unique constraint: same post can mention multiple players
+        # but each player can only have the post once
+        UniqueConstraint('post_id', 'player_hype_id', name='uq_social_mention_player'),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     player_hype_id = Column(Integer, ForeignKey('player_hype.id'))
 
     # Source information
     platform = Column(String, nullable=False)  # twitter, reddit, instagram, tiktok
-    post_id = Column(String, unique=True, nullable=False)
+    post_id = Column(String, nullable=False)  # Removed unique=True, now uses composite constraint
     author_handle = Column(String)
     author_followers = Column(Integer, default=0)
 

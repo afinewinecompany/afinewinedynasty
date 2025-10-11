@@ -146,23 +146,22 @@ class HypeScheduler:
             db.close()
 
     async def collect_all_players_data(self):
-        """Collect data for all tracked players"""
+        """Collect data for ALL tracked players (no activity filter)"""
         logger.info("Starting all players HYPE data collection")
 
         db = SessionLocal()
         try:
-            # Get all players with recent activity
-            cutoff_date = datetime.utcnow() - timedelta(days=7)
-            active_players = db.query(PlayerHype).filter(
-                PlayerHype.last_calculated > cutoff_date
-            ).all()
+            # Get ALL players - remove the activity filter to ensure everyone gets collected
+            all_players = db.query(PlayerHype).all()
+
+            logger.info(f"Collecting data for {len(all_players)} total players")
 
             collector = SocialMediaCollector(db)
 
             # Process in batches to respect rate limits
             batch_size = 10
-            for i in range(0, len(active_players), batch_size):
-                batch = active_players[i:i+batch_size]
+            for i in range(0, len(all_players), batch_size):
+                batch = all_players[i:i+batch_size]
 
                 tasks = []
                 for player in batch:
