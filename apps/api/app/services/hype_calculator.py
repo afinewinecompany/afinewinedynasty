@@ -176,6 +176,7 @@ class HypeCalculator:
             '24h': now - timedelta(hours=24),
             '3d': now - timedelta(days=3),
             '7d': now - timedelta(days=7),
+            '14d': now - timedelta(days=14),
             '30d': now - timedelta(days=30),
         }
 
@@ -193,6 +194,11 @@ class HypeCalculator:
         mentions_7d = self.db.query(SocialMention).filter(
             SocialMention.player_hype_id == player_hype_id,
             SocialMention.posted_at >= time_windows['7d']
+        ).all()
+
+        mentions_14d = self.db.query(SocialMention).filter(
+            SocialMention.player_hype_id == player_hype_id,
+            SocialMention.posted_at >= time_windows['14d']
         ).all()
 
         # Calculate weighted engagement
@@ -242,6 +248,7 @@ class HypeCalculator:
         metrics = {
             'total_mentions_24h': len(mentions_24h),
             'total_mentions_7d': len(mentions_7d),
+            'total_mentions_14d': len(mentions_14d),
             'total_engagement': total_engagement,
             'platform_breakdown': platform_breakdown,
         }
@@ -253,9 +260,10 @@ class HypeCalculator:
     ) -> Tuple[float, Dict]:
         """Calculate media coverage score"""
 
+        # Use 14d window for more stable media coverage tracking
         articles = self.db.query(MediaArticle).filter(
             MediaArticle.player_hype_id == player_hype_id,
-            MediaArticle.published_at >= time_windows['7d']
+            MediaArticle.published_at >= time_windows['14d']
         ).all()
 
         total_coverage = 0
@@ -463,6 +471,7 @@ class HypeCalculator:
         player_hype.virality_score = float(round(virality, 2))
         player_hype.total_mentions_24h = int(social_metrics.get('total_mentions_24h', 0))
         player_hype.total_mentions_7d = int(social_metrics.get('total_mentions_7d', 0))
+        player_hype.total_mentions_14d = int(social_metrics.get('total_mentions_14d', 0))
         player_hype.engagement_rate = float(self._calculate_engagement_rate(social_metrics))
         player_hype.last_calculated = now
         player_hype.updated_at = now

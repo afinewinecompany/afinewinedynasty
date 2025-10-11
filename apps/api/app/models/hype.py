@@ -26,6 +26,7 @@ class PlayerHype(Base):
     # Volume metrics
     total_mentions_24h = Column(Integer, default=0)
     total_mentions_7d = Column(Integer, default=0)
+    total_mentions_14d = Column(Integer, default=0)
     total_mentions_30d = Column(Integer, default=0)
 
     # Engagement metrics
