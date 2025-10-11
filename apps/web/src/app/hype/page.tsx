@@ -21,6 +21,7 @@ import {
   ExternalLink,
   Heart,
   Share2,
+  ArrowUpDown,
 } from 'lucide-react';
 
 interface HypeData {
@@ -94,23 +95,41 @@ export default function HypePage() {
   const [loadingSocial, setLoadingSocial] = useState(false);
   const [mediaArticles, setMediaArticles] = useState<MediaArticle[]>([]);
   const [loadingMedia, setLoadingMedia] = useState(false);
+  const [sortBy, setSortBy] = useState<'hype_score' | 'change_24h'>('hype_score');
 
   // Fetch data from API
   useEffect(() => {
     fetchLeaderboard();
   }, [filterType]);
 
-  // Filter leaderboard based on search query
+  // Filter and sort leaderboard based on search query and sort preference
   useEffect(() => {
-    if (searchQuery.trim() === '') {
-      setFilteredLeaderboard(leaderboard);
-    } else {
-      const filtered = leaderboard.filter((player) =>
+    let filtered = [...leaderboard];
+
+    // Apply search filter
+    if (searchQuery.trim() !== '') {
+      filtered = filtered.filter((player) =>
         player.player_name.toLowerCase().includes(searchQuery.toLowerCase())
       );
-      setFilteredLeaderboard(filtered);
     }
-  }, [searchQuery, leaderboard]);
+
+    // Apply sorting
+    if (sortBy === 'change_24h') {
+      // Sort by percentage change (highest to lowest)
+      filtered.sort((a, b) => b.change_24h - a.change_24h);
+    } else {
+      // Sort by hype score (highest to lowest - default)
+      filtered.sort((a, b) => b.hype_score - a.hype_score);
+    }
+
+    // Re-assign ranks based on current sort
+    filtered = filtered.map((player, index) => ({
+      ...player,
+      rank: index + 1
+    }));
+
+    setFilteredLeaderboard(filtered);
+  }, [searchQuery, leaderboard, sortBy]);
 
   const fetchLeaderboard = async () => {
     try {
@@ -365,11 +384,23 @@ export default function HypePage() {
                 <BarChart3 className="w-5 h-5 text-purple-400" />
                 HYPE Leaderboard
               </h2>
-              {searchQuery && (
-                <span className="text-sm text-gray-400">
-                  {filteredLeaderboard.length} results
-                </span>
-              )}
+              <div className="flex items-center gap-3">
+                {searchQuery && (
+                  <span className="text-sm text-gray-400">
+                    {filteredLeaderboard.length} results
+                  </span>
+                )}
+                <button
+                  onClick={() => setSortBy(sortBy === 'hype_score' ? 'change_24h' : 'hype_score')}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all text-sm"
+                  title={`Sort by ${sortBy === 'hype_score' ? '% Change' : 'HYPE Score'}`}
+                >
+                  <ArrowUpDown className="w-4 h-4" />
+                  <span className="hidden sm:inline">
+                    {sortBy === 'hype_score' ? 'Score' : '% Change'}
+                  </span>
+                </button>
+              </div>
             </div>
             <div className="space-y-3">
               {filteredLeaderboard.length > 0 ? (

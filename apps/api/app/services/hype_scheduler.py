@@ -5,11 +5,16 @@ Background tasks for periodic data collection and score calculation
 
 import asyncio
 import logging
+import os
 from datetime import datetime, timedelta
 from typing import List, Optional
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from sqlalchemy.orm import Session
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 from app.db.database import SyncSessionLocal as SessionLocal
 from app.models.hype import PlayerHype, SocialMention, HypeHistory
