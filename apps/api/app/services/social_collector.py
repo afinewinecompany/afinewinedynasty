@@ -132,9 +132,11 @@ class SocialMediaCollector:
                 # Generate unique ID for deduplication
                 post_id = f"twitter_{tweet['id']}"
 
-                # Check if already exists
+                # Check if this specific player already has this post
+                # Note: Same post can now be linked to multiple players (composite key)
                 existing = self.db.query(SocialMention).filter(
-                    SocialMention.post_id == post_id
+                    SocialMention.post_id == post_id,
+                    SocialMention.player_hype_id == player_hype.id
                 ).first()
 
                 if existing:
@@ -302,9 +304,11 @@ class SocialMediaCollector:
                 # Generate unique ID
                 post_id = f"reddit_{post_data['id']}"
 
-                # Check if already exists
+                # Check if this specific player already has this post
+                # Note: Same post can now be linked to multiple players (composite key)
                 existing = self.db.query(SocialMention).filter(
-                    SocialMention.post_id == post_id
+                    SocialMention.post_id == post_id,
+                    SocialMention.player_hype_id == player_hype.id
                 ).first()
 
                 if existing:
@@ -440,9 +444,11 @@ class SocialMediaCollector:
                 post_uri = getattr(post, 'uri', '')
                 post_id = f"bluesky_{post_uri.split('/')[-1] if post_uri else getattr(post, 'cid', '')}"
 
-                # Check if already exists
+                # Check if this specific player already has this post
+                # Note: Same post can now be linked to multiple players (composite key)
                 existing = self.db.query(SocialMention).filter(
-                    SocialMention.post_id == post_id
+                    SocialMention.post_id == post_id,
+                    SocialMention.player_hype_id == player_hype.id
                 ).first()
 
                 if existing:
