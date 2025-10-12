@@ -14,7 +14,8 @@
       "Bash(curl:*)",
       "Bash(pip install:*)",
       "Bash(git reset:*)",
-      "Bash(alembic upgrade:*)"
+      "Bash(alembic upgrade:*)",
+      "Bash(tee:*)"
     ],
     "deny": [],
     "ask": []

@@ -208,10 +208,147 @@ class MiLBPitchByPitchCollector:
     async def fetch_pitch_by_pitch(self, game_pk: int) -> Optional[Dict[str, Any]]:
         """
         Fetch pitch-by-pitch data for a game.
-        This is the core mlb_pbp() functionality from baseballr.
+        Try feed/live endpoint first (has more data), fallback to playByPlay.
         """
+        # Try the newer feed/live endpoint first (has more data)
+        url = f"{self.BASE_URL}.1/game/{game_pk}/feed/live"
+        data = await self.fetch_json(url)
+
+        if data:
+            return data
+
+        # Fallback to basic playByPlay endpoint
         url = f"{self.BASE_URL}/game/{game_pk}/playByPlay"
         return await self.fetch_json(url)
+
+    def extract_and_save_pbp_data(
+        self,
+        db,
+        pbp_data: Dict[str, Any],
+        game_pk: int,
+        game_date_str: str,
+        level: str,
+        player_id: int,
+        season: int
+    ) -> int:
+        """Extract player's plate appearances and save to database."""
+        try:
+            game_date = datetime.strptime(game_date_str, '%Y-%m-%d').date()
+
+            # Get plays from appropriate structure
+            if 'liveData' in pbp_data:
+                # feed/live format
+                all_plays = pbp_data.get('liveData', {}).get('plays', {}).get('allPlays', [])
+            else:
+                # playByPlay format
+                all_plays = pbp_data.get('allPlays', [])
+
+            if not all_plays:
+                return 0
+
+            pas_saved = 0
+
+            for play_idx, play in enumerate(all_plays):
+                matchup = play.get('matchup', {})
+                batter_id = matchup.get('batter', {}).get('id')
+
+                # Check if this PA involves our player
+                if batter_id != player_id:
+                    continue
+
+                # Extract play result
+                result = play.get('result', {})
+                event_type = result.get('event', '')
+                event_type_desc = result.get('eventType', '')
+                description = result.get('description', '')
+
+                # Extract inning info
+                about = play.get('about', {})
+                inning = about.get('inning')
+                half_inning = about.get('halfInning', '')
+
+                # Look for batted ball data in play events
+                play_events = play.get('playEvents', [])
+                batted_ball_data = {}
+
+                for event in play_events:
+                    hit_data = event.get('hitData', {})
+                    if hit_data:
+                        batted_ball_data = {
+                            'launch_speed': hit_data.get('launchSpeed'),
+                            'launch_angle': hit_data.get('launchAngle'),
+                            'total_distance': hit_data.get('totalDistance'),
+                            'trajectory': hit_data.get('trajectory'),
+                            'hardness': hit_data.get('hardness'),
+                            'location': hit_data.get('location'),
+                            'coord_x': hit_data.get('coordinates', {}).get('coordX'),
+                            'coord_y': hit_data.get('coordinates', {}).get('coordY')
+                        }
+                        break
+
+                # Check if this PA already exists
+                check_query = text("""
+                    SELECT id FROM milb_plate_appearances
+                    WHERE mlb_player_id = :player_id
+                    AND game_pk = :game_pk
+                    AND at_bat_index = :at_bat_index
+                """)
+
+                existing = db.execute(check_query, {
+                    'player_id': player_id,
+                    'game_pk': game_pk,
+                    'at_bat_index': play.get('atBatIndex', play_idx)
+                }).fetchone()
+
+                if existing:
+                    continue
+
+                # Insert new PA
+                insert_query = text("""
+                    INSERT INTO milb_plate_appearances
+                    (mlb_player_id, game_pk, game_date, season, level, at_bat_index,
+                     inning, half_inning, event_type, event_type_desc, description,
+                     launch_speed, launch_angle, total_distance, trajectory, hardness,
+                     location, coord_x, coord_y, created_at)
+                    VALUES
+                    (:player_id, :game_pk, :game_date, :season, :level, :at_bat_index,
+                     :inning, :half_inning, :event_type, :event_type_desc, :description,
+                     :launch_speed, :launch_angle, :total_distance, :trajectory, :hardness,
+                     :location, :coord_x, :coord_y, NOW())
+                """)
+
+                db.execute(insert_query, {
+                    'player_id': player_id,
+                    'game_pk': game_pk,
+                    'game_date': game_date,
+                    'season': season,
+                    'level': level,
+                    'at_bat_index': play.get('atBatIndex', play_idx),
+                    'inning': inning,
+                    'half_inning': half_inning,
+                    'event_type': event_type,
+                    'event_type_desc': event_type_desc,
+                    'description': description,
+                    'launch_speed': batted_ball_data.get('launch_speed'),
+                    'launch_angle': batted_ball_data.get('launch_angle'),
+                    'total_distance': batted_ball_data.get('total_distance'),
+                    'trajectory': batted_ball_data.get('trajectory'),
+                    'hardness': batted_ball_data.get('hardness'),
+                    'location': batted_ball_data.get('location'),
+                    'coord_x': batted_ball_data.get('coord_x'),
+                    'coord_y': batted_ball_data.get('coord_y')
+                })
+
+                pas_saved += 1
+
+            # Commit after all PAs for this game
+            db.commit()
+            return pas_saved
+
+        except Exception as e:
+            logger.error(f"Error saving PBP data for game {game_pk}: {str(e)}")
+            db.rollback()
+            return 0
 
     def aggregate_game_stats(
         self,
@@ -469,7 +606,8 @@ class MiLBPitchByPitchCollector:
             logger.info(f"  Found {len(games)} games")
 
             # Fetch pitch-by-pitch data for each game
-            saved = 0
+            total_pas = 0
+            games_with_data = 0
             for i, game_info in enumerate(games, 1):
                 game_pk = game_info['game_pk']
                 game_date = game_info['game_date']
@@ -482,28 +620,24 @@ class MiLBPitchByPitchCollector:
                 if not pbp_data:
                     continue
 
-                # Aggregate to game stats
-                game_record = self.aggregate_game_stats(
+                # Extract and save plate appearances
+                pas_saved = self.extract_and_save_pbp_data(
+                    db,
                     pbp_data,
                     game_pk,
                     game_date,
                     level,
                     player_id,
-                    prospect_id,
                     season
                 )
 
-                if not game_record:
-                    logger.debug(f"    Game {game_pk}: No stats found")
-                    continue
+                if pas_saved > 0:
+                    total_pas += pas_saved
+                    games_with_data += 1
 
-                if self.save_game_log(db, game_record):
-                    saved += 1
-                    logger.debug(f"    Game {game_pk}: Saved")
-
-            logger.info(f"  Saved {saved} new games for {season}")
-            total_games += saved
-            self.games_collected += saved
+            logger.info(f"  Saved {total_pas} plate appearances from {games_with_data} games for {season}")
+            total_games += games_with_data
+            self.games_collected += games_with_data
 
         return total_games
 
