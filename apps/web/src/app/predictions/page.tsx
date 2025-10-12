@@ -551,7 +551,7 @@ export default function PredictionsPage() {
                         {selectedPlayer.position}
                       </span>
                       <span className="text-sm text-gray-400">
-                        {selectedPlayer.organization} • {selectedPlayer.level}
+                        {[selectedPlayer.organization, selectedPlayer.level].filter(Boolean).join(' • ')}
                       </span>
                       {selectedPlayer.age && (
                         <span className="text-sm text-gray-400">• Age {selectedPlayer.age}</span>
