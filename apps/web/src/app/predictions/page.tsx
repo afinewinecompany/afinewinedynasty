@@ -217,7 +217,9 @@ export default function PredictionsPage() {
     }
   };
 
-  const getSignalColor = (signal: string) => {
+  const getSignalColor = (signal: string | undefined | null) => {
+    if (!signal) return 'from-gray-500 to-gray-600';
+
     switch (signal) {
       case 'strong_buy':
         return 'from-green-600 to-emerald-600';
@@ -234,7 +236,9 @@ export default function PredictionsPage() {
     }
   };
 
-  const getSignalIcon = (signal: string) => {
+  const getSignalIcon = (signal: string | undefined | null) => {
+    if (!signal) return <Activity className="w-5 h-5" />;
+
     switch (signal) {
       case 'strong_buy':
         return <ChevronUp className="w-5 h-5" />;
@@ -251,7 +255,9 @@ export default function PredictionsPage() {
     }
   };
 
-  const getSignalText = (signal: string) => {
+  const getSignalText = (signal: string | undefined | null) => {
+    if (!signal) return 'N/A';
+
     switch (signal) {
       case 'strong_buy':
         return 'STRONG BUY';
@@ -268,8 +274,10 @@ export default function PredictionsPage() {
     }
   };
 
-  const getConfidenceColor = (confidence: string) => {
-    switch (confidence) {
+  const getConfidenceColor = (confidence: string | undefined | null) => {
+    if (!confidence) return 'text-gray-400';
+
+    switch (confidence.toLowerCase()) {
       case 'high':
         return 'text-green-400';
       case 'medium':
