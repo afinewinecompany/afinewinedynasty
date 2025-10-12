@@ -33,13 +33,13 @@ interface MLProjection {
   success_probability: number | null;
   breakout_score: number | null;
   dynasty_rank: number | null;
-  investment_signal: 'strong_buy' | 'buy' | 'hold' | 'caution' | 'sell';
+  investment_signal: 'strong_buy' | 'buy' | 'hold' | 'caution' | 'sell' | null;
   signal_strength: number;
   signal_reasoning: string;
   eta_year: number | null;
   eta_confidence: number | null;
-  projected_stats: Record<string, number>;
-  overall_confidence: 'high' | 'medium' | 'low';
+  projected_stats: Record<string, number> | null;
+  overall_confidence: 'high' | 'medium' | 'low' | null;
   data_quality_score: number;
   last_updated: string;
 }
@@ -619,7 +619,7 @@ export default function PredictionsPage() {
                         selectedPlayer.overall_confidence
                       )}`}
                     >
-                      {selectedPlayer.overall_confidence.toUpperCase()}
+                      {selectedPlayer.overall_confidence ? selectedPlayer.overall_confidence.toUpperCase() : 'N/A'}
                     </div>
                   </div>
                 </div>
