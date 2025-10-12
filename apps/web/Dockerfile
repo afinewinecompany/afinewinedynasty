@@ -18,6 +18,9 @@ ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_GOOGLE_CLIENT_ID=$NEXT_PUBLIC_GOOGLE_CLIENT_ID
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
+# Remove any existing .next cache to force fresh build
+RUN rm -rf .next
+
 # Build Next.js app with environment variables available
 RUN npm run build
 
