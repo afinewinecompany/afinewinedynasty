@@ -971,8 +971,13 @@ def _generate_signal_reasoning(
     age: Optional[int]
 ) -> str:
     """Generate human-readable signal reasoning"""
+    # Handle None values
+    if success_prob is None:
+        return "Insufficient ML prediction data available for detailed signal reasoning. Based on available scouting and performance data."
+
     if signal == PredictionSignal.STRONG_BUY:
-        return f"High MLB success probability ({success_prob:.0%}) combined with young age ({age}) presents exceptional dynasty value. Strong buy candidate."
+        age_str = f"combined with young age ({age})" if age else "with strong upside"
+        return f"High MLB success probability ({success_prob:.0%}) {age_str} presents exceptional dynasty value. Strong buy candidate."
     elif signal == PredictionSignal.BUY:
         return f"Solid success probability ({success_prob:.0%}) indicates good upside potential. Recommended acquisition target."
     elif signal == PredictionSignal.HOLD:

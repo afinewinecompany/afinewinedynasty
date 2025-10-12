@@ -50,9 +50,9 @@ class DynastyRankingService:
                     score_components['confidence_level'] = 'Medium'
 
         # Scouting Grade component (25% weight)
-        if scouting_grade and scouting_grade.future_value:
+        if scouting_grade and scouting_grade.overall_grade:
             # Convert 20-80 grade to 0-100 scale
-            scout_raw = ((scouting_grade.future_value - 20) / 60) * 100
+            scout_raw = ((scouting_grade.overall_grade - 20) / 60) * 100
             score_components['scouting_score'] = scout_raw * 0.25
 
         # Age Factor component (20% weight) - younger is better
