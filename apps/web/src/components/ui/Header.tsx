@@ -18,7 +18,7 @@ const Header: React.FC = () => {
     { href: '/', label: 'Dashboard' },
     { href: '/prospects', label: 'Prospects' },
     { href: '/hype', label: 'HYPE', icon: 'trending' },
-    { href: '/ml-predictions', label: 'ML Predictions', icon: 'brain' },
+    { href: '/predictions', label: 'ML Predictions', icon: 'brain' },
     { href: '/discovery', label: 'Tools' },
     { href: '/account/subscription', label: 'Account' },
   ];
