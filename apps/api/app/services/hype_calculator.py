@@ -216,10 +216,16 @@ class HypeCalculator:
             time_decay = self._get_time_decay(hours_old)
 
             # Calculate engagement score for this mention
+            # Give a base value of 5 for the mention itself, then add engagement metrics
+            base_mention_value = 5.0
+            engagement_value = (
+                mention.likes * 1.0 +
+                mention.shares * 2.0 +
+                mention.comments * 1.5
+            )
+
             engagement = (
-                (mention.likes * 1.0 +
-                 mention.shares * 2.0 +
-                 mention.comments * 1.5) *
+                (base_mention_value + engagement_value) *
                 platform_weight *
                 sentiment_multiplier *
                 time_decay
