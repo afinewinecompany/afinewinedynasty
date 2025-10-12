@@ -569,7 +569,7 @@ export default function PredictionsPage() {
                       {getSignalText(selectedPlayer.investment_signal)}
                     </div>
                     <div className="text-sm text-gray-400 mt-2">
-                      Signal Strength: {selectedPlayer.signal_strength.toFixed(0)}/100
+                      Signal Strength: {selectedPlayer.signal_strength?.toFixed(0) || 'N/A'}/100
                     </div>
                   </div>
                 </div>
@@ -631,7 +631,7 @@ export default function PredictionsPage() {
                     Investment Analysis
                   </h4>
                   <p className="text-sm text-gray-300 leading-relaxed">
-                    {selectedPlayer.signal_reasoning}
+                    {selectedPlayer.signal_reasoning || 'No analysis available'}
                   </p>
                 </div>
               </motion.div>
