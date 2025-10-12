@@ -177,14 +177,23 @@ export default function PredictionsPage() {
         const data = await response.json();
         setSelectedPlayer(data);
 
-        // Fetch SHAP feature importances
-        const featResponse = await fetch(`${apiUrl}/api/v1/ml/player/${playerId}/success-probability?include_features=true`, {
-          headers,
-        });
+        // Fetch SHAP feature importances (optional - may not exist for all players)
+        try {
+          const featResponse = await fetch(`${apiUrl}/api/v1/ml/player/${playerId}/success-probability?include_features=true`, {
+            headers,
+          });
 
-        if (featResponse.ok) {
-          const featData = await featResponse.json();
-          setFeatureImportances(featData.feature_importances || []);
+          if (featResponse.ok) {
+            const featData = await featResponse.json();
+            setFeatureImportances(featData.feature_importances || []);
+          } else if (featResponse.status === 404) {
+            // No ML prediction available for this player - this is ok
+            setFeatureImportances([]);
+          }
+        } catch (featError) {
+          // Feature importances are optional - don't fail if they're missing
+          console.log('Feature importances not available for this player');
+          setFeatureImportances([]);
         }
       } else {
         console.error('Failed to fetch player projection:', response.status);
@@ -753,7 +762,7 @@ export default function PredictionsPage() {
                   {activeTab === 'projections' && (
                     <div className="space-y-3">
                       <h4 className="font-medium mb-3">Projected Stats</h4>
-                      {Object.keys(selectedPlayer.projected_stats).length > 0 ? (
+                      {selectedPlayer.projected_stats && Object.keys(selectedPlayer.projected_stats).length > 0 ? (
                         <div className="grid grid-cols-2 gap-3">
                           {Object.entries(selectedPlayer.projected_stats).map(
                             ([stat, value]) => (
