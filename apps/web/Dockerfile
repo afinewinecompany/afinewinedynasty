@@ -1,6 +1,7 @@
 FROM node:18-alpine
 
 WORKDIR /app
+# Force rebuild: 2025-10-12
 
 # Copy package files
 COPY package*.json ./
