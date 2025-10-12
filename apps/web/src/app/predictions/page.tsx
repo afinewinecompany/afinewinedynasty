@@ -53,8 +53,8 @@ interface LeaderboardItem {
   success_probability: number | null;
   breakout_score: number | null;
   dynasty_rank: number | null;
-  investment_signal: string;
-  confidence_level: string;
+  investment_signal: string | null;
+  confidence_level: string | null;
   change_7d: number | null;
 }
 
@@ -467,7 +467,7 @@ export default function PredictionsPage() {
                             player.confidence_level
                           )}`}
                         >
-                          {player.confidence_level} conf.
+                          {player.confidence_level || 'N/A'} conf.
                         </div>
                       </div>
                     </div>
