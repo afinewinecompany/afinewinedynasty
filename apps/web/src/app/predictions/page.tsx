@@ -433,7 +433,7 @@ export default function PredictionsPage() {
                           </span>
                         </div>
                         <div className="text-xs text-gray-400 mb-2">
-                          {player.organization}
+                          {player.organization || 'Free Agent'}
                         </div>
                         <div className="flex items-center gap-2">
                           {player.success_probability !== null && (
