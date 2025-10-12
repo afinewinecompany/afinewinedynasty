@@ -15,12 +15,17 @@ Usage:
 import argparse
 import asyncio
 import logging
+import os
 import sys
 import time
 from collections import defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+# Load environment variables FIRST before any other imports
+from dotenv import load_dotenv
+load_dotenv()
 
 import aiohttp
 from sqlalchemy import text
@@ -100,46 +105,64 @@ class MiLBPitchByPitchCollector:
             self.errors += 1
             return None
 
-    def get_prospects_with_mlb_ids(self, db, prospect_id: Optional[int] = None) -> List[Dict[str, Any]]:
-        """Get prospects that have MLB player IDs."""
-        if prospect_id:
-            query = text("""
-                SELECT
-                    id as prospect_id,
-                    name,
-                    mlb_player_id,
-                    position,
-                    organization
-                FROM prospects
-                WHERE id = :prospect_id
-                    AND mlb_player_id IS NOT NULL
-            """)
-            result = db.execute(query, {"prospect_id": prospect_id})
-        else:
-            query = text("""
-                SELECT
-                    id as prospect_id,
-                    name,
-                    mlb_player_id,
-                    position,
-                    organization
-                FROM prospects
-                WHERE mlb_player_id IS NOT NULL
-                ORDER BY id
-            """)
-            result = db.execute(query)
+    def get_players_needing_pbp(self, db, seasons: List[int], limit: Optional[int] = None) -> List[Dict[str, Any]]:
+        """Get players who have game logs but no PBP data for the specified seasons."""
+        seasons_str = ','.join(str(s) for s in seasons)
 
-        prospects = []
+        query = text(f"""
+            WITH player_game_counts AS (
+                SELECT
+                    mlb_player_id,
+                    season,
+                    COUNT(*) as game_count
+                FROM milb_game_logs
+                WHERE season IN ({seasons_str})
+                AND mlb_player_id IS NOT NULL
+                GROUP BY mlb_player_id, season
+            ),
+            player_pbp_counts AS (
+                SELECT
+                    mlb_player_id,
+                    season,
+                    COUNT(*) as pbp_count
+                FROM milb_plate_appearances
+                WHERE season IN ({seasons_str})
+                GROUP BY mlb_player_id, season
+            )
+            SELECT
+                pgc.mlb_player_id,
+                pgc.season,
+                pgc.game_count,
+                COALESCE(ppc.pbp_count, 0) as pbp_count,
+                p.name,
+                p.position,
+                p.organization
+            FROM player_game_counts pgc
+            LEFT JOIN player_pbp_counts ppc
+                ON pgc.mlb_player_id = ppc.mlb_player_id
+                AND pgc.season = ppc.season
+            LEFT JOIN prospects p ON pgc.mlb_player_id::text = p.mlb_player_id
+            WHERE COALESCE(ppc.pbp_count, 0) = 0
+            AND pgc.game_count > 20
+            ORDER BY pgc.season, pgc.game_count DESC
+            LIMIT :limit
+        """)
+
+        result = db.execute(query, {"limit": limit or 10000})
+
+        players = []
         for row in result:
-            prospects.append({
-                "prospect_id": row.prospect_id,
-                "name": row.name,
+            players.append({
                 "mlb_player_id": row.mlb_player_id,
+                "season": row.season,
+                "game_count": row.game_count,
+                "pbp_count": row.pbp_count,
+                "name": row.name or f"Player {row.mlb_player_id}",
                 "position": row.position,
                 "organization": row.organization
             })
 
-        return prospects
+        return players
 
     async def find_player_games(self, player_id: int, season: int) -> List[Dict[str, Any]]:
         """
@@ -427,7 +450,7 @@ class MiLBPitchByPitchCollector:
         """Collect all game logs for a prospect across specified seasons."""
         name = prospect['name']
         player_id = prospect['mlb_player_id']
-        prospect_id = prospect['prospect_id']
+        prospect_id = prospect.get('prospect_id', None)  # May not exist for all players
 
         logger.info(f"Processing {name} (MLB ID: {player_id})")
 
@@ -519,38 +542,36 @@ async def main():
     try:
         # Initialize collector
         async with MiLBPitchByPitchCollector() as collector:
-            # Get prospects
-            prospects = collector.get_prospects_with_mlb_ids(db, args.prospect_id)
+            # Get players needing PBP data
+            players = collector.get_players_needing_pbp(db, args.seasons, args.limit)
 
-            if args.limit:
-                prospects = prospects[:args.limit]
+            logger.info(f"Found {len(players)} players needing PBP data")
 
-            logger.info(f"Found {len(prospects)} prospects with MLB IDs")
-
-            if not prospects:
-                logger.warning("No prospects found with MLB IDs")
+            if not players:
+                logger.warning("No players found needing PBP collection")
                 return
 
-            # Process each prospect
+            # Process each player
             start_time = time.time()
 
-            for i, prospect in enumerate(prospects, 1):
-                logger.info(f"[{i}/{len(prospects)}] {prospect['name']}")
+            for i, player in enumerate(players, 1):
+                logger.info(f"[{i}/{len(players)}] {player['name']} - Season {player['season']} ({player['game_count']} games)")
 
                 try:
+                    # Collect only for this player's specific season
                     games_collected = await collector.collect_prospect_games(
                         db,
-                        prospect,
-                        args.seasons
+                        player,
+                        [player['season']]  # Only collect for this specific season
                     )
 
                     if games_collected > 0:
-                        logger.info(f"  ✓ Collected {games_collected} total games")
+                        logger.info(f"  Collected {games_collected} games")
                     else:
                         logger.info(f"  No new games found")
 
                 except Exception as e:
-                    logger.error(f"  Error processing {prospect['name']}: {str(e)}")
+                    logger.error(f"  Error processing {player['name']}: {str(e)}")
                     collector.errors += 1
                     continue
 
