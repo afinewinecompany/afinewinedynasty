@@ -70,7 +70,11 @@ class MLFeatureEngineer:
         consistency_features = self.engineer_consistency_features(prospect_id, db)
         features.update(consistency_features)
 
-        # 6. Derived Features
+        # 6. MLB Game Log Features (NEW)
+        mlb_features = self.engineer_mlb_game_log_features(prospect_id, db)
+        features.update(mlb_features)
+
+        # 7. Derived Features
         derived_features = self.engineer_derived_features(prospect, scouting_features, milb_features)
         features.update(derived_features)
 
@@ -450,20 +454,354 @@ class MLFeatureEngineer:
 
         return features
 
+    def engineer_mlb_game_log_features(self, prospect_id: int, db) -> Dict:
+        """
+        Engineer features from MLB game log data.
+
+        Creates ~55 features from MLB performance data:
+        - Career aggregate stats (15 features)
+        - Recent performance trends (10 features)
+        - Consistency metrics (10 features)
+        - Situational performance (10 features)
+        - Performance progression (10 features)
+        """
+        features = {}
+
+        # Get all MLB game logs for this prospect
+        query = text("""
+            SELECT
+                game_date, season, is_home,
+                games_played, at_bats, runs, hits, doubles, triples,
+                home_runs, rbi, walks, strikeouts, stolen_bases,
+                batting_avg, obp, slg, ops,
+                innings_pitched, earned_runs, strikeouts_pitched, walks_allowed,
+                era, whip
+            FROM mlb_game_logs
+            WHERE prospect_id = :prospect_id
+            AND season <= :as_of_year
+            ORDER BY game_date DESC
+        """)
+
+        result = db.execute(query, {'prospect_id': prospect_id, 'as_of_year': self.as_of_year})
+        games = result.fetchall()
+
+        # If no MLB experience, return null features
+        if not games:
+            feature_keys = [
+                'mlb_career_games', 'mlb_career_ab', 'mlb_career_avg', 'mlb_career_obp',
+                'mlb_career_slg', 'mlb_career_ops', 'mlb_career_hr', 'mlb_career_sb',
+                'mlb_career_bb_rate', 'mlb_career_k_rate', 'mlb_career_iso',
+                'mlb_career_babip', 'mlb_career_wrc_est', 'mlb_career_seasons',
+                'mlb_has_experience',
+                'mlb_l30_avg', 'mlb_l30_obp', 'mlb_l30_slg', 'mlb_l30_ops',
+                'mlb_l30_hr', 'mlb_l30_bb_rate', 'mlb_l30_k_rate',
+                'mlb_l7_avg', 'mlb_l7_obp', 'mlb_l7_ops',
+                'mlb_trend_avg', 'mlb_trend_ops',
+                'mlb_cons_avg_std', 'mlb_cons_ops_std', 'mlb_cons_avg_cv',
+                'mlb_hot_game_pct', 'mlb_cold_game_pct', 'mlb_streak_variance',
+                'mlb_multi_hit_pct', 'mlb_hitless_pct', 'mlb_hr_game_pct',
+                'mlb_bb_rate_std', 'mlb_k_rate_std',
+                'mlb_home_avg', 'mlb_away_avg', 'mlb_home_ops', 'mlb_away_ops',
+                'mlb_home_away_split', 'mlb_recent_vs_career_avg',
+                'mlb_recent_vs_career_ops', 'mlb_power_consistency',
+                'mlb_days_since_debut', 'mlb_games_per_season',
+                'mlb_peak_avg', 'mlb_peak_ops', 'mlb_slump_avg', 'mlb_slump_ops',
+                'mlb_improvement_rate', 'mlb_volatility_score'
+            ]
+            return {k: None for k in feature_keys}
+
+        # Parse games into arrays
+        dates, seasons, is_homes = [], set(), []
+        abs, hits, walks, strikeouts, hrs, sbs = [], [], [], [], [], []
+        avgs, obps, slgs, opss = [], [], [], []
+
+        for game in games:
+            dates.append(game[0])
+            seasons.add(game[1])
+            is_homes.append(game[2])
+
+            # Accumulate counting stats
+            if game[4]:  # at_bats
+                abs.append(game[4])
+            if game[6]:  # hits
+                hits.append(game[6])
+            if game[11]: # walks
+                walks.append(game[11])
+            if game[12]: # strikeouts
+                strikeouts.append(game[12])
+            if game[9]:  # home_runs
+                hrs.append(game[9])
+            if game[13]: # stolen_bases
+                sbs.append(game[13])
+
+            # Rate stats
+            if game[14]: # batting_avg
+                avgs.append(game[14])
+            if game[15]: # obp
+                obps.append(game[15])
+            if game[16]: # slg
+                slgs.append(game[16])
+            if game[17]: # ops
+                opss.append(game[17])
+
+        # === CAREER AGGREGATE FEATURES (15) ===
+        features['mlb_has_experience'] = 1
+        features['mlb_career_games'] = len(games)
+        features['mlb_career_ab'] = sum(abs)
+        features['mlb_career_avg'] = np.mean(avgs) if avgs else None
+        features['mlb_career_obp'] = np.mean(obps) if obps else None
+        features['mlb_career_slg'] = np.mean(slgs) if slgs else None
+        features['mlb_career_ops'] = np.mean(opss) if opss else None
+        features['mlb_career_hr'] = sum(hrs)
+        features['mlb_career_sb'] = sum(sbs)
+
+        total_pa = sum(abs) + sum(walks)
+        features['mlb_career_bb_rate'] = sum(walks) / total_pa if total_pa > 0 else None
+        features['mlb_career_k_rate'] = sum(strikeouts) / total_pa if total_pa > 0 else None
+
+        # ISO = SLG - AVG
+        if features['mlb_career_slg'] and features['mlb_career_avg']:
+            features['mlb_career_iso'] = features['mlb_career_slg'] - features['mlb_career_avg']
+        else:
+            features['mlb_career_iso'] = None
+
+        # BABIP estimate (hits - HR) / (AB - K - HR)
+        denominator = sum(abs) - sum(strikeouts) - sum(hrs)
+        if denominator > 0:
+            features['mlb_career_babip'] = (sum(hits) - sum(hrs)) / denominator
+        else:
+            features['mlb_career_babip'] = None
+
+        # wRC+ estimate (simple version)
+        if features['mlb_career_ops']:
+            features['mlb_career_wrc_est'] = (features['mlb_career_ops'] - 0.700) * 100
+        else:
+            features['mlb_career_wrc_est'] = None
+
+        features['mlb_career_seasons'] = len(seasons)
+
+        # === RECENT PERFORMANCE FEATURES (10) ===
+        # Last 30 games
+        recent_30 = games[:min(30, len(games))]
+        if len(recent_30) >= 10:
+            r30_avgs = [g[14] for g in recent_30 if g[14] is not None]
+            r30_obps = [g[15] for g in recent_30 if g[15] is not None]
+            r30_slgs = [g[16] for g in recent_30 if g[16] is not None]
+            r30_opss = [g[17] for g in recent_30 if g[17] is not None]
+            r30_hrs = [g[9] for g in recent_30 if g[9] is not None]
+            r30_abs = [g[4] for g in recent_30 if g[4] is not None]
+            r30_walks = [g[11] for g in recent_30 if g[11] is not None]
+            r30_ks = [g[12] for g in recent_30 if g[12] is not None]
+
+            features['mlb_l30_avg'] = np.mean(r30_avgs) if r30_avgs else None
+            features['mlb_l30_obp'] = np.mean(r30_obps) if r30_obps else None
+            features['mlb_l30_slg'] = np.mean(r30_slgs) if r30_slgs else None
+            features['mlb_l30_ops'] = np.mean(r30_opss) if r30_opss else None
+            features['mlb_l30_hr'] = sum(r30_hrs)
+
+            r30_pa = sum(r30_abs) + sum(r30_walks)
+            features['mlb_l30_bb_rate'] = sum(r30_walks) / r30_pa if r30_pa > 0 else None
+            features['mlb_l30_k_rate'] = sum(r30_ks) / r30_pa if r30_pa > 0 else None
+        else:
+            features['mlb_l30_avg'] = None
+            features['mlb_l30_obp'] = None
+            features['mlb_l30_slg'] = None
+            features['mlb_l30_ops'] = None
+            features['mlb_l30_hr'] = None
+            features['mlb_l30_bb_rate'] = None
+            features['mlb_l30_k_rate'] = None
+
+        # Last 7 games
+        recent_7 = games[:min(7, len(games))]
+        if len(recent_7) >= 5:
+            r7_avgs = [g[14] for g in recent_7 if g[14] is not None]
+            r7_obps = [g[15] for g in recent_7 if g[15] is not None]
+            r7_opss = [g[17] for g in recent_7 if g[17] is not None]
+
+            features['mlb_l7_avg'] = np.mean(r7_avgs) if r7_avgs else None
+            features['mlb_l7_obp'] = np.mean(r7_obps) if r7_obps else None
+            features['mlb_l7_ops'] = np.mean(r7_opss) if r7_opss else None
+        else:
+            features['mlb_l7_avg'] = None
+            features['mlb_l7_obp'] = None
+            features['mlb_l7_ops'] = None
+
+        # Trend (last 30 vs first 30)
+        if len(games) >= 60:
+            first_30_avg = np.mean([g[14] for g in games[-30:] if g[14] is not None])
+            last_30_avg = np.mean([g[14] for g in games[:30] if g[14] is not None])
+            features['mlb_trend_avg'] = last_30_avg - first_30_avg if first_30_avg and last_30_avg else None
+
+            first_30_ops = np.mean([g[17] for g in games[-30:] if g[17] is not None])
+            last_30_ops = np.mean([g[17] for g in games[:30] if g[17] is not None])
+            features['mlb_trend_ops'] = last_30_ops - first_30_ops if first_30_ops and last_30_ops else None
+        else:
+            features['mlb_trend_avg'] = None
+            features['mlb_trend_ops'] = None
+
+        # === CONSISTENCY FEATURES (10) ===
+        if len(avgs) >= 20:
+            features['mlb_cons_avg_std'] = np.std(avgs)
+            features['mlb_cons_ops_std'] = np.std(opss) if opss else None
+            features['mlb_cons_avg_cv'] = np.std(avgs) / np.mean(avgs) if np.mean(avgs) > 0 else None
+
+            # Hot/cold games
+            mean_avg = np.mean(avgs)
+            hot_games = sum(1 for a in avgs if a > mean_avg)
+            cold_games = sum(1 for a in avgs if a < mean_avg)
+            features['mlb_hot_game_pct'] = hot_games / len(avgs)
+            features['mlb_cold_game_pct'] = cold_games / len(avgs)
+            features['mlb_streak_variance'] = np.var([1 if a > mean_avg else 0 for a in avgs])
+
+            # Performance game types
+            multi_hit_games = sum(1 for g in games if g[6] and g[6] >= 2)
+            hitless_games = sum(1 for g in games if g[6] == 0 and g[4] and g[4] > 0)
+            hr_games = sum(1 for g in games if g[9] and g[9] >= 1)
+
+            features['mlb_multi_hit_pct'] = multi_hit_games / len(games)
+            features['mlb_hitless_pct'] = hitless_games / len(games)
+            features['mlb_hr_game_pct'] = hr_games / len(games)
+        else:
+            for key in ['mlb_cons_avg_std', 'mlb_cons_ops_std', 'mlb_cons_avg_cv',
+                       'mlb_hot_game_pct', 'mlb_cold_game_pct', 'mlb_streak_variance',
+                       'mlb_multi_hit_pct', 'mlb_hitless_pct', 'mlb_hr_game_pct']:
+                features[key] = None
+
+        # Plate discipline consistency
+        if total_pa >= 100:
+            game_bb_rates = []
+            game_k_rates = []
+            for g in games:
+                g_pa = (g[4] or 0) + (g[11] or 0)
+                if g_pa > 0:
+                    game_bb_rates.append((g[11] or 0) / g_pa)
+                    game_k_rates.append((g[12] or 0) / g_pa)
+
+            features['mlb_bb_rate_std'] = np.std(game_bb_rates) if game_bb_rates else None
+            features['mlb_k_rate_std'] = np.std(game_k_rates) if game_k_rates else None
+        else:
+            features['mlb_bb_rate_std'] = None
+            features['mlb_k_rate_std'] = None
+
+        # === SITUATIONAL PERFORMANCE (10) ===
+        # Home vs Away splits
+        home_games = [g for g in games if g[2] is True]
+        away_games = [g for g in games if g[2] is False]
+
+        if len(home_games) >= 10:
+            home_avgs = [g[14] for g in home_games if g[14] is not None]
+            home_opss = [g[17] for g in home_games if g[17] is not None]
+            features['mlb_home_avg'] = np.mean(home_avgs) if home_avgs else None
+            features['mlb_home_ops'] = np.mean(home_opss) if home_opss else None
+        else:
+            features['mlb_home_avg'] = None
+            features['mlb_home_ops'] = None
+
+        if len(away_games) >= 10:
+            away_avgs = [g[14] for g in away_games if g[14] is not None]
+            away_opss = [g[17] for g in away_games if g[17] is not None]
+            features['mlb_away_avg'] = np.mean(away_avgs) if away_avgs else None
+            features['mlb_away_ops'] = np.mean(away_opss) if away_opss else None
+        else:
+            features['mlb_away_avg'] = None
+            features['mlb_away_ops'] = None
+
+        # Home/Away differential
+        if features['mlb_home_ops'] and features['mlb_away_ops']:
+            features['mlb_home_away_split'] = features['mlb_home_ops'] - features['mlb_away_ops']
+        else:
+            features['mlb_home_away_split'] = None
+
+        # Recent vs Career comparison
+        if features['mlb_l30_avg'] and features['mlb_career_avg']:
+            features['mlb_recent_vs_career_avg'] = features['mlb_l30_avg'] - features['mlb_career_avg']
+        else:
+            features['mlb_recent_vs_career_avg'] = None
+
+        if features['mlb_l30_ops'] and features['mlb_career_ops']:
+            features['mlb_recent_vs_career_ops'] = features['mlb_l30_ops'] - features['mlb_career_ops']
+        else:
+            features['mlb_recent_vs_career_ops'] = None
+
+        # Power consistency (HR rate variance)
+        if len(games) >= 50:
+            hr_per_game = [g[9] or 0 for g in games]
+            features['mlb_power_consistency'] = 1 - (np.std(hr_per_game) / (np.mean(hr_per_game) + 0.001))
+        else:
+            features['mlb_power_consistency'] = None
+
+        # === PROGRESSION FEATURES (10) ===
+        # Days since MLB debut
+        if dates:
+            debut_date = max(dates)  # Earliest game (list is DESC)
+            days_since = (datetime.now().date() - debut_date).days
+            features['mlb_days_since_debut'] = days_since
+        else:
+            features['mlb_days_since_debut'] = None
+
+        # Games per season (experience rate)
+        if features['mlb_career_seasons'] and features['mlb_career_seasons'] > 0:
+            features['mlb_games_per_season'] = len(games) / features['mlb_career_seasons']
+        else:
+            features['mlb_games_per_season'] = None
+
+        # Peak and slump performance
+        if len(avgs) >= 20:
+            # Rolling 10-game windows
+            rolling_avgs = []
+            rolling_opss = []
+            for i in range(len(games) - 9):
+                window_avgs = [g[14] for g in games[i:i+10] if g[14] is not None]
+                window_opss = [g[17] for g in games[i:i+10] if g[17] is not None]
+                if window_avgs:
+                    rolling_avgs.append(np.mean(window_avgs))
+                if window_opss:
+                    rolling_opss.append(np.mean(window_opss))
+
+            features['mlb_peak_avg'] = max(rolling_avgs) if rolling_avgs else None
+            features['mlb_peak_ops'] = max(rolling_opss) if rolling_opss else None
+            features['mlb_slump_avg'] = min(rolling_avgs) if rolling_avgs else None
+            features['mlb_slump_ops'] = min(rolling_opss) if rolling_opss else None
+        else:
+            features['mlb_peak_avg'] = None
+            features['mlb_peak_ops'] = None
+            features['mlb_slump_avg'] = None
+            features['mlb_slump_ops'] = None
+
+        # Improvement rate (linear regression slope over time)
+        if len(avgs) >= 30:
+            x = np.arange(len(avgs))
+            slope_avg = np.polyfit(x, avgs, 1)[0]
+            features['mlb_improvement_rate'] = slope_avg
+        else:
+            features['mlb_improvement_rate'] = None
+
+        # Volatility score (combines consistency metrics)
+        if features['mlb_cons_avg_std'] and features['mlb_streak_variance'] is not None:
+            features['mlb_volatility_score'] = (features['mlb_cons_avg_std'] * 10) + features['mlb_streak_variance']
+        else:
+            features['mlb_volatility_score'] = None
+
+        return features
+
     def engineer_derived_features(self, prospect: Dict, scouting: Dict, milb: Dict) -> Dict:
-        """Engineer derived/interaction features."""
+        """
+        Engineer derived/interaction features.
+
+        CRITICAL: Age-to-level performance is heavily weighted for ML success.
+        Younger players performing well at higher levels typically succeed in MLB.
+        """
         features = {}
 
         # Tool grade vs actual performance alignment
         if scouting.get('scout_hit_future') and milb.get('milb_avg'):
-            # Expected AVG based on hit tool (rough mapping: 50 = .250, 60 = .300, etc.)
             expected_avg = 0.100 + (scouting['scout_hit_future'] / 100)
             features['derived_hit_vs_performance'] = milb['milb_avg'] - expected_avg
         else:
             features['derived_hit_vs_performance'] = None
 
         if scouting.get('scout_power_future') and milb.get('milb_iso'):
-            expected_iso = (scouting['scout_power_future'] - 40) / 200  # Rough mapping
+            expected_iso = (scouting['scout_power_future'] - 40) / 200
             features['derived_power_vs_performance'] = milb['milb_iso'] - expected_iso
         else:
             features['derived_power_vs_performance'] = None
@@ -479,6 +817,58 @@ class MLFeatureEngineer:
             features['derived_ops_per_draft_pick'] = milb['milb_ops'] * prospect['draft_overall_pick']
         else:
             features['derived_ops_per_draft_pick'] = None
+
+        # === AGE-TO-LEVEL FEATURES (CRITICAL - TOP PREDICTOR) ===
+        age = prospect.get('age')
+        highest_level = milb.get('milb_highest_level')
+
+        if age and highest_level is not None:
+            # Age-to-level score (younger at higher level = better)
+            features['derived_age_to_level_score'] = highest_level / age
+
+            # Age vs typical age for level
+            level_age_map = {0: 18.5, 1: 20.0, 2: 21.0, 3: 22.5, 4: 24.0}
+            typical_age = level_age_map.get(highest_level)
+            features['derived_age_vs_level'] = age - typical_age if typical_age else None
+
+            # Age-adjusted performance at each level
+            if milb.get('milb_aaa_ops'):
+                features['derived_age_adj_aaa_ops'] = milb['milb_aaa_ops'] * (28 - age) / 4 if age < 28 else milb['milb_aaa_ops']
+            else:
+                features['derived_age_adj_aaa_ops'] = None
+
+            if milb.get('milb_aa_ops'):
+                features['derived_age_adj_aa_ops'] = milb['milb_aa_ops'] * (25 - age) / 3 if age < 25 else milb['milb_aa_ops']
+            else:
+                features['derived_age_adj_aa_ops'] = None
+
+            if milb.get('milb_a_plus_ops'):
+                features['derived_age_adj_a_plus_ops'] = milb['milb_a_plus_ops'] * (23 - age) / 3 if age < 23 else milb['milb_a_plus_ops']
+            else:
+                features['derived_age_adj_a_plus_ops'] = None
+
+            # Aggressive promotion indicator
+            if highest_level >= 4 and age <= 22:
+                features['derived_aggressive_promotion'] = 1.0
+            elif highest_level >= 3 and age <= 21:
+                features['derived_aggressive_promotion'] = 0.8
+            elif highest_level >= 2 and age <= 20:
+                features['derived_aggressive_promotion'] = 0.6
+            else:
+                features['derived_aggressive_promotion'] = 0.0
+        else:
+            features['derived_age_to_level_score'] = None
+            features['derived_age_vs_level'] = None
+            features['derived_age_adj_aaa_ops'] = None
+            features['derived_age_adj_aa_ops'] = None
+            features['derived_age_adj_a_plus_ops'] = None
+            features['derived_aggressive_promotion'] = None
+
+        # Years to reach highest level
+        if prospect.get('years_since_draft') and highest_level and highest_level >= 3:
+            features['derived_years_to_highest_level'] = prospect['years_since_draft']
+        else:
+            features['derived_years_to_highest_level'] = None
 
         return features
 

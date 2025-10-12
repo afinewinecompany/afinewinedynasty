@@ -1,0 +1,107 @@
+C:\Users\lilra\myprojects\afinewinedynasty\apps\api\check_eli_willits_data.py:87: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  now = datetime.utcnow()
+================================================================================
+Checking Eli Willits HYPE Data
+================================================================================
+
+✓ Found PlayerHype record:
+  ID: 27
+  Player ID: eli-willits
+  Player Name: Eli Willits
+  Player Type: prospect
+  HYPE Score: 8.15
+  HYPE Trend: 0.0
+  Sentiment Score: 0.0
+  Virality Score: 0.0
+  Total Mentions 24h: 0
+  Total Mentions 7d: 1
+  Total Mentions 14d: 4
+  Engagement Rate: 0.0
+  Last Calculated: 2025-10-12 01:23:16.635860
+
+================================================================================
+Social Mentions:
+================================================================================
+
+Total Social Mentions: 25
+
+Recent mentions (last 5):
+
+  Platform: bluesky
+  Posted: 2025-10-09 17:40:46
+  Author: rawmlb.bsky.social (followers: 0)
+  Likes: 0, Shares: 0, Comments: 0
+  Sentiment: neutral
+  Content: Nationals Take High School SS Eli Willits With No. 1 Pick in 2025 MLB Draft
+
+https://www.rawchili.co...
+
+  Platform: bluesky
+  Posted: 2025-10-04 13:40:50.561007
+  Author: thenatsreport.com (followers: 0)
+  Likes: 0, Shares: 0, Comments: 0
+  Sentiment: neutral
+  Content: The Washington Nationals have THREE prospects in MLB’s Top 100:
+
+⚾️ #15 Eli Willits
+⚾️ #49 Travis Sy...
+
+  Platform: bluesky
+  Posted: 2025-10-03 03:00:39
+  Author: rawmlb.bsky.social (followers: 0)
+  Likes: 0, Shares: 0, Comments: 0
+  Sentiment: neutral
+  Content: Complete list of Reds’ 2025 MLB Draft picks
+
+https://www.rawchili.com/mlb/358362/
+
+The 2025 MLB Draf...
+
+  Platform: bluesky
+  Posted: 2025-10-02 23:39:14.464000
+  Author: bobbyblanco.bsky.social (followers: 0)
+  Likes: 6, Shares: 0, Comments: 0
+  Sentiment: neutral
+  Content: Eli Willits moves up to No. 15. Travis Sykora at No. 49 and Jarlin Susana at No. 87 round out the #N...
+
+  Platform: bluesky
+  Posted: 2025-09-26 03:14:10.203000
+  Author: maxisagod.bsky.social (followers: 0)
+  Likes: 1, Shares: 0, Comments: 1
+  Sentiment: neutral
+  Content: One of the fun exercises I’m doing is trying to predict which teams would go with the “best player” ...
+
+Time Window Breakdown:
+  Last 24 hours: 0
+  Last 7 days: 1
+  Last 14 days: 4
+
+================================================================================
+Media Articles:
+================================================================================
+
+Total Media Articles: 1
+
+Recent articles (last 5):
+
+  Source: Razzball
+  Published: 2025-10-05 08:00:49
+  Title: Washington Nationals Top 10 Prospects For 2026 Fantasy Baseball
+  Sentiment: neutral
+  Prominence: 7.0
+  Summary: 1. SS Eli Willits &#124; 18 &#124; A &#124; 2030
+
+I think I’ve been too low on Willits before diggin...
+
+Time Window Breakdown:
+  Last 24 hours: 0
+  Last 7 days: 1
+  Last 14 days: 1
+
+================================================================================
+Analysis:
+================================================================================
+
+✓ Data looks normal
+
+================================================================================

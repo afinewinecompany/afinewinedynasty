@@ -50,7 +50,7 @@ class ProspectBase(BaseModel):
 
     class Config:
         orm_mode = True
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "mlb_id": 123456,
                 "name": "John Smith",

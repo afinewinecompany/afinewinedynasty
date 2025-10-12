@@ -13,8 +13,7 @@ from typing import Dict, List, Optional, Tuple, Any
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func
 
-from app.models.prospect import Prospect
-from app.models.prospect_stats import ProspectStats
+from app.db.models import Prospect, ProspectStats
 from app.services.mlb_api_service import MLBAPIClient
 
 logger = logging.getLogger(__name__)

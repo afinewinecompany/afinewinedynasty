@@ -1,16 +1,21 @@
 {
   "permissions": {
     "allow": [
-      "Bash(done)",
-      "Bash(npm test:*)",
-      "Bash(npm run lint)",
-      "Bash(npm run lint:*)",
-      "Bash(find:*)",
+      "Bash(python run_collection.py:*)",
+      "Bash(python test_db_connection.py:*)",
+      "Bash(python:*)",
+      "Bash(git push:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(rm:*)",
-      "Bash(git push:*)",
-      "Bash(git fetch:*)"
+      "Read(//c/Users/lilra/Downloads/**)",
+      "Bash(pip show:*)",
+      "Bash(npm run dev:*)",
+      "Bash(uvicorn:*)",
+      "Bash(curl:*)",
+      "Bash(pip install:*)",
+      "Bash(git reset:*)",
+      "Bash(alembic upgrade:*)",
+      "Bash(tee:*)"
     ],
     "deny": [],
     "ask": []

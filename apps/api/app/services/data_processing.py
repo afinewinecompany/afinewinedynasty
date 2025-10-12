@@ -19,7 +19,7 @@ import aiohttp
 from pydantic import ValidationError
 
 from app.core.config import settings
-from app.core.database import get_db
+from app.db.database import get_db
 from app.models.prospect import ProspectBase
 from app.models.prospect_stats import ProspectStatsBase
 from app.models.scouting_grades import ScoutingGradesBase

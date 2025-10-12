@@ -1,0 +1,246 @@
+2025-10-08 09:43:03,500 - INFO - ================================================================================
+2025-10-08 09:43:03,500 - INFO - UNIFIED PROSPECT RANKING SYSTEM V3
+2025-10-08 09:43:03,501 - INFO - Hitters + Pitchers + Statcast
+2025-10-08 09:43:03,501 - INFO - ================================================================================
+2025-10-08 09:43:03,501 - INFO - Loading hitter data with Statcast...
+Traceback (most recent call last):
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\dialects\postgresql\asyncpg.py", line 521, in _prepare_and_execute
+    prepared_stmt, attributes = await adapt_connection._prepare(
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        operation, self._invalidate_schema_cache_asof
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\dialects\postgresql\asyncpg.py", line 768, in _prepare
+    prepared_stmt = await self._connection.prepare(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        operation, name=self._prepared_statement_name_func()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\asyncpg\connection.py", line 635, in prepare
+    return await self._prepare(
+           ^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\asyncpg\connection.py", line 653, in _prepare
+    stmt = await self._get_statement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\asyncpg\connection.py", line 432, in _get_statement
+    statement = await self._protocol.prepare(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "asyncpg\\protocol\\protocol.pyx", line 165, in prepare
+asyncpg.exceptions.UndefinedColumnError: column "games_pitched" does not exist
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\default.py", line 951, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\dialects\postgresql\asyncpg.py", line 580, in execute
+    self._adapt_connection.await_(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._prepare_and_execute(operation, parameters)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\dialects\postgresql\asyncpg.py", line 558, in _prepare_and_execute
+    self._handle_exception(error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\dialects\postgresql\asyncpg.py", line 508, in _handle_exception
+    self._adapt_connection._handle_exception(error)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\dialects\postgresql\asyncpg.py", line 792, in _handle_exception
+    raise translated_error from error
+sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.ProgrammingError: <class 'asyncpg.exceptions.UndefinedColumnError'>: column "games_pitched" does not exist
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\lilra\myprojects\afinewinedynasty\apps\api\scripts\generate_prospect_rankings_v3.py", line 594, in <module>
+    asyncio.run(main())
+    ~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\asyncio\runners.py", line 195, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\asyncio\base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "C:\Users\lilra\myprojects\afinewinedynasty\apps\api\scripts\generate_prospect_rankings_v3.py", line 563, in main
+    rankings = await system.generate_unified_rankings()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lilra\myprojects\afinewinedynasty\apps\api\scripts\generate_prospect_rankings_v3.py", line 480, in generate_unified_rankings
+    hitters = await self.load_hitter_data()
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lilra\myprojects\afinewinedynasty\apps\api\scripts\generate_prospect_rankings_v3.py", line 77, in load_hitter_data
+    result = await conn.execute(text("""
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<64 lines>...
+    """))
+    ^^^^^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\ext\asyncio\engine.py", line 658, in execute
+    result = await greenlet_spawn(
+             ^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py", line 201, in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\sql\elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py", line 2355, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\default.py", line 951, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\dialects\postgresql\asyncpg.py", line 580, in execute
+    self._adapt_connection.await_(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._prepare_and_execute(operation, parameters)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\dialects\postgresql\asyncpg.py", line 558, in _prepare_and_execute
+    self._handle_exception(error)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\dialects\postgresql\asyncpg.py", line 508, in _handle_exception
+    self._adapt_connection._handle_exception(error)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\dialects\postgresql\asyncpg.py", line 792, in _handle_exception
+    raise translated_error from error
+sqlalchemy.exc.ProgrammingError: (sqlalchemy.dialects.postgresql.asyncpg.ProgrammingError) <class 'asyncpg.exceptions.UndefinedColumnError'>: column "games_pitched" does not exist
+[SQL: 
+                WITH hitter_stats AS (
+                    SELECT
+                        m.mlb_player_id,
+                        p.name as full_name,
+                        p.birth_date,
+                        p.position as primary_position,
+                        p.current_team,
+                        MAX(m.level) as highest_level,
+                        SUM(m.plate_appearances) as total_pa,
+                        SUM(m.at_bats) as total_ab,
+                        SUM(m.hits) as total_h,
+                        SUM(m.doubles) as total_doubles,
+                        SUM(m.triples) as total_triples,
+                        SUM(m.home_runs) as total_hr,
+                        SUM(m.walks) as total_bb,
+                        SUM(m.strikeouts) as total_so,
+                        SUM(m.stolen_bases) as total_sb,
+                        SUM(m.hit_by_pitch) as total_hbp,
+                        SUM(m.sacrifice_flies) as total_sf,
+                        COUNT(DISTINCT m.season) as seasons_played,
+                        MIN(m.game_date) as first_game,
+                        MAX(m.game_date) as last_game
+                    FROM milb_game_logs m
+                    INNER JOIN prospects p ON m.mlb_player_id = CAST(p.mlb_player_id AS INTEGER)
+                    WHERE m.data_source = 'mlb_stats_api_gamelog'
+                    AND m.plate_appearances > 0
+                    AND (m.games_pitched IS NULL OR m.games_pitched = 0)
+                    AND p.birth_date IS NOT NULL
+                    GROUP BY m.mlb_player_id, p.name, p.birth_date, p.position, p.current_team
+                ),
+                statcast AS (
+                    SELECT
+                        mlb_player_id,
+                        AVG(avg_ev) as avg_exit_velo,
+                        MAX(max_ev) as max_exit_velo,
+                        AVG(ev_90th) as exit_velo_90th,
+                        AVG(hard_hit_pct) as hard_hit_pct,
+                        AVG(avg_la) as avg_launch_angle,
+                        AVG(avg_la_hard) as avg_la_hard_contact,
+                        AVG(fb_ev) as flyball_exit_velo,
+                        AVG(barrel_pct) as barrel_pct
+                    FROM milb_statcast_metrics
+                    GROUP BY mlb_player_id
+                )
+                SELECT
+                    hs.*,
+                    COALESCE(mlb.mlb_ab, 0) as mlb_ab,
+                    COALESCE(mlb.mlb_pa, 0) as mlb_pa,
+                    sc.avg_exit_velo,
+                    sc.max_exit_velo,
+                    sc.exit_velo_90th,
+                    sc.hard_hit_pct,
+                    sc.avg_launch_angle,
+                    sc.avg_la_hard_contact,
+                    sc.flyball_exit_velo,
+                    sc.barrel_pct
+                FROM hitter_stats hs
+                LEFT JOIN (
+                    SELECT mlb_player_id, SUM(at_bats) as mlb_ab, SUM(plate_appearances) as mlb_pa
+                    FROM mlb_game_logs
+                    WHERE games_pitched IS NULL OR games_pitched = 0
+                    GROUP BY mlb_player_id
+                ) mlb ON hs.mlb_player_id = mlb.mlb_player_id
+                LEFT JOIN statcast sc ON hs.mlb_player_id = sc.mlb_player_id
+            ]
+(Background on this error at: https://sqlalche.me/e/20/f405)

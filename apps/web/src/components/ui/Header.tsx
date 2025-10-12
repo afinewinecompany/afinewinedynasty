@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Search, User, Zap, Menu, Wine, Brain } from 'lucide-react';
+import { Search, User, Zap, Menu, Wine, Brain, TrendingUp } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from './button';
 
@@ -17,7 +17,8 @@ const Header: React.FC = () => {
   const navLinks = [
     { href: '/', label: 'Dashboard' },
     { href: '/prospects', label: 'Prospects' },
-    { href: '/ml-predictions', label: 'ML Predictions' },
+    { href: '/hype', label: 'HYPE', icon: 'trending' },
+    { href: '/predictions', label: 'ML Predictions', icon: 'brain' },
     { href: '/discovery', label: 'Tools' },
     { href: '/account/subscription', label: 'Account' },
   ];
@@ -48,7 +49,8 @@ const Header: React.FC = () => {
                     : 'text-foreground/80 hover:text-wine-rose'
                 }`}
               >
-                {link.href === '/ml-predictions' && <Brain className="w-4 h-4" />}
+                {link.icon === 'brain' && <Brain className="w-4 h-4" />}
+                {link.icon === 'trending' && <TrendingUp className="w-4 h-4" />}
                 {link.label}
               </Link>
             ))}
@@ -61,24 +63,40 @@ const Header: React.FC = () => {
               <Search className="w-5 h-5" />
             </button>
 
-            {/* Profile */}
-            <Link
-              href="/account/subscription"
-              className="p-2 text-muted-foreground hover:text-accent transition-colors"
-            >
-              <User className="w-5 h-5" />
-            </Link>
+            {user ? (
+              <>
+                {/* Profile */}
+                <Link
+                  href="/account/subscription"
+                  className="p-2 text-muted-foreground hover:text-accent transition-colors"
+                >
+                  <User className="w-5 h-5" />
+                </Link>
 
-            {/* Upgrade Button (if not premium) */}
-            {user && user.subscriptionTier !== 'premium' && (
-              <Link href="/subscription">
+                {/* Upgrade Button (if not premium) */}
+                {user.subscriptionTier !== 'premium' && (
+                  <Link href="/subscription">
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="hidden md:flex items-center gap-2 bg-gradient-to-r from-wine-rose to-wine-periwinkle hover:from-wine-deep hover:to-wine-rose text-white shadow-md hover:shadow-lg transition-all"
+                    >
+                      <Zap className="w-4 h-4" />
+                      Upgrade
+                    </Button>
+                  </Link>
+                )}
+              </>
+            ) : (
+              /* Sign In Button for unauthenticated users */
+              <Link href="/login">
                 <Button
                   variant="default"
                   size="sm"
                   className="hidden md:flex items-center gap-2 bg-gradient-to-r from-wine-rose to-wine-periwinkle hover:from-wine-deep hover:to-wine-rose text-white shadow-md hover:shadow-lg transition-all"
                 >
-                  <Zap className="w-4 h-4" />
-                  Upgrade
+                  <User className="w-4 h-4" />
+                  Sign In
                 </Button>
               </Link>
             )}
@@ -109,18 +127,31 @@ const Header: React.FC = () => {
                     : 'text-foreground/80 hover:bg-muted'
                 }`}
               >
-                {link.href === '/ml-predictions' && <Brain className="w-4 h-4" />}
+                {link.icon === 'brain' && <Brain className="w-4 h-4" />}
+                {link.icon === 'trending' && <TrendingUp className="w-4 h-4" />}
                 {link.label}
               </Link>
             ))}
-            {user && user.subscriptionTier !== 'premium' && (
-              <Link href="/subscription" onClick={() => setIsMobileMenuOpen(false)}>
+            {user ? (
+              user.subscriptionTier !== 'premium' && (
+                <Link href="/subscription" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Button
+                    variant="default"
+                    className="w-full mt-2 bg-gradient-to-r from-wine-rose to-wine-periwinkle hover:from-wine-deep hover:to-wine-rose text-white shadow-md"
+                  >
+                    <Zap className="w-4 h-4 mr-2" />
+                    Upgrade to Premium
+                  </Button>
+                </Link>
+              )
+            ) : (
+              <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
                 <Button
                   variant="default"
                   className="w-full mt-2 bg-gradient-to-r from-wine-rose to-wine-periwinkle hover:from-wine-deep hover:to-wine-rose text-white shadow-md"
                 >
-                  <Zap className="w-4 h-4 mr-2" />
-                  Upgrade to Premium
+                  <User className="w-4 h-4 mr-2" />
+                  Sign In
                 </Button>
               </Link>
             )}

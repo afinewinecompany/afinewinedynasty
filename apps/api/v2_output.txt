@@ -1,0 +1,83 @@
+2025-10-08 09:36:42,602 - INFO - ================================================================================
+2025-10-08 09:36:42,607 - INFO - PROSPECT RANKING SYSTEM V2 - AGE-AWARE
+2025-10-08 09:36:42,607 - INFO - ================================================================================
+2025-10-08 09:36:42,607 - INFO - Loading prospect data from database...
+2025-10-08 09:36:45,592 - INFO - Loaded 4281 players with MiLB data
+2025-10-08 09:36:45,633 - INFO - After age filter (\u226426.5): 2444 players (removed 1837)
+2025-10-08 09:36:45,636 - INFO - After MLB AB filter (<130): 2322 players
+2025-10-08 09:36:45,638 - INFO - After MiLB PA filter (\u2265100): 1825 players
+C:\Users\lilra\myprojects\afinewinedynasty\apps\api\scripts\generate_prospect_rankings_v2.py:188: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  df = df.fillna(0)
+2025-10-08 09:36:45,687 - INFO - Calculated MLB predictions using translation factors
+2025-10-08 09:36:45,770 - INFO - Calculated prospect value scores with age curves
+2025-10-08 09:36:45,775 - INFO - 
+\u2705 Generated rankings for 1825 prospects
+2025-10-08 09:36:45,893 - INFO - \u2705 Exported rankings to prospect_rankings_v2.csv
+
+================================================================================================================================================================
+TOP 50 PROSPECTS - V2 AGE-AWARE RANKINGS
+================================================================================================================================================================
+Rank   Name                      Age     Tier                 Pos    Lvl    PAs     OPS     AgeFactor   PredwRC+   Value     
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+1      Leo De Vries              18.99   Elite Youth          SS     AA     896     0.804   6.875       87.0       791.3     
+2      Colt Emerson              20.22   Elite Youth          SS     AAA    1011    0.822   4.862       91.5       642.7     
+3      Nelson Rada               20.12   Elite Youth          CF     AAA    1631    0.698   5.091       90.3       626.8     
+4      John Gil                  19.40   Elite Youth          SS     AA     646     0.673   5.628       85.7       599.9     
+5      Ethan Salas               19.35   Elite Youth          C      AA     759     0.657   5.766       84.2       598.9     
+6      Sebastian Walcott         19.57   Elite Youth          SS     AA     1083    0.765   5.187       86.6       583.3     
+7      Jesús Made                18.42   Elite Youth          SS     AA     147     0.868   9.067       89.1       549.4     
+8      Walker Jenkins            20.63   Elite Youth          OF     AAA    724     0.848   3.984       91.6       533.3     
+9      Asbel Gonzalez            19.76   Elite Youth          OF     AA     513     0.648   4.715       87.2       505.3     
+10     Franklin Arias            19.89   Elite Youth          SS     AA     606     0.708   4.443       85.2       478.7     
+11     Konnor Griffin            19.46   Elite Youth          SS     AA     332     0.948   5.480       90.9       465.7     
+12     Andrew Salas              17.60   Elite Youth          SS     A      453     0.561   7.344       80.5       455.1     
+13     Nathan Flewelling         18.91   Elite Youth          C      A+     461     0.734   5.209       86.3       442.1     
+14     Josue De Paula            20.38   Elite Youth          CF     AA     1266    0.791   3.486       89.2       408.6     
+15     Slade Caldwell            19.31   Elite Youth          OF     A+     516     0.776   4.266       87.0       403.6     
+16     Ralphy Velazquez          20.36   Elite Youth          1B     AA     997     0.792   3.505       86.3       397.9     
+17     Cristofer Torin           20.37   Elite Youth          SS     AA     1237    0.734   3.496       87.9       393.3     
+18     George Lombard Jr.        20.35   Elite Youth          SS     AA     1118    0.713   3.529       87.0       389.0     
+19     Aidan Miller              21.33   Premium Prospect     SS     AAA    1032    0.811   2.839       90.7       370.1     
+20     Jefferson Rojas           20.45   Elite Youth          SS     AA     1197    0.705   3.351       85.6       362.5     
+21     Zyhir Hope                20.72   Elite Youth          CF     AA     792     0.833   2.939       88.6       349.0     
+22     Aron Estrada              20.73   Elite Youth          2B     AA     910     0.796   2.915       87.4       335.6     
+23     Max Clark                 20.80   Elite Youth          OF     AA     1074    0.802   2.825       88.6       330.7     
+24     Stone Russell             21.31   Premium Prospect     C      AAA    472     0.649   2.869       87.8       316.8     
+25     Lazaro Montes             20.96   Elite Youth          OF     AA     1281    0.884   2.601       88.3       314.8     
+26     Héctor Rodríguez          21.58   Premium Prospect     OF     AAA    1670    0.781   2.516       87.7       312.7     
+27     Thomas Sosa               20.72   Elite Youth          OF     AA     667     0.665   2.935       84.6       307.5     
+28     Justin Crawford           21.74   Premium Prospect     OF     AAA    1416    0.830   2.328       91.0       307.0     
+29     Cam Collier               20.88   Elite Youth          3B     AA     1322    0.748   2.707       87.1       303.9     
+30     Juan Flores               19.65   Elite Youth          C      A+     760     0.654   3.591       81.7       301.3     
+31     Gabriel Gonzalez          21.76   Premium Prospect     RF     AAA    1550    0.831   2.300       90.2       300.9     
+32     Kevin McGonigle           21.14   Premium Prospect     SS     AA     773     0.927   2.378       89.7       297.8     
+33     Josue Briceño             21.04   Premium Prospect     C      AA     666     0.845   2.499       88.4       297.7     
+34     Luis Lara                 20.89   Elite Youth          CF     AA     1494    0.700   2.696       87.0       295.7     
+35     Yophery Rodriguez         19.84   Elite Youth          CF     A+     930     0.693   3.259       83.3       284.2     
+36     Mikey Romero              21.74   Premium Prospect     SS     AAA    988     0.766   2.324       86.1       281.8     
+37     Caleb Bonemer             20.01   Elite Youth          SS     A+     476     0.874   2.994       86.7       281.0     
+38     Jett Williams             21.93   Premium Prospect     SS     AAA    1254    0.828   2.115       91.4       279.9     
+39     William Bergolla          20.97   Elite Youth          2B     AA     1136    0.678   2.594       86.0       278.2     
+40     A.J. Ewing                21.16   Premium Prospect     SS     AA     863     0.781   2.352       88.3       271.9     
+41     Arjun Nimmala             19.98   Elite Youth          SS     A+     904     0.732   3.040       82.5       267.4     
+42     Marvin Alcantara          20.93   Elite Youth          SS     AA     1027    0.603   2.641       83.9       266.3     
+43     Cooper Pratt              21.14   Premium Prospect     SS     AA     933     0.722   2.378       86.5       262.0     
+44     Esteban Mejia             20.93   Elite Youth          3B     AA     449     0.672   2.644       85.7       252.8     
+45     Termarr Johnson           21.33   Premium Prospect     SS     AA     1562    0.782   2.164       88.3       250.2     
+46     Alfonsin Rosario          21.30   Premium Prospect     OF     AA     955     0.788   2.194       86.3       248.7     
+47     Alfredo Velásquez         21.02   Premium Prospect     3B     AA     516     0.544   2.523       81.8       247.8     
+48     Luke Adams                21.46   Premium Prospect     3B     AA     1173    0.828   2.024       90.4       244.5     
+49     Tai Peete                 20.16   Elite Youth          OF     A+     1124    0.719   2.773       82.5       242.5     
+50     Abel Bastidas             21.87   Premium Prospect     SS     AAA    511     0.585   2.176       85.2       241.0     
+
+================================================================================
+AGE DISTRIBUTION IN NEW RANKINGS (Top 50)
+================================================================================
+Under 21: 34
+21-23: 16
+23-25: 0
+25-27: 0
+
+================================================================================
+DONE!
+================================================================================

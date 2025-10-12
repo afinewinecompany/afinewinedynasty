@@ -66,7 +66,7 @@ class ProspectStatsBase(BaseModel):
 
     class Config:
         orm_mode = True
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "prospect_id": 1,
                 "date_recorded": "2025-01-15T00:00:00",

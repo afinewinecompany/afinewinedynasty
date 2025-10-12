@@ -88,12 +88,23 @@ Complete end-to-end ML infrastructure for predicting MLB prospect success is now
 - `cons_avg_cv` - Coefficient of variation
 - `cons_hot_game_pct` - % of games above mean
 
-#### Derived/Interaction Features (~5)
+#### Derived/Interaction Features (~12)
 **Tool vs performance alignment:**
 - `derived_hit_vs_performance` - Actual AVG vs expected (from hit tool)
 - `derived_power_vs_performance` - Actual ISO vs expected (from power tool)
 - `derived_ops_per_age` - Production efficiency by age
 - `derived_ops_per_draft_pick` - Performance vs draft pedigree
+
+**Age-to-level (CRITICAL - Top MLB success predictor):**
+- `derived_age_to_level_score` - Age-adjusted level achievement
+- `derived_age_vs_level` - Age difference from typical for level
+- `derived_age_adj_aaa_ops` - Age-weighted AAA performance
+- `derived_age_adj_aa_ops` - Age-weighted AA performance
+- `derived_age_adj_a_plus_ops` - Age-weighted A+ performance
+- `derived_aggressive_promotion` - Early promotion indicator (0-1)
+- `derived_years_to_highest_level` - Speed of advancement
+
+**Why critical:** Younger players performing at higher levels (e.g., 21yo at AAA, 20yo at AA) are statistically much more likely to succeed in MLB.
 
 **Usage:**
 ```bash
@@ -164,7 +175,10 @@ python create_ml_labels.py --definition strict --lookback 4 --start-year 2015 --
 ### Tables Used
 
 1. **prospects** - Core prospect info
-2. **milb_game_logs** - Game-by-game MiLB stats ⭐ (CRITICAL)
+2. **milb_game_logs** - ⭐ **COMPREHENSIVE** Game-by-game MiLB stats (99 fields)
+   - 36 hitting stats: PA, BA, OBP, SLG, OPS, BABIP, ISO, BB%, K%, HR, SB, etc.
+   - 63 pitching stats: IP, ERA, WHIP, K/9, BB/9, FIP components, etc.
+   - **Migration:** [017_add_comprehensive_milb_game_logs.py](../apps/api/alembic/versions/017_add_comprehensive_milb_game_logs.py)
 3. **mlb_stats** - MLB outcomes (target variable)
 4. **scouting_grades** - Professional scouting (20-80 scale)
 5. **milb_advanced_stats** - Advanced metrics (optional)
@@ -256,10 +270,18 @@ python generate_predictions.py --year 2024 --model-version v1.0
 
 ### Medium-term (Next 2 Weeks)
 
-8. **Collect MiLB game logs** (for time-series features)
-   - Requires MLB ID mapping
-   - Pull from MLB Stats API
-   - Enables progression & consistency features
+8. **Collect MiLB game logs** (for time-series features) ✅ READY
+   - **Database:** Comprehensive `milb_game_logs` table with 99 stat fields
+     - 36 hitting stats per game (PA, BA, OBP, SLG, OPS, BABIP, etc.)
+     - 63 pitching stats per game (IP, ERA, WHIP, K/9, BB/9, etc.)
+   - **Script:** [collect_milb_game_logs.py](../apps/api/scripts/collect_milb_game_logs.py)
+   - **API:** MLB Stats API game log endpoint
+   - **Usage:**
+     ```bash
+     # Collect last 3 seasons for all prospects
+     python scripts/collect_milb_game_logs.py --seasons 2024 2023 2022
+     ```
+   - **Impact:** Enables 55+ additional ML features for prospects with MiLB data
 
 9. **Refine features** based on importance
    - Remove low-importance features
@@ -285,21 +307,27 @@ python generate_predictions.py --year 2024 --model-version v1.0
 ✅ **Scouting Features** - COMPLETE (100%)
 - All 20-80 scale grades from Fangraphs
 
-⚠️ **MiLB Performance Features** - LIMITED (~20%)
-- Only available if prospect has MLB ID
-- Requires MiLB game log collection
+✅ **MiLB Performance Features** - READY FOR COLLECTION (0% → 100%)
+- **Infrastructure:** Complete `milb_game_logs` table with 99 stat fields
+- **Collection script:** Ready to run for all prospects with MLB IDs
+- **Stats collected:** 36 hitting + 63 pitching stats per game
+- **Run:** `python scripts/collect_milb_game_logs.py --seasons 2024 2023 2022`
 
-⚠️ **MiLB Progression Features** - LIMITED (~20%)
-- Requires multi-year game logs
+✅ **MiLB Progression Features** - READY (0% → 100%)
+- Enabled by game-by-game data collection
+- Features: YoY improvement, trends, peak/recent performance
 
-⚠️ **MiLB Consistency Features** - LIMITED (~20%)
-- Requires game-by-game data
+✅ **MiLB Consistency Features** - READY (0% → 100%)
+- Enabled by game-by-game variance analysis
+- Features: STD, CV, hot/cold streaks, multi-hit games
 
-✅ **Derived Features** - PARTIAL (~60%)
-- Tool vs performance requires MiLB stats
-- Bio-based derivations work
+✅ **Derived Features** - READY (~60% → 100%)
+- Tool vs performance alignment
+- Bio-based derivations
+- Game log derived metrics (BABIP, ISO, wRC+, splits)
 
-**Recommendation:** Train initial model with bio + scouting features (~40 features) while collecting MiLB game logs in background.
+**Status:** All 173 features ready once MiLB game logs collected.
+**Run time:** ~30-60 minutes for all prospects (rate limited)
 
 ## Model Performance Expectations
 

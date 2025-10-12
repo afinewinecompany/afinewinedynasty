@@ -12,8 +12,7 @@ import asyncio
 
 from app.ml.narrative_templates import template_engine
 from app.core.cache_manager import cache_manager
-from app.models.prospect import Prospect
-from app.models.scouting_grades import ScoutingGrades
+from app.db.models import Prospect, ScoutingGrades
 from app.schemas.ml_predictions import PredictionResponse
 
 logger = logging.getLogger(__name__)

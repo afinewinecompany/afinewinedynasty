@@ -1,0 +1,362 @@
+C:\Users\lilra\myprojects\afinewinedynasty\apps\api\run_full_collection.py:38: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  print(f"Time: {datetime.utcnow()}")
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:08:06 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:08:07 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:08:08 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:08:09 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:08:09 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:08:10 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:08:11 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:08:11 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:08:12 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:08:13 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:08:42 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:08:43 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:08:43 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:08:44 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:08:45 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:08:45 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:08:46 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:08:47 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:08:47 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:08:48 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:09:11 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:09:12 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:09:13 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:09:14 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:09:14 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:09:15 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:09:16 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:09:16 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:09:17 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:09:18 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:09:56 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:09:57 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:09:58 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:09:58 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:09:59 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:10:00 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:10:01 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:10:01 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:10:02 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:10:02 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Twitter API error: 429
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:10:25 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:10:26 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:10:26 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: Response(success=False, status_code=429, content=XrpcError(error='RateLimitExceeded', message='Rate Limit Exceeded'), headers={'date': 'Sat, 11 Oct 2025 02:10:31 GMT', 'content-type': 'application/json; charset=utf-8', 'content-length': '61', 'connection': 'keep-alive', 'x-powered-by': 'Express', 'access-control-allow-origin': '*', 'ratelimit-limit': '10', 'ratelimit-remaining': '0', 'ratelimit-reset': '1760234849', 'ratelimit-policy': '10;w=86400', 'etag': 'W/"3d-egyFOcXCrKQFzoI7522/4+PpxIk"', 'vary': 'Accept-Encoding'})
+Bluesky authentication failed: 
+Bluesky authentication failed: 
+Twitter collection error: 
+Reddit auth error: 
+Twitter collection error: 
+Reddit auth error: 
+Twitter collection error: 
+Reddit auth error: 
+Twitter collection error: 
+Reddit auth error: 
+Reddit auth error: 
+Twitter collection error: 
+Reddit auth error: 
+Twitter collection error: 
+Reddit auth error: 
+Twitter collection error: 
+Twitter collection error: Cannot connect to host api.twitter.com:443 ssl:default [getaddrinfo failed]
+Reddit auth error: Cannot connect to host www.reddit.com:443 ssl:default [getaddrinfo failed]
+Twitter collection error: Cannot connect to host api.twitter.com:443 ssl:default [getaddrinfo failed]
+Reddit auth error: Cannot connect to host www.reddit.com:443 ssl:default [getaddrinfo failed]
+Bluesky collection error: (psycopg2.OperationalError) server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+
+[SQL: SELECT player_hype.id AS player_hype_id, player_hype.player_id AS player_hype_player_id, player_hype.player_name AS player_hype_player_name, player_hype.player_type AS player_hype_player_type, player_hype.hype_score AS player_hype_hype_score, player_hype.hype_trend AS player_hype_hype_trend, player_hype.sentiment_score AS player_hype_sentiment_score, player_hype.virality_score AS player_hype_virality_score, player_hype.total_mentions_24h AS player_hype_total_mentions_24h, player_hype.total_mentions_7d AS player_hype_total_mentions_7d, player_hype.total_mentions_14d AS player_hype_total_mentions_14d, player_hype.total_mentions_30d AS player_hype_total_mentions_30d, player_hype.total_likes AS player_hype_total_likes, player_hype.total_shares AS player_hype_total_shares, player_hype.total_comments AS player_hype_total_comments, player_hype.engagement_rate AS player_hype_engagement_rate, player_hype.last_calculated AS player_hype_last_calculated, player_hype.created_at AS player_hype_created_at, player_hype.updated_at AS player_hype_updated_at 
+FROM player_hype 
+WHERE player_hype.player_id = %(player_id_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'player_id_1': 'khal-stephen', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Twitter API error: 429
+Bluesky collection error: Can't reconnect until invalid transaction is rolled back.  Please rollback() fully before proceeding (Background on this error at: https://sqlalche.me/e/20/8s2b)
+Bluesky collection error: Can't reconnect until invalid transaction is rolled back.  Please rollback() fully before proceeding (Background on this error at: https://sqlalche.me/e/20/8s2b)
+Reddit search error for r/baseball: Can't reconnect until invalid transaction is rolled back.  Please rollback() fully before proceeding (Background on this error at: https://sqlalche.me/e/20/8s2b)
+Reddit search error for r/mlb: Can't reconnect until invalid transaction is rolled back.  Please rollback() fully before proceeding (Background on this error at: https://sqlalche.me/e/20/8s2b)
+Bluesky collection error: Can't reconnect until invalid transaction is rolled back.  Please rollback() fully before proceeding (Background on this error at: https://sqlalche.me/e/20/8s2b)
+Reddit search error for r/fantasybaseball: Can't reconnect until invalid transaction is rolled back.  Please rollback() fully before proceeding (Background on this error at: https://sqlalche.me/e/20/8s2b)
+Reddit search error for r/baseballcards: Can't reconnect until invalid transaction is rolled back.  Please rollback() fully before proceeding (Background on this error at: https://sqlalche.me/e/20/8s2b)
+Reddit search error for r/MLBProspects: Can't reconnect until invalid transaction is rolled back.  Please rollback() fully before proceeding (Background on this error at: https://sqlalche.me/e/20/8s2b)
+Reddit search error for r/dynastybaseball: Can't reconnect until invalid transaction is rolled back.  Please rollback() fully before proceeding (Background on this error at: https://sqlalche.me/e/20/8s2b)
+Reddit search error for r/mlbtheshow: Can't reconnect until invalid transaction is rolled back.  Please rollback() fully before proceeding (Background on this error at: https://sqlalche.me/e/20/8s2b)
+Traceback (most recent call last):
+  File "C:\Users\lilra\myprojects\afinewinedynasty\apps\api\run_full_collection.py", line 59, in run_full_collection
+    player_names = [p.player_name.split()[-1] for p in batch]  # Last names for brevity
+                    ^^^^^^^^^^^^^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\orm\attributes.py", line 569, in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\orm\attributes.py", line 1096, in get
+    value = self._fire_loader_callables(state, key, passive)
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\orm\attributes.py", line 1126, in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\orm\state.py", line 803, in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\orm\loading.py", line 1674, in load_scalar_attributes
+    result = load_on_ident(
+        session,
+    ...<4 lines>...
+        no_autoflush=no_autoflush,
+    )
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\orm\loading.py", line 510, in load_on_ident
+    return load_on_pk_identity(
+        session,
+    ...<11 lines>...
+        is_user_refresh=is_user_refresh,
+    )
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\orm\loading.py", line 695, in load_on_pk_identity
+    session.execute(
+    ~~~~~~~~~~~~~~~^
+        q,
+        ^^
+    ...<2 lines>...
+        bind_arguments=bind_arguments,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\orm\session.py", line 2365, in execute
+    return self._execute_internal(
+           ~~~~~~~~~~~~~~~~~~~~~~^
+        statement,
+        ^^^^^^^^^^
+    ...<4 lines>...
+        _add_event=_add_event,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\orm\session.py", line 2251, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<4 lines>...
+        conn,
+        ^^^^^
+    )
+    ^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\orm\context.py", line 306, in orm_execute_statement
+    result = conn.execute(
+        statement, params or {}, execution_options=execution_options
+    )
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\sql\elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py", line 1813, in _execute_context
+    conn = self._revalidate_connection()
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py", line 673, in _revalidate_connection
+    self._invalid_transaction()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lilra\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\engine\base.py", line 663, in _invalid_transaction
+    raise exc.PendingRollbackError(
+    ...<4 lines>...
+    )
+sqlalchemy.exc.PendingRollbackError: Can't reconnect until invalid transaction is rolled back.  Please rollback() fully before proceeding (Background on this error at: https://sqlalche.me/e/20/8s2b)
+FULL COLLECTION FOR ALL 100 PLAYERS
+================================================================================
+This will collect from Twitter, Reddit, and Bluesky
+Expected time: 5-10 minutes
+================================================================================
+
+Credentials loaded:
+  BLUESKY: YES
+  TWITTER: YES
+  REDDIT: YES
+
+Starting collection for 100 players
+Time: 2025-10-11 02:05:39.561343
+================================================================================
+
+Batch 1/10: Emerson, Painter, Wetherholt, Williams, Jr., Eldridge, Rodriguez, Jensen, Clark, Walcott
+
+
+
+
+
+
+
+
+
+  + Sebastian Walcott: bluesky=23 
+
+Batch 2/10: Basallo, Paula, White, Holliday, Anderson, Colleran, Veras, Doyle, Duno, Morales
+  + Samuel Basallo: bluesky=23 
+
+  + Thomas White: bluesky=1 
+  + Ethan Holliday: bluesky=24 
+  + Kade Anderson: bluesky=24 
+  + Dennis Colleran: bluesky=3 
+  + Wilfred Veras: bluesky=16 
+  + Liam Doyle: bluesky=24 
+
+  + Luis Morales: bluesky=12 
+
+Batch 3/10: Nimmala, Arquette, Mack, Chandler, Gomez, Herrera, Schultz, Susana, Genao, Arias
+  + Arjun Nimmala: bluesky=20 
+  + Aiva Arquette: bluesky=23 
+  + Joe Mack: bluesky=10 
+  + Bubba Chandler: bluesky=24 
+
+
+  + Noah Schultz: bluesky=21 
+  + Jarlin Susana: bluesky=25 
+  + Angel Genao: bluesky=25 
+  + Franklin Arias: bluesky=24 
+
+Batch 4/10: Bazzana, Willits, Hope, Freeland, Griffin, Made, McGonigle, Gonzalez, Peña, Jenkins
+
+
+
+
+
+
+
+
+
+
+
+Batch 5/10: Briceño, Messick, Tong, Liranzo, Confidan, Ford, Alcántara, Miller, McLean, Turley
+
+
+
+
+
+
+
+
+
+
+
+Batch 6/10: Vries, Yesavage, Bernal, DeLauter, Salas, Snelling, Sproat, Petty, Gibson, Rojas
+
+
+
+
+
+
+
+
+
+
+
+Batch 7/10: Pratt, Jump, Tolle, Benge, Waldschmidt, Ingle, Campbell, Arroyo, Reimer, Hopkins
+
+
+
+
+
+
+
+
+
+
+
+Batch 8/10: Cijntje, Wiggins, Witherspoon, Bremner, Williams, Farmelo, Rodriguez, Quintero, Stephen, Florentino
+
+
+
+
+
+
+
+
+
+
+
+Batch 9/10: CRITICAL ERROR: Can't reconnect until invalid transaction is rolled back.  Please rollback() fully before proceeding (Background on this error at: https://sqlalche.me/e/20/8s2b)

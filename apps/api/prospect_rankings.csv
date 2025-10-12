@@ -1,0 +1,257 @@
+rank,prospect_id,name,age,position,organization,level,predicted_fv,predicted_tier,confidence_score,milb_games,model_version
+1,514,Kristian Campbell,,2B,,,60,Star,0.9031118750572205,129,v1.0
+2,515,Dalton Rushing,,C,,,60,Star,0.9099540710449219,231,v1.0
+3,513,Samuel Basallo,,C,,,60,Star,0.9077514410018921,241,v1.0
+4,508,Roman Anthony,20.0,CF,Boston Red Sox,AAA,60,Star,0.9407880306243896,0,v1.0
+5,511,Dylan Crews,,RF,,,60,Star,0.8882462382316589,134,v1.0
+6,558,Edgar Quero,,C,,,50,Solid,0.9801586270332336,310,v1.0
+7,563,Harry Ford,,C,,,50,Solid,0.9833383560180664,338,v1.0
+8,565,Alex Freeland,,SS,,,50,Solid,0.9811956882476807,250,v1.0
+9,566,Carter Jensen,,C,,,50,Solid,0.9877486824989319,354,v1.0
+10,567,Chandler Simpson,,CF,,,50,Solid,0.9878532886505127,225,v1.0
+11,568,Alan Roden,,LF,,,50,Solid,0.9849758744239807,265,v1.0
+12,572,Jimmy Crooks,,C,,,50,Solid,0.9914283156394958,228,v1.0
+13,165,Patrick Galle,21.0,SP,Boston Red Sox,Rookie,50,Solid,0.9771575331687927,0,v1.0
+14,517,Drake Baldwin,,C,,,50,Solid,0.9800547361373901,254,v1.0
+15,518,Marcelo Mayer,,3B,,,50,Solid,0.9680435061454773,246,v1.0
+16,519,Carson Williams,,SS,,,50,Solid,0.9806867241859436,343,v1.0
+17,520,Nick Kurtz,,1B,,,50,Solid,0.979584276676178,12,v1.0
+18,521,Bryce Eldridge,,1B,,,50,Solid,0.962748646736145,131,v1.0
+19,522,Jac Caglianone,,RF,,,50,Solid,0.9716926217079163,29,v1.0
+20,523,Jasson Domínguez,,LF,,,50,Solid,0.9673441052436829,296,v1.0
+21,524,Matt Shaw,,3B,,,50,Solid,0.9676189422607422,155,v1.0
+22,528,Jordan Lawlar,,SS,,,50,Solid,0.9802801012992859,213,v1.0
+23,532,Jacob Wilson,,SS,,,50,Solid,0.9860668778419495,71,v1.0
+24,536,Cole Young,,2B,,,50,Solid,0.9908812046051025,259,v1.0
+25,543,Agustín Ramírez,,C,,,50,Solid,0.9890221357345581,240,v1.0
+26,546,Kevin Alcántara,,RF,,,50,Solid,0.9816042184829712,323,v1.0
+27,544,Adrian Del Castillo,,C,,,50,Solid,0.9837450981140137,287,v1.0
+28,547,Cam Smith,,RF,,,50,Solid,0.9910027980804443,32,v1.0
+29,548,Coby Mayo,,1B,,,50,Solid,0.9852961897850037,335,v1.0
+30,550,Kyle Teel,,C,,,50,Solid,0.9938001036643982,135,v1.0
+31,551,Luke Keaschall,,2B,,,50,Solid,0.9838529825210571,130,v1.0
+32,630,Jhostynxon Garcia,,CF,,,45,Role Player,0.9902111291885376,180,v1.0
+33,632,Nacho Alvarez Jr.,,SS,,,45,Role Player,0.9904956817626953,243,v1.0
+34,637,Trey Sweeney,,SS,,,45,Role Player,0.9904963970184326,211,v1.0
+35,638,Chase Meidroth,,SS,,,45,Role Player,0.9856114387512207,252,v1.0
+36,77,Trey Seeley,23.0,SP,San Francisco Giants,Rookie,45,Role Player,0.9873148202896118,0,v1.0
+37,647,C.J. Kayfus,,1B,,,45,Role Player,0.9919141530990601,124,v1.0
+38,651,Jace Jung,,3B,,,45,Role Player,0.9927183389663696,162,v1.0
+39,653,Colson Montgomery,,SS,,,45,Role Player,0.991659939289093,280,v1.0
+40,654,Luisangel Acuña,,2B,,,45,Role Player,0.9940283298492432,343,v1.0
+41,663,Carlos Narváez,,C,,,45,Role Player,0.9902925491333008,79,v1.0
+42,667,Bryan Ramos,,3B,,,45,Role Player,0.9885146021842957,289,v1.0
+43,668,Drew Gilbert,,CF,,,45,Role Player,0.990742027759552,175,v1.0
+44,582,Jacob Melton,,LF,,,45,Role Player,0.9860100746154785,223,v1.0
+45,585,Christian Moore,,2B,,,45,Role Player,0.9843488335609436,25,v1.0
+46,587,Brady House,,3B,,,45,Role Player,0.9872000217437744,262,v1.0
+47,591,Adael Amador,,2B,,,45,Role Player,0.9902669787406921,279,v1.0
+48,592,Brice Matthews,,SS,,,45,Role Player,0.9901779294013977,75,v1.0
+49,597,Denzel Clarke,,CF,,,45,Role Player,0.9870380163192749,273,v1.0
+50,599,Yanquiel Fernández,,RF,,,45,Role Player,0.9913130402565002,351,v1.0
+51,600,Nick Yorke,,2B,,,45,Role Player,0.9899289011955261,313,v1.0
+52,601,Daylen Lile,,RF,,,45,Role Player,0.9908922910690308,236,v1.0
+53,608,Moisés Ballesteros,,C,,,45,Role Player,0.9914012551307678,148,v1.0
+54,623,Owen Caissie,,RF,,,45,Role Player,0.9900071620941162,225,v1.0
+55,631,Ronny Mauricio,,3B,,,45,Role Player,0.9813186526298523,239,v1.0
+56,63,Chase Heath,22.0,C,St. Louis Cardinals,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+57,64,Kellan Oakes,21.0,SP,Houston Astros,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+58,65,Luke Broderick,21.0,SP,Colorado Rockies,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+59,66,Jake Cook,22.0,CF,Toronto Blue Jays,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+60,67,Cameron Millar,18.0,SP,Kansas City Royals,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+61,68,Luke Hill,21.0,3B,Cleveland Guardians,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+62,69,Dixon Williams,21.0,2B,Atlanta Braves,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+63,70,Ben Abeldt,21.0,SP,Texas Rangers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+64,71,Cash Kuiper,20.0,SP,Detroit Tigers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+65,72,Grant Jay,22.0,C,Seattle Mariners,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+66,73,Kaden Echeman,22.0,SP,St. Louis Cardinals,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+67,74,Brayden Corn,22.0,CF,Seattle Mariners,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+68,75,Jonathan Vastine,22.0,SS,San Diego Padres,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+69,76,Derek Munoz,18.0,SP,Cleveland Guardians,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+70,78,Kade Brown,21.0,SP,Athletics,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+71,79,Chase Bentley,18.0,SP,Milwaukee Brewers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+72,80,Dusty Revis,22.0,SP,Seattle Mariners,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+73,81,Ethan Rogers,18.0,SP,Detroit Tigers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+74,82,Ethin Bingaman,19.0,SP,Arizona Diamondbacks,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+75,83,Joey McLaughlin,18.0,CF,Houston Astros,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+76,84,Dylan Wood,18.0,SP,Kansas City Royals,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+77,85,Rylan Mills,19.0,C,Milwaukee Brewers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+78,86,Matthew Dalquist,22.0,SP,Minnesota Twins,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+79,87,Luke Kovach,22.0,SP,Toronto Blue Jays,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+80,88,Braydon Risley,20.0,SP,San Francisco Giants,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+81,89,Fabian Bonilla,18.0,CF,Boston Red Sox,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+82,90,Gavin Lauridsen,18.0,SP,Milwaukee Brewers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+83,91,Landon Manzi,17.0,SP,Texas Rangers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+84,92,Zach Harris,21.0,SP,Colorado Rockies,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+85,93,Justin DeCriscio,22.0,SS,San Diego Padres,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+86,94,Cole Gilley,24.0,SP,Philadelphia Phillies,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+87,95,Jay Woolfolk,22.0,SP,Atlanta Braves,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+88,96,Kaeden Kent,22.0,SS,New York Yankees,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+89,97,Johnny Slawinski,18.0,SP,Los Angeles Angels,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+90,98,Riley Kelly,21.0,SP,Colorado Rockies,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+91,99,Justin Thomas,22.0,CF,Houston Astros,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+92,100,Harrison Bodendorf,21.0,SP,Cleveland Guardians,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+93,101,Grant Richardson,21.0,SP,Athletics,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+94,102,Joey Volini,22.0,SP,Miami Marlins,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+95,103,Nolan Sailors,22.0,CF,Kansas City Royals,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+96,104,Trendan Parish,23.0,SP,Tampa Bay Rays,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+97,105,Justin Stransky,23.0,C,Chicago Cubs,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+98,106,Cole Johnson,18.0,CF,Baltimore Orioles,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+99,107,Landry Jurecka,22.0,SP,San Diego Padres,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+100,108,Gavin Turley,21.0,CF,Athletics,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+101,109,Landon Hodge,18.0,C,Chicago White Sox,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+102,110,Ryan DeSanto,22.0,SP,Cleveland Guardians,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+103,111,Tyrelle Chadwick,22.0,SP,Colorado Rockies,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+104,112,Ethan Moore,18.0,SS,Cincinnati Reds,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+105,113,Jordan Rich,18.0,CF,Toronto Blue Jays,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+106,114,Taitn Gray,18.0,C,Tampa Bay Rays,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+107,115,Cale Wetwiska,20.0,SP,Detroit Tigers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+108,116,Riley Nelson,21.0,1B,Cleveland Guardians,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+109,117,Cody Miller,21.0,SS,Atlanta Braves,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+110,118,Danny Thompson Jr.,23.0,SP,Toronto Blue Jays,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+111,119,Myles Patton,22.0,SP,Boston Red Sox,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+112,120,Kyle McCoy,21.0,SP,Cincinnati Reds,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+113,121,Caleb Leys,22.0,SP,Detroit Tigers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+114,122,Caden Hunter,21.0,SP,Baltimore Orioles,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+115,123,Hunter Hines,22.0,1B,Washington Nationals,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+116,124,J.D. McReynolds,22.0,SP,Texas Rangers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+117,125,Kyle West,22.0,1B,New York Yankees,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+118,126,Joshua Flores,18.0,SP,Milwaukee Brewers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+119,127,Dylan Grego,21.0,SS,San Diego Padres,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+120,128,Clay Edmondson,22.0,SP,San Diego Padres,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+121,129,Aaron Savary,21.0,SP,Cleveland Guardians,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+122,130,Gustavo Melendez,17.0,SS,Pittsburgh Pirates,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+123,131,Mason McConnaughey,21.0,SP,Texas Rangers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+124,132,Gabe Davis,21.0,SP,Chicago White Sox,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+125,133,Daniel Bucciero,20.0,3B,Athletics,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+126,134,Justin Henschel,21.0,SP,Cincinnati Reds,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+127,135,Jaiden Lo Re,18.0,SS,Baltimore Orioles,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+128,136,Logan Braunschweig,22.0,CF,Atlanta Braves,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+129,137,Cardell Thibodeaux,21.0,CF,San Diego Padres,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+130,138,Alex Breckheimer,22.0,SP,St. Louis Cardinals,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+131,139,Colton Book,23.0,SP,Chicago Cubs,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+132,140,Logan Dawson,19.0,SS,Philadelphia Phillies,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+133,141,Parker Coil,21.0,SP,Milwaukee Brewers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+134,142,Tyler Van Dyke,22.0,SP,St. Louis Cardinals,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+135,143,Jake McCutcheon,21.0,2B,Miami Marlins,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+136,144,Hayden Murphy,22.0,SP,Arizona Diamondbacks,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+137,145,Collin Rothermel,23.0,SP,Arizona Diamondbacks,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+138,146,Zack Mack,22.0,SP,New York Mets,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+139,147,Cade Fisher,22.0,SP,Boston Red Sox,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+140,148,Will Cresswell,22.0,C,Toronto Blue Jays,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+141,149,Noah Edders,22.0,SP,Chicago Cubs,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+142,150,Levi Huesman,22.0,SP,Washington Nationals,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+143,151,Conner O'Neal,23.0,C,Los Angeles Dodgers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+144,152,Riely Hunsaker,22.0,SP,Chicago Cubs,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+145,153,JoJo Parker,19.0,SS,Toronto Blue Jays,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+146,154,Gavin Kilen,21.0,SS,San Francisco Giants,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+147,155,Liam Doyle,21.0,SP,St. Louis Cardinals,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+148,156,Tate Southisene,19.0,SS,Atlanta Braves,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+149,157,Daniel Pierce,19.0,SS,Tampa Bay Rays,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+150,158,Riley Maddox,23.0,SP,Washington Nationals,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+151,159,Dylan Brown,21.0,SP,Boston Red Sox,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+152,160,Kerrington Cross,23.0,3B,San Diego Padres,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+153,161,Trace Baker,21.0,SP,Toronto Blue Jays,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+154,162,Alex Galvan,24.0,SP,Arizona Diamondbacks,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+155,163,Joey Wimpelberg,20.0,SP,Detroit Tigers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+156,164,Luke Roupe,19.0,SP,Milwaukee Brewers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+157,166,Anthony Karoly,21.0,SP,Seattle Mariners,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+158,641,Orelvis Martinez,,2B,,,40,Org Filler,0.9966339468955994,317,v1.0
+159,643,Denzer Guzman,,SS,,,40,Org Filler,0.998170018196106,102,v1.0
+160,655,Will Wagner,,3B,,,40,Org Filler,0.9975709319114685,253,v1.0
+161,659,Sal Stewart,,3B,,,40,Org Filler,0.9973006844520569,109,v1.0
+162,660,Max Muncy,,3B,,,40,Org Filler,0.9977879524230957,10,v1.0
+163,673,Cam Devanney,,SS,,,40,Org Filler,0.9968343377113342,231,v1.0
+164,688,Tirso Ornelas,,LF,,,40,Org Filler,0.998391330242157,370,v1.0
+165,727,Zach Dezenzo,,LF,,,40,Org Filler,0.997663140296936,141,v1.0
+166,745,Shay Whitcomb,,LF,,,40,Org Filler,0.9978097081184387,359,v1.0
+167,747,Christian Koss,,2B,,,40,Org Filler,0.9988272786140442,204,v1.0
+168,751,Zac Veen,,LF,,,40,Org Filler,0.995743453502655,172,v1.0
+169,765,Thomas Saggese,,2B,,,40,Org Filler,0.9977021813392639,367,v1.0
+170,766,Ben Williamson,,3B,,,40,Org Filler,0.9982118606567383,124,v1.0
+171,770,Justin Foscue,,1B,,,40,Org Filler,0.9978446960449219,101,v1.0
+172,792,Rafael Flores,,OF,,,40,Org Filler,0.9984373450279236,226,v1.0
+173,793,Alejandro Osuna,,LF,,,40,Org Filler,0.9984638690948486,193,v1.0
+174,794,Drew Romo,,C,,,40,Org Filler,0.9986966252326965,101,v1.0
+175,796,Gage Workman,,OF,,,40,Org Filler,0.9984036087989807,354,v1.0
+176,801,Everson Pereira,,CF,,,40,Org Filler,0.9983839988708496,102,v1.0
+177,802,Petey Halpin,,OF,,,40,Org Filler,0.9987151622772217,308,v1.0
+178,805,Caleb Durbin,,3B,,,40,Org Filler,0.9981285929679871,101,v1.0
+179,806,Tyler Locklear,,1B,,,40,Org Filler,0.9982622265815735,83,v1.0
+180,807,Kenedy Corona,,CF,,,40,Org Filler,0.9987505674362183,277,v1.0
+181,809,Jorge Barrosa,,LF,,,40,Org Filler,0.9983110427856445,120,v1.0
+182,811,Blake Dunn,,LF,,,40,Org Filler,0.9985023736953735,124,v1.0
+183,825,Tim Tawa,,2B,,,40,Org Filler,0.9983761310577393,234,v1.0
+184,830,Billy Cook,,OF,,,40,Org Filler,0.9979935884475708,232,v1.0
+185,837,Jair Camargo,,C,,,40,Org Filler,0.9983178377151489,74,v1.0
+186,845,Javier Sanoja,,2B,,,40,Org Filler,0.9980648159980774,31,v1.0
+187,856,Maximo Acosta,,SS,,,40,Org Filler,0.9988724589347839,214,v1.0
+188,857,Tsung-Che Cheng,,SS,,,40,Org Filler,0.9987572431564331,123,v1.0
+189,862,César Prieto,,OF,,,40,Org Filler,0.9986286163330078,115,v1.0
+190,883,Kameron Misner,,OF,,,40,Org Filler,0.9985080361366272,117,v1.0
+191,885,George Valera,,OF,,,40,Org Filler,0.9978418350219727,132,v1.0
+192,887,Jakob Marsee,,CF,,,40,Org Filler,0.998099148273468,129,v1.0
+193,904,Tyler Callihan,,LF,,,40,Org Filler,0.9985734224319458,187,v1.0
+194,905,Colby Thomas,,RF,,,40,Org Filler,0.9985276460647583,54,v1.0
+195,908,Johnathan Rodríguez,,OF,,,40,Org Filler,0.9971712231636047,107,v1.0
+196,937,Dylan Beavers,,RF,,,40,Org Filler,0.9989054203033447,123,v1.0
+197,940,Tyler Black,,OF,,,40,Org Filler,0.9987053871154785,64,v1.0
+198,946,Zach Cole,,CF,,,40,Org Filler,0.9986274242401123,111,v1.0
+199,969,Darren Baker,,2B,,,40,Org Filler,0.9980906844139099,105,v1.0
+200,974,Matthew Lugo,,LF,,,40,Org Filler,0.9978654980659485,117,v1.0
+201,8,Daniel Lopez,19.0,SP,Baltimore Orioles,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+202,979,Abimelec  Ortiz,,OF,,,40,Org Filler,0.9973853230476379,80,v1.0
+203,9,Chase Call,23.0,CF,Houston Astros,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+204,10,Ben Moore,21.0,SP,Washington Nationals,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+205,11,Beau Ankeney,22.0,1B,Detroit Tigers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+206,12,Davis Chastain,21.0,SP,Los Angeles Dodgers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+207,13,Blake Fields,18.0,CF,Arizona Diamondbacks,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+208,14,Mikey Cascino,18.0,SP,Los Angeles Angels,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+209,15,Kaemyn Franklin,19.0,SP,Chicago Cubs,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+210,16,Brent Iredale,22.0,3B,Pittsburgh Pirates,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+211,17,Jared Spencer,22.0,SP,Toronto Blue Jays,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+212,18,Xavier Mitchell,19.0,SP,Los Angeles Angels,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+213,19,Ryan Reed,21.0,SP,San Diego Padres,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+214,20,Andrew Shaffner,22.0,SP,Cincinnati Reds,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+215,21,Jake Casey,22.0,CF,Toronto Blue Jays,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+216,22,Connor Gehr,19.0,SP,Baltimore Orioles,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+217,23,Sam Robertson,21.0,SS,New York Mets,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+218,24,Damian Bravo,22.0,CF,San Francisco Giants,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+219,25,Estevan Moreno,21.0,SS,Seattle Mariners,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+220,26,Peyton Prescott,21.0,SP,New York Mets,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+221,27,Joe Ariola,21.0,SP,Arizona Diamondbacks,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+222,28,Pierce Coppola,22.0,SP,Chicago Cubs,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+223,29,Josiah Ragsdale,21.0,CF,Milwaukee Brewers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+224,30,Jared Jones,22.0,1B,Pittsburgh Pirates,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+225,31,Wyatt Vincent,19.0,CF,New York Mets,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+226,32,Luke Dotson,21.0,SP,Arizona Diamondbacks,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+227,33,Brady Parker,21.0,SP,Colorado Rockies,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+228,34,Will Vierling,22.0,C,Philadelphia Phillies,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+229,35,Mason Nichols,22.0,SP,Tampa Bay Rays,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+230,36,Michael Oliveto,18.0,C,Detroit Tigers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+231,37,Luke Stevenson,21.0,C,Seattle Mariners,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+232,38,Zachary Root,21.0,SP,Los Angeles Dodgers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+233,39,Brandon Compton,21.0,CF,Miami Marlins,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+234,40,Justin Lamkin,21.0,SP,Kansas City Royals,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+235,41,Ethan Hedges,21.0,3B,Colorado Rockies,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+236,42,Kyle Lodise,21.0,SS,Chicago White Sox,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+237,43,Henry Godbout,21.0,SS,Boston Red Sox,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+238,44,Dean Curley,21.0,SS,Cleveland Guardians,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+239,45,Alex Lodise,21.0,SS,Atlanta Braves,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+240,46,Boston Smith,22.0,C,Washington Nationals,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+241,47,Hunter Allen,22.0,SP,Baltimore Orioles,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+242,48,Jack Anker,21.0,SP,Pittsburgh Pirates,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+243,49,Colton Shaw,22.0,SP,Seattle Mariners,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+244,50,Mason Peters,21.0,SP,Seattle Mariners,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+245,51,Matt Lanzendorfer,23.0,SP,Los Angeles Dodgers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+246,52,Seth Clausen,22.0,SP,Colorado Rockies,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+247,53,Tyler Schmitt,21.0,SP,San Diego Padres,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+248,54,Braeden Sloan,22.0,SP,Baltimore Orioles,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+249,55,Cannon Peebles,21.0,C,Cleveland Guardians,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+250,56,Jamaurion McQueen,18.0,CF,Texas Rangers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+251,57,Meridian Leffew,18.0,SS,Detroit Tigers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+252,58,Joe Scarborough,21.0,SP,New York Mets,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+253,59,Nate Williams,24.0,SP,Chicago Cubs,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+254,60,Jack Goodman,22.0,SS,Detroit Tigers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+255,61,Robby Porco,21.0,SP,Los Angeles Dodgers,Rookie,40,Org Filler,0.9987776875495911,0,v1.0
+256,62,Luke Cantwell,22.0,1B,San Diego Padres,Rookie,40,Org Filler,0.9987776875495911,0,v1.0

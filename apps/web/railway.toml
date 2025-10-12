@@ -1,6 +1,9 @@
 [build]
 builder = "DOCKERFILE"
+buildCommand = "docker build --build-arg NEXT_PUBLIC_GOOGLE_CLIENT_ID=${NEXT_PUBLIC_GOOGLE_CLIENT_ID} --build-arg NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} -t web ."
+watchPaths = ["apps/web/**"]
 
 [deploy]
 healthcheckPath = "/"
 healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"

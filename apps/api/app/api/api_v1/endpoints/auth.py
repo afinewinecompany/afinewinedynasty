@@ -32,7 +32,7 @@ class LoginRequest(BaseModel):
         return validate_password_input(v)
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "email": "user@example.com",
                 "password": "SecurePassword123!"
@@ -48,7 +48,7 @@ class LoginResponse(BaseModel):
     expires_in: int = Field(description="Access token expiry time in seconds", example=900)
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
                 "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",

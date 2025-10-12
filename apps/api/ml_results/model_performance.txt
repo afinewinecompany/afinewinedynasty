@@ -1,0 +1,233 @@
+ML Model Performance Summary
+================================================================================
+
+
+Target: mlb_wrc_plus
+--------------------------------------------------------------------------------
+Linear Regression:
+  R2 Score: -9.5980
+  MAE: 7.8209
+  MSE: 89.3102
+
+Ridge Regression:
+  R2 Score: -1.9641
+  MAE: 3.7193
+  MSE: 24.9786
+
+Random Forest:
+  R2 Score: -0.1664
+  MAE: 2.4430
+  MSE: 9.8290
+
+Gradient Boosting:
+  R2 Score: -0.6749
+  MAE: 2.9386
+  MSE: 14.1142
+
+
+Target: mlb_woba
+--------------------------------------------------------------------------------
+Linear Regression:
+  R2 Score: -9.5980
+  MAE: 0.0978
+  MSE: 0.0140
+
+Ridge Regression:
+  R2 Score: -1.9641
+  MAE: 0.0465
+  MSE: 0.0039
+
+Random Forest:
+  R2 Score: -0.2282
+  MAE: 0.0313
+  MSE: 0.0016
+
+Gradient Boosting:
+  R2 Score: -0.6749
+  MAE: 0.0367
+  MSE: 0.0022
+
+
+Target: mlb_avg_ops
+--------------------------------------------------------------------------------
+Linear Regression:
+  R2 Score: -10.1638
+  MAE: 0.3185
+  MSE: 0.1827
+
+Ridge Regression:
+  R2 Score: -0.8481
+  MAE: 0.1377
+  MSE: 0.0302
+
+Random Forest:
+  R2 Score: -0.0969
+  MAE: 0.1115
+  MSE: 0.0179
+
+Gradient Boosting:
+  R2 Score: -0.1129
+  MAE: 0.1083
+  MSE: 0.0182
+
+
+Target: mlb_avg_obp
+--------------------------------------------------------------------------------
+Linear Regression:
+  R2 Score: -9.3175
+  MAE: 0.1193
+  MSE: 0.0318
+
+Ridge Regression:
+  R2 Score: -0.4842
+  MAE: 0.0492
+  MSE: 0.0046
+
+Random Forest:
+  R2 Score: 0.0148
+  MAE: 0.0448
+  MSE: 0.0030
+
+Gradient Boosting:
+  R2 Score: -0.0570
+  MAE: 0.0419
+  MSE: 0.0033
+
+
+Target: mlb_avg_slg
+--------------------------------------------------------------------------------
+Linear Regression:
+  R2 Score: -11.7878
+  MAE: 0.2409
+  MSE: 0.0889
+
+Ridge Regression:
+  R2 Score: -1.6618
+  MAE: 0.1012
+  MSE: 0.0185
+
+Random Forest:
+  R2 Score: -0.0311
+  MAE: 0.0703
+  MSE: 0.0072
+
+Gradient Boosting:
+  R2 Score: 0.1118
+  MAE: 0.0636
+  MSE: 0.0062
+
+
+Target: mlb_iso
+--------------------------------------------------------------------------------
+Linear Regression:
+  R2 Score: -8.2387
+  MAE: 0.1842
+  MSE: 0.0533
+
+Ridge Regression:
+  R2 Score: -0.7850
+  MAE: 0.0767
+  MSE: 0.0103
+
+Random Forest:
+  R2 Score: -0.0460
+  MAE: 0.0631
+  MSE: 0.0060
+
+Gradient Boosting:
+  R2 Score: -0.1438
+  MAE: 0.0636
+  MSE: 0.0066
+
+
+Target: mlb_ba
+--------------------------------------------------------------------------------
+Linear Regression:
+  R2 Score: -3.9204
+  MAE: 0.0722
+  MSE: 0.0079
+
+Ridge Regression:
+  R2 Score: -1.2575
+  MAE: 0.0484
+  MSE: 0.0036
+
+Random Forest:
+  R2 Score: -0.1561
+  MAE: 0.0353
+  MSE: 0.0019
+
+Gradient Boosting:
+  R2 Score: -0.5116
+  MAE: 0.0389
+  MSE: 0.0024
+
+
+Target: mlb_bb_rate
+--------------------------------------------------------------------------------
+Linear Regression:
+  R2 Score: -3.6057
+  MAE: 0.0533
+  MSE: 0.0050
+
+Ridge Regression:
+  R2 Score: -0.1299
+  MAE: 0.0269
+  MSE: 0.0012
+
+Random Forest:
+  R2 Score: 0.0767
+  MAE: 0.0240
+  MSE: 0.0010
+
+Gradient Boosting:
+  R2 Score: -0.0360
+  MAE: 0.0256
+  MSE: 0.0011
+
+
+Target: mlb_so_rate
+--------------------------------------------------------------------------------
+Linear Regression:
+  R2 Score: -5.2008
+  MAE: 0.1159
+  MSE: 0.0243
+
+Ridge Regression:
+  R2 Score: -0.1017
+  MAE: 0.0460
+  MSE: 0.0043
+
+Random Forest:
+  R2 Score: 0.4460
+  MAE: 0.0332
+  MSE: 0.0022
+
+Gradient Boosting:
+  R2 Score: 0.4311
+  MAE: 0.0317
+  MSE: 0.0022
+
+
+Target: mlb_hr_rate
+--------------------------------------------------------------------------------
+Linear Regression:
+  R2 Score: -9.1670
+  MAE: 0.0247
+  MSE: 0.0009
+
+Ridge Regression:
+  R2 Score: -3.0767
+  MAE: 0.0144
+  MSE: 0.0003
+
+Random Forest:
+  R2 Score: 0.2696
+  MAE: 0.0060
+  MSE: 0.0001
+
+Gradient Boosting:
+  R2 Score: -0.4034
+  MAE: 0.0088
+  MSE: 0.0001
+

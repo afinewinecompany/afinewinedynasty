@@ -13,8 +13,15 @@ export default function GoogleSignInButton({
   children
 }: GoogleSignInButtonProps) {
   const handleSignIn = () => {
-    const authUrl = getGoogleAuthUrl();
-    window.location.href = authUrl;
+    try {
+      console.log('🔘 Google Sign-In button clicked');
+      const authUrl = getGoogleAuthUrl();
+      console.log('🔗 Redirecting to:', authUrl);
+      window.location.href = authUrl;
+    } catch (error) {
+      console.error('❌ Google Sign-In Error:', error);
+      alert(error instanceof Error ? error.message : 'Failed to initiate Google Sign-In. Please check the console for details.');
+    }
   };
 
   return (

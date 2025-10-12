@@ -3,7 +3,6 @@
  */
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
 
 export interface AuthTokens {
   access_token: string;
@@ -24,6 +23,9 @@ export interface User {
  * Get Google OAuth authorization URL
  */
 export function getGoogleAuthUrl(): string {
+  // Read env var inside function to ensure it's available at runtime
+  const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
+
   const redirectUri = `${window.location.origin}/auth/callback`;
   const scope = 'openid email profile';
   const state = generateRandomState();
@@ -31,6 +33,11 @@ export function getGoogleAuthUrl(): string {
   // Store state for verification
   if (typeof window !== 'undefined') {
     sessionStorage.setItem('oauth_state', state);
+  }
+
+  if (!GOOGLE_CLIENT_ID) {
+    console.error('❌ Google OAuth is not configured. NEXT_PUBLIC_GOOGLE_CLIENT_ID is missing.');
+    throw new Error('Google OAuth is not configured. Please contact support.');
   }
 
   const params = new URLSearchParams({

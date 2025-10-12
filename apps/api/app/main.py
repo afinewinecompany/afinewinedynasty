@@ -5,6 +5,7 @@ from app.api.api_v1.api import api_router
 from app.core.config import settings
 from app.core.rate_limiter import setup_rate_limiter
 from app.middleware.security_middleware import add_security_middleware
+from app.services.hype_scheduler import start_hype_scheduler, stop_hype_scheduler
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -65,22 +66,32 @@ For support, please contact: support@afinewinedynasty.com
     ]
 )
 
-# Setup rate limiting
-app = setup_rate_limiter(app)
-
-# Add security middleware
-app = add_security_middleware(app)
-
-# Set CORS with security restrictions
+# CORS MUST be added FIRST - before rate limiting and security middleware
+# This ensures OPTIONS preflight requests are handled correctly
 cors_origins = [str(origin) for origin in settings.BACKEND_CORS_ORIGINS] if settings.BACKEND_CORS_ORIGINS else ["http://localhost:3000"]
+
+# Debug: Log CORS configuration at startup
+import logging
+logger = logging.getLogger(__name__)
+logger.info(f"🔧 CORS Configuration:")
+logger.info(f"   Raw BACKEND_CORS_ORIGINS: {settings.BACKEND_CORS_ORIGINS}")
+logger.info(f"   Processed cors_origins: {cors_origins}")
+logger.info(f"   Total origins: {len(cors_origins)}")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "Accept", "X-Requested-With"],
     expose_headers=["X-Total-Count"],
 )
+
+# Setup rate limiting (after CORS)
+app = setup_rate_limiter(app)
+
+# Add security middleware (after CORS)
+app = add_security_middleware(app)
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
@@ -93,3 +104,25 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "service": "api"}
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize services on startup"""
+    logger.info("Starting HYPE scheduler...")
+    try:
+        start_hype_scheduler()
+        logger.info("HYPE scheduler started successfully")
+    except Exception as e:
+        logger.error(f"Failed to start HYPE scheduler: {e}")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Clean up on shutdown"""
+    logger.info("Stopping HYPE scheduler...")
+    try:
+        stop_hype_scheduler()
+        logger.info("HYPE scheduler stopped successfully")
+    except Exception as e:
+        logger.error(f"Error stopping HYPE scheduler: {e}")

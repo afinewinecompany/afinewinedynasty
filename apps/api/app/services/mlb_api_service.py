@@ -182,6 +182,124 @@ class MLBAPIClient:
 
         return await self._make_request("league", params)
 
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=10)
+    )
+    async def get_player_game_logs(
+        self,
+        player_id: int,
+        season: Optional[int] = None,
+        game_type: str = "R"
+    ) -> Dict[str, Any]:
+        """
+        Get game-by-game logs for a player.
+
+        Args:
+            player_id: MLB player ID
+            season: Season year (current year if None)
+            game_type: Game type (R=Regular Season, S=Spring, P=Playoffs, etc.)
+
+        Returns:
+            Dict containing game log data
+        """
+        if season is None:
+            season = datetime.now().year
+
+        params = {
+            "season": season,
+            "stats": "gameLog",
+            "group": "hitting,pitching",
+            "gameType": game_type
+        }
+
+        return await self._make_request(f"people/{player_id}/stats", params)
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=10)
+    )
+    async def get_player_game_stats(
+        self,
+        player_id: int,
+        game_pk: int
+    ) -> Dict[str, Any]:
+        """
+        Get player stats for a specific game.
+
+        Args:
+            player_id: MLB player ID
+            game_pk: MLB game primary key
+
+        Returns:
+            Dict containing player's game stats
+        """
+        return await self._make_request(f"people/{player_id}/stats/game/{game_pk}")
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=10)
+    )
+    async def get_player_career_stats(
+        self,
+        player_id: int,
+        stat_groups: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
+        """
+        Get player career statistics.
+
+        Args:
+            player_id: MLB player ID
+            stat_groups: List of stat groups (hitting, pitching, fielding)
+
+        Returns:
+            Dict containing career stats
+        """
+        if stat_groups is None:
+            stat_groups = ["hitting", "pitching"]
+
+        params = {
+            "stats": "career",
+            "group": ",".join(stat_groups)
+        }
+
+        return await self._make_request(f"people/{player_id}/stats", params)
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=10)
+    )
+    async def get_player_splits(
+        self,
+        player_id: int,
+        season: Optional[int] = None,
+        sit_codes: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Get player situational splits (vs L/R, home/away, etc.).
+
+        Args:
+            player_id: MLB player ID
+            season: Season year (current year if None)
+            sit_codes: Situation codes (vl=vs lefty, vr=vs righty, h=home, a=away, etc.)
+
+        Returns:
+            Dict containing split stats
+        """
+        if season is None:
+            season = datetime.now().year
+
+        params = {
+            "season": season,
+            "stats": "statSplits",
+            "group": "hitting,pitching"
+        }
+
+        if sit_codes:
+            params["sitCodes"] = sit_codes
+
+        return await self._make_request(f"people/{player_id}/stats", params)
+
     def get_request_stats(self) -> Dict[str, Any]:
         """Get current request statistics."""
         return {

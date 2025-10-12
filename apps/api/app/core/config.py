@@ -9,15 +9,30 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
 
     # CORS Origins - restrict in production
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
+    # Changed from List[AnyHttpUrl] to List[str] to handle Railway's environment variable format
+    BACKEND_CORS_ORIGINS: List[str] = []
     ALLOWED_HOSTS: List[str] = ["localhost", "127.0.0.1", "healthcheck.railway.app", "*"]
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
-        if isinstance(v, str) and not v.startswith("["):
-            return [i.strip() for i in v.split(",")]
-        elif isinstance(v, (list, str)):
+        if isinstance(v, str):
+            # Remove outer quotes if Railway added them
+            v = v.strip('"').strip("'")
+
+            # If it's a JSON-like array string, try to parse it
+            if v.startswith("[") and v.endswith("]"):
+                import json
+                try:
+                    return json.loads(v)
+                except:
+                    # If JSON parsing fails, treat the brackets as literal and split by comma
+                    v = v.strip("[]")
+                    return [i.strip().strip('"').strip("'") for i in v.split(",") if i.strip()]
+
+            # Otherwise split by comma for simple comma-separated format
+            return [i.strip() for i in v.split(",") if i.strip()]
+        elif isinstance(v, list):
             return v
         raise ValueError(v)
 
