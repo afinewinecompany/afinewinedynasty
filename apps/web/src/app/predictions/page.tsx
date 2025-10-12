@@ -188,6 +188,7 @@ export default function PredictionsPage() {
             setFeatureImportances(featData.feature_importances || []);
           } else if (featResponse.status === 404) {
             // No ML prediction available for this player - this is ok
+            console.log(`[ML Predictions Fix Applied] No ML prediction for ${playerId} - handling gracefully`);
             setFeatureImportances([]);
           }
         } catch (featError) {
