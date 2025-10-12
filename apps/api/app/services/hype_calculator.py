@@ -186,26 +186,33 @@ class HypeCalculator:
         """Calculate social media engagement score"""
 
         # Get mentions within different time windows
+        # Use 3d for "24h" metrics to capture more recent activity in low-volume scenarios
         mentions_24h = self.db.query(SocialMention).filter(
             SocialMention.player_hype_id == player_hype_id,
-            SocialMention.posted_at >= time_windows['24h']
+            SocialMention.posted_at >= time_windows['3d']
         ).all()
 
         mentions_7d = self.db.query(SocialMention).filter(
             SocialMention.player_hype_id == player_hype_id,
-            SocialMention.posted_at >= time_windows['7d']
+            SocialMention.posted_at >= time_windows['14d']
         ).all()
 
         mentions_14d = self.db.query(SocialMention).filter(
             SocialMention.player_hype_id == player_hype_id,
-            SocialMention.posted_at >= time_windows['14d']
+            SocialMention.posted_at >= time_windows['30d']
         ).all()
 
         # Calculate weighted engagement
         total_engagement = 0
         platform_breakdown = {}
 
-        for mention in mentions_24h:
+        # Use 7d window for engagement calculation to get more data
+        mentions_for_engagement = self.db.query(SocialMention).filter(
+            SocialMention.player_hype_id == player_hype_id,
+            SocialMention.posted_at >= time_windows['7d']
+        ).all()
+
+        for mention in mentions_for_engagement:
             platform_weight = self.PLATFORM_WEIGHTS.get(mention.platform, 0.5)
             sentiment_multiplier = self.SENTIMENT_MULTIPLIERS.get(
                 mention.sentiment or 'neutral', 1.0
@@ -320,40 +327,40 @@ class HypeCalculator:
     ) -> Tuple[float, Dict]:
         """Calculate virality score based on growth rate and spread"""
 
-        # Get mention counts in different periods
+        # Get mention counts in different periods - use looser windows for low-volume players
         mentions_1h = self.db.query(func.count(SocialMention.id)).filter(
             SocialMention.player_hype_id == player_hype_id,
-            SocialMention.posted_at >= time_windows['1h']
+            SocialMention.posted_at >= time_windows['24h']
         ).scalar() or 0
 
         mentions_6h = self.db.query(func.count(SocialMention.id)).filter(
             SocialMention.player_hype_id == player_hype_id,
-            SocialMention.posted_at >= time_windows['6h']
+            SocialMention.posted_at >= time_windows['3d']
         ).scalar() or 0
 
         mentions_24h = self.db.query(func.count(SocialMention.id)).filter(
             SocialMention.player_hype_id == player_hype_id,
-            SocialMention.posted_at >= time_windows['24h']
+            SocialMention.posted_at >= time_windows['7d']
         ).scalar() or 0
 
         # Calculate growth rates
         growth_rate_6h = (mentions_1h / max(mentions_6h / 6, 1)) if mentions_6h > 0 else 0
         growth_rate_24h = (mentions_6h / max(mentions_24h / 4, 1)) if mentions_24h > 0 else 0
 
-        # Get unique platforms count (spread indicator)
+        # Get unique platforms count (spread indicator) - use 7d window
         unique_platforms = self.db.query(
             func.count(func.distinct(SocialMention.platform))
         ).filter(
             SocialMention.player_hype_id == player_hype_id,
-            SocialMention.posted_at >= time_windows['24h']
+            SocialMention.posted_at >= time_windows['7d']
         ).scalar() or 0
 
-        # Calculate virality score
+        # Calculate virality score - adjusted for looser windows
         virality_score = min(100, (
-            growth_rate_6h * 30 +
-            growth_rate_24h * 20 +
-            unique_platforms * 10 +
-            min(50, mentions_1h)  # Cap direct mention impact
+            growth_rate_6h * 20 +
+            growth_rate_24h * 15 +
+            unique_platforms * 15 +
+            min(50, mentions_1h * 2)  # Scale up mention impact for looser windows
         ))
 
         metrics = {
@@ -372,22 +379,22 @@ class HypeCalculator:
     ) -> Tuple[float, Dict]:
         """Calculate overall sentiment score"""
 
-        # Get sentiment distribution from social mentions
+        # Get sentiment distribution from social mentions - use 7d window for more data
         social_sentiments = self.db.query(
             SocialMention.sentiment,
             func.count(SocialMention.id).label('count')
         ).filter(
             SocialMention.player_hype_id == player_hype_id,
-            SocialMention.posted_at >= time_windows['24h']
+            SocialMention.posted_at >= time_windows['7d']
         ).group_by(SocialMention.sentiment).all()
 
-        # Get sentiment distribution from media
+        # Get sentiment distribution from media - use 14d window
         media_sentiments = self.db.query(
             MediaArticle.sentiment,
             func.count(MediaArticle.id).label('count')
         ).filter(
             MediaArticle.player_hype_id == player_hype_id,
-            MediaArticle.published_at >= time_windows['7d']
+            MediaArticle.published_at >= time_windows['14d']
         ).group_by(MediaArticle.sentiment).all()
 
         # Calculate weighted sentiment

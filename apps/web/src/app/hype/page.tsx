@@ -95,7 +95,7 @@ export default function HypePage() {
   const [loadingSocial, setLoadingSocial] = useState(false);
   const [mediaArticles, setMediaArticles] = useState<MediaArticle[]>([]);
   const [loadingMedia, setLoadingMedia] = useState(false);
-  const [sortBy, setSortBy] = useState<'hype_score' | 'change_24h'>('hype_score');
+  const [sortBy, setSortBy] = useState<'hype_score' | 'change_24h'>('change_24h');
 
   // Fetch data from API
   useEffect(() => {
@@ -392,12 +392,16 @@ export default function HypePage() {
                 )}
                 <button
                   onClick={() => setSortBy(sortBy === 'hype_score' ? 'change_24h' : 'hype_score')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all text-sm"
-                  title={`Sort by ${sortBy === 'hype_score' ? '% Change' : 'HYPE Score'}`}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-sm font-medium ${
+                    sortBy === 'change_24h'
+                      ? 'bg-purple-600 text-white hover:bg-purple-700'
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  }`}
+                  title={`Currently sorted by ${sortBy === 'change_24h' ? '24h % Change' : 'HYPE Score'}. Click to toggle.`}
                 >
                   <ArrowUpDown className="w-4 h-4" />
-                  <span className="hidden sm:inline">
-                    {sortBy === 'hype_score' ? 'Score' : '% Change'}
+                  <span>
+                    Sort: {sortBy === 'change_24h' ? '% Change' : 'Score'}
                   </span>
                 </button>
               </div>
