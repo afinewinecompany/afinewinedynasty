@@ -480,3 +480,87 @@ async def trigger_social_collection(
         raise HTTPException(status_code=500, detail=f"Collection failed: {str(e)}")
     finally:
         sync_db.close()
+
+
+@router.post("/admin/recalculate-scores")
+async def recalculate_hype_scores(
+    player_id: Optional[str] = None,
+    limit: int = Query(50, le=200),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Manually trigger HYPE score recalculation (admin endpoint)
+    If player_id is provided, recalculates only for that player.
+    Otherwise, recalculates for players with outdated scores.
+    """
+    from app.db.database import SyncSessionLocal
+    from app.services.hype_calculator import HypeCalculator
+
+    # Get sync session for calculation
+    sync_db = SyncSessionLocal()
+
+    try:
+        calculator = HypeCalculator(sync_db)
+        results = []
+
+        if player_id:
+            # Recalculate for specific player
+            player_hype_stmt = select(PlayerHype).filter(PlayerHype.player_id == player_id)
+            result = await db.execute(player_hype_stmt)
+            player_hype = result.scalar_one_or_none()
+
+            if not player_hype:
+                raise HTTPException(status_code=404, detail="Player not found")
+
+            calc_result = calculator.calculate_hype_score(player_id)
+
+            return {
+                "status": "success",
+                "message": f"Recalculated HYPE score for {player_hype.player_name}",
+                "player_id": player_id,
+                "hype_score": calc_result['hype_score'],
+                "trend": calc_result['trend'],
+                "components": calc_result['components'],
+                "metrics": {
+                    'social_mentions_24h': calc_result['metrics']['social']['total_mentions_24h'],
+                    'total_engagement': calc_result['metrics']['social']['total_engagement']
+                }
+            }
+        else:
+            # Recalculate for multiple players
+            # Get players that haven't been calculated recently
+            cutoff_time = datetime.utcnow() - timedelta(minutes=30)
+
+            players_stmt = select(PlayerHype).filter(
+                PlayerHype.last_calculated < cutoff_time
+            ).limit(limit)
+            players_result = await db.execute(players_stmt)
+            players = players_result.scalars().all()
+
+            for player in players:
+                try:
+                    calc_result = calculator.calculate_hype_score(player.player_id)
+                    results.append({
+                        "player_id": player.player_id,
+                        "player_name": player.player_name,
+                        "hype_score": calc_result['hype_score'],
+                        "trend": calc_result['trend']
+                    })
+                except Exception as e:
+                    results.append({
+                        "player_id": player.player_id,
+                        "player_name": player.player_name,
+                        "error": str(e)
+                    })
+
+            return {
+                "status": "success",
+                "message": f"Recalculated HYPE scores for {len(results)} players",
+                "recalculated_count": len([r for r in results if 'error' not in r]),
+                "results": results[:10]  # Return first 10 for brevity
+            }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Recalculation failed: {str(e)}")
+    finally:
+        sync_db.close()
