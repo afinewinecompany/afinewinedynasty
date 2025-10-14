@@ -25,6 +25,7 @@ import type {
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 const FANTRAX_BASE = `${API_BASE_URL}/integrations/fantrax`;
+const FANTRAX_AUTH_BASE = `${API_BASE_URL}/fantrax/auth`;
 
 /**
  * Get authorization headers with JWT token
@@ -59,6 +60,134 @@ async function handleResponse<T>(response: Response): Promise<T> {
   return response.json();
 }
 
+// ============================================================================
+// In-Browser Authentication (New)
+// ============================================================================
+
+/**
+ * Authentication initiate response
+ */
+export interface AuthInitiateResponse {
+  session_id: string;
+  status_url: string;
+  expires_in: number;
+  message: string;
+}
+
+/**
+ * Authentication status response
+ */
+export interface AuthStatusResponse {
+  session_id: string;
+  status: string;
+  current_url: string | null;
+  elapsed_seconds: number;
+  expires_in: number;
+  message: string;
+}
+
+/**
+ * Authentication complete response
+ */
+export interface AuthCompleteResponse {
+  success: boolean;
+  message: string;
+  connected_at: string;
+}
+
+/**
+ * Authentication cancel response
+ */
+export interface AuthCancelResponse {
+  success: boolean;
+  message: string;
+}
+
+/**
+ * Initiate in-browser Fantrax authentication
+ *
+ * Starts server-side Selenium session for authentication.
+ *
+ * @returns Promise resolving to session information
+ * @throws Error if user not premium or rate limit exceeded
+ *
+ * @example
+ * ```typescript
+ * const response = await initiateAuth();
+ * // Poll status with response.session_id
+ * ```
+ *
+ * @since 1.0.0
+ */
+export async function initiateAuth(): Promise<AuthInitiateResponse> {
+  const response = await fetch(`${FANTRAX_AUTH_BASE}/initiate`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+  });
+  return handleResponse<AuthInitiateResponse>(response);
+}
+
+/**
+ * Get authentication session status
+ *
+ * Polls current status of Selenium authentication session.
+ * Should be called every 2 seconds.
+ *
+ * @param sessionId - Session identifier from initiate
+ * @returns Promise resolving to current status
+ * @throws Error if session not found or expired
+ *
+ * @since 1.0.0
+ */
+export async function getAuthStatus(sessionId: string): Promise<AuthStatusResponse> {
+  const response = await fetch(`${FANTRAX_AUTH_BASE}/status/${sessionId}`, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+  return handleResponse<AuthStatusResponse>(response);
+}
+
+/**
+ * Complete authentication
+ *
+ * Captures cookies and stores in database.
+ *
+ * @param sessionId - Session identifier
+ * @returns Promise resolving to completion response
+ * @throws Error if cookie capture fails
+ *
+ * @since 1.0.0
+ */
+export async function completeAuth(sessionId: string): Promise<AuthCompleteResponse> {
+  const response = await fetch(`${FANTRAX_AUTH_BASE}/complete/${sessionId}`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+  });
+  return handleResponse<AuthCompleteResponse>(response);
+}
+
+/**
+ * Cancel authentication session
+ *
+ * Stops Selenium browser and cleans up resources.
+ *
+ * @param sessionId - Session identifier
+ * @returns Promise resolving to cancellation response
+ *
+ * @since 1.0.0
+ */
+export async function cancelAuth(sessionId: string): Promise<AuthCancelResponse> {
+  const response = await fetch(`${FANTRAX_AUTH_BASE}/cancel/${sessionId}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(),
+  });
+  return handleResponse<AuthCancelResponse>(response);
+}
+
+// ============================================================================
+// OAuth Authentication (Legacy - kept for reference)
+// ============================================================================
+
 /**
  * Get Fantrax OAuth authorization URL
  *
@@ -75,6 +204,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
  * ```
  *
  * @since 1.0.0
+ * @deprecated Use initiateAuth() for in-browser authentication instead
  */
 export async function getAuthorizationUrl(): Promise<OAuthAuthResponse> {
   const response = await fetch(`${FANTRAX_BASE}/auth`, {

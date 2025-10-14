@@ -32,6 +32,14 @@ interface LeagueSelectorProps {
   onLeagueSelect?: (league: FantraxLeague) => void;
   /** Whether to auto-load roster on selection */
   autoLoadRoster?: boolean;
+  /** Optional explicit leagues list (overrides hook) */
+  leagues?: FantraxLeague[];
+  /** Optional explicit selected league (overrides hook) */
+  selectedLeague?: FantraxLeague | null;
+  /** Optional explicit onSelectLeague handler (overrides hook) */
+  onSelectLeague?: (league: FantraxLeague) => void;
+  /** Optional explicit loading state (overrides hook) */
+  isLoading?: boolean;
 }
 
 /**
@@ -53,16 +61,21 @@ interface LeagueSelectorProps {
 export function LeagueSelector({
   onLeagueSelect,
   autoLoadRoster = false,
+  leagues: leaguesProp,
+  selectedLeague: selectedLeagueProp,
+  onSelectLeague: onSelectLeagueProp,
+  isLoading: isLoadingProp,
 }: LeagueSelectorProps) {
-  const {
-    leagues,
-    selectedLeague,
-    loading,
-    error,
-    selectLeague,
-    refreshLeagues,
-    syncRoster,
-  } = useFantrax();
+  const hookData = useFantrax();
+
+  // Use props if provided, otherwise fall back to hook
+  const leagues = leaguesProp ?? hookData.leagues;
+  const selectedLeague = selectedLeagueProp !== undefined ? selectedLeagueProp : hookData.selectedLeague;
+  const loading = isLoadingProp !== undefined ? { leagues: isLoadingProp, sync: false } : hookData.loading;
+  const error = hookData.error;
+  const selectLeague = onSelectLeagueProp ?? hookData.selectLeague;
+  const refreshLeagues = hookData.refreshLeagues;
+  const syncRoster = hookData.syncRoster;
 
   /**
    * Handle league selection
