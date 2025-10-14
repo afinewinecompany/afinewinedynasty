@@ -13,7 +13,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
@@ -32,22 +32,9 @@ type TabValue = 'profile' | 'subscription' | 'fantrax' | 'preferences';
 const DEFAULT_TAB: TabValue = 'profile';
 
 /**
- * Main account page component with tabbed navigation
- *
- * @returns {JSX.Element} Rendered account management interface
- *
- * @example
- * ```tsx
- * // Direct navigation
- * <Link href="/account">Account Settings</Link>
- *
- * // Navigate to specific tab
- * <Link href="/account?tab=fantrax">Fantrax Integration</Link>
- * ```
- *
- * @since 1.0.0
+ * Inner component that uses useSearchParams (wrapped in Suspense)
  */
-export default function AccountPage(): JSX.Element {
+function AccountPageContent(): JSX.Element {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isLoading } = useAuth();
@@ -179,4 +166,46 @@ export default function AccountPage(): JSX.Element {
 function isValidTab(value: string | null): value is TabValue {
   const validTabs: TabValue[] = ['profile', 'subscription', 'fantrax', 'preferences'];
   return value !== null && validTabs.includes(value as TabValue);
+}
+
+/**
+ * Loading fallback for Suspense boundary
+ */
+function AccountPageLoading(): JSX.Element {
+  return (
+    <div className="container mx-auto py-8 px-4 max-w-6xl">
+      <div className="animate-pulse">
+        <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
+        <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
+        <div className="h-12 bg-gray-200 rounded mb-6"></div>
+        <div className="h-64 bg-gray-200 rounded"></div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Main account page component with Suspense boundary
+ *
+ * Wraps the content component in Suspense to handle useSearchParams() properly
+ *
+ * @returns {JSX.Element} Rendered account management interface
+ *
+ * @example
+ * ```tsx
+ * // Direct navigation
+ * <Link href="/account">Account Settings</Link>
+ *
+ * // Navigate to specific tab
+ * <Link href="/account?tab=fantrax">Fantrax Integration</Link>
+ * ```
+ *
+ * @since 1.0.0
+ */
+export default function AccountPage(): JSX.Element {
+  return (
+    <Suspense fallback={<AccountPageLoading />}>
+      <AccountPageContent />
+    </Suspense>
+  );
 }
