@@ -376,9 +376,13 @@ async def google_oauth_login(request: Request, oauth_request: GoogleOAuthRequest
     except HTTPException:
         raise
     except Exception as e:
+        # Log the actual error for debugging
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Google OAuth error: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Google OAuth authentication failed"
+            detail=f"Google OAuth authentication failed: {str(e)}"
         )
 
 

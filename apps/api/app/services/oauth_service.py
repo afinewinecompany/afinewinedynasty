@@ -26,6 +26,9 @@ class GoogleOAuthService:
     @classmethod
     async def exchange_code_for_token(cls, authorization_code: str) -> Optional[str]:
         """Exchange authorization code for access token"""
+        import logging
+        logger = logging.getLogger(__name__)
+
         token_data = {
             "client_id": settings.GOOGLE_CLIENT_ID,
             "client_secret": settings.GOOGLE_CLIENT_SECRET,
@@ -40,7 +43,14 @@ class GoogleOAuthService:
                 response.raise_for_status()
                 token_response = response.json()
                 return token_response.get("access_token")
-            except httpx.HTTPError:
+            except httpx.HTTPError as e:
+                logger.error(f"Failed to exchange code for token: {str(e)}")
+                if hasattr(e, 'response') and e.response is not None:
+                    logger.error(f"Response status: {e.response.status_code}")
+                    logger.error(f"Response body: {e.response.text}")
+                return None
+            except Exception as e:
+                logger.error(f"Unexpected error in exchange_code_for_token: {str(e)}", exc_info=True)
                 return None
 
     @classmethod
