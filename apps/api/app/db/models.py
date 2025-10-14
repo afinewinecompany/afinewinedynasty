@@ -85,6 +85,7 @@ class Prospect(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     mlb_id: Mapped[str] = mapped_column(String(10), unique=True, nullable=False, index=True)
+    mlb_player_id: Mapped[Optional[str]] = mapped_column(String(20), nullable=True, index=True)  # MLB Stats API player ID
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     position: Mapped[str] = mapped_column(String(10), nullable=False)
     organization: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
