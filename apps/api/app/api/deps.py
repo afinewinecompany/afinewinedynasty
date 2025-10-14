@@ -11,6 +11,7 @@ from app.db.models import User, Subscription
 from app.services.subscription_service import SubscriptionService
 
 security = HTTPBearer()
+security_optional = HTTPBearer(auto_error=False)
 
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> Optional[UserLogin]:
@@ -46,6 +47,24 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
 def get_current_active_user(current_user: UserLogin = Depends(get_current_user)) -> UserLogin:
     """Get current active user (alias for compatibility)"""
     return current_user
+
+
+def get_current_user_optional(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_optional)) -> Optional[UserLogin]:
+    """Get current user from JWT token, or None if not authenticated"""
+    if not credentials:
+        return None
+
+    token = credentials.credentials
+    username = verify_token(token)
+
+    if not username:
+        return None
+
+    user = get_user_by_email(username)
+    if not user or not user.is_active:
+        return None
+
+    return user
 
 
 async def get_subscription_status(

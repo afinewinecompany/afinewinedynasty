@@ -14,7 +14,7 @@ import re
 from app.db.database import get_db
 from app.db.models import User, Subscription, PaymentAuditLog
 from app.models.user import UserLogin
-from app.api.deps import get_current_user, get_subscription_status
+from app.api.deps import get_current_user, get_current_user_optional, get_subscription_status
 from app.services.subscription_service import SubscriptionService
 from sqlalchemy import select
 
@@ -87,19 +87,35 @@ async def create_checkout_session(
 
 @router.get("/status")
 async def get_subscription_status_endpoint(
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: Optional[UserLogin] = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db)
 ) -> Dict[str, Any]:
     """
     Get current user's subscription status.
 
+    This endpoint supports both authenticated and unauthenticated requests.
+    Unauthenticated users receive the default free tier status.
+
     Args:
-        current_user: Current authenticated user
+        current_user: Current authenticated user (optional)
         db: Database session
 
     Returns:
         Subscription status details
     """
+    # If user is not authenticated, return free tier status
+    if not current_user:
+        return {
+            "status": "no_subscription",
+            "tier": "free",
+            "features": {
+                "prospects_limit": 100,
+                "export_enabled": False,
+                "advanced_filters_enabled": False,
+                "comparison_enabled": False
+            }
+        }
+
     subscription = await get_subscription_status(current_user, db)
 
     if not subscription:
