@@ -48,7 +48,8 @@ function AuthCallbackContent() {
         const redirectTo = sessionStorage.getItem('auth_redirect') || '/lineups';
         sessionStorage.removeItem('auth_redirect');
 
-        router.push(redirectTo);
+        // Use window.location for full page reload to ensure auth state is fresh
+        window.location.href = redirectTo;
       } catch (err) {
         console.error('OAuth callback error:', err);
         setError(err instanceof Error ? err.message : 'Authentication failed');
