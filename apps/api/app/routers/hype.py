@@ -281,12 +281,18 @@ async def get_hype_leaderboard(
     limit: int = Query(20, le=100),
     db: AsyncSession = Depends(get_db)
 ):
-    """Get HYPE leaderboard (public endpoint)"""
+    """Get HYPE leaderboard - Shows prospects only by default (public endpoint)"""
 
     stmt = select(PlayerHype)
 
-    if player_type:
-        stmt = stmt.filter(PlayerHype.player_type == player_type)
+    # ALWAYS filter to prospects only for leaderboard
+    # This ensures only players from prospects table appear
+    if player_type == 'mlb':
+        # Allow explicit MLB filter if needed for other purposes
+        stmt = stmt.filter(PlayerHype.player_type == 'mlb')
+    else:
+        # Default to prospects only (even if player_type is None or 'prospect')
+        stmt = stmt.filter(PlayerHype.player_type == 'prospect')
 
     stmt = stmt.order_by(desc(PlayerHype.hype_score)).limit(limit)
     result = await db.execute(stmt)
