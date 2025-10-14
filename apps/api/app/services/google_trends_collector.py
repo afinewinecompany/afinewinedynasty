@@ -25,12 +25,10 @@ class GoogleTrendsCollector:
             from pytrends.request import TrendReq
 
             # Initialize with US locale and timezone
+            # Note: Using simple initialization to avoid compatibility issues
             self.pytrends = TrendReq(
                 hl='en-US',
-                tz=360,  # US Central Time
-                timeout=(10, 25),  # Connect and read timeouts
-                retries=2,
-                backoff_factor=0.5
+                tz=360  # US Central Time
             )
             logger.info("Google Trends client initialized successfully")
         except ImportError:
