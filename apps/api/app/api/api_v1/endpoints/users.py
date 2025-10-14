@@ -78,6 +78,7 @@ class AccountDeletionRequest(BaseModel):
         return v
 
 
+@router.get("/me", response_model=UserProfileResponse)
 @router.get("/profile", response_model=UserProfileResponse)
 async def get_user_profile(
     current_user: UserLogin = Depends(get_current_user),
