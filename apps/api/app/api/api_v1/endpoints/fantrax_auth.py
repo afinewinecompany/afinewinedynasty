@@ -15,9 +15,9 @@ from datetime import datetime, timedelta
 import uuid
 import logging
 
-from app.db.database import get_async_session
+from app.db.database import get_db
 from app.db.models import User
-from app.api.deps import get_current_premium_user
+from app.api.deps import get_current_user
 from app.services.fantrax_auth_service import FantraxAuthService
 from app.schemas.fantrax import (
     AuthInitiateResponse,
@@ -35,8 +35,8 @@ active_auth_sessions: Dict[str, dict] = {}
 
 @router.post("/initiate", response_model=AuthInitiateResponse, status_code=status.HTTP_201_CREATED)
 async def initiate_fantrax_auth(
-    current_user: User = Depends(get_current_premium_user),
-    db: AsyncSession = Depends(get_async_session)
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
 ):
     """
     Initiate server-side Selenium authentication session for Fantrax.
@@ -144,7 +144,7 @@ async def initiate_fantrax_auth(
 @router.get("/status/{session_id}", response_model=AuthStatusResponse)
 async def get_auth_status(
     session_id: str,
-    current_user: User = Depends(get_current_premium_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Poll authentication session status.
@@ -231,8 +231,8 @@ async def get_auth_status(
 @router.post("/complete/{session_id}", response_model=AuthCompleteResponse)
 async def complete_auth(
     session_id: str,
-    current_user: User = Depends(get_current_premium_user),
-    db: AsyncSession = Depends(get_async_session)
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
 ):
     """
     Complete authentication and capture cookies.
@@ -347,7 +347,7 @@ async def complete_auth(
 @router.delete("/cancel/{session_id}", response_model=AuthCancelResponse)
 async def cancel_auth(
     session_id: str,
-    current_user: User = Depends(get_current_premium_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Cancel active authentication session.
