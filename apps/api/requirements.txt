@@ -56,3 +56,6 @@ feedparser>=6.0.0
 
 # Bluesky/AT Protocol
 atproto>=0.0.62
+
+# Google Trends Integration
+pytrends>=4.9.0

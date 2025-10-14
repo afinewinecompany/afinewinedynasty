@@ -35,6 +35,7 @@ class HypeScoreResponse(BaseModel):
     last_calculated: datetime
     trending_topics: List[Dict[str, Any]]
     recent_alerts: List[Dict[str, Any]]
+    search_trends: Optional[Dict[str, Any]] = None
 
 
 class HypeHistoryResponse(BaseModel):
@@ -106,6 +107,29 @@ async def get_player_hype(
     alerts_result = await db.execute(alerts_stmt)
     recent_alerts = alerts_result.scalars().all()
 
+    # Get latest search trends data
+    from app.models.hype import SearchTrend
+    search_trends_stmt = select(SearchTrend).filter(
+        SearchTrend.player_hype_id == player_hype.id
+    ).order_by(desc(SearchTrend.collected_at)).limit(1)
+    search_trends_result = await db.execute(search_trends_stmt)
+    latest_search_trend = search_trends_result.scalar_one_or_none()
+
+    search_trends_data = None
+    if latest_search_trend:
+        search_trends_data = {
+            "search_interest": latest_search_trend.search_interest,
+            "search_interest_avg_7d": latest_search_trend.search_interest_avg_7d,
+            "search_interest_avg_30d": latest_search_trend.search_interest_avg_30d,
+            "growth_rate": latest_search_trend.search_growth_rate,
+            "regional_interest": latest_search_trend.regional_interest,
+            "related_queries": latest_search_trend.related_queries,
+            "rising_queries": latest_search_trend.rising_queries,
+            "collected_at": latest_search_trend.collected_at,
+            "data_period_start": latest_search_trend.data_period_start,
+            "data_period_end": latest_search_trend.data_period_end
+        }
+
     return HypeScoreResponse(
         player_id=player_hype.player_id,
         player_name=player_hype.player_name,
@@ -130,7 +154,8 @@ async def get_player_hype(
             "title": a.title,
             "change": a.change_percentage,
             "created_at": a.created_at
-        } for a in recent_alerts]
+        } for a in recent_alerts],
+        search_trends=search_trends_data
     )
 
 
@@ -474,6 +499,74 @@ async def trigger_social_collection(
                 "message": f"Collected social data for {collected_count} players",
                 "collected_count": collected_count,
                 "errors": errors if errors else None
+            }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Collection failed: {str(e)}")
+    finally:
+        sync_db.close()
+
+
+@router.post("/admin/collect-trends")
+async def collect_google_trends(
+    player_id: Optional[str] = None,
+    limit: int = Query(10, le=50),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Manually trigger Google Trends collection (admin endpoint)
+    If player_id is provided, collects only for that player.
+    Otherwise, collects for top players with hype data.
+    """
+    from app.db.database import SyncSessionLocal
+    from app.services.google_trends_collector import GoogleTrendsCollector
+
+    # Get sync session for collection
+    sync_db = SyncSessionLocal()
+
+    try:
+        collector = GoogleTrendsCollector(sync_db)
+        results = []
+
+        if player_id:
+            # Collect for specific player
+            player_hype_stmt = select(PlayerHype).filter(PlayerHype.player_id == player_id)
+            result = await db.execute(player_hype_stmt)
+            player_hype = result.scalar_one_or_none()
+
+            if not player_hype:
+                raise HTTPException(status_code=404, detail="Player not found")
+
+            trends_result = collector.collect_player_trends(
+                player_name=player_hype.player_name,
+                player_hype_id=player_hype.id
+            )
+
+            return {
+                "status": "success",
+                "message": f"Collected Google Trends for {player_hype.player_name}",
+                "player_id": player_id,
+                "results": trends_result
+            }
+        else:
+            # Collect for multiple players
+            players_stmt = select(PlayerHype).order_by(
+                desc(PlayerHype.hype_score)
+            ).limit(limit)
+            players_result = await db.execute(players_stmt)
+            players = players_result.scalars().all()
+
+            # Build list of (player_name, player_hype_id) tuples
+            player_list = [(p.player_name, p.id) for p in players]
+
+            # Collect in batch with rate limiting
+            batch_results = collector.collect_batch_trends(player_list, delay_seconds=3)
+
+            return {
+                "status": "success",
+                "message": f"Collected Google Trends for {len(batch_results)} players",
+                "collected_count": len(batch_results),
+                "results": batch_results[:5]  # Return first 5 for brevity
             }
 
     except Exception as e:
