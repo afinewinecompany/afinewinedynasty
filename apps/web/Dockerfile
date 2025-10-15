@@ -21,8 +21,20 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy all web app files (Railway build context is already apps/web/)
 COPY . .
 
-# Build Next.js (no standalone mode, uses full node_modules)
+# Accept build arguments from Railway
+ARG NEXT_PUBLIC_GOOGLE_CLIENT_ID
+ARG NEXT_PUBLIC_GOOGLE_REDIRECT_URI
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_API_VERSION
+
+# Set environment variables for Next.js build
+ENV NEXT_PUBLIC_GOOGLE_CLIENT_ID=$NEXT_PUBLIC_GOOGLE_CLIENT_ID
+ENV NEXT_PUBLIC_GOOGLE_REDIRECT_URI=$NEXT_PUBLIC_GOOGLE_REDIRECT_URI
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_VERSION=$NEXT_PUBLIC_API_VERSION
 ENV NEXT_TELEMETRY_DISABLED=1
+
+# Build Next.js (no standalone mode, uses full node_modules)
 RUN npm run build
 
 # Production image
