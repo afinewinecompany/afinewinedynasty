@@ -14,7 +14,10 @@ security = HTTPBearer()
 security_optional = HTTPBearer(auto_error=False)
 
 
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> Optional[UserLogin]:
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_db)
+) -> Optional[UserLogin]:
     """Get current user from JWT token"""
     token = credentials.credentials
     username = verify_token(token)
@@ -26,7 +29,7 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    user = get_user_by_email(username)
+    user = await get_user_by_email(db, username)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -49,7 +52,10 @@ def get_current_active_user(current_user: UserLogin = Depends(get_current_user))
     return current_user
 
 
-def get_current_user_optional(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_optional)) -> Optional[UserLogin]:
+async def get_current_user_optional(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_optional),
+    db: AsyncSession = Depends(get_db)
+) -> Optional[UserLogin]:
     """Get current user from JWT token, or None if not authenticated"""
     if not credentials:
         return None
@@ -60,7 +66,7 @@ def get_current_user_optional(credentials: Optional[HTTPAuthorizationCredentials
     if not username:
         return None
 
-    user = get_user_by_email(username)
+    user = await get_user_by_email(db, username)
     if not user or not user.is_active:
         return None
 
