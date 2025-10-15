@@ -1,6 +1,10 @@
 from typing import Any, Dict, List, Optional, Union
+import json
+import logging
 from pydantic import AnyHttpUrl, PostgresDsn, field_validator
 from pydantic_settings import BaseSettings
+
+logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
@@ -16,25 +20,42 @@ class Settings(BaseSettings):
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
+        # Handle None or empty string - safe defaults
+        if v is None or v == "" or v == '""':
+            logger.debug("BACKEND_CORS_ORIGINS is empty, defaulting to []")
+            return []
+
         if isinstance(v, str):
             # Remove outer quotes if Railway added them
             v = v.strip('"').strip("'")
 
+            # Check again after stripping
+            if not v:
+                logger.debug("BACKEND_CORS_ORIGINS is empty after stripping, defaulting to []")
+                return []
+
             # If it's a JSON-like array string, try to parse it
             if v.startswith("[") and v.endswith("]"):
-                import json
                 try:
                     return json.loads(v)
-                except:
+                except (json.JSONDecodeError, ValueError) as e:
                     # If JSON parsing fails, treat the brackets as literal and split by comma
+                    logger.warning(
+                        f"Failed to parse BACKEND_CORS_ORIGINS as JSON: {e}. Using comma-split fallback."
+                    )
                     v = v.strip("[]")
+                    if not v:
+                        return []
                     return [i.strip().strip('"').strip("'") for i in v.split(",") if i.strip()]
 
             # Otherwise split by comma for simple comma-separated format
             return [i.strip() for i in v.split(",") if i.strip()]
         elif isinstance(v, list):
             return v
-        raise ValueError(v)
+
+        # Safe default instead of raising - log warning
+        logger.warning(f"Unexpected type for BACKEND_CORS_ORIGINS: {type(v)}. Defaulting to []")
+        return []
 
     # Database
     POSTGRES_SERVER: str = "localhost"
@@ -123,4 +144,28 @@ class Settings(BaseSettings):
     }
 
 
-settings = Settings()
+# Instantiate settings with helpful error context
+try:
+    settings = Settings()
+    logger.info("Settings loaded successfully")
+except Exception as e:
+    import os
+    logger.error("=" * 70)
+    logger.error("FATAL: Failed to load Settings configuration")
+    logger.error(f"Error: {type(e).__name__}: {e}")
+    logger.error("")
+    logger.error("Common causes:")
+    logger.error("  - BACKEND_CORS_ORIGINS env var is malformed JSON or empty")
+    logger.error("  - Required environment variables are missing or invalid")
+    logger.error("  - .env file has syntax errors")
+    logger.error("")
+    logger.error("Environment variables (sanitized):")
+    for key in ["BACKEND_CORS_ORIGINS", "SQLALCHEMY_DATABASE_URI", "REDIS_URL",
+                "ENVIRONMENT", "GOOGLE_CLIENT_ID"]:
+        value = os.environ.get(key, "<NOT SET>")
+        if any(secret in key for secret in ["PASSWORD", "SECRET", "KEY"]):
+            if value and value != "<NOT SET>":
+                value = "<REDACTED>"
+        logger.error(f"  {key}: {value}")
+    logger.error("=" * 70)
+    raise

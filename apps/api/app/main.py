@@ -115,6 +115,31 @@ async def health_check_head():
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
+
+    # Validate critical environment variables
+    logger.info("=" * 60)
+    logger.info("🔍 Validating environment configuration...")
+    try:
+        logger.info(f"   Environment: {settings.ENVIRONMENT}")
+        logger.info(f"   CORS Origins: {len(settings.BACKEND_CORS_ORIGINS)} configured")
+        if settings.BACKEND_CORS_ORIGINS:
+            for origin in settings.BACKEND_CORS_ORIGINS[:5]:  # Show first 5
+                logger.info(f"     - {origin}")
+        else:
+            logger.warning("   ⚠️  No CORS origins configured - all origins blocked!")
+        logger.info(f"   Database: {'✅ Configured' if settings.SQLALCHEMY_DATABASE_URI else '❌ Not set'}")
+        logger.info(f"   Redis: {'✅ Configured' if settings.REDIS_URL else '❌ Not set'}")
+        logger.info(f"   Google OAuth: {'✅ Configured' if settings.GOOGLE_CLIENT_ID else '❌ Not set'}")
+        logger.info("✅ Environment validation complete")
+    except Exception as e:
+        logger.error(f"❌ Environment validation failed: {e}")
+        logger.error("   Check Railway environment variables for malformed JSON or missing values")
+        # Don't raise - let app start but warn loudly
+        pass
+    logger.info("=" * 60)
+    logger.info("")
+
+    # Start HYPE scheduler
     logger.info("Starting HYPE scheduler...")
     try:
         start_hype_scheduler()
