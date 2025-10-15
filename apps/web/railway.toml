@@ -1,6 +1,6 @@
 [build]
 builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile"
+dockerfilePath = "apps/web/Dockerfile"
 watchPaths = ["apps/web/**"]
 
 [deploy]

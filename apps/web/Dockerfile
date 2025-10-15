@@ -6,8 +6,8 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Copy package files
-COPY package.json package-lock.json* ./
+# Copy package files (from apps/web in monorepo)
+COPY apps/web/package.json apps/web/package-lock.json* ./
 
 # Install dependencies WITHOUT cache directory issues
 RUN npm ci --prefer-offline --no-optional
@@ -18,7 +18,8 @@ WORKDIR /app
 
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+# Copy all web app files from monorepo
+COPY apps/web/ .
 
 # Build Next.js (no standalone mode, uses full node_modules)
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -34,11 +35,11 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy everything needed for production
+# Copy everything needed for production (built in previous stage)
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public 2>/dev/null || true
 
 USER nextjs
 
