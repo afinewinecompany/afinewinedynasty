@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.api_v1.api import api_router
@@ -66,18 +67,20 @@ For support, please contact: support@afinewinedynasty.com
     ]
 )
 
-# CORS MUST be added FIRST - before rate limiting and security middleware
-# This ensures OPTIONS preflight requests are handled correctly
-cors_origins = [str(origin) for origin in settings.BACKEND_CORS_ORIGINS] if settings.BACKEND_CORS_ORIGINS else ["http://localhost:3000"]
-
 # Debug: Log CORS configuration at startup
 import logging
 logger = logging.getLogger(__name__)
 logger.info(f"🔧 CORS Configuration:")
 logger.info(f"   Raw BACKEND_CORS_ORIGINS: {settings.BACKEND_CORS_ORIGINS}")
+cors_origins = [str(origin) for origin in settings.BACKEND_CORS_ORIGINS] if settings.BACKEND_CORS_ORIGINS else ["http://localhost:3000"]
 logger.info(f"   Processed cors_origins: {cors_origins}")
 logger.info(f"   Total origins: {len(cors_origins)}")
 
+# MIDDLEWARE ORDER (applied in reverse, so last added = first executed):
+# 1. Security middleware FIRST (includes TrustedHost for Railway domains)
+app = add_security_middleware(app)
+
+# 2. CORS middleware (after host validation, before rate limiting)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
@@ -87,11 +90,8 @@ app.add_middleware(
     expose_headers=["X-Total-Count"],
 )
 
-# Setup rate limiting (after CORS)
+# 3. Rate limiting LAST (after CORS, with healthcheck exemption)
 app = setup_rate_limiter(app)
-
-# Add security middleware (after CORS)
-app = add_security_middleware(app)
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
@@ -101,9 +101,15 @@ async def root():
     return {"message": "A Fine Wine Dynasty API", "version": settings.VERSION}
 
 
-@app.get("/health")
+@app.get("/health", include_in_schema=False)
 async def health_check():
     return {"status": "healthy", "service": "api"}
+
+
+@app.head("/health", include_in_schema=False)
+async def health_check_head():
+    """HEAD handler for Railway healthchecks"""
+    return Response(status_code=200)
 
 
 @app.on_event("startup")
@@ -115,6 +121,10 @@ async def startup_event():
         logger.info("HYPE scheduler started successfully")
     except Exception as e:
         logger.error(f"Failed to start HYPE scheduler: {e}")
+        logger.warning("Continuing startup despite scheduler failure - app will function without HYPE updates")
+        # Don't re-raise - allow app to start even if scheduler fails
+        # This prevents healthcheck failures when DB tables are missing
+        pass
 
 
 @app.on_event("shutdown")
