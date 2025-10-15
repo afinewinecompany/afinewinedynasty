@@ -1,11 +1,12 @@
 [phases.setup]
-nixPkgs = ["python311", "postgresql"]
+nixPkgs = ["python311", "postgresql", "gcc", "g++"]
+nixLibs = ["zlib", "libffi", "openssl"]
 
 [phases.install]
 cmds = [
   "python -m venv /opt/venv",
-  "/opt/venv/bin/pip install --upgrade pip",
-  "/opt/venv/bin/pip install --no-cache-dir -r requirements.txt"
+  "/opt/venv/bin/pip install --upgrade pip setuptools wheel",
+  "/opt/venv/bin/pip install --no-cache-dir -r requirements.txt --timeout 600"
 ]
 
 [phases.build]
