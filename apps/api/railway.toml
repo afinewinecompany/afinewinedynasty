@@ -1,5 +1,7 @@
 [build]
 builder = "NIXPACKS"
+nixpacksConfigPath = "nixpacks.toml"
+watchPaths = ["apps/api/**"]
 
 [deploy]
 healthcheckPath = "/health"
