@@ -1,8 +1,8 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, Annotated
 import json
 import logging
-from pydantic import AnyHttpUrl, PostgresDsn, field_validator
-from pydantic_settings import BaseSettings
+from pydantic import AnyHttpUrl, PostgresDsn, field_validator, Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 logger = logging.getLogger(__name__)
 
@@ -13,8 +13,9 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
 
     # CORS Origins - restrict in production
-    # Changed from List[AnyHttpUrl] to List[str] to handle Railway's environment variable format
-    BACKEND_CORS_ORIGINS: List[str] = []
+    # Use Union[str, List[str]] to prevent Pydantic from auto-parsing as JSON
+    # Our validator will handle the conversion
+    BACKEND_CORS_ORIGINS: Union[str, List[str]] = []
     ALLOWED_HOSTS: List[str] = ["localhost", "127.0.0.1", "healthcheck.railway.app", "*"]
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
@@ -137,11 +138,13 @@ class Settings(BaseSettings):
     # Environment
     ENVIRONMENT: str = "development"
 
-    model_config = {
-        "case_sensitive": True,
-        "env_file": ".env",
-        "extra": "ignore"  # Allow extra fields in .env
-    }
+    model_config = SettingsConfigDict(
+        case_sensitive=True,
+        env_file=".env",
+        extra="ignore",  # Allow extra fields in .env
+        # Disable automatic JSON parsing for complex types - let validators handle it
+        env_parse_none_str="null"
+    )
 
 
 # Instantiate settings with helpful error context
