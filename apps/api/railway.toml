@@ -7,3 +7,4 @@ watchPaths = ["apps/api/**"]
 healthcheckPath = "/health"
 healthcheckTimeout = 600
 restartPolicyType = "ON_FAILURE"
+startCommand = "./start.sh"

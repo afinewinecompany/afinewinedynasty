@@ -11,5 +11,9 @@ cmds = [
 [phases.build]
 cmds = ["chmod +x start.sh"]
 
+[phases.release]
+# Explicitly disable release phase - migrations run at startup in start.sh
+cmds = []
+
 [start]
 cmd = "./start.sh"
