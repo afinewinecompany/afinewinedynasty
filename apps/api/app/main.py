@@ -1,12 +1,27 @@
-from fastapi import FastAPI
-from fastapi.responses import Response
+from fastapi import FastAPI, status
+from fastapi.responses import Response, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
+import logging
+import sys
 
 from app.api.api_v1.api import api_router
 from app.core.config import settings
 from app.core.rate_limiter import setup_rate_limiter
 from app.middleware.security_middleware import add_security_middleware
 from app.services.hype_scheduler import start_hype_scheduler, stop_hype_scheduler
+from app.db.database import AsyncSessionLocal
+
+# Configure logging for Railway/production deployment
+# Ensures all logger.info() calls are visible in Railway logs
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -68,8 +83,6 @@ For support, please contact: support@afinewinedynasty.com
 )
 
 # Debug: Log CORS configuration at startup
-import logging
-logger = logging.getLogger(__name__)
 logger.info(f"🔧 CORS Configuration:")
 logger.info(f"   Raw BACKEND_CORS_ORIGINS: {settings.BACKEND_CORS_ORIGINS}")
 cors_origins = [str(origin) for origin in settings.BACKEND_CORS_ORIGINS] if settings.BACKEND_CORS_ORIGINS else ["http://localhost:3000"]
@@ -103,7 +116,33 @@ async def root():
 
 @app.get("/health", include_in_schema=False)
 async def health_check():
-    return {"status": "healthy", "service": "api"}
+    """Enhanced health check that verifies DB connectivity.
+
+    Returns 200 OK only if the database is accessible.
+    This prevents Railway from routing traffic before the app is fully ready.
+    """
+    try:
+        # Test database connection
+        async with AsyncSessionLocal() as session:
+            await session.execute(text("SELECT 1"))
+
+        return {
+            "status": "healthy",
+            "service": "api",
+            "database": "connected"
+        }
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        # Return 503 Service Unavailable if DB is down
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content={
+                "status": "unhealthy",
+                "service": "api",
+                "database": "disconnected",
+                "error": str(e)
+            }
+        )
 
 
 @app.head("/health", include_in_schema=False)
