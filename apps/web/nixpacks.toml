@@ -2,7 +2,11 @@
 nixPkgs = ["nodejs-18_x"]
 
 [phases.install]
-cmds = ["npm ci"]
+# Clean cache directories before npm ci to avoid lock conflicts with Railway cache mounts
+cmds = [
+  "rm -rf node_modules/.cache || true",
+  "npm ci --prefer-offline"
+]
 
 [phases.build]
 cmds = ["npm run build"]
