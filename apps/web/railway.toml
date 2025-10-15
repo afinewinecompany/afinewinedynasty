@@ -1,9 +1,8 @@
 [build]
-builder = "NIXPACKS"
-nixpacksConfigPath = "nixpacks.toml"
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
 watchPaths = ["apps/web/**"]
 
 [deploy]
-startCommand = "next start -H 0.0.0.0"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
