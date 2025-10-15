@@ -20,11 +20,12 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 Add these in Railway Dashboard → Your Web Service → Variables:
 
 ```bash
-NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
-NEXT_PUBLIC_API_URL=https://your-api.railway.app
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=733729983983-fnm9vvitbqu2uj2i36auqmmbvrmoplh6.apps.googleusercontent.com
+NEXT_PUBLIC_GOOGLE_REDIRECT_URI=https://web-production-5cfe0.up.railway.app/auth/callback
+NEXT_PUBLIC_API_URL=https://api-production-f7e0.up.railway.app
 ```
 
-> **Note:** Use the same client ID as the backend service and your actual API URL
+> **Note:** These values are from your `.env.local` file - use the actual production URLs
 
 ---
 
@@ -38,12 +39,12 @@ Click on your OAuth 2.0 Client ID
 
 **Add to Authorized JavaScript origins:**
 ```
-https://your-frontend-url.railway.app
+https://web-production-5cfe0.up.railway.app
 ```
 
 **Add to Authorized redirect URIs:**
 ```
-https://your-frontend-url.railway.app/auth/callback
+https://web-production-5cfe0.up.railway.app/auth/callback
 ```
 
 ### 2. Add Variables to Railway Backend
@@ -70,8 +71,9 @@ https://your-frontend-url.railway.app/auth/callback
 
 | Variable Name | Value |
 |--------------|-------|
-| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Your Google OAuth Client ID (same as backend) |
-| `NEXT_PUBLIC_API_URL` | Your Railway API URL (e.g., `https://api-production-xxx.up.railway.app`) |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | `733729983983-fnm9vvitbqu2uj2i36auqmmbvrmoplh6.apps.googleusercontent.com` |
+| `NEXT_PUBLIC_GOOGLE_REDIRECT_URI` | `https://web-production-5cfe0.up.railway.app/auth/callback` |
+| `NEXT_PUBLIC_API_URL` | `https://api-production-f7e0.up.railway.app` |
 
 5. Click **Deploy** to rebuild with new variables
 
