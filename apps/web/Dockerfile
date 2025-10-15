@@ -6,8 +6,8 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Copy package files (from apps/web in monorepo)
-COPY apps/web/package.json apps/web/package-lock.json* ./
+# Copy package files (Railway sets build context to apps/web/)
+COPY package.json package-lock.json* ./
 
 # Install dependencies WITHOUT cache directory issues
 RUN npm ci --prefer-offline --no-optional
@@ -18,8 +18,8 @@ WORKDIR /app
 
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
-# Copy all web app files from monorepo
-COPY apps/web/ .
+# Copy all web app files (Railway build context is already apps/web/)
+COPY . .
 
 # Build Next.js (no standalone mode, uses full node_modules)
 ENV NEXT_TELEMETRY_DISABLED=1
