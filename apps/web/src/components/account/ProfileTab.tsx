@@ -209,9 +209,9 @@ export function ProfileTab(): JSX.Element {
                     <span className="text-sm font-medium">Subscription</span>
                   </div>
                   <Badge
-                    variant={user?.subscription_tier === 'premium' ? 'default' : 'secondary'}
+                    variant={user?.subscriptionTier === 'premium' ? 'default' : 'secondary'}
                   >
-                    {user?.subscription_tier === 'premium' ? 'Premium' : 'Free'}
+                    {user?.subscriptionTier === 'premium' ? 'Premium' : 'Free'}
                   </Badge>
                 </div>
               </div>

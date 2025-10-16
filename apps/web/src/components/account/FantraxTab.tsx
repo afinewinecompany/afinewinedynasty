@@ -59,7 +59,7 @@ export function FantraxTab(): JSX.Element {
 
   const [showAuthModal, setShowAuthModal] = useState(false);
 
-  const isPremium = user?.subscription_tier === 'premium';
+  const isPremium = user?.subscriptionTier === 'premium';
 
   /**
    * Handle successful authentication
