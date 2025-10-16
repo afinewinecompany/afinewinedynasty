@@ -59,7 +59,7 @@ export function FantraxTab(): JSX.Element {
   } = useFantrax();
 
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMethod, setAuthMethod] = useState<'playwright' | 'cookie'>('playwright');
+  const [authMethod, setAuthMethod] = useState<'playwright' | 'cookie'>('cookie');
 
   const isPremium = user?.subscriptionTier === 'premium';
 
@@ -224,15 +224,15 @@ export function FantraxTab(): JSX.Element {
               {/* Alternative Auth Method */}
               <div className="pt-4 border-t">
                 <p className="text-xs text-muted-foreground">
-                  Having trouble connecting?{' '}
+                  Having trouble with cookies?{' '}
                   <button
                     onClick={() => {
-                      setAuthMethod('cookie');
+                      setAuthMethod('playwright');
                       setShowAuthModal(true);
                     }}
                     className="text-blue-600 hover:underline"
                   >
-                    Try cookie-based authentication
+                    Try experimental browser-based authentication
                   </button>
                 </p>
               </div>
@@ -302,16 +302,16 @@ export function FantraxTab(): JSX.Element {
         <RosterDisplay roster={roster} isLoading={loading.roster} />
       )}
 
-      {/* Playwright Authentication Modal (Primary) */}
-      <FantraxPlaywrightModal
-        isOpen={showAuthModal && authMethod === 'playwright'}
+      {/* Cookie-Based Authentication Modal (Primary) */}
+      <FantraxCookieAuthModal
+        isOpen={showAuthModal && authMethod === 'cookie'}
         onClose={() => setShowAuthModal(false)}
         onSuccess={handleAuthSuccess}
       />
 
-      {/* Cookie-Based Authentication Modal (Backup) */}
-      <FantraxCookieAuthModal
-        isOpen={showAuthModal && authMethod === 'cookie'}
+      {/* Playwright Authentication Modal (Experimental - Server-side only) */}
+      <FantraxPlaywrightModal
+        isOpen={showAuthModal && authMethod === 'playwright'}
         onClose={() => setShowAuthModal(false)}
         onSuccess={handleAuthSuccess}
       />
