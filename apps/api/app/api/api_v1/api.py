@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.api_v1.endpoints import health, auth, prospects, users, admin, monitoring, search, discovery, notifications, subscriptions, webhooks, fantrax, fantrax_auth, recommendations, onboarding, watchlist, email_preferences, achievements, referrals, feedback, analytics, prospect_predictions, lineups
+from app.api.api_v1.endpoints import health, auth, prospects, users, admin, monitoring, search, discovery, notifications, subscriptions, webhooks, fantrax, fantrax_auth, recommendations, onboarding, watchlist, email_preferences, achievements, referrals, feedback, analytics, prospect_predictions, lineups, diagnostics
 from app.routers import hype, ml_predictions
 
 api_router = APIRouter()
@@ -27,5 +27,6 @@ api_router.include_router(fantrax.router, prefix="/integrations/fantrax", tags=[
 api_router.include_router(fantrax_auth.router, prefix="/fantrax/auth", tags=["fantrax-auth"])
 api_router.include_router(recommendations.router, prefix="/recommendations", tags=["recommendations"])
 api_router.include_router(lineups.router, prefix="/lineups", tags=["lineups"])
+api_router.include_router(diagnostics.router, prefix="/diagnostics", tags=["diagnostics"])
 api_router.include_router(hype.router, tags=["hype"])
 api_router.include_router(ml_predictions.router, tags=["ml-predictions"])
