@@ -26,7 +26,7 @@ from app.schemas.fantrax import (
     AuthCompleteResponse,
     AuthCancelResponse
 )
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
