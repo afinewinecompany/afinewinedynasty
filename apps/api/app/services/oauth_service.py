@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 from app.core.config import settings
 from app.db.models import User
-from app.models.user import UserInDB, UserLogin
+from app.models.user import UserLogin
 from app.core.security import get_password_hash
 from datetime import datetime
 
@@ -67,7 +67,7 @@ class GoogleOAuthService:
                 return None
 
     @classmethod
-    async def create_or_get_oauth_user(cls, db: AsyncSession, google_user_info: Dict[str, Any]) -> UserInDB:
+    async def create_or_get_oauth_user(cls, db: AsyncSession, google_user_info: Dict[str, Any]) -> User:
         """Create or retrieve user from OAuth information"""
         email = google_user_info.get("email")
         if not email:
@@ -97,17 +97,8 @@ class GoogleOAuthService:
             await db.commit()
             await db.refresh(existing_user)
 
-            return UserInDB(
-                id=existing_user.id,
-                email=existing_user.email,
-                full_name=existing_user.full_name,
-                hashed_password=existing_user.hashed_password,
-                is_active=existing_user.is_active,
-                created_at=existing_user.created_at,
-                updated_at=existing_user.updated_at,
-                google_id=existing_user.google_id,
-                profile_picture=existing_user.profile_picture
-            )
+            # Return the full User object with all fields including is_admin and subscription_tier
+            return existing_user
         else:
             # Create new user from OAuth information
             now = datetime.now()
@@ -116,6 +107,8 @@ class GoogleOAuthService:
                 hashed_password="",  # OAuth users don't need password
                 full_name=google_user_info.get("name", ""),
                 is_active=True,
+                is_admin=False,  # New users are not admin by default
+                subscription_tier="free",  # New users start with free tier
                 google_id=google_user_info.get("id"),
                 profile_picture=google_user_info.get("picture"),
                 created_at=now,
@@ -132,17 +125,8 @@ class GoogleOAuthService:
             await db.commit()
             await db.refresh(user_db)
 
-            return UserInDB(
-                id=user_db.id,
-                email=user_db.email,
-                full_name=user_db.full_name,
-                hashed_password=user_db.hashed_password,
-                is_active=user_db.is_active,
-                created_at=user_db.created_at,
-                updated_at=user_db.updated_at,
-                google_id=user_db.google_id,
-                profile_picture=user_db.profile_picture
-            )
+            # Return the full User object with all fields including is_admin and subscription_tier
+            return user_db
 
     @classmethod
     async def link_google_account(cls, db: AsyncSession, email: str, google_user_info: Dict[str, Any]) -> bool:
