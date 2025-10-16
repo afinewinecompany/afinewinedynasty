@@ -17,7 +17,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { useFantrax } from '@/hooks/useFantrax';
 import { useAuth } from '@/hooks/useAuth';
-import { FantraxAuthModal } from '@/components/integrations/FantraxAuthModal';
+import { FantraxLoginModal } from '@/components/integrations/FantraxLoginModal';
 import { LeagueSelector } from '@/components/integrations/LeagueSelector';
 import { RosterDisplay } from '@/components/integrations/RosterDisplay';
 import {
@@ -282,8 +282,8 @@ export function FantraxTab(): JSX.Element {
         <RosterDisplay roster={roster} isLoading={loading.roster} />
       )}
 
-      {/* Auth Modal */}
-      <FantraxAuthModal
+      {/* Login Modal */}
+      <FantraxLoginModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
         onSuccess={handleAuthSuccess}
