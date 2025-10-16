@@ -4,11 +4,12 @@
  * Google OAuth Callback Page
  *
  * This page handles the OAuth redirect from Google.
- * It's mainly used for validation - the actual auth happens via the popup flow.
+ * It exchanges the authorization code for access tokens and redirects to the account page.
  */
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { AuthAPI } from '@/lib/auth/api';
 
 function OAuthCallbackContent() {
   const router = useRouter();
@@ -17,36 +18,49 @@ function OAuthCallbackContent() {
   const [message, setMessage] = useState('Processing authentication...');
 
   useEffect(() => {
-    const code = searchParams.get('code');
-    const error = searchParams.get('error');
+    const handleOAuth = async () => {
+      const code = searchParams.get('code');
+      const error = searchParams.get('error');
+      const state = searchParams.get('state');
 
-    if (error) {
-      setStatus('error');
-      setMessage(`Authentication failed: ${error}`);
-      setTimeout(() => router.push('/login'), 3000);
-      return;
-    }
-
-    if (code) {
-      setStatus('success');
-      setMessage('Authentication successful! Redirecting...');
-
-      // Send message to opener window if this was opened as a popup
-      if (window.opener) {
-        window.opener.postMessage(
-          { type: 'oauth-callback', code },
-          window.location.origin
-        );
-        window.close();
-      } else {
-        // If not a popup, redirect to home
-        setTimeout(() => router.push('/'), 1500);
+      if (error) {
+        setStatus('error');
+        setMessage(`Authentication failed: ${error}`);
+        setTimeout(() => router.push('/login'), 3000);
+        return;
       }
-    } else {
-      setStatus('error');
-      setMessage('No authorization code received');
-      setTimeout(() => router.push('/login'), 3000);
-    }
+
+      if (!code) {
+        setStatus('error');
+        setMessage('No authorization code received');
+        setTimeout(() => router.push('/login'), 3000);
+        return;
+      }
+
+      try {
+        // Exchange code for tokens
+        setMessage('Exchanging authorization code for tokens...');
+        await AuthAPI.googleLogin({
+          code,
+          state: state || undefined,
+        });
+
+        setStatus('success');
+        setMessage('Authentication successful! Redirecting to your account...');
+
+        // Redirect to account page after successful login
+        setTimeout(() => router.push('/account'), 1500);
+      } catch (err) {
+        console.error('OAuth error:', err);
+        setStatus('error');
+        setMessage(
+          err instanceof Error ? err.message : 'Failed to complete authentication'
+        );
+        setTimeout(() => router.push('/login'), 3000);
+      }
+    };
+
+    handleOAuth();
   }, [searchParams, router]);
 
   return (
