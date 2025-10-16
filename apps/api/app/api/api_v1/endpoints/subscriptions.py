@@ -116,6 +116,27 @@ async def get_subscription_status_endpoint(
             }
         }
 
+    # First, check the user's subscription_tier from the database
+    # This handles manually-granted premium access (e.g., admin users)
+    stmt = select(User).where(User.email == current_user.email)
+    result = await db.execute(stmt)
+    user_db = result.scalar_one_or_none()
+
+    if user_db and user_db.subscription_tier == "premium":
+        # User has premium tier set in database (manual grant or active subscription)
+        return {
+            "status": "active",
+            "tier": "premium",
+            "is_admin": user_db.is_admin,
+            "features": {
+                "prospects_limit": 500,
+                "export_enabled": True,
+                "advanced_filters_enabled": True,
+                "comparison_enabled": True
+            }
+        }
+
+    # Check Stripe subscription status for regular subscribers
     subscription = await get_subscription_status(current_user, db)
 
     if not subscription:
