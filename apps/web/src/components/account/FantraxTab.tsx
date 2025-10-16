@@ -17,6 +17,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { useFantrax } from '@/hooks/useFantrax';
 import { useAuth } from '@/hooks/useAuth';
+import { FantraxPlaywrightModal } from '@/components/integrations/FantraxPlaywrightModal';
 import { FantraxCookieAuthModal } from '@/components/integrations/FantraxCookieAuthModal';
 import { LeagueSelector } from '@/components/integrations/LeagueSelector';
 import { RosterDisplay } from '@/components/integrations/RosterDisplay';
@@ -58,6 +59,7 @@ export function FantraxTab(): JSX.Element {
   } = useFantrax();
 
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMethod, setAuthMethod] = useState<'playwright' | 'cookie'>('playwright');
 
   const isPremium = user?.subscriptionTier === 'premium';
 
@@ -208,15 +210,33 @@ export function FantraxTab(): JSX.Element {
 
           {/* Connection Benefits (when disconnected) */}
           {!isConnected && (
-            <div className="space-y-2 pt-4 border-t">
-              <p className="font-medium text-sm">Benefits of connecting:</p>
-              <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside">
-                <li>Get prospect recommendations tailored to your team needs</li>
-                <li>Analyze your roster depth and identify future holes</li>
-                <li>Sync multiple dynasty leagues in one place</li>
-                <li>Track roster changes and league activity</li>
-              </ul>
-            </div>
+            <>
+              <div className="space-y-2 pt-4 border-t">
+                <p className="font-medium text-sm">Benefits of connecting:</p>
+                <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside">
+                  <li>Get prospect recommendations tailored to your team needs</li>
+                  <li>Analyze your roster depth and identify future holes</li>
+                  <li>Sync multiple dynasty leagues in one place</li>
+                  <li>Track roster changes and league activity</li>
+                </ul>
+              </div>
+
+              {/* Alternative Auth Method */}
+              <div className="pt-4 border-t">
+                <p className="text-xs text-muted-foreground">
+                  Having trouble connecting?{' '}
+                  <button
+                    onClick={() => {
+                      setAuthMethod('cookie');
+                      setShowAuthModal(true);
+                    }}
+                    className="text-blue-600 hover:underline"
+                  >
+                    Try cookie-based authentication
+                  </button>
+                </p>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
@@ -282,9 +302,16 @@ export function FantraxTab(): JSX.Element {
         <RosterDisplay roster={roster} isLoading={loading.roster} />
       )}
 
-      {/* Cookie-Based Authentication Modal */}
+      {/* Playwright Authentication Modal (Primary) */}
+      <FantraxPlaywrightModal
+        isOpen={showAuthModal && authMethod === 'playwright'}
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={handleAuthSuccess}
+      />
+
+      {/* Cookie-Based Authentication Modal (Backup) */}
       <FantraxCookieAuthModal
-        isOpen={showAuthModal}
+        isOpen={showAuthModal && authMethod === 'cookie'}
         onClose={() => setShowAuthModal(false)}
         onSuccess={handleAuthSuccess}
       />
