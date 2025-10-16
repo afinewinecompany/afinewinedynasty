@@ -21,7 +21,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/fantrax", tags=["Fantrax Integration"])
+router = APIRouter(tags=["Fantrax Integration"])
 
 
 # Request/Response Models
