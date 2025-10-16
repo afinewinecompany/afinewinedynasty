@@ -212,7 +212,7 @@ export function useFantrax(): UseFantraxReturn {
     setError('connection', null);
 
     try {
-      await fantraxApi.disconnectFantrax();
+      await fantraxApi.disconnectSecretAPI();
       setState({
         isConnected: false,
         leagues: [],
@@ -254,7 +254,20 @@ export function useFantrax(): UseFantraxReturn {
     setError('leagues', null);
 
     try {
-      const leagues = await fantraxApi.getUserLeagues();
+      const secretAPILeagues = await fantraxApi.getSecretAPILeagues();
+      // Convert Secret API league format to existing FantraxLeague format
+      const leagues: FantraxLeague[] = secretAPILeagues.map((league) => ({
+        league_id: league.league_id,
+        league_name: league.name,
+        sport: league.sport || 'MLB',
+        team_count: league.teams.length,
+        my_team_id: league.teams[0]?.team_id,
+        my_team_name: league.teams[0]?.team_name,
+        roster_size: 0, // Not available from initial API call
+        scoring_type: 'unknown',
+        is_active: true,
+        season: new Date().getFullYear(),
+      }));
       setState((prev) => ({
         ...prev,
         leagues,

@@ -27,6 +27,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
   : 'http://localhost:8000/api/v1';
 const FANTRAX_BASE = `${API_BASE_URL}/integrations/fantrax`;
 const FANTRAX_AUTH_BASE = `${API_BASE_URL}/fantrax/auth`;
+const FANTRAX_SECRET_API_BASE = `${API_BASE_URL}/fantrax`; // New Secret ID API
 
 /**
  * Get authorization headers with JWT token
@@ -422,14 +423,235 @@ export async function analyzeTrade(
  */
 export async function getConnectionStatus(): Promise<ConnectionStatus> {
   try {
-    const leagues = await getUserLeagues();
-    return {
-      connected: true,
-      leagues_count: leagues.length,
-    };
+    const response = await fetch(`${FANTRAX_SECRET_API_BASE}/status`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+    return handleResponse<ConnectionStatus>(response);
   } catch (error) {
     return {
       connected: false,
     };
   }
+}
+
+// ============================================================================
+// Secret ID API (New - Official Fantrax API)
+// ============================================================================
+
+/**
+ * Connect Fantrax Response
+ */
+export interface ConnectFantraxResponse {
+  connected: boolean;
+  connected_at: string | null;
+  leagues_count: number | null;
+}
+
+/**
+ * League Response from Secret ID API
+ */
+export interface SecretAPILeague {
+  league_id: string;
+  name: string;
+  sport: string | null;
+  teams: Array<{
+    team_id: string;
+    team_name: string;
+  }>;
+}
+
+/**
+ * League Info Response
+ */
+export interface LeagueInfoResponse {
+  league_id: string;
+  name: string;
+  sport: string | null;
+  teams: any[];
+  matchups: any[];
+  players: any[];
+  settings: any;
+  current_period: number | null;
+  season: number | null;
+}
+
+/**
+ * Roster Response
+ */
+export interface RosterResponse {
+  league_id: string;
+  period: number | null;
+  rosters: any[];
+}
+
+/**
+ * Standings Response
+ */
+export interface StandingsResponse {
+  league_id: string;
+  standings: any[];
+}
+
+/**
+ * Connect Fantrax account using Secret ID
+ *
+ * @param secretId - User's Fantrax Secret ID from their profile
+ * @returns Promise resolving to connection response
+ * @throws Error if connection fails
+ *
+ * @example
+ * ```typescript
+ * const response = await connectWithSecretId('24pscnquxwekzngy');
+ * console.log(`Connected with ${response.leagues_count} leagues`);
+ * ```
+ *
+ * @since 2.0.0
+ */
+export async function connectWithSecretId(
+  secretId: string
+): Promise<ConnectFantraxResponse> {
+  const response = await fetch(`${FANTRAX_SECRET_API_BASE}/connect`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ secret_id: secretId }),
+  });
+  return handleResponse<ConnectFantraxResponse>(response);
+}
+
+/**
+ * Get Fantrax connection status (Secret ID API)
+ *
+ * @returns Promise resolving to connection status
+ * @throws Error if request fails
+ *
+ * @since 2.0.0
+ */
+export async function getSecretAPIStatus(): Promise<ConnectFantraxResponse> {
+  const response = await fetch(`${FANTRAX_SECRET_API_BASE}/status`, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+  return handleResponse<ConnectFantraxResponse>(response);
+}
+
+/**
+ * Disconnect Fantrax account (Secret ID API)
+ *
+ * @returns Promise resolving to success message
+ * @throws Error if disconnection fails
+ *
+ * @since 2.0.0
+ */
+export async function disconnectSecretAPI(): Promise<{ message: string }> {
+  const response = await fetch(`${FANTRAX_SECRET_API_BASE}/disconnect`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(),
+  });
+  return handleResponse<{ message: string }>(response);
+}
+
+/**
+ * Get user's leagues using Secret ID API
+ *
+ * @returns Promise resolving to array of leagues
+ * @throws Error if request fails
+ *
+ * @since 2.0.0
+ */
+export async function getSecretAPILeagues(): Promise<SecretAPILeague[]> {
+  const response = await fetch(`${FANTRAX_SECRET_API_BASE}/leagues`, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+  return handleResponse<SecretAPILeague[]>(response);
+}
+
+/**
+ * Get detailed league information using Secret ID API
+ *
+ * @param leagueId - Fantrax League ID
+ * @returns Promise resolving to league info
+ * @throws Error if request fails
+ *
+ * @since 2.0.0
+ */
+export async function getSecretAPILeagueInfo(
+  leagueId: string
+): Promise<LeagueInfoResponse> {
+  const response = await fetch(
+    `${FANTRAX_SECRET_API_BASE}/leagues/${leagueId}`,
+    {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    }
+  );
+  return handleResponse<LeagueInfoResponse>(response);
+}
+
+/**
+ * Get team rosters for a league using Secret ID API
+ *
+ * @param leagueId - Fantrax League ID
+ * @param period - Optional lineup period
+ * @returns Promise resolving to rosters
+ * @throws Error if request fails
+ *
+ * @since 2.0.0
+ */
+export async function getSecretAPIRosters(
+  leagueId: string,
+  period?: number
+): Promise<RosterResponse> {
+  const url = period
+    ? `${FANTRAX_SECRET_API_BASE}/leagues/${leagueId}/rosters?period=${period}`
+    : `${FANTRAX_SECRET_API_BASE}/leagues/${leagueId}/rosters`;
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+  return handleResponse<RosterResponse>(response);
+}
+
+/**
+ * Get league standings using Secret ID API
+ *
+ * @param leagueId - Fantrax League ID
+ * @returns Promise resolving to standings
+ * @throws Error if request fails
+ *
+ * @since 2.0.0
+ */
+export async function getSecretAPIStandings(
+  leagueId: string
+): Promise<StandingsResponse> {
+  const response = await fetch(
+    `${FANTRAX_SECRET_API_BASE}/leagues/${leagueId}/standings`,
+    {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    }
+  );
+  return handleResponse<StandingsResponse>(response);
+}
+
+/**
+ * Get draft results using Secret ID API
+ *
+ * @param leagueId - Fantrax League ID
+ * @returns Promise resolving to draft results
+ * @throws Error if request fails
+ *
+ * @since 2.0.0
+ */
+export async function getSecretAPIDraftResults(leagueId: string): Promise<any> {
+  const response = await fetch(
+    `${FANTRAX_SECRET_API_BASE}/leagues/${leagueId}/draft-results`,
+    {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    }
+  );
+  return handleResponse<any>(response);
 }
