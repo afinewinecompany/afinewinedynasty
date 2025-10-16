@@ -1,8 +1,7 @@
 /**
  * Fantrax Browser Authentication Modal
  *
- * Opens Fantrax login in user's browser, then extracts cookies client-side.
- * This eliminates the need for server-side browser automation.
+ * Opens Fantrax login in user's browser, provides bookmarklet to extract cookies.
  *
  * @component FantraxPlaywrightModal
  * @since 1.2.0
@@ -27,7 +26,8 @@ import {
   ExternalLink,
   ShieldCheck,
   Info,
-  RefreshCw
+  Copy,
+  Check
 } from 'lucide-react';
 
 /**
@@ -48,7 +48,6 @@ interface FantraxPlaywrightModalProps {
 type AuthState =
   | 'instructions'
   | 'waiting'
-  | 'checking'
   | 'success'
   | 'failed';
 
@@ -64,9 +63,8 @@ export function FantraxPlaywrightModal({
 }: FantraxPlaywrightModalProps): JSX.Element {
   const [state, setState] = useState<AuthState>('instructions');
   const [error, setError] = useState<string | null>(null);
-  const [checkAttempts, setCheckAttempts] = useState(0);
+  const [copied, setCopied] = useState(false);
   const loginWindowRef = useRef<Window | null>(null);
-  const checkIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   /**
    * Get API base URL
@@ -83,20 +81,78 @@ export function FantraxPlaywrightModal({
   };
 
   /**
+   * Bookmarklet code that extracts cookies and sends them
+   */
+  const getBookmarkletCode = () => {
+    const apiUrl = getApiUrl();
+    const token = getAuthToken();
+    const origin = window.location.origin;
+
+    return `(async function() {
+  try {
+    const cookies = document.cookie.split(';').map(c => {
+      const [name, ...valueParts] = c.trim().split('=');
+      return {
+        name: name.trim(),
+        value: valueParts.join('='),
+        domain: '.fantrax.com',
+        path: '/',
+        secure: true,
+        sameSite: 'Lax'
+      };
+    }).filter(c => c.name && c.value);
+
+    if (cookies.length === 0) {
+      alert('No cookies found. Make sure you are logged in to Fantrax.');
+      return;
+    }
+
+    // Send to opener if exists (popup mode)
+    if (window.opener && !window.opener.closed) {
+      window.opener.postMessage({
+        type: 'FANTRAX_COOKIES',
+        cookies: cookies
+      }, '${origin}');
+      alert('Cookies sent! You can close this window.');
+    } else {
+      // Direct mode - send to API
+      const response = await fetch('${apiUrl}/api/v1/fantrax/auth/cookie-auth', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ${token}',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ cookies_json: JSON.stringify(cookies) })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        alert('Success! Your Fantrax account is connected. You can close this tab.');
+      } else {
+        alert('Error: ' + (data.detail || 'Failed to save session'));
+      }
+    }
+  } catch (error) {
+    alert('Error: ' + error.message);
+  }
+})();`;
+  };
+
+  /**
    * Open Fantrax login in new window
    */
   const openLoginWindow = () => {
     try {
-      // Open Fantrax login in a new window
-      const width = 800;
-      const height = 700;
+      const width = 1000;
+      const height = 800;
       const left = (window.screen.width - width) / 2;
       const top = (window.screen.height - height) / 2;
 
       const loginWindow = window.open(
         FANTRAX_LOGIN_URL,
         'fantrax_login',
-        `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+        `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,toolbar=yes,menubar=yes`
       );
 
       if (!loginWindow) {
@@ -107,10 +163,6 @@ export function FantraxPlaywrightModal({
 
       loginWindowRef.current = loginWindow;
       setState('waiting');
-      setCheckAttempts(0);
-
-      // Start checking for login completion
-      startChecking();
     } catch (err: any) {
       console.error('Failed to open login window:', err);
       setError(err.message || 'Failed to open login window');
@@ -119,127 +171,16 @@ export function FantraxPlaywrightModal({
   };
 
   /**
-   * Check if user has logged in by attempting to get cookies from the domain
+   * Copy bookmarklet code to clipboard
    */
-  const checkLoginStatus = async () => {
-    const token = getAuthToken();
-    if (!token) {
-      setError('Not authenticated. Please log in again.');
-      setState('failed');
-      stopChecking();
-      return;
-    }
-
-    // Check if window is still open
-    if (loginWindowRef.current?.closed) {
-      setError('Login window was closed before completing authentication.');
-      setState('failed');
-      stopChecking();
-      return;
-    }
-
-    setCheckAttempts(prev => prev + 1);
-
-    // After 60 attempts (2 minutes), time out
-    if (checkAttempts >= 60) {
-      setError('Authentication timed out. Please try again.');
-      setState('failed');
-      stopChecking();
-      closeLoginWindow();
-      return;
-    }
-
+  const copyBookmarkletCode = async () => {
     try {
-      setState('checking');
-
-      // Try to check if user is logged in by calling our backend
-      // which will attempt to verify the session
-      const response = await fetch(`${getApiUrl()}/api/v1/fantrax/auth/check-login`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.is_logged_in) {
-        // User is logged in! Capture cookies
-        await captureCookies();
-      } else {
-        // Not logged in yet, keep waiting
-        setState('waiting');
-      }
-    } catch (err: any) {
-      console.error('Failed to check login status:', err);
-      // Don't fail on network errors, keep checking
-      setState('waiting');
-    }
-  };
-
-  /**
-   * Tell user to manually send cookies after logging in
-   */
-  const captureCookies = async () => {
-    const token = getAuthToken();
-    if (!token) return;
-
-    try {
-      setState('checking');
-
-      // Instruct the popup window to send us its cookies via postMessage
-      if (loginWindowRef.current && !loginWindowRef.current.closed) {
-        // Inject script to get cookies
-        const script = `
-          (async function() {
-            try {
-              // Get all cookies for fantrax.com
-              const cookies = document.cookie.split(';').map(c => {
-                const [name, ...valueParts] = c.trim().split('=');
-                return {
-                  name: name.trim(),
-                  value: valueParts.join('='),
-                  domain: '.fantrax.com',
-                  path: '/',
-                  secure: true,
-                  sameSite: 'Lax'
-                };
-              }).filter(c => c.name && c.value);
-
-              // Send cookies back to parent window
-              window.opener.postMessage({
-                type: 'FANTRAX_COOKIES',
-                cookies: cookies
-              }, '${window.location.origin}');
-
-              // Close the login window
-              window.close();
-            } catch (error) {
-              console.error('Failed to extract cookies:', error);
-              window.opener.postMessage({
-                type: 'FANTRAX_COOKIES_ERROR',
-                error: error.message
-              }, '${window.location.origin}');
-            }
-          })();
-        `;
-
-        // Try to execute the script in the popup
-        try {
-          loginWindowRef.current.eval(script);
-        } catch (err) {
-          // Cross-origin restriction - fallback to asking user
-          console.error('Cannot access popup cookies due to CORS:', err);
-          setError('Please close the Fantrax window after logging in, then click "I\'ve Logged In" below.');
-          setState('waiting');
-        }
-      }
-    } catch (err: any) {
-      console.error('Failed to capture cookies:', err);
-      setError(err.message || 'Failed to capture session');
-      setState('failed');
-      stopChecking();
+      await navigator.clipboard.writeText(getBookmarkletCode());
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      alert('Failed to copy to clipboard. Please copy manually.');
     }
   };
 
@@ -261,9 +202,6 @@ export function FantraxPlaywrightModal({
 
       // Send cookies to backend
       await sendCookiesToBackend(cookies);
-    } else if (event.data.type === 'FANTRAX_COOKIES_ERROR') {
-      setError(event.data.error || 'Failed to extract cookies');
-      setState('failed');
     }
   };
 
@@ -272,7 +210,11 @@ export function FantraxPlaywrightModal({
    */
   const sendCookiesToBackend = async (cookies: any[]) => {
     const token = getAuthToken();
-    if (!token) return;
+    if (!token) {
+      setError('Not authenticated. Please log in again.');
+      setState('failed');
+      return;
+    }
 
     try {
       const response = await fetch(`${getApiUrl()}/api/v1/fantrax/auth/cookie-auth`, {
@@ -290,7 +232,6 @@ export function FantraxPlaywrightModal({
 
       if (response.ok && data.success) {
         setState('success');
-        stopChecking();
         closeLoginWindow();
 
         // Wait a moment to show success message
@@ -301,41 +242,11 @@ export function FantraxPlaywrightModal({
       } else {
         setError(data.detail || 'Failed to save session');
         setState('failed');
-        stopChecking();
       }
     } catch (err: any) {
       console.error('Failed to send cookies to backend:', err);
       setError(err.message || 'Failed to save session');
       setState('failed');
-      stopChecking();
-    }
-  };
-
-  /**
-   * Manual completion - user confirms they logged in
-   */
-  const manualComplete = async () => {
-    await captureCookies();
-  };
-
-  /**
-   * Start checking for login completion
-   */
-  const startChecking = () => {
-    if (checkIntervalRef.current) return;
-
-    checkIntervalRef.current = setInterval(() => {
-      checkLoginStatus();
-    }, 2000); // Check every 2 seconds
-  };
-
-  /**
-   * Stop checking
-   */
-  const stopChecking = () => {
-    if (checkIntervalRef.current) {
-      clearInterval(checkIntervalRef.current);
-      checkIntervalRef.current = null;
     }
   };
 
@@ -353,11 +264,10 @@ export function FantraxPlaywrightModal({
    * Close modal and reset state
    */
   const handleClose = () => {
-    stopChecking();
     closeLoginWindow();
     setState('instructions');
     setError(null);
-    setCheckAttempts(0);
+    setCopied(false);
     onClose();
   };
 
@@ -376,38 +286,17 @@ export function FantraxPlaywrightModal({
    */
   useEffect(() => {
     return () => {
-      stopChecking();
       closeLoginWindow();
     };
   }, []);
 
-  /**
-   * Get status message
-   */
-  const getStatusMessage = (): string => {
-    switch (state) {
-      case 'instructions':
-        return 'Ready to connect to Fantrax';
-      case 'waiting':
-        return 'Waiting for you to log in...';
-      case 'checking':
-        return 'Verifying login...';
-      case 'success':
-        return 'Successfully connected to Fantrax!';
-      case 'failed':
-        return error || 'Authentication failed';
-      default:
-        return 'Processing...';
-    }
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Connect to Fantrax</DialogTitle>
           <DialogDescription>
-            Log in to Fantrax to connect your account
+            Log in to Fantrax and run a simple script to connect your account
           </DialogDescription>
         </DialogHeader>
 
@@ -431,7 +320,7 @@ export function FantraxPlaywrightModal({
                 <p className="font-semibold text-lg">Authentication Failed</p>
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{getStatusMessage()}</AlertDescription>
+                  <AlertDescription>{error}</AlertDescription>
                 </Alert>
                 <Button onClick={() => { setState('instructions'); setError(null); }} className="w-full">
                   Try Again
@@ -444,13 +333,11 @@ export function FantraxPlaywrightModal({
               <Alert>
                 <Info className="h-4 w-4" />
                 <AlertDescription>
-                  <p className="font-semibold mb-2">How it works:</p>
+                  <p className="font-semibold mb-2">Quick 3-step process:</p>
                   <ol className="text-sm space-y-1.5 list-decimal list-inside">
-                    <li>Click "Open Fantrax Login" below</li>
-                    <li>A popup window will open</li>
-                    <li>Log in to your Fantrax account</li>
-                    <li>Your session will be captured automatically</li>
-                    <li>The popup will close when done</li>
+                    <li>Click "Open Fantrax & Copy Script" below</li>
+                    <li>Log in to Fantrax in the new window</li>
+                    <li>Open browser console (F12), paste script, press Enter</li>
                   </ol>
                 </AlertDescription>
               </Alert>
@@ -461,29 +348,45 @@ export function FantraxPlaywrightModal({
                   <div className="text-xs text-blue-900">
                     <p className="font-semibold mb-1">Your credentials are secure</p>
                     <ul className="space-y-0.5 list-disc list-inside text-blue-800">
-                      <li>Login happens in your own browser</li>
-                      <li>Only session cookies are captured (never passwords)</li>
-                      <li>Cookies are encrypted before storage</li>
-                      <li>Your data never leaves your device unencrypted</li>
+                      <li>Script only reads cookies (never passwords)</li>
+                      <li>You can review the code before running it</li>
+                      <li>Cookies are encrypted before storage (AES-256)</li>
+                      <li>Login happens entirely in your browser</li>
                     </ul>
                   </div>
                 </div>
               </div>
 
-              <Button onClick={openLoginWindow} className="w-full" size="lg">
+              <Button
+                onClick={() => {
+                  copyBookmarkletCode();
+                  openLoginWindow();
+                }}
+                className="w-full"
+                size="lg"
+              >
                 <ExternalLink className="mr-2 h-4 w-4" />
-                Open Fantrax Login
+                Open Fantrax & Copy Script
               </Button>
+
+              {copied && (
+                <Alert>
+                  <Check className="h-4 w-4 text-green-600" />
+                  <AlertDescription className="text-green-800">
+                    Script copied to clipboard! Paste it in the browser console (F12) after logging in.
+                  </AlertDescription>
+                </Alert>
+              )}
             </>
           ) : (
-            // Waiting/Checking State
+            // Waiting State
             <>
               <div className="py-6 flex flex-col items-center gap-4">
                 <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
                 <div className="text-center">
-                  <p className="font-medium">{getStatusMessage()}</p>
+                  <p className="font-medium">Waiting for authentication...</p>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Check attempt {checkAttempts} of 60
+                    Complete the steps in the Fantrax window
                   </p>
                 </div>
               </div>
@@ -491,19 +394,36 @@ export function FantraxPlaywrightModal({
               <Alert>
                 <Info className="h-4 w-4" />
                 <AlertDescription>
-                  <p className="text-sm">
-                    Please complete your login in the popup window.
-                    If you've already logged in but nothing happened, click the button below.
-                  </p>
+                  <p className="text-sm font-semibold mb-2">After logging in to Fantrax:</p>
+                  <ol className="text-sm space-y-1 list-decimal list-inside">
+                    <li>Press F12 to open browser console</li>
+                    <li>Paste the script (already copied to clipboard)</li>
+                    <li>Press Enter to run it</li>
+                    <li>You'll see a success message</li>
+                  </ol>
                 </AlertDescription>
               </Alert>
 
-              <div className="flex gap-2">
-                <Button onClick={manualComplete} variant="default" className="flex-1">
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  I've Logged In
+              <div className="space-y-2">
+                <Button
+                  onClick={copyBookmarkletCode}
+                  variant="outline"
+                  className="w-full"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="mr-2 h-4 w-4 text-green-600" />
+                      Copied to Clipboard!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="mr-2 h-4 w-4" />
+                      Copy Script Again
+                    </>
+                  )}
                 </Button>
-                <Button onClick={handleClose} variant="outline" className="flex-1">
+
+                <Button onClick={handleClose} variant="ghost" className="w-full">
                   Cancel
                 </Button>
               </div>
