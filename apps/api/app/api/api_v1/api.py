@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.api_v1.endpoints import health, auth, prospects, users, admin, monitoring, search, discovery, notifications, subscriptions, webhooks, fantrax, fantrax_auth, recommendations, onboarding, watchlist, email_preferences, achievements, referrals, feedback, analytics, prospect_predictions, lineups, diagnostics
-from app.routers import hype, ml_predictions
+from app.routers import hype, ml_predictions, fantrax as fantrax_secret
 
 api_router = APIRouter()
 api_router.include_router(health.router, prefix="/health", tags=["health"])
@@ -30,3 +30,4 @@ api_router.include_router(lineups.router, prefix="/lineups", tags=["lineups"])
 api_router.include_router(diagnostics.router, prefix="/diagnostics", tags=["diagnostics"])
 api_router.include_router(hype.router, tags=["hype"])
 api_router.include_router(ml_predictions.router, tags=["ml-predictions"])
+api_router.include_router(fantrax_secret.router, prefix="/fantrax", tags=["fantrax-secret-api"])
