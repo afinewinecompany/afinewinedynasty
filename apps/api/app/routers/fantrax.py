@@ -101,9 +101,12 @@ async def connect_fantrax(
 
         logger.info(f"User {current_user.id} connected Fantrax with {len(leagues)} leagues")
 
+        # Refresh user to get updated fantrax_connected_at
+        await db.refresh(current_user)
+
         return FantraxConnectionStatus(
             connected=True,
-            connected_at=current_user.fantrax_connected_at.isoformat() if current_user.fantrax_connected_at else None,
+            connected_at=current_user.fantrax_connected_at.isoformat() if hasattr(current_user, 'fantrax_connected_at') and current_user.fantrax_connected_at else None,
             leagues_count=len(leagues)
         )
 
@@ -137,14 +140,14 @@ async def get_fantrax_status(
 
         return FantraxConnectionStatus(
             connected=True,
-            connected_at=current_user.fantrax_connected_at.isoformat() if current_user.fantrax_connected_at else None,
+            connected_at=current_user.fantrax_connected_at.isoformat() if hasattr(current_user, 'fantrax_connected_at') and current_user.fantrax_connected_at else None,
             leagues_count=len(leagues) if leagues else 0
         )
     except Exception as e:
         logger.error(f"Failed to check Fantrax status for user {current_user.id}: {str(e)}")
         return FantraxConnectionStatus(
             connected=True,  # Secret ID exists but might be invalid
-            connected_at=current_user.fantrax_connected_at.isoformat() if current_user.fantrax_connected_at else None
+            connected_at=current_user.fantrax_connected_at.isoformat() if hasattr(current_user, 'fantrax_connected_at') and current_user.fantrax_connected_at else None
         )
 
 
