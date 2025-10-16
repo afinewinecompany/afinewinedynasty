@@ -10,16 +10,18 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useFantrax } from '@/hooks/useFantrax';
 import { useAuth } from '@/hooks/useAuth';
 import { FantraxSecretIDModal } from '@/components/integrations/FantraxSecretIDModal';
 import { LeagueSelector } from '@/components/integrations/LeagueSelector';
 import { RosterDisplay } from '@/components/integrations/RosterDisplay';
+import { getSecretAPILeagues, updateLeagueSelections } from '@/lib/api/fantrax';
 import {
   CheckCircle2,
   XCircle,
@@ -28,6 +30,7 @@ import {
   RefreshCw,
   AlertCircle,
   Crown,
+  Save,
 } from 'lucide-react';
 
 /**
@@ -58,8 +61,84 @@ export function FantraxTab(): JSX.Element {
   } = useFantrax();
 
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [fantraxLeagues, setFantraxLeagues] = useState<any[]>([]);
+  const [selectedLeagueIds, setSelectedLeagueIds] = useState<Set<string>>(new Set());
+  const [loadingLeagues, setLoadingLeagues] = useState(false);
+  const [savingSelections, setSavingSelections] = useState(false);
+  const [leagueError, setLeagueError] = useState<string | null>(null);
 
   const isPremium = user?.subscriptionTier === 'premium';
+
+  // Fetch leagues when connected
+  useEffect(() => {
+    if (isConnected) {
+      fetchLeagues();
+    }
+  }, [isConnected]);
+
+  /**
+   * Fetch leagues from API
+   */
+  const fetchLeagues = async (): Promise<void> => {
+    setLoadingLeagues(true);
+    setLeagueError(null);
+    try {
+      const leagues = await getSecretAPILeagues();
+      setFantraxLeagues(leagues);
+      // Initialize selected leagues based on is_active
+      const selected = new Set(
+        leagues.filter(l => l.is_active).map(l => l.league_id)
+      );
+      setSelectedLeagueIds(selected);
+    } catch (error) {
+      setLeagueError('Failed to fetch leagues. Please try again.');
+      console.error('Failed to fetch leagues:', error);
+    } finally {
+      setLoadingLeagues(false);
+    }
+  };
+
+  /**
+   * Handle league checkbox toggle
+   */
+  const handleLeagueToggle = (leagueId: string): void => {
+    setSelectedLeagueIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(leagueId)) {
+        newSet.delete(leagueId);
+      } else {
+        newSet.add(leagueId);
+      }
+      return newSet;
+    });
+  };
+
+  /**
+   * Save league selections
+   */
+  const handleSaveSelections = async (): Promise<void> => {
+    setSavingSelections(true);
+    setLeagueError(null);
+    try {
+      const response = await updateLeagueSelections(Array.from(selectedLeagueIds));
+      if (response.success) {
+        // Update local state to reflect saved selections
+        setFantraxLeagues(prev =>
+          prev.map(league => ({
+            ...league,
+            is_active: selectedLeagueIds.has(league.league_id),
+          }))
+        );
+        // Show success message (you might want to use a toast here)
+        alert(`Successfully saved ${response.selected_count} league selection(s)`);
+      }
+    } catch (error) {
+      setLeagueError('Failed to save league selections. Please try again.');
+      console.error('Failed to save selections:', error);
+    } finally {
+      setSavingSelections(false);
+    }
+  };
 
   /**
    * Handle successful authentication
@@ -67,6 +146,7 @@ export function FantraxTab(): JSX.Element {
   const handleAuthSuccess = async (): Promise<void> => {
     setShowAuthModal(false);
     await checkConnection();
+    await fetchLeagues(); // Fetch leagues after connecting
   };
 
   /**
@@ -75,6 +155,8 @@ export function FantraxTab(): JSX.Element {
   const handleDisconnect = async (): Promise<void> => {
     if (confirm('Are you sure you want to disconnect your Fantrax account?')) {
       await disconnect();
+      setFantraxLeagues([]);
+      setSelectedLeagueIds(new Set());
     }
   };
 
@@ -224,7 +306,96 @@ export function FantraxTab(): JSX.Element {
         </CardContent>
       </Card>
 
-      {/* League Management (only when connected) */}
+      {/* League Selection (only when connected) */}
+      {isConnected && (
+        <Card>
+          <CardHeader>
+            <CardTitle>League Selection</CardTitle>
+            <CardDescription>
+              Choose which leagues you want to track in your dashboard
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {loadingLeagues ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                <span>Loading leagues...</span>
+              </div>
+            ) : fantraxLeagues.length > 0 ? (
+              <>
+                <div className="space-y-3">
+                  {fantraxLeagues.map((league) => (
+                    <div
+                      key={league.league_id}
+                      className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-gray-50"
+                    >
+                      <Checkbox
+                        id={league.league_id}
+                        checked={selectedLeagueIds.has(league.league_id)}
+                        onCheckedChange={() => handleLeagueToggle(league.league_id)}
+                      />
+                      <label
+                        htmlFor={league.league_id}
+                        className="flex-1 cursor-pointer"
+                      >
+                        <div>
+                          <p className="font-medium">{league.name}</p>
+                          {league.teams && league.teams.length > 0 && (
+                            <p className="text-sm text-muted-foreground">
+                              Team: {league.teams[0].team_name}
+                            </p>
+                          )}
+                        </div>
+                      </label>
+                      {league.is_active && !selectedLeagueIds.has(league.league_id) && (
+                        <Badge variant="outline" className="text-xs">
+                          Currently Active
+                        </Badge>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Save button */}
+                <div className="flex justify-between items-center pt-4 border-t">
+                  <p className="text-sm text-muted-foreground">
+                    {selectedLeagueIds.size} league{selectedLeagueIds.size !== 1 ? 's' : ''} selected
+                  </p>
+                  <Button
+                    onClick={handleSaveSelections}
+                    disabled={savingSelections}
+                  >
+                    {savingSelections ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="mr-2 h-4 w-4" />
+                        Save Selection
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                No leagues found. Please make sure you're logged in to Fantrax.
+              </div>
+            )}
+
+            {leagueError && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{leagueError}</AlertDescription>
+              </Alert>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* League Management (only when connected and leagues selected) */}
       {isConnected && leagues.length > 0 && (
         <Card>
           <CardHeader>

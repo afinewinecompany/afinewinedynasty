@@ -44,6 +44,7 @@ class FantraxLeagueResponse(BaseModel):
     name: str
     sport: Optional[str] = None
     teams: List[dict]
+    is_active: bool = False  # Whether user has selected this league
 
 
 class FantraxLeagueInfoResponse(BaseModel):
@@ -184,6 +185,9 @@ async def get_leagues(
 ):
     """
     Get all leagues for the connected Fantrax account
+
+    Returns leagues from the database if available, otherwise fetches from Fantrax API.
+    Includes is_active flag to indicate which leagues user has selected.
     """
     secret_id = await get_fantrax_secret_id(db, current_user.id)
 
@@ -194,16 +198,40 @@ async def get_leagues(
         )
 
     try:
-        fantrax_service = FantraxSecretAPIService(secret_id)
-        leagues = await fantrax_service.get_leagues()
+        from sqlalchemy import select
+        from app.db.models import FantraxLeague as FantraxLeagueModel
 
-        if leagues is None:
+        # Fetch leagues from Fantrax API
+        fantrax_service = FantraxSecretAPIService(secret_id)
+        api_leagues = await fantrax_service.get_leagues()
+
+        if api_leagues is None:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Failed to fetch leagues from Fantrax"
             )
 
-        return leagues
+        # Get saved leagues from database to merge is_active status
+        stmt = select(FantraxLeagueModel).where(
+            FantraxLeagueModel.user_id == current_user.id
+        )
+        result = await db.execute(stmt)
+        db_leagues = {league.league_id: league for league in result.scalars().all()}
+
+        # Merge data - add is_active from database
+        merged_leagues = []
+        for league in api_leagues:
+            league_id = league['league_id']
+            db_league = db_leagues.get(league_id)
+
+            # Add is_active field (default to False if not in DB)
+            league_data = {
+                **league,
+                'is_active': db_league.is_active if db_league else False
+            }
+            merged_leagues.append(league_data)
+
+        return merged_leagues
 
     except HTTPException:
         raise
@@ -373,4 +401,104 @@ async def get_draft_results(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to fetch draft results: {str(e)}"
+        )
+
+
+class LeagueSelectionsRequest(BaseModel):
+    """Request to update league selections"""
+    league_ids: List[str] = Field(..., description="List of league IDs to mark as active/selected")
+
+
+@router.post("/leagues/select")
+async def update_league_selections(
+    request: LeagueSelectionsRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Update which leagues are selected/active for the user
+
+    This endpoint saves the user's selected leagues to the database.
+    Only the leagues in the provided list will be marked as active (is_active=True),
+    all other leagues for this user will be marked as inactive.
+
+    Args:
+        league_ids: List of Fantrax league IDs to mark as selected
+    """
+    secret_id = await get_fantrax_secret_id(db, current_user.id)
+
+    if not secret_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Fantrax account not connected"
+        )
+
+    try:
+        from sqlalchemy import select, update
+        from app.db.models import FantraxLeague as FantraxLeagueModel
+
+        # First, fetch all leagues from Fantrax API to ensure we have latest data
+        fantrax_service = FantraxSecretAPIService(secret_id)
+        fantrax_leagues = await fantrax_service.get_leagues()
+
+        if fantrax_leagues is None:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to fetch leagues from Fantrax"
+            )
+
+        # Upsert leagues to database
+        for league in fantrax_leagues:
+            # Check if league already exists
+            stmt = select(FantraxLeagueModel).where(
+                FantraxLeagueModel.user_id == current_user.id,
+                FantraxLeagueModel.league_id == league['league_id']
+            )
+            result = await db.execute(stmt)
+            existing_league = result.scalar_one_or_none()
+
+            is_active = league['league_id'] in request.league_ids
+
+            if existing_league:
+                # Update existing league
+                existing_league.league_name = league['name']
+                existing_league.league_type = league.get('sport', 'MLB')  # Default to MLB
+                existing_league.is_active = is_active
+            else:
+                # Create new league
+                new_league = FantraxLeagueModel(
+                    user_id=current_user.id,
+                    league_id=league['league_id'],
+                    league_name=league['name'],
+                    league_type=league.get('sport', 'dynasty'),  # Default to dynasty
+                    is_active=is_active
+                )
+                db.add(new_league)
+
+        await db.commit()
+
+        # Get count of selected leagues
+        stmt = select(FantraxLeagueModel).where(
+            FantraxLeagueModel.user_id == current_user.id,
+            FantraxLeagueModel.is_active == True
+        )
+        result = await db.execute(stmt)
+        selected_count = len(result.scalars().all())
+
+        logger.info(f"User {current_user.id} updated league selections: {selected_count} leagues selected")
+
+        return {
+            "success": True,
+            "message": f"Successfully updated league selections",
+            "selected_count": selected_count
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to update league selections for user {current_user.id}: {str(e)}")
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update league selections: {str(e)}"
         )

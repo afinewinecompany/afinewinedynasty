@@ -459,6 +459,7 @@ export interface SecretAPILeague {
     team_id: string;
     team_name: string;
   }>;
+  is_active: boolean; // Whether user has selected this league
 }
 
 /**
@@ -654,4 +655,36 @@ export async function getSecretAPIDraftResults(leagueId: string): Promise<any> {
     }
   );
   return handleResponse<any>(response);
+}
+
+/**
+ * Update league selections
+ *
+ * Updates which leagues are selected/active for the user.
+ * Selected leagues will be available in the My League page.
+ *
+ * @param leagueIds - Array of league IDs to mark as selected
+ * @returns Promise resolving to success response
+ * @throws Error if update fails
+ *
+ * @example
+ * ```typescript
+ * await updateLeagueSelections(['league_123', 'league_456']);
+ * ```
+ *
+ * @since 2.0.0
+ */
+export async function updateLeagueSelections(
+  leagueIds: string[]
+): Promise<{ success: boolean; message: string; selected_count: number }> {
+  const response = await fetch(`${FANTRAX_SECRET_API_BASE}/leagues/select`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ league_ids: leagueIds }),
+  });
+  return handleResponse<{
+    success: boolean;
+    message: string;
+    selected_count: number;
+  }>(response);
 }
