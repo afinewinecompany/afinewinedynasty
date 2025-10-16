@@ -22,7 +22,8 @@ class FantraxLoginService:
     """Service for authenticating users to Fantrax and storing session cookies"""
 
     FANTRAX_LOGIN_URL = "https://www.fantrax.com/login"
-    FANTRAX_AUTH_ENDPOINT = "https://www.fantrax.com/fxpa/req?leagueId=ALL"
+    # This endpoint handles the login form submission
+    FANTRAX_AUTH_ENDPOINT = "https://www.fantrax.com/newui/login/doLogin.go"
 
     @staticmethod
     async def authenticate_user(
@@ -73,122 +74,106 @@ class FantraxLoginService:
                         "error": f"Failed to load Fantrax login page (HTTP {response.status_code})"
                     }
 
-                # Step 2: Submit login credentials
+                # Step 2: Submit login credentials as form data (not JSON)
                 logger.info("Submitting login credentials...")
                 login_data = {
-                    "email": email,
+                    "username": email,  # Fantrax uses 'username' not 'email'
                     "password": password,
-                    "rememberMe": "true"
+                    "remember": "on"  # Remember me checkbox
                 }
 
-                # Try the authentication endpoint
+                # Submit as form data (application/x-www-form-urlencoded)
                 auth_response = await client.post(
                     FantraxLoginService.FANTRAX_AUTH_ENDPOINT,
-                    json=login_data,
+                    data=login_data,  # Use 'data' for form encoding, not 'json'
                     headers={
-                        "Content-Type": "application/json",
-                        "Accept": "application/json",
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
                         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-                        "Referer": FantraxLoginService.FANTRAX_LOGIN_URL
+                        "Referer": FantraxLoginService.FANTRAX_LOGIN_URL,
+                        "Origin": "https://www.fantrax.com"
                     }
                 )
 
                 logger.info(f"Auth response status: {auth_response.status_code}")
+                logger.info(f"Auth response URL: {auth_response.url}")
 
-                # Check if login was successful
-                # Fantrax returns JSON response with success indicator
-                try:
-                    auth_json = auth_response.json()
-                    logger.info(f"Auth response: {auth_json}")
+                # Check if login was successful by checking:
+                # 1. Status code (200 or 302 redirect)
+                # 2. Cookies received
+                # 3. No error in response
 
-                    # Check various success indicators
-                    if auth_json.get("success") or auth_json.get("status") == "success":
-                        # Login successful - extract cookies
-                        cookies = client.cookies
+                cookies = client.cookies
+                logger.info(f"Cookies after login: {len(cookies)} cookies")
 
-                        if not cookies:
-                            logger.warning("Login appeared successful but no cookies received")
-                            return {
-                                "success": False,
-                                "error": "Authentication succeeded but no session cookies were received"
-                            }
+                # Check if we got authentication cookies
+                has_auth_cookie = any(
+                    'fantrax' in name.lower() or 'session' in name.lower() or 'auth' in name.lower()
+                    for name in cookies.keys()
+                )
 
-                        # Convert cookies to dictionary format
-                        cookie_list = []
-                        for name, value in cookies.items():
-                            cookie_list.append({
-                                "name": name,
-                                "value": value,
-                                "domain": ".fantrax.com"
-                            })
+                # Check response for error indicators
+                response_text = auth_response.text.lower()
+                has_error = (
+                    'error' in response_text or
+                    'invalid' in response_text or
+                    'incorrect' in response_text or
+                    'failed' in response_text
+                )
 
-                        logger.info(f"Captured {len(cookie_list)} cookies from Fantrax login")
-
-                        # Encrypt and store cookies
-                        cookies_json = json.dumps(cookie_list)
-                        encrypted_cookies = encrypt_value(cookies_json)
-
-                        # Update user record
-                        stmt = (
-                            update(User)
-                            .where(User.id == user_id)
-                            .values(fantrax_cookies=encrypted_cookies)
-                        )
-                        await db.execute(stmt)
-                        await db.commit()
-
-                        logger.info(f"Successfully stored Fantrax cookies for user {user_id}")
-
-                        return {
-                            "success": True,
-                            "message": "Successfully connected to Fantrax!",
-                            "cookie_count": len(cookie_list)
-                        }
-                    else:
-                        # Login failed
-                        error_msg = auth_json.get("message") or auth_json.get("error") or "Invalid credentials"
-                        logger.warning(f"Fantrax login failed: {error_msg}")
+                if has_auth_cookie and not has_error:
+                    # Login successful - extract cookies
+                    if not cookies:
+                        logger.warning("Login appeared successful but no cookies received")
                         return {
                             "success": False,
-                            "error": f"Fantrax login failed: {error_msg}"
+                            "error": "Authentication succeeded but no session cookies were received"
                         }
 
-                except ValueError as e:
-                    logger.error(f"Failed to parse auth response as JSON: {e}")
-                    logger.error(f"Response text: {auth_response.text[:500]}")
+                    # Convert cookies to dictionary format
+                    cookie_list = []
+                    for name, value in cookies.items():
+                        cookie_list.append({
+                            "name": name,
+                            "value": value,
+                            "domain": ".fantrax.com"
+                        })
 
-                    # Check if we got cookies anyway (some endpoints don't return JSON on success)
-                    cookies = client.cookies
-                    if cookies and len(cookies) > 0:
-                        cookie_list = []
-                        for name, value in cookies.items():
-                            cookie_list.append({
-                                "name": name,
-                                "value": value,
-                                "domain": ".fantrax.com"
-                            })
+                    logger.info(f"Captured {len(cookie_list)} cookies from Fantrax login")
+                    logger.info(f"Cookie names: {[c['name'] for c in cookie_list]}")
 
-                        # Store cookies
-                        cookies_json = json.dumps(cookie_list)
-                        encrypted_cookies = encrypt_value(cookies_json)
+                    # Encrypt and store cookies
+                    cookies_json = json.dumps(cookie_list)
+                    encrypted_cookies = encrypt_value(cookies_json)
 
-                        stmt = (
-                            update(User)
-                            .where(User.id == user_id)
-                            .values(fantrax_cookies=encrypted_cookies)
-                        )
-                        await db.execute(stmt)
-                        await db.commit()
+                    # Update user record
+                    stmt = (
+                        update(User)
+                        .where(User.id == user_id)
+                        .values(fantrax_cookies=encrypted_cookies)
+                    )
+                    await db.execute(stmt)
+                    await db.commit()
 
-                        return {
-                            "success": True,
-                            "message": "Successfully connected to Fantrax!",
-                            "cookie_count": len(cookie_list)
-                        }
+                    logger.info(f"Successfully stored Fantrax cookies for user {user_id}")
+
+                    return {
+                        "success": True,
+                        "message": "Successfully connected to Fantrax!",
+                        "cookie_count": len(cookie_list)
+                    }
+                else:
+                    # Login failed
+                    logger.warning(f"Fantrax login failed - has_auth_cookie: {has_auth_cookie}, has_error: {has_error}")
+                    logger.warning(f"Response excerpt: {auth_response.text[:500]}")
+
+                    error_msg = "Invalid Fantrax credentials"
+                    if 'email' in response_text and 'password' in response_text:
+                        error_msg = "Please check your email and password"
 
                     return {
                         "success": False,
-                        "error": "Unexpected response from Fantrax login"
+                        "error": error_msg
                     }
 
         except httpx.TimeoutException:
