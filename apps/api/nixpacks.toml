@@ -6,16 +6,37 @@ nixPkgs = [
   "zlib",
   "libffi",
   "openssl",
-  # Chrome/Chromium for Selenium-based Fantrax authentication
+  # Playwright dependencies
   "chromium",
-  "chromedriver"
+  "nss",
+  "freetype",
+  "harfbuzz",
+  "ca-certificates",
+  "fontconfig",
+  "libXcomposite",
+  "libXdamage",
+  "libXext",
+  "libXfixes",
+  "libXrandr",
+  "libgbm",
+  "libxkbcommon",
+  "libpango",
+  "libcairo",
+  "alsa-lib",
+  "atk",
+  "cups",
+  "gtk3"
 ]
 
 [phases.install]
 cmds = [
   "python -m venv /opt/venv",
   "/opt/venv/bin/pip install --upgrade pip setuptools wheel",
-  "/opt/venv/bin/pip install --no-cache-dir -r requirements.txt --timeout 600"
+  "/opt/venv/bin/pip install --no-cache-dir -r requirements.txt --timeout 600",
+  # Install Playwright browsers with dependencies
+  "/opt/venv/bin/playwright install --with-deps chromium",
+  # Verify Playwright installation
+  "/opt/venv/bin/playwright install --help"
 ]
 
 [phases.build]

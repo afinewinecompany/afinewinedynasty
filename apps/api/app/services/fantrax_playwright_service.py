@@ -81,19 +81,29 @@ class FantraxPlaywrightService:
             playwright = await async_playwright().start()
 
             # Launch browser with container-optimized flags
-            browser = await playwright.chromium.launch(
-                headless=True,
-                args=[
-                    '--no-sandbox',
-                    '--disable-setuid-sandbox',
-                    '--disable-dev-shm-usage',
-                    '--disable-accelerated-2d-canvas',
-                    '--no-first-run',
-                    '--no-zygote',
-                    '--single-process',  # Critical for containers
-                    '--disable-gpu',
-                ]
-            )
+            try:
+                browser = await playwright.chromium.launch(
+                    headless=True,
+                    args=[
+                        '--no-sandbox',
+                        '--disable-setuid-sandbox',
+                        '--disable-dev-shm-usage',
+                        '--disable-accelerated-2d-canvas',
+                        '--no-first-run',
+                        '--no-zygote',
+                        '--single-process',  # Critical for containers
+                        '--disable-gpu',
+                    ]
+                )
+            except Exception as browser_error:
+                logger.error(f"Browser launch failed: {str(browser_error)}")
+                await playwright.stop()
+                raise RuntimeError(
+                    "Failed to launch Playwright browser. "
+                    "This may indicate Chromium is not installed correctly. "
+                    "Please ensure 'playwright install chromium --with-deps' was run during deployment. "
+                    f"Error: {str(browser_error)}"
+                )
 
             # Create browser context with realistic settings
             context = await browser.new_context(
