@@ -177,9 +177,8 @@ export function useFantrax(): UseFantraxReturn {
         isConnected: status.connected,
       }));
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to check connection';
-      setError('connection', message);
+      // Silently set as not connected - this is expected if user hasn't connected yet
+      // Don't show error message for initial connection check
       setState((prev) => ({ ...prev, isConnected: false }));
     } finally {
       setLoading('connection', false);
