@@ -1,5 +1,15 @@
 [phases.setup]
-nixPkgs = ["python311", "postgresql", "gcc", "zlib", "libffi", "openssl"]
+nixPkgs = [
+  "python311",
+  "postgresql",
+  "gcc",
+  "zlib",
+  "libffi",
+  "openssl",
+  # Chrome/Chromium for Selenium-based Fantrax authentication
+  "chromium",
+  "chromedriver"
+]
 
 [phases.install]
 cmds = [

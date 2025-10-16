@@ -99,8 +99,43 @@ class FantraxAuthService:
                 "Chrome/120.0.0.0 Safari/537.36"
             )
 
+            # Detect ChromeDriver path (Railway Nixpacks or system)
+            chromedriver_path = os.environ.get("CHROMEDRIVER_PATH")
+            if not chromedriver_path:
+                # Check common Railway Nixpacks paths
+                import subprocess
+                try:
+                    result = subprocess.run(['which', 'chromedriver'], capture_output=True, text=True)
+                    if result.returncode == 0:
+                        chromedriver_path = result.stdout.strip()
+                        logger.info(f"Found chromedriver at: {chromedriver_path}")
+                except Exception as e:
+                    logger.warning(f"Could not locate chromedriver with 'which': {e}")
+
+            # Detect Chrome/Chromium binary path
+            chrome_bin = os.environ.get("CHROME_BIN")
+            if not chrome_bin:
+                # Check common Railway Nixpacks paths
+                import subprocess
+                try:
+                    result = subprocess.run(['which', 'chromium'], capture_output=True, text=True)
+                    if result.returncode == 0:
+                        chrome_bin = result.stdout.strip()
+                        logger.info(f"Found chromium at: {chrome_bin}")
+                        chrome_options.binary_location = chrome_bin
+                except Exception as e:
+                    logger.warning(f"Could not locate chromium with 'which': {e}")
+            elif chrome_bin:
+                chrome_options.binary_location = chrome_bin
+
             # Initialize Chrome driver
-            service = Service(ChromeDriverManager().install())
+            if chromedriver_path:
+                logger.info(f"Using ChromeDriver at: {chromedriver_path}")
+                service = Service(chromedriver_path)
+            else:
+                logger.info("Using webdriver-manager to download ChromeDriver")
+                service = Service(ChromeDriverManager().install())
+
             driver = webdriver.Chrome(service=service, options=chrome_options)
 
             # Get process ID for tracking
