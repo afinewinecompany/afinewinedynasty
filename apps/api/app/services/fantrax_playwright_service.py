@@ -162,12 +162,16 @@ class FantraxPlaywrightService:
             logger.info(f"Navigating session {session_id} to Fantrax login")
 
             # Navigate to login page
-            # Playwright automatically waits for page load
+            # Use 'domcontentloaded' instead of 'networkidle' for faster loading
+            # with Cloudflare-protected sites
             await page.goto(
                 self.FANTRAX_LOGIN_URL,
-                wait_until='networkidle',  # Wait for network to be idle
-                timeout=30000  # 30 second timeout
+                wait_until='domcontentloaded',  # Wait for DOM to be ready (faster than networkidle)
+                timeout=60000  # 60 second timeout for Cloudflare challenge
             )
+
+            # Wait a bit for any Cloudflare challenges to resolve
+            await asyncio.sleep(2)
 
             # Update session status
             session["status"] = "ready"
