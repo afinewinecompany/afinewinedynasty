@@ -17,7 +17,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { useFantrax } from '@/hooks/useFantrax';
 import { useAuth } from '@/hooks/useAuth';
-import { FantraxPlaywrightModal } from '@/components/integrations/FantraxPlaywrightModal';
+import { FantraxSecretIDModal } from '@/components/integrations/FantraxSecretIDModal';
 import { LeagueSelector } from '@/components/integrations/LeagueSelector';
 import { RosterDisplay } from '@/components/integrations/RosterDisplay';
 import {
@@ -285,8 +285,8 @@ export function FantraxTab(): JSX.Element {
         <RosterDisplay roster={roster} isLoading={loading.roster} />
       )}
 
-      {/* Playwright Authentication Modal */}
-      <FantraxPlaywrightModal
+      {/* Secret ID Authentication Modal */}
+      <FantraxSecretIDModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
         onSuccess={handleAuthSuccess}
