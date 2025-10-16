@@ -172,12 +172,17 @@ async def test_chrome_initialization() -> Dict[str, Any]:
             result["message"] = "ChromeDriver binary not found"
             return result
 
-        # Configure Chrome options
+        # Configure Chrome options (same as fantrax_auth_service)
         chrome_options = Options()
-        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--headless=new")
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--disable-software-rasterizer")
+        chrome_options.add_argument("--single-process")
+        chrome_options.add_argument("--disable-extensions")
+        chrome_options.add_argument("--disable-background-networking")
+        chrome_options.add_argument("--disable-setuid-sandbox")
         chrome_options.binary_location = chrome_bin
 
         # Initialize Chrome

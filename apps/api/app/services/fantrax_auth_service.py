@@ -81,14 +81,27 @@ class FantraxAuthService:
         try:
             logger.info(f"Creating Selenium session {session_id} for user {user_id}")
 
-            # Configure Chrome options
+            # Configure Chrome options for Railway/containerized environment
             chrome_options = Options()
-            chrome_options.add_argument("--headless")  # Run without GUI
+            chrome_options.add_argument("--headless=new")  # New headless mode (more stable)
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
             chrome_options.add_argument("--disable-gpu")
+            chrome_options.add_argument("--disable-software-rasterizer")
             chrome_options.add_argument("--window-size=1920,1080")
             chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+
+            # Fix for DevTools disconnect in containers
+            chrome_options.add_argument("--single-process")  # Run in single process mode
+            chrome_options.add_argument("--disable-extensions")
+            chrome_options.add_argument("--disable-background-networking")
+            chrome_options.add_argument("--disable-default-apps")
+            chrome_options.add_argument("--disable-sync")
+            chrome_options.add_argument("--metrics-recording-only")
+            chrome_options.add_argument("--no-first-run")
+            chrome_options.add_argument("--safebrowsing-disable-auto-update")
+            chrome_options.add_argument("--disable-setuid-sandbox")
+
             chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
             chrome_options.add_experimental_option("useAutomationExtension", False)
 
