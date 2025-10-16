@@ -17,9 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 @router.get("/chrome-status")
-async def check_chrome_status(
-    current_user: User = Depends(get_current_user)
-) -> Dict[str, Any]:
+async def check_chrome_status() -> Dict[str, Any]:
     """
     Check Chrome/Chromium and ChromeDriver installation status.
 
@@ -114,9 +112,7 @@ async def check_chrome_status(
 
 
 @router.get("/test-chrome-init")
-async def test_chrome_initialization(
-    current_user: User = Depends(get_current_user)
-) -> Dict[str, Any]:
+async def test_chrome_initialization() -> Dict[str, Any]:
     """
     Attempt to initialize Chrome/Chromium with Selenium.
 
