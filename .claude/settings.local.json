@@ -15,7 +15,10 @@
       "Bash(pip install:*)",
       "Bash(git reset:*)",
       "Bash(alembic upgrade:*)",
-      "Bash(tee:*)"
+      "Bash(tee:*)",
+      "Bash(cat:*)",
+      "Bash(/opt/venv/bin/python:*)",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []

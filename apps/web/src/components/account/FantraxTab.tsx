@@ -18,7 +18,6 @@ import { Badge } from '@/components/ui/badge';
 import { useFantrax } from '@/hooks/useFantrax';
 import { useAuth } from '@/hooks/useAuth';
 import { FantraxPlaywrightModal } from '@/components/integrations/FantraxPlaywrightModal';
-import { FantraxCookieAuthModal } from '@/components/integrations/FantraxCookieAuthModal';
 import { LeagueSelector } from '@/components/integrations/LeagueSelector';
 import { RosterDisplay } from '@/components/integrations/RosterDisplay';
 import {
@@ -59,7 +58,6 @@ export function FantraxTab(): JSX.Element {
   } = useFantrax();
 
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMethod, setAuthMethod] = useState<'playwright' | 'cookie'>('cookie');
 
   const isPremium = user?.subscriptionTier === 'premium';
 
@@ -221,21 +219,6 @@ export function FantraxTab(): JSX.Element {
                 </ul>
               </div>
 
-              {/* Alternative Auth Method */}
-              <div className="pt-4 border-t">
-                <p className="text-xs text-muted-foreground">
-                  Having trouble with cookies?{' '}
-                  <button
-                    onClick={() => {
-                      setAuthMethod('playwright');
-                      setShowAuthModal(true);
-                    }}
-                    className="text-blue-600 hover:underline"
-                  >
-                    Try experimental browser-based authentication
-                  </button>
-                </p>
-              </div>
             </>
           )}
         </CardContent>
@@ -302,16 +285,9 @@ export function FantraxTab(): JSX.Element {
         <RosterDisplay roster={roster} isLoading={loading.roster} />
       )}
 
-      {/* Cookie-Based Authentication Modal (Primary) */}
-      <FantraxCookieAuthModal
-        isOpen={showAuthModal && authMethod === 'cookie'}
-        onClose={() => setShowAuthModal(false)}
-        onSuccess={handleAuthSuccess}
-      />
-
-      {/* Playwright Authentication Modal (Experimental - Server-side only) */}
+      {/* Playwright Authentication Modal */}
       <FantraxPlaywrightModal
-        isOpen={showAuthModal && authMethod === 'playwright'}
+        isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
         onSuccess={handleAuthSuccess}
       />
