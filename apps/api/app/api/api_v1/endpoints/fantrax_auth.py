@@ -19,12 +19,14 @@ from app.db.database import get_db
 from app.db.models import User
 from app.api.deps import get_current_user
 from app.services.fantrax_auth_service import FantraxAuthService
+from app.services.fantrax_login_service import FantraxLoginService
 from app.schemas.fantrax import (
     AuthInitiateResponse,
     AuthStatusResponse,
     AuthCompleteResponse,
     AuthCancelResponse
 )
+from pydantic import BaseModel, EmailStr
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -450,3 +452,101 @@ def _get_status_message(status: str) -> str:
         "cancelled": "Authentication cancelled by user."
     }
     return messages.get(status, "Processing...")
+
+
+# ============================================================================
+# Username/Password Authentication (Recommended)
+# ============================================================================
+
+class FantraxLoginRequest(BaseModel):
+    """Request model for Fantrax username/password login"""
+    email: EmailStr
+    password: str
+
+
+class FantraxLoginResponse(BaseModel):
+    """Response model for Fantrax login"""
+    success: bool
+    message: str
+    cookie_count: Optional[int] = None
+    error: Optional[str] = None
+
+
+@router.post("/login", response_model=FantraxLoginResponse)
+async def login_with_credentials(
+    login_request: FantraxLoginRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Authenticate to Fantrax using username and password.
+
+    This endpoint performs server-side authentication to Fantrax using
+    the user's credentials, captures session cookies, encrypts them,
+    and stores them for subsequent API requests.
+
+    **This is the recommended authentication method** as it doesn't
+    require Selenium or browser automation.
+
+    Args:
+        login_request: User's Fantrax email and password
+        current_user: Authenticated user from JWT token
+        db: Database session
+
+    Returns:
+        FantraxLoginResponse with success status and message
+
+    Raises:
+        HTTPException(401): If Fantrax credentials are invalid
+        HTTPException(500): If authentication fails for other reasons
+
+    Example:
+        ```json
+        POST /api/v1/fantrax/auth/login
+        {
+            "email": "user@example.com",
+            "password": "password123"
+        }
+        ```
+
+    Security:
+        - Passwords are NOT stored, only session cookies are saved
+        - Cookies are encrypted using Fernet symmetric encryption
+        - HTTPS required in production
+
+    Performance:
+        - Response time: 2-5 seconds
+        - No browser overhead
+
+    Since:
+        1.0.0
+    """
+    try:
+        result = await FantraxLoginService.authenticate_user(
+            email=login_request.email,
+            password=login_request.password,
+            db=db,
+            user_id=current_user.id
+        )
+
+        if result["success"]:
+            return FantraxLoginResponse(
+                success=True,
+                message=result["message"],
+                cookie_count=result.get("cookie_count")
+            )
+        else:
+            # Invalid credentials
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=result["error"]
+            )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during Fantrax login: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to authenticate with Fantrax. Please try again."
+        )
