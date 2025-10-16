@@ -6,26 +6,11 @@ nixPkgs = [
   "zlib",
   "libffi",
   "openssl",
-  # Playwright dependencies
+  # Playwright dependencies - most will be pulled in automatically
   "chromium",
-  "nss",
-  "freetype",
-  "harfbuzz",
-  "cacert",
-  "fontconfig",
-  "xorg.libXcomposite",
-  "xorg.libXdamage",
-  "xorg.libXext",
-  "xorg.libXfixes",
-  "xorg.libXrandr",
-  "mesa",
-  "libxkbcommon",
-  "pango",
-  "cairo",
+  "gtk3",
   "alsa-lib",
-  "at-spi2-atk",
-  "cups",
-  "gtk3"
+  "libxkbcommon"
 ]
 
 [phases.install]
