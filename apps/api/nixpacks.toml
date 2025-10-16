@@ -8,20 +8,7 @@ nixPkgs = [
   "openssl",
   # Chrome/Chromium for Selenium-based Fantrax authentication
   "chromium",
-  "chromedriver",
-  # Additional dependencies for headless Chrome
-  "xorg.libX11",
-  "xorg.libXcomposite",
-  "xorg.libXdamage",
-  "xorg.libXext",
-  "xorg.libXrandr",
-  "nss",
-  "nspr",
-  "atk",
-  "cups",
-  "libdrm",
-  "expat",
-  "libxcb"
+  "chromedriver"
 ]
 
 [phases.install]
