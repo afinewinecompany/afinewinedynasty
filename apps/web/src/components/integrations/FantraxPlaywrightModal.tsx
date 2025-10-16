@@ -25,7 +25,7 @@ import {
   CheckCircle2,
   AlertCircle,
   Clock,
-  Browser,
+  Globe,
   ShieldCheck,
   Info
 } from 'lucide-react';
@@ -379,7 +379,7 @@ export function FantraxPlaywrightModal({
                   <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
                 )}
                 {status === 'ready' && (
-                  <Browser className="h-12 w-12 text-blue-600" />
+                  <Globe className="h-12 w-12 text-blue-600" />
                 )}
                 {status === 'authenticating' && (
                   <Loader2 className="h-12 w-12 animate-spin text-green-600" />
