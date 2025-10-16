@@ -173,8 +173,13 @@ async def login(request: Request, login_request: LoginRequest, db: AsyncSession 
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # Create access and refresh tokens
-    access_token = create_access_token(subject=user.email)
+    # Create access and refresh tokens with user metadata
+    access_token = create_access_token(
+        subject=user.email,
+        subscription_tier=user.subscription_tier or "free",
+        is_admin=user.is_admin,
+        user_id=user.id
+    )
     refresh_token = create_refresh_token(subject=user.email)
 
     # Create session for token revocation tracking
@@ -251,8 +256,13 @@ async def refresh_access_token(request: Request, refresh_request: RefreshTokenRe
     # Revoke the old session
     await revoke_user_session(db, refresh_request.refresh_token)
 
-    # Create new access and refresh tokens
-    new_access_token = create_access_token(subject=username)
+    # Create new access and refresh tokens with user metadata
+    new_access_token = create_access_token(
+        subject=username,
+        subscription_tier=user.subscription_tier or "free",
+        is_admin=user.is_admin,
+        user_id=user.id
+    )
     new_refresh_token = create_refresh_token(subject=username)
 
     # Create new session for token revocation tracking
@@ -356,8 +366,13 @@ async def google_oauth_login(request: Request, oauth_request: GoogleOAuthRequest
         is_new_user = await get_user_by_email(db, google_user_info.get("email")) is None
         user = await GoogleOAuthService.create_or_get_oauth_user(db, google_user_info)
 
-        # Create JWT access and refresh tokens
-        jwt_access_token = create_access_token(subject=user.email)
+        # Create JWT access and refresh tokens with user metadata
+        jwt_access_token = create_access_token(
+            subject=user.email,
+            subscription_tier=user.subscription_tier or "free",
+            is_admin=user.is_admin,
+            user_id=user.id
+        )
         jwt_refresh_token = create_refresh_token(subject=user.email)
 
         # Create session for token revocation tracking
