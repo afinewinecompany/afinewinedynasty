@@ -134,10 +134,11 @@ async def initiate_fantrax_auth(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to initiate Fantrax auth: {str(e)}", exc_info=True)
+        error_msg = f"Failed to initiate Fantrax auth: {type(e).__name__}: {str(e)}"
+        logger.error(error_msg, exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Browser authentication temporarily unavailable. Please try again later."
+            detail=f"Browser authentication temporarily unavailable: {str(e)}"
         )
 
 
