@@ -18,7 +18,7 @@ import logging
 from app.db.database import get_db
 from app.db.models import User
 from app.api.deps import get_current_user
-from app.services.fantrax_auth_service import FantraxAuthService
+from app.services.fantrax_playwright_service import FantraxPlaywrightService  # Use Playwright instead of Selenium
 from app.services.fantrax_login_service import FantraxLoginService
 from app.schemas.fantrax import (
     AuthInitiateResponse,
@@ -105,9 +105,9 @@ async def initiate_fantrax_auth(
         session_id = str(uuid.uuid4())
         logger.info(f"Initiating Fantrax auth session {session_id} for user {current_user.id}")
 
-        # Initialize Selenium session
-        auth_service = FantraxAuthService()
-        selenium_session = await auth_service.create_auth_session(
+        # Initialize Playwright session (more reliable than Selenium)
+        auth_service = FantraxPlaywrightService()
+        playwright_session = await auth_service.create_auth_session(
             user_id=current_user.id,
             session_id=session_id
         )
@@ -119,8 +119,10 @@ async def initiate_fantrax_auth(
             "created_at": datetime.utcnow(),
             "expires_at": datetime.utcnow() + timedelta(seconds=90),
             "current_url": None,
-            "driver": selenium_session["driver"],
-            "pid": selenium_session["pid"]
+            "playwright": playwright_session["playwright"],
+            "browser": playwright_session["browser"],
+            "context": playwright_session["context"],
+            "page": playwright_session["page"]
         }
 
         # Start navigation to Fantrax (async)
@@ -212,7 +214,7 @@ async def get_auth_status(
         )
 
     # Get current browser state
-    auth_service = FantraxAuthService()
+    auth_service = FantraxPlaywrightService()
     current_status = await auth_service.get_session_status(session_id, session)
 
     # Update session state
@@ -291,7 +293,7 @@ async def complete_auth(
 
     try:
         # Capture cookies from browser
-        auth_service = FantraxAuthService()
+        auth_service = FantraxPlaywrightService()
         cookies = await auth_service.capture_cookies(session_id, session)
 
         if not cookies:
@@ -337,7 +339,7 @@ async def complete_auth(
         logger.error(f"Failed to complete Fantrax auth for session {session_id}: {str(e)}", exc_info=True)
         # Ensure cleanup happens
         try:
-            auth_service = FantraxAuthService()
+            auth_service = FantraxPlaywrightService()
             await auth_service.cleanup_session(session_id, session)
         except:
             pass
@@ -402,7 +404,7 @@ async def cancel_auth(
 
     try:
         # Cleanup browser
-        auth_service = FantraxAuthService()
+        auth_service = FantraxPlaywrightService()
         await auth_service.cleanup_session(session_id, session)
 
         # Mark as cancelled
@@ -455,7 +457,154 @@ def _get_status_message(status: str) -> str:
 
 
 # ============================================================================
-# Username/Password Authentication (Recommended)
+# Cookie-Based Authentication (RECOMMENDED)
+# ============================================================================
+
+class FantraxCookieRequest(BaseModel):
+    """Request model for Fantrax cookie-based authentication"""
+    cookies_json: str = Field(
+        description="JSON array of cookies exported from browser"
+    )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "cookies_json": '[{"name":"sessionid","value":"abc123","domain":".fantrax.com"}]'
+            }
+        }
+
+
+class FantraxCookieResponse(BaseModel):
+    """Response model for cookie authentication"""
+    success: bool
+    message: str
+    cookie_count: Optional[int] = None
+
+
+@router.post("/cookie-auth", response_model=FantraxCookieResponse)
+async def authenticate_with_cookies(
+    cookie_request: FantraxCookieRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Authenticate to Fantrax using manually exported cookies.
+
+    **This is the RECOMMENDED authentication method** as it:
+    - Works reliably in all environments (no Selenium/Chrome needed)
+    - Bypasses Cloudflare bot protection
+    - Simple and fast
+
+    Users export cookies from their browser after logging into Fantrax.com:
+    1. Install EditThisCookie (Chrome) or Cookie-Editor (Firefox)
+    2. Log into Fantrax.com
+    3. Click extension → Export cookies
+    4. Paste JSON into this endpoint
+
+    Args:
+        cookie_request: JSON array of cookies from browser
+        current_user: Authenticated user from JWT token
+        db: Database session
+
+    Returns:
+        FantraxCookieResponse with success status
+
+    Raises:
+        HTTPException(400): If cookies are invalid JSON or missing required fields
+        HTTPException(500): If storage fails
+
+    Example:
+        ```json
+        POST /api/v1/fantrax/auth/cookie-auth
+        {
+            "cookies_json": "[{\"name\":\"sessionid\",\"value\":\"abc123\",\"domain\":\".fantrax.com\"}]"
+        }
+        ```
+
+    Security:
+        - Cookies are encrypted using Fernet symmetric encryption before storage
+        - HTTPS required in production
+        - Cookies expire after 30 days (Fantrax default)
+
+    Performance:
+        - Response time: <100ms
+        - No external requests
+
+    Since:
+        1.0.0
+    """
+    import json
+    from app.core.security import encrypt_value
+
+    try:
+        # Parse and validate cookies JSON
+        try:
+            cookies = json.loads(cookie_request.cookies_json)
+        except json.JSONDecodeError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid JSON format for cookies"
+            )
+
+        if not isinstance(cookies, list):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cookies must be a JSON array"
+            )
+
+        if len(cookies) == 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No cookies provided"
+            )
+
+        # Validate cookie structure
+        for cookie in cookies:
+            if not isinstance(cookie, dict):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Each cookie must be an object with name, value, and domain"
+                )
+
+        logger.info(f"Storing {len(cookies)} Fantrax cookies for user {current_user.id}")
+
+        # Encrypt and store cookies
+        cookies_json_str = json.dumps(cookies)
+        encrypted_cookies = encrypt_value(cookies_json_str)
+
+        # Update user record
+        from sqlalchemy import update
+        stmt = (
+            update(User)
+            .where(User.id == current_user.id)
+            .values(
+                fantrax_cookies=encrypted_cookies,
+                fantrax_connected_at=datetime.utcnow()
+            )
+        )
+        await db.execute(stmt)
+        await db.commit()
+
+        logger.info(f"Successfully stored Fantrax cookies for user {current_user.id}")
+
+        return FantraxCookieResponse(
+            success=True,
+            message="Successfully connected to Fantrax!",
+            cookie_count=len(cookies)
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to store Fantrax cookies: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to store cookies. Please try again."
+        )
+
+
+# ============================================================================
+# Username/Password Authentication (DEPRECATED - Does Not Work)
 # ============================================================================
 
 class FantraxLoginRequest(BaseModel):
@@ -472,7 +621,7 @@ class FantraxLoginResponse(BaseModel):
     error: Optional[str] = None
 
 
-@router.post("/login", response_model=FantraxLoginResponse)
+@router.post("/login", response_model=FantraxLoginResponse, deprecated=True)
 async def login_with_credentials(
     login_request: FantraxLoginRequest,
     current_user: User = Depends(get_current_user),
@@ -481,12 +630,14 @@ async def login_with_credentials(
     """
     Authenticate to Fantrax using username and password.
 
-    This endpoint performs server-side authentication to Fantrax using
-    the user's credentials, captures session cookies, encrypts them,
-    and stores them for subsequent API requests.
+    **DEPRECATED: This endpoint does not work due to Cloudflare bot protection.**
+    **Use /cookie-auth instead.**
 
-    **This is the recommended authentication method** as it doesn't
-    require Selenium or browser automation.
+    Fantrax.com uses Cloudflare's bot detection which blocks automated login attempts.
+    The endpoint returns 405 Method Not Allowed due to Cloudflare challenges.
+
+    Please use the cookie-based authentication endpoint instead:
+    POST /api/v1/fantrax/auth/cookie-auth
 
     Args:
         login_request: User's Fantrax email and password
@@ -494,59 +645,19 @@ async def login_with_credentials(
         db: Database session
 
     Returns:
-        FantraxLoginResponse with success status and message
+        FantraxLoginResponse with error message
 
     Raises:
-        HTTPException(401): If Fantrax credentials are invalid
-        HTTPException(500): If authentication fails for other reasons
-
-    Example:
-        ```json
-        POST /api/v1/fantrax/auth/login
-        {
-            "email": "user@example.com",
-            "password": "password123"
-        }
-        ```
-
-    Security:
-        - Passwords are NOT stored, only session cookies are saved
-        - Cookies are encrypted using Fernet symmetric encryption
-        - HTTPS required in production
-
-    Performance:
-        - Response time: 2-5 seconds
-        - No browser overhead
+        HTTPException(501): This endpoint is not implemented due to Cloudflare
 
     Since:
         1.0.0
+
+    Deprecated:
+        Use /cookie-auth instead
     """
-    try:
-        result = await FantraxLoginService.authenticate_user(
-            email=login_request.email,
-            password=login_request.password,
-            db=db,
-            user_id=current_user.id
-        )
-
-        if result["success"]:
-            return FantraxLoginResponse(
-                success=True,
-                message=result["message"],
-                cookie_count=result.get("cookie_count")
-            )
-        else:
-            # Invalid credentials
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=result["error"]
-            )
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Unexpected error during Fantrax login: {str(e)}", exc_info=True)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to authenticate with Fantrax. Please try again."
-        )
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Username/password authentication is not available due to Cloudflare protection. "
+               "Please use cookie-based authentication: POST /api/v1/fantrax/auth/cookie-auth"
+    )

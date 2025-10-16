@@ -1,11 +1,12 @@
 /**
  * Fantrax Username/Password Login Modal
  *
- * Simple form for users to authenticate with their Fantrax credentials.
- * Performs server-side authentication and stores encrypted session cookies.
+ * DEPRECATED: This method does not work due to Cloudflare protection.
+ * Redirects users to cookie-based authentication instead.
  *
  * @component FantraxLoginModal
  * @since 1.0.0
+ * @deprecated Use FantraxCookieAuthModal instead
  */
 
 'use client';
@@ -22,7 +23,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, CheckCircle2, AlertCircle, ShieldCheck } from 'lucide-react';
+import { Loader2, CheckCircle2, AlertCircle, ShieldCheck, XCircle } from 'lucide-react';
 
 /**
  * Component props
@@ -133,11 +134,33 @@ export function FantraxLoginModal({
         <DialogHeader>
           <DialogTitle>Connect to Fantrax</DialogTitle>
           <DialogDescription>
-            Enter your Fantrax credentials to connect your account
+            Username/password authentication is no longer available
           </DialogDescription>
         </DialogHeader>
 
-        {success ? (
+        {/* Deprecation Notice */}
+        <div className="py-6 flex flex-col items-center gap-4">
+          <XCircle className="h-16 w-16 text-red-600" />
+          <div className="text-center space-y-3">
+            <p className="font-semibold text-lg">Method Not Available</p>
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Username/password authentication no longer works due to Cloudflare bot protection.
+                Please use cookie-based authentication instead.
+              </AlertDescription>
+            </Alert>
+            <p className="text-sm text-muted-foreground">
+              Cookie-based authentication is more reliable and secure.
+            </p>
+          </div>
+          <Button onClick={handleClose} className="w-full">
+            Close
+          </Button>
+        </div>
+
+        {/* Legacy form hidden - keeping for reference but not functional */}
+        {false && success ? (
           // Success State
           <div className="py-6 flex flex-col items-center gap-4">
             <CheckCircle2 className="h-16 w-16 text-green-600" />
@@ -148,7 +171,7 @@ export function FantraxLoginModal({
               </p>
             </div>
           </div>
-        ) : (
+        ) : false && (
           // Login Form
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email Field */}
