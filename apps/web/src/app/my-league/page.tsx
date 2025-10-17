@@ -18,7 +18,6 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import {
   getSecretAPILeagues,
@@ -269,7 +268,7 @@ export default function MyLeaguePage() {
           </CardHeader>
           <CardContent>
             {loading.leagues ? (
-              <Skeleton className="h-10 w-full" />
+              <div className="h-10 w-full bg-gray-200 animate-pulse rounded" />
             ) : leagues.length > 0 ? (
               <Select
                 value={selectedLeagueId}
@@ -318,7 +317,7 @@ export default function MyLeaguePage() {
               <CardContent>
                 <div className="text-2xl font-bold">
                   {loading.standings ? (
-                    <Skeleton className="h-8 w-16" />
+                    <div className="h-8 w-16 bg-gray-200 animate-pulse rounded" />
                   ) : standings?.standings?.[0]?.rank ? (
                     `#${standings.standings[0].rank}`
                   ) : (
@@ -336,7 +335,7 @@ export default function MyLeaguePage() {
               <CardContent>
                 <div className="text-2xl font-bold">
                   {loading.info ? (
-                    <Skeleton className="h-8 w-16" />
+                    <div className="h-8 w-16 bg-gray-200 animate-pulse rounded" />
                   ) : (
                     leagueInfo?.teams?.length || 0
                   )}
@@ -352,7 +351,7 @@ export default function MyLeaguePage() {
               <CardContent>
                 <div className="text-2xl font-bold">
                   {loading.info ? (
-                    <Skeleton className="h-8 w-16" />
+                    <div className="h-8 w-16 bg-gray-200 animate-pulse rounded" />
                   ) : (
                     leagueInfo?.season || new Date().getFullYear()
                   )}
@@ -368,7 +367,7 @@ export default function MyLeaguePage() {
               <CardContent>
                 <div className="text-2xl font-bold">
                   {loading.info ? (
-                    <Skeleton className="h-8 w-16" />
+                    <div className="h-8 w-16 bg-gray-200 animate-pulse rounded" />
                   ) : (
                     `Week ${leagueInfo?.current_period || 1}`
                   )}
@@ -396,7 +395,7 @@ export default function MyLeaguePage() {
                   {loading.standings ? (
                     <div className="space-y-2">
                       {[1, 2, 3, 4, 5].map(i => (
-                        <Skeleton key={i} className="h-12 w-full" />
+                        <div key={i} className="h-12 w-full bg-gray-200 animate-pulse rounded" />
                       ))}
                     </div>
                   ) : standings?.standings?.length ? (
@@ -441,7 +440,7 @@ export default function MyLeaguePage() {
                   {loading.rosters ? (
                     <div className="space-y-2">
                       {[1, 2, 3, 4, 5].map(i => (
-                        <Skeleton key={i} className="h-12 w-full" />
+                        <div key={i} className="h-12 w-full bg-gray-200 animate-pulse rounded" />
                       ))}
                     </div>
                   ) : rosters?.rosters?.length ? (
@@ -473,7 +472,7 @@ export default function MyLeaguePage() {
                   {loading.info ? (
                     <div className="space-y-2">
                       {[1, 2, 3].map(i => (
-                        <Skeleton key={i} className="h-20 w-full" />
+                        <div key={i} className="h-20 w-full bg-gray-200 animate-pulse rounded" />
                       ))}
                     </div>
                   ) : leagueInfo?.matchups?.length ? (
@@ -505,7 +504,7 @@ export default function MyLeaguePage() {
                   {loading.info ? (
                     <div className="space-y-2">
                       {[1, 2, 3, 4].map(i => (
-                        <Skeleton key={i} className="h-8 w-full" />
+                        <div key={i} className="h-8 w-full bg-gray-200 animate-pulse rounded" />
                       ))}
                     </div>
                   ) : leagueInfo?.settings ? (
