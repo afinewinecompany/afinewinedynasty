@@ -12,6 +12,7 @@ import { useState, useCallback, useEffect } from 'react';
 import type {
   FantraxLeague,
   RosterData,
+  RosterPlayer,
   TeamAnalysis,
   ProspectRecommendation,
   ConnectionStatus,
@@ -346,17 +347,25 @@ export function useFantrax(): UseFantraxReturn {
         }
 
         // Transform enriched player data to our format
-        const players = rawPlayers.map((player: any) => ({
-          player_id: player.id || player.playerId || player.player_id || '',
-          player_name: player.name || player.playerName || player.player_name || 'Unknown Player',
-          positions: player.positions || player.eligiblePositions || (player.position ? [player.position] : []),
-          team: player.mlbTeam || player.team || player.mlb_team || '',
-          age: player.age || null,
-          status: player.status || player.injuryStatus || 'active',
-          minor_league_eligible: player.minorLeagueEligible || player.minor_league_eligible || false,
-          contract_years: player.contractYears || player.contract_years || null,
-          contract_value: player.contractValue || player.contract_value || null,
-        }));
+        const players = rawPlayers.map((player: any) => {
+          const status = player.status || player.injuryStatus || 'ACTIVE';
+
+          return {
+            player_id: player.id || player.playerId || player.player_id || '',
+            player_name: player.name || player.playerName || player.player_name || 'Unknown Player',
+            // Position is a single string field, convert to array
+            positions: player.position ? [player.position] : (player.positions || player.eligiblePositions || []),
+            team: player.mlbTeam || player.team || player.mlb_team || '',
+            age: player.age || null,
+            // Normalize status to lowercase for display
+            status: status.toLowerCase() as RosterPlayer['status'],
+            // Determine minor league eligibility from status
+            minor_league_eligible: status === 'MINORS',
+            // Contract: map contract.name and salary
+            contract_years: player.contract?.name || null,
+            contract_value: player.salary || player.contract_value || null,
+          };
+        });
 
         const roster: RosterData = {
           league_id: state.selectedLeague.league_id,

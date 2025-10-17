@@ -71,6 +71,7 @@ export function RosterDisplay({
       active: 'bg-green-100 text-green-800',
       injured: 'bg-red-100 text-red-800',
       minors: 'bg-blue-100 text-blue-800',
+      reserve: 'bg-gray-100 text-gray-800',
       suspended: 'bg-orange-100 text-orange-800',
       il: 'bg-red-100 text-red-800',
     };
@@ -326,10 +327,11 @@ export function RosterDisplay({
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {player.contract_years ? (
+                      {player.contract_years || player.contract_value ? (
                         <span className="text-sm">
-                          {player.contract_years}yr
-                          {player.contract_value && ` / $${player.contract_value}M`}
+                          {player.contract_years && `${player.contract_years}`}
+                          {player.contract_years && player.contract_value && ' - '}
+                          {player.contract_value && `$${player.contract_value}`}
                         </span>
                       ) : (
                         '-'
