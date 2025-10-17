@@ -18,7 +18,13 @@
       "Bash(tee:*)",
       "Bash(cat:*)",
       "Bash(/opt/venv/bin/python:*)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(tasklist:*)",
+      "Bash(findstr:*)",
+      "Bash(dir:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(npm run build:*)",
+      "Bash(wmic process where \"name=''python.exe''\" get ProcessId,CommandLine /format:list)"
     ],
     "deny": [],
     "ask": []

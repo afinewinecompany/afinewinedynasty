@@ -161,8 +161,28 @@ async def disconnect_fantrax(
     Disconnect Fantrax account
     """
     try:
-        current_user.fantrax_secret_id = None
-        current_user.fantrax_connected = False
+        from sqlalchemy import update
+
+        # Update user to remove fantrax connection
+        stmt = (
+            update(User)
+            .where(User.id == current_user.id)
+            .values(
+                fantrax_secret_id=None,
+                fantrax_connected_at=None
+            )
+        )
+        await db.execute(stmt)
+
+        # Also delete any stored leagues for this user
+        from app.db.models import FantraxLeague as FantraxLeagueModel
+        from sqlalchemy import delete
+
+        stmt = delete(FantraxLeagueModel).where(
+            FantraxLeagueModel.user_id == current_user.id
+        )
+        await db.execute(stmt)
+
         await db.commit()
 
         logger.info(f"User {current_user.id} disconnected Fantrax")
