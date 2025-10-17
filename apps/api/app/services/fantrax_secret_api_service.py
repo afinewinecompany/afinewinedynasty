@@ -350,7 +350,7 @@ class FantraxSecretAPIService:
         Get team roster enriched with full player information
 
         Combines data from getTeamRosters (contract/roster info) with
-        getLeagueInfo (player names, teams, positions, ages)
+        getPlayerIds (player names, teams, positions, ages)
 
         Args:
             league_id: Fantrax League ID
@@ -360,32 +360,30 @@ class FantraxSecretAPIService:
         Returns:
             Enriched roster with full player details
         """
-        # Fetch roster data (has contracts but maybe not full player info)
+        # Fetch roster data (has player IDs, contracts, salaries)
         rosters_response = await self.get_team_rosters(league_id, period)
         if not rosters_response:
             logger.error(f"Failed to fetch rosters for league {league_id}")
             return None
 
-        # Fetch league info (has full player pool data)
-        league_info = await self.get_league_info(league_id)
-        if not league_info:
-            logger.warning(f"Failed to fetch league info for player enrichment, league {league_id}")
-        else:
-            logger.info(f"League info keys: {list(league_info.keys())}")
-            if "players" in league_info:
-                logger.info(f"League info has {len(league_info.get('players', []))} players in pool")
-            else:
-                logger.warning(f"League info does NOT have 'players' key. Available keys: {list(league_info.keys())}")
+        # Fetch full player database from getPlayerIds
+        logger.info("Fetching MLB player database from getPlayerIds...")
+        player_db = await self.get_player_ids(sport="MLB")
+
+        if not player_db:
+            logger.error("Failed to fetch player database from getPlayerIds")
+            return None
+
+        logger.info(f"Player DB response type: {type(player_db)}, keys: {list(player_db.keys()) if isinstance(player_db, dict) else 'N/A'}")
 
         # Extract the specific team's roster
         rosters = rosters_response.get("rosters", {})
         logger.info(f"Rosters type: {type(rosters)}, is dict: {isinstance(rosters, dict)}")
 
         if isinstance(rosters, dict):
-            logger.info(f"Rosters dict keys (team IDs): {list(rosters.keys())[:5]}...")  # First 5
+            logger.info(f"Rosters dict keys (team IDs): {list(rosters.keys())[:5]}...")
             team_roster = rosters.get(team_id)
         else:
-            # If rosters is a list, find by team_id
             team_roster = next((r for r in rosters if r.get("teamId") == team_id), None)
 
         if not team_roster:
@@ -394,18 +392,34 @@ class FantraxSecretAPIService:
 
         logger.info(f"Team roster keys: {list(team_roster.keys())}")
 
-        # Create player lookup from league info
+        # Build player lookup from getPlayerIds response
+        # The response structure might be: {"players": [{...}]} or just [{...}]
         player_lookup = {}
-        if league_info and "players" in league_info:
-            players_list = league_info.get("players", [])
-            logger.info(f"Building player lookup from {len(players_list)} players")
-            for player in players_list:
-                player_id = player.get("id") or player.get("playerId")
-                if player_id:
-                    player_lookup[player_id] = player
-            logger.info(f"Player lookup created with {len(player_lookup)} players")
-        else:
-            logger.warning("No player pool data available from league info - enrichment will be limited")
+
+        players_list = []
+        if isinstance(player_db, dict):
+            players_list = player_db.get("players", player_db.get("data", []))
+            # If still empty, the dict values might be the players
+            if not players_list and player_db:
+                # Check if it's a dict mapping IDs to player data
+                if all(isinstance(v, dict) for v in player_db.values()):
+                    # Convert dict of players to list
+                    players_list = list(player_db.values())
+        elif isinstance(player_db, list):
+            players_list = player_db
+
+        logger.info(f"Found {len(players_list)} players in database")
+
+        if players_list and len(players_list) > 0:
+            logger.info(f"Sample player from DB: {json.dumps(players_list[0], indent=2)[:500]}")
+
+        # Create lookup by Fantrax player ID
+        for player in players_list:
+            player_id = player.get("id") or player.get("playerId") or player.get("fantraxId")
+            if player_id:
+                player_lookup[player_id] = player
+
+        logger.info(f"Player lookup created with {len(player_lookup)} players")
 
         # Enrich roster items with full player data
         roster_items = team_roster.get("rosterItems", team_roster.get("players", []))
@@ -421,28 +435,29 @@ class FantraxSecretAPIService:
             enrichment_stats["total"] += 1
 
             # Get player ID from roster item
-            player_id = item.get("playerId") or item.get("id") or item.get("player_id")
+            player_id = item.get("id") or item.get("playerId") or item.get("player_id")
 
-            # Start with roster item data (has contracts)
+            # Start with roster item data (has contracts, salary, position, status)
             enriched_player = dict(item)
 
-            # Enrich with league player pool data if available
+            # Enrich with player database if available
             if player_id and player_id in player_lookup:
                 enrichment_stats["enriched"] += 1
-                pool_player = player_lookup[player_id]
-                # Merge data, preferring pool data for player details
+                db_player = player_lookup[player_id]
+                # Merge data, preferring database data for player details
                 enriched_player.update({
                     "id": player_id,
-                    "name": pool_player.get("name") or pool_player.get("playerName") or enriched_player.get("name"),
-                    "mlbTeam": pool_player.get("mlbTeam") or pool_player.get("team") or enriched_player.get("mlbTeam"),
-                    "positions": pool_player.get("positions") or pool_player.get("eligiblePositions") or enriched_player.get("positions", []),
-                    "age": pool_player.get("age") or enriched_player.get("age"),
-                    "status": pool_player.get("status") or pool_player.get("injuryStatus") or enriched_player.get("status"),
+                    "name": db_player.get("name") or db_player.get("playerName") or db_player.get("Name"),
+                    "mlbTeam": db_player.get("mlbTeam") or db_player.get("team") or db_player.get("Team"),
+                    "positions": db_player.get("positions") or db_player.get("eligiblePositions") or db_player.get("Positions", []),
+                    "age": db_player.get("age") or db_player.get("Age"),
                 })
+                # Keep the roster status (ACTIVE, MINORS, RESERVE) from roster item
+                # Don't override with player DB status
             else:
                 enrichment_stats["not_found"] += 1
                 if player_id:
-                    logger.warning(f"Player ID {player_id} not found in player lookup pool")
+                    logger.warning(f"Player ID {player_id} not found in player database")
                 else:
                     logger.warning(f"Roster item has no player ID: {list(item.keys())}")
 
