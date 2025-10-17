@@ -250,6 +250,7 @@ async def get_leagues(
         for league in api_leagues:
             league_id = league.get('league_id')
             if not league_id:
+                # This shouldn't happen with the updated service, but keep for safety
                 logger.warning(f"League missing league_id: {league}")
                 continue
 
@@ -259,12 +260,13 @@ async def get_leagues(
             league_data = FantraxLeagueResponse(
                 league_id=league_id,
                 name=league.get('name', 'Unknown League'),
-                sport=league.get('sport'),
+                sport=league.get('sport', 'MLB'),
                 teams=league.get('teams', []),
                 is_active=db_league.is_active if db_league else False
             )
             merged_leagues.append(league_data)
 
+        logger.info(f"Returning {len(merged_leagues)} leagues for user {current_user.id}")
         return merged_leagues
 
     except HTTPException:

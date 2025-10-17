@@ -101,27 +101,58 @@ class FantraxSecretAPIService:
         if not response:
             return []
 
-        leagues = response.get("leagues", [])
+        # Log the raw response structure for debugging
+        logger.info(f"Fantrax API raw response: {json.dumps(response, indent=2)[:500]}")  # Log first 500 chars
+
+        # The API might return leagues directly or wrapped in an object
+        # Try different possible response structures
+        leagues = []
+
+        if isinstance(response, list):
+            # Response is directly a list of leagues
+            leagues = response
+        elif isinstance(response, dict):
+            # Response might have leagues under different keys
+            leagues = response.get("leagues", response.get("data", []))
+
+            # If still empty, maybe the response IS the league data
+            if not leagues and "leagueId" in response:
+                leagues = [response]
+
         processed_leagues = []
 
         for league in leagues:
+            # Try different possible field names for league ID and name
+            league_id = league.get("leagueId") or league.get("id") or league.get("league_id")
+            league_name = league.get("leagueName") or league.get("name") or league.get("league_name")
+
+            # Skip if we don't have at least an ID
+            if not league_id:
+                logger.warning(f"Skipping league with no ID: {league}")
+                continue
+
             processed_league = {
-                "league_id": league.get("id"),
-                "name": league.get("name"),
-                "sport": league.get("sport"),
+                "league_id": league_id,
+                "name": league_name or "Unknown League",
+                "sport": league.get("sport", "MLB"),
                 "teams": []
             }
 
             # Extract user's teams in this league
-            teams = league.get("teams", [])
+            teams = league.get("teams", league.get("userTeams", []))
             for team in teams:
-                processed_league["teams"].append({
-                    "team_id": team.get("id"),
-                    "team_name": team.get("name")
-                })
+                team_id = team.get("teamId") or team.get("id") or team.get("team_id")
+                team_name = team.get("teamName") or team.get("name") or team.get("team_name")
+
+                if team_id:
+                    processed_league["teams"].append({
+                        "team_id": team_id,
+                        "team_name": team_name or "Unknown Team"
+                    })
 
             processed_leagues.append(processed_league)
 
+        logger.info(f"Processed {len(processed_leagues)} leagues")
         return processed_leagues
 
     async def get_league_info(self, league_id: str) -> Optional[Dict[str, Any]]:
