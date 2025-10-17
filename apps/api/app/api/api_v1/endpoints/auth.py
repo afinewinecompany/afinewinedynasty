@@ -10,7 +10,7 @@ from app.core.security import create_access_token, create_refresh_token, is_pass
 from app.core.validation import validate_email_format, validate_password_input, validate_name_input
 from app.services.user_service import authenticate_user, create_user, get_generic_error_message, get_user_by_email, create_user_session, revoke_user_session, revoke_all_user_sessions, is_session_valid
 from app.api.deps import get_current_user
-from app.models.user import UserLogin
+from app.db.models import User
 from app.services.oauth_service import GoogleOAuthService
 from app.services.password_reset_service import PasswordResetService
 from app.db.database import get_db
@@ -278,7 +278,7 @@ async def refresh_access_token(request: Request, refresh_request: RefreshTokenRe
 
 
 @router.post("/logout")
-async def logout(current_user: UserLogin = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def logout(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     """Log out the current user and revoke all sessions"""
     # Revoke all user sessions
     revoked_count = await revoke_all_user_sessions(db, current_user.email)

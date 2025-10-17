@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from app.db.database import get_db
 from app.api.deps import get_current_user
-from app.models.user import UserLogin
+from app.db.models import User
 from app.services.watchlist_service import WatchlistService
 from app.schemas.watchlist import (
     WatchlistAddRequest,
@@ -29,7 +29,7 @@ router = APIRouter()
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def add_to_watchlist(
     request: WatchlistAddRequest,
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -63,7 +63,7 @@ async def add_to_watchlist(
 
 @router.get("/", response_model=List[WatchlistEntry])
 async def get_watchlist(
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -89,7 +89,7 @@ async def get_watchlist(
 @router.delete("/{prospect_id}")
 async def remove_from_watchlist(
     prospect_id: int,
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -122,7 +122,7 @@ async def remove_from_watchlist(
 async def update_watchlist_notes(
     prospect_id: int,
     request: WatchlistUpdateNotesRequest,
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -157,7 +157,7 @@ async def update_watchlist_notes(
 async def toggle_notifications(
     prospect_id: int,
     request: WatchlistToggleNotificationsRequest,
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """

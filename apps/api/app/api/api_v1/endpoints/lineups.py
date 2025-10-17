@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
 from app.api.deps import get_current_user
-from app.models.user import UserLogin
+from app.db.models import User
 from app.models.lineup import (
     UserLineupCreate,
     UserLineupUpdate,
@@ -34,7 +34,7 @@ router = APIRouter()
 )
 async def create_lineup(
     lineup_data: UserLineupCreate,
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> UserLineupResponse:
     """Create a new lineup"""
@@ -63,7 +63,7 @@ async def create_lineup(
 async def get_user_lineups(
     skip: int = Query(0, ge=0, description="Number of lineups to skip"),
     limit: int = Query(100, ge=1, le=100, description="Maximum number of lineups to return"),
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> UserLineupListResponse:
     """Get all lineups for the current user"""
@@ -99,7 +99,7 @@ async def get_user_lineups(
 )
 async def get_lineup(
     lineup_id: int,
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> UserLineupDetailResponse:
     """Get a lineup by ID with full prospect details"""
@@ -146,7 +146,7 @@ async def get_lineup(
 async def update_lineup(
     lineup_id: int,
     update_data: UserLineupUpdate,
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> UserLineupResponse:
     """Update a lineup"""
@@ -173,7 +173,7 @@ async def update_lineup(
 )
 async def delete_lineup(
     lineup_id: int,
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Delete a lineup"""
@@ -193,7 +193,7 @@ async def delete_lineup(
 async def add_prospect_to_lineup(
     lineup_id: int,
     prospect_data: LineupProspectCreate,
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> LineupProspectResponse:
     """Add a prospect to a lineup"""
@@ -229,7 +229,7 @@ async def update_lineup_prospect(
     lineup_id: int,
     prospect_id: int,
     update_data: LineupProspectUpdate,
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> LineupProspectResponse:
     """Update a prospect in a lineup"""
@@ -264,7 +264,7 @@ async def update_lineup_prospect(
 async def remove_prospect_from_lineup(
     lineup_id: int,
     prospect_id: int,
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Remove a prospect from a lineup"""
@@ -285,7 +285,7 @@ async def remove_prospect_from_lineup(
 async def bulk_add_prospects(
     lineup_id: int,
     bulk_request: BulkAddProspectsRequest,
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> BulkAddProspectsResponse:
     """Bulk add prospects to a lineup"""
@@ -327,7 +327,7 @@ async def bulk_add_prospects(
 )
 async def sync_fantrax_lineup(
     sync_request: FantraxSyncRequest,
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> FantraxSyncResponse:
     """Sync a Fantrax league to a lineup"""

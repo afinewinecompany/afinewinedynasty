@@ -13,7 +13,6 @@ import re
 
 from app.db.database import get_db
 from app.db.models import User, Subscription, PaymentAuditLog
-from app.models.user import UserLogin
 from app.api.deps import get_current_user, get_current_user_optional, get_subscription_status
 from app.services.subscription_service import SubscriptionService
 from sqlalchemy import select
@@ -47,7 +46,7 @@ class UpdatePaymentMethodRequest(BaseModel):
 @router.post("/checkout-session")
 async def create_checkout_session(
     request_body: CheckoutSessionRequest,
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> Dict[str, Any]:
     """
@@ -170,7 +169,7 @@ async def get_subscription_status_endpoint(
 @router.post("/cancel")
 async def cancel_subscription(
     immediate: bool = False,
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> Dict[str, Any]:
     """
@@ -208,7 +207,7 @@ async def cancel_subscription(
 
 @router.post("/reactivate")
 async def reactivate_subscription(
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> Dict[str, Any]:
     """
@@ -247,7 +246,7 @@ async def reactivate_subscription(
 async def update_payment_method(
     request_body: UpdatePaymentMethodRequest,
     request: Request,
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> Dict[str, Any]:
     """
