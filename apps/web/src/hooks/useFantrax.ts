@@ -334,13 +334,16 @@ export function useFantrax(): UseFantraxReturn {
         }
 
         // Transform to RosterData format
+        // Fantrax API returns players in 'rosterItems' array
         const roster: RosterData = {
           league_id: state.selectedLeague.league_id,
           team_id: myTeamId,
-          team_name: state.selectedLeague.my_team_name || 'My Team',
-          players: myTeamRoster.players || [],
+          team_name: myTeamRoster.teamName || state.selectedLeague.my_team_name || 'My Team',
+          players: myTeamRoster.rosterItems || myTeamRoster.players || [],
           last_updated: new Date().toISOString(),
         };
+
+        console.log(`Found ${roster.players.length} players for team ${roster.team_name}`);
 
         setState((prev) => ({ ...prev, roster }));
         console.log('Roster synced successfully for team:', roster.team_name);
