@@ -370,32 +370,56 @@ class FantraxSecretAPIService:
         league_info = await self.get_league_info(league_id)
         if not league_info:
             logger.warning(f"Failed to fetch league info for player enrichment, league {league_id}")
+        else:
+            logger.info(f"League info keys: {list(league_info.keys())}")
+            if "players" in league_info:
+                logger.info(f"League info has {len(league_info.get('players', []))} players in pool")
+            else:
+                logger.warning(f"League info does NOT have 'players' key. Available keys: {list(league_info.keys())}")
 
         # Extract the specific team's roster
         rosters = rosters_response.get("rosters", {})
+        logger.info(f"Rosters type: {type(rosters)}, is dict: {isinstance(rosters, dict)}")
+
         if isinstance(rosters, dict):
+            logger.info(f"Rosters dict keys (team IDs): {list(rosters.keys())[:5]}...")  # First 5
             team_roster = rosters.get(team_id)
         else:
             # If rosters is a list, find by team_id
             team_roster = next((r for r in rosters if r.get("teamId") == team_id), None)
 
         if not team_roster:
-            logger.error(f"Team {team_id} not found in rosters")
+            logger.error(f"Team {team_id} not found in rosters. Available teams: {list(rosters.keys()) if isinstance(rosters, dict) else 'N/A'}")
             return None
+
+        logger.info(f"Team roster keys: {list(team_roster.keys())}")
 
         # Create player lookup from league info
         player_lookup = {}
         if league_info and "players" in league_info:
-            for player in league_info.get("players", []):
+            players_list = league_info.get("players", [])
+            logger.info(f"Building player lookup from {len(players_list)} players")
+            for player in players_list:
                 player_id = player.get("id") or player.get("playerId")
                 if player_id:
                     player_lookup[player_id] = player
+            logger.info(f"Player lookup created with {len(player_lookup)} players")
+        else:
+            logger.warning("No player pool data available from league info - enrichment will be limited")
 
         # Enrich roster items with full player data
         roster_items = team_roster.get("rosterItems", team_roster.get("players", []))
+        logger.info(f"Found {len(roster_items)} roster items to enrich")
+
+        if roster_items and len(roster_items) > 0:
+            logger.info(f"Sample RAW roster item (before enrichment): {json.dumps(roster_items[0], indent=2)[:500]}")
+
         enriched_items = []
+        enrichment_stats = {"total": 0, "enriched": 0, "not_found": 0}
 
         for item in roster_items:
+            enrichment_stats["total"] += 1
+
             # Get player ID from roster item
             player_id = item.get("playerId") or item.get("id") or item.get("player_id")
 
@@ -404,6 +428,7 @@ class FantraxSecretAPIService:
 
             # Enrich with league player pool data if available
             if player_id and player_id in player_lookup:
+                enrichment_stats["enriched"] += 1
                 pool_player = player_lookup[player_id]
                 # Merge data, preferring pool data for player details
                 enriched_player.update({
@@ -414,12 +439,20 @@ class FantraxSecretAPIService:
                     "age": pool_player.get("age") or enriched_player.get("age"),
                     "status": pool_player.get("status") or pool_player.get("injuryStatus") or enriched_player.get("status"),
                 })
+            else:
+                enrichment_stats["not_found"] += 1
+                if player_id:
+                    logger.warning(f"Player ID {player_id} not found in player lookup pool")
+                else:
+                    logger.warning(f"Roster item has no player ID: {list(item.keys())}")
 
             enriched_items.append(enriched_player)
 
+        logger.info(f"Enrichment stats: {enrichment_stats}")
+
         # Log sample enriched player
         if enriched_items:
-            logger.info(f"Sample enriched player: {json.dumps(enriched_items[0], indent=2)[:500]}")
+            logger.info(f"Sample ENRICHED player (after enrichment): {json.dumps(enriched_items[0], indent=2)[:800]}")
 
         return {
             "league_id": league_id,

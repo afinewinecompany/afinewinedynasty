@@ -325,15 +325,24 @@ export function useFantrax(): UseFantraxReturn {
           myTeamId
         );
 
-        console.log('Enriched roster data received:', enrichedRoster);
+        console.log('=== ENRICHED ROSTER DEBUG ===');
+        console.log('Full enriched roster response:', JSON.stringify(enrichedRoster, null, 2));
+        console.log('Roster items array:', enrichedRoster.rosterItems);
 
         // Transform to RosterData format
         // The enriched roster already has player names, teams, ages, etc.
         const rawPlayers = enrichedRoster.rosterItems || [];
 
-        // Log first player to see data structure
+        console.log(`Found ${rawPlayers.length} raw players in roster`);
+
+        // Log first 3 players to see data structure
         if (rawPlayers.length > 0) {
-          console.log('Sample enriched player data:', rawPlayers[0]);
+          console.log('=== SAMPLE PLAYER DATA (first 3) ===');
+          rawPlayers.slice(0, 3).forEach((player: any, index: number) => {
+            console.log(`Player ${index + 1}:`, JSON.stringify(player, null, 2));
+          });
+        } else {
+          console.warn('WARNING: No players found in rosterItems array!');
         }
 
         // Transform enriched player data to our format
