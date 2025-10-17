@@ -19,9 +19,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useFantrax } from '@/hooks/useFantrax';
 import { useAuth } from '@/hooks/useAuth';
 import { FantraxSecretIDModal } from '@/components/integrations/FantraxSecretIDModal';
+import { TeamSelectorModal } from '@/components/integrations/TeamSelectorModal';
 import { LeagueSelector } from '@/components/integrations/LeagueSelector';
 import { RosterDisplay } from '@/components/integrations/RosterDisplay';
-import { getSecretAPILeagues, updateLeagueSelections } from '@/lib/api/fantrax';
+import { getSecretAPILeagues, updateLeagueSelections, updateTeamSelection } from '@/lib/api/fantrax';
 import {
   CheckCircle2,
   XCircle,
@@ -31,6 +32,7 @@ import {
   AlertCircle,
   Crown,
   Save,
+  Settings,
 } from 'lucide-react';
 
 /**
@@ -61,6 +63,8 @@ export function FantraxTab(): JSX.Element {
   } = useFantrax();
 
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showTeamSelector, setShowTeamSelector] = useState(false);
+  const [selectedLeagueForTeam, setSelectedLeagueForTeam] = useState<any | null>(null);
   const [fantraxLeagues, setFantraxLeagues] = useState<any[]>([]);
   const [selectedLeagueIds, setSelectedLeagueIds] = useState<Set<string>>(new Set());
   const [loadingLeagues, setLoadingLeagues] = useState(false);
@@ -171,6 +175,36 @@ export function FantraxTab(): JSX.Element {
     if (selectedLeague) {
       await syncRoster(false);
     }
+  };
+
+  /**
+   * Open team selector for a league
+   */
+  const handleOpenTeamSelector = (league: any): void => {
+    setSelectedLeagueForTeam(league);
+    setShowTeamSelector(true);
+  };
+
+  /**
+   * Handle team selection
+   */
+  const handleTeamSelection = async (teamId: string, teamName: string): Promise<void> => {
+    if (!selectedLeagueForTeam) return;
+
+    // Update the team selection in the backend
+    await updateTeamSelection(selectedLeagueForTeam.league_id, teamId, teamName);
+
+    // Update local state
+    setFantraxLeagues(prev =>
+      prev.map(league =>
+        league.league_id === selectedLeagueForTeam.league_id
+          ? { ...league, my_team_id: teamId, my_team_name: teamName }
+          : league
+      )
+    );
+
+    // Refresh leagues to get updated data
+    await fetchLeagues();
   };
 
   // Premium gate
@@ -347,18 +381,37 @@ export function FantraxTab(): JSX.Element {
                       >
                         <div>
                           <p className="font-medium">{league.name}</p>
-                          {league.teams && league.teams.length > 0 && (
+                          {league.my_team_name ? (
+                            <p className="text-sm text-muted-foreground">
+                              Your Team: {league.my_team_name}
+                            </p>
+                          ) : league.teams && league.teams.length > 0 ? (
                             <p className="text-sm text-muted-foreground">
                               Team: {league.teams[0].team_name}
+                            </p>
+                          ) : (
+                            <p className="text-sm text-orange-600">
+                              No team selected - click to select your team
                             </p>
                           )}
                         </div>
                       </label>
-                      {league.is_active && !selectedLeagueIds.has(league.league_id) && (
-                        <Badge variant="outline" className="text-xs">
-                          Currently Active
-                        </Badge>
-                      )}
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleOpenTeamSelector(league)}
+                          className="h-8"
+                        >
+                          <Settings className="h-4 w-4 mr-1" />
+                          {league.my_team_id ? 'Change Team' : 'Select Team'}
+                        </Button>
+                        {league.is_active && !selectedLeagueIds.has(league.league_id) && (
+                          <Badge variant="outline" className="text-xs">
+                            Currently Active
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -469,6 +522,21 @@ export function FantraxTab(): JSX.Element {
         onClose={() => setShowAuthModal(false)}
         onSuccess={handleAuthSuccess}
       />
+
+      {/* Team Selector Modal */}
+      {selectedLeagueForTeam && (
+        <TeamSelectorModal
+          isOpen={showTeamSelector}
+          onClose={() => {
+            setShowTeamSelector(false);
+            setSelectedLeagueForTeam(null);
+          }}
+          leagueId={selectedLeagueForTeam.league_id}
+          leagueName={selectedLeagueForTeam.name}
+          currentTeamId={selectedLeagueForTeam.my_team_id}
+          onTeamSelected={handleTeamSelection}
+        />
+      )}
     </div>
   );
 }
