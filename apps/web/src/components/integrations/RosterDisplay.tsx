@@ -100,10 +100,15 @@ export function RosterDisplay({
    */
   const getPositionBreakdown = () => {
     const breakdown: Record<string, number> = {};
+    if (!roster.players || !Array.isArray(roster.players)) {
+      return breakdown;
+    }
     roster.players.forEach((player) => {
-      player.positions.forEach((pos) => {
-        breakdown[pos] = (breakdown[pos] || 0) + 1;
-      });
+      if (player.positions && Array.isArray(player.positions)) {
+        player.positions.forEach((pos) => {
+          breakdown[pos] = (breakdown[pos] || 0) + 1;
+        });
+      }
     });
     return breakdown;
   };
@@ -112,12 +117,17 @@ export function RosterDisplay({
    * Calculate roster statistics
    */
   const getRosterStats = () => {
+    if (!roster.players || !Array.isArray(roster.players)) {
+      return { total: 0, active: 0, minors: 0, avgAge: '0.0' };
+    }
+
     const totalPlayers = roster.players.length;
     const activePlayers = roster.players.filter((p) => p.status === 'active').length;
     const minorsPlayers = roster.players.filter((p) => p.minor_league_eligible).length;
-    const avgAge =
-      roster.players.filter((p) => p.age).reduce((sum, p) => sum + (p.age || 0), 0) /
-      roster.players.filter((p) => p.age).length;
+    const playersWithAge = roster.players.filter((p) => p.age);
+    const avgAge = playersWithAge.length > 0
+      ? playersWithAge.reduce((sum, p) => sum + (p.age || 0), 0) / playersWithAge.length
+      : 0;
 
     return {
       total: totalPlayers,
@@ -131,20 +141,28 @@ export function RosterDisplay({
    * Sort and filter players
    */
   const getSortedPlayers = () => {
+    if (!roster.players || !Array.isArray(roster.players)) {
+      return [];
+    }
+
     let filtered = [...roster.players];
 
     // Apply position filter
     if (filterPosition) {
-      filtered = filtered.filter((p) => p.positions.includes(filterPosition));
+      filtered = filtered.filter((p) =>
+        p.positions && Array.isArray(p.positions) && p.positions.includes(filterPosition)
+      );
     }
 
     // Apply sorting
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'name':
-          return a.player_name.localeCompare(b.player_name);
+          return (a.player_name || '').localeCompare(b.player_name || '');
         case 'position':
-          return a.positions[0].localeCompare(b.positions[0]);
+          const aPos = a.positions && a.positions[0] ? a.positions[0] : '';
+          const bPos = b.positions && b.positions[0] ? b.positions[0] : '';
+          return aPos.localeCompare(bPos);
         case 'age':
           return (a.age || 0) - (b.age || 0);
         default:
@@ -286,14 +304,18 @@ export function RosterDisplay({
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-1">
-                        {player.positions.map((pos) => (
-                          <Badge
-                            key={pos}
-                            className={`text-xs ${getPositionColor(pos)}`}
-                          >
-                            {pos}
-                          </Badge>
-                        ))}
+                        {player.positions && Array.isArray(player.positions) ? (
+                          player.positions.map((pos) => (
+                            <Badge
+                              key={pos}
+                              className={`text-xs ${getPositionColor(pos)}`}
+                            >
+                              {pos}
+                            </Badge>
+                          ))
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>{player.team}</TableCell>
