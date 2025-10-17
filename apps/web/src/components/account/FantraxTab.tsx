@@ -57,6 +57,7 @@ export function FantraxTab(): JSX.Element {
     loading,
     error,
     disconnect,
+    refreshLeagues,
     selectLeague,
     syncRoster,
     checkConnection,
@@ -203,8 +204,9 @@ export function FantraxTab(): JSX.Element {
       )
     );
 
-    // Refresh leagues to get updated data
+    // Refresh leagues to get updated data from both sources
     await fetchLeagues();
+    await refreshLeagues(); // Also refresh the useFantrax hook's leagues
   };
 
   // Premium gate

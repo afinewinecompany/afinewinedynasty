@@ -261,8 +261,9 @@ export function useFantrax(): UseFantraxReturn {
         league_name: league.name,
         sport: league.sport || 'MLB',
         team_count: league.teams?.length || 0,
-        my_team_id: league.teams?.[0]?.team_id,
-        my_team_name: league.teams?.[0]?.team_name,
+        // Use my_team_id from API response (from database or manually selected)
+        my_team_id: league.my_team_id || league.teams?.[0]?.team_id,
+        my_team_name: league.my_team_name || league.teams?.[0]?.team_name,
         roster_size: 0, // Will be populated when league details are fetched
         scoring_type: league.sport || 'MLB',
         is_active: league.is_active !== undefined ? league.is_active : true,
