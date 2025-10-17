@@ -45,6 +45,8 @@ class FantraxLeagueResponse(BaseModel):
     sport: Optional[str] = None
     teams: List[dict]
     is_active: bool = False  # Whether user has selected this league
+    my_team_id: Optional[str] = None  # User's team ID in this league
+    my_team_name: Optional[str] = None  # User's team name in this league
 
 
 class FantraxLeagueInfoResponse(BaseModel):
@@ -261,12 +263,28 @@ async def get_leagues(
 
             # Create properly structured response
             # Default to active=True on first fetch, otherwise use DB value
+            # Extract my_team_id and my_team_name from db_league or from teams array
+            my_team_id = None
+            my_team_name = None
+
+            if db_league:
+                # Use values from database if available
+                my_team_id = db_league.my_team_id
+                my_team_name = db_league.my_team_name
+            elif league.get('teams') and len(league.get('teams', [])) > 0:
+                # Fallback to first team from API response if not in DB yet
+                first_team = league.get('teams')[0]
+                my_team_id = first_team.get('team_id')
+                my_team_name = first_team.get('team_name')
+
             league_data = FantraxLeagueResponse(
                 league_id=league_id,
                 name=league.get('name', 'Unknown League'),
                 sport=league.get('sport', 'MLB'),
                 teams=league.get('teams', []),
-                is_active=True if is_first_fetch else (db_league.is_active if db_league else False)
+                is_active=True if is_first_fetch else (db_league.is_active if db_league else False),
+                my_team_id=my_team_id,
+                my_team_name=my_team_name
             )
             merged_leagues.append(league_data)
 
