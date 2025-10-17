@@ -515,6 +515,13 @@ class LeagueSelectionsRequest(BaseModel):
     league_ids: List[str] = Field(..., description="List of league IDs to mark as active/selected")
 
 
+class UpdateTeamSelectionRequest(BaseModel):
+    """Request to update user's team selection for a league"""
+    league_id: str = Field(..., description="League ID")
+    team_id: str = Field(..., description="Team ID that belongs to the user")
+    team_name: str = Field(..., description="Team name for display")
+
+
 @router.post("/leagues/select")
 async def update_league_selections(
     request: LeagueSelectionsRequest,
@@ -622,4 +629,71 @@ async def update_league_selections(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to update league selections: {str(e)}"
+        )
+
+
+@router.post("/leagues/team-selection")
+async def update_team_selection(
+    request: UpdateTeamSelectionRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Manually update the user's team selection for a specific league
+
+    This endpoint allows users to manually specify which team is theirs
+    in a league, solving issues where automatic detection fails.
+
+    Args:
+        league_id: The Fantrax league ID
+        team_id: The team ID that belongs to the user
+        team_name: The team name for display
+    """
+    try:
+        from sqlalchemy import select
+        from app.db.models import FantraxLeague as FantraxLeagueModel
+
+        # Find the league in the database
+        stmt = select(FantraxLeagueModel).where(
+            FantraxLeagueModel.user_id == current_user.id,
+            FantraxLeagueModel.league_id == request.league_id
+        )
+        result = await db.execute(stmt)
+        league = result.scalar_one_or_none()
+
+        if not league:
+            # League doesn't exist in DB, create it
+            league = FantraxLeagueModel(
+                user_id=current_user.id,
+                league_id=request.league_id,
+                league_name=f"League {request.league_id}",  # Will be updated on next sync
+                league_type='dynasty',  # Default
+                my_team_id=request.team_id,
+                my_team_name=request.team_name,
+                is_active=True
+            )
+            db.add(league)
+            logger.info(f"Created new league entry for user {current_user.id}, league {request.league_id}")
+        else:
+            # Update existing league with team info
+            league.my_team_id = request.team_id
+            league.my_team_name = request.team_name
+            logger.info(f"Updated team selection for user {current_user.id}, league {request.league_id}: {request.team_name} (ID: {request.team_id})")
+
+        await db.commit()
+
+        return {
+            "success": True,
+            "message": f"Successfully updated team selection to {request.team_name}",
+            "league_id": request.league_id,
+            "team_id": request.team_id,
+            "team_name": request.team_name
+        }
+
+    except Exception as e:
+        logger.error(f"Failed to update team selection for user {current_user.id}: {str(e)}")
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update team selection: {str(e)}"
         )

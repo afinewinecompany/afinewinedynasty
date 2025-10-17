@@ -688,3 +688,51 @@ export async function updateLeagueSelections(
     selected_count: number;
   }>(response);
 }
+
+/**
+ * Update team selection for a league
+ *
+ * Manually specifies which team belongs to the user in a league.
+ * This solves issues where automatic team detection fails.
+ *
+ * @param leagueId - The league ID
+ * @param teamId - The team ID that belongs to the user
+ * @param teamName - The team name for display
+ * @returns Promise resolving to success response
+ * @throws Error if update fails
+ *
+ * @example
+ * ```typescript
+ * await updateTeamSelection('league_123', 'team_456', 'My Awesome Team');
+ * ```
+ *
+ * @since 2.0.0
+ */
+export async function updateTeamSelection(
+  leagueId: string,
+  teamId: string,
+  teamName: string
+): Promise<{
+  success: boolean;
+  message: string;
+  league_id: string;
+  team_id: string;
+  team_name: string;
+}> {
+  const response = await fetch(`${FANTRAX_SECRET_API_BASE}/leagues/team-selection`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({
+      league_id: leagueId,
+      team_id: teamId,
+      team_name: teamName,
+    }),
+  });
+  return handleResponse<{
+    success: boolean;
+    message: string;
+    league_id: string;
+    team_id: string;
+    team_name: string;
+  }>(response);
+}
