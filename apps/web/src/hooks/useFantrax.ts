@@ -335,11 +335,31 @@ export function useFantrax(): UseFantraxReturn {
 
         // Transform to RosterData format
         // Fantrax API returns players in 'rosterItems' array
+        const rawPlayers = myTeamRoster.rosterItems || myTeamRoster.players || [];
+
+        // Log first player to see data structure
+        if (rawPlayers.length > 0) {
+          console.log('Sample player data:', rawPlayers[0]);
+        }
+
+        // Transform Fantrax player data to our format
+        const players = rawPlayers.map((player: any) => ({
+          player_id: player.id || player.playerId || player.player_id || '',
+          player_name: player.name || player.playerName || player.player_name || 'Unknown Player',
+          positions: player.positions || player.eligiblePositions || player.position ? [player.position] : [],
+          team: player.mlbTeam || player.team || player.mlb_team || '',
+          age: player.age || null,
+          status: player.status || player.injuryStatus || 'active',
+          minor_league_eligible: player.minorLeagueEligible || player.minor_league_eligible || false,
+          contract_years: player.contractYears || player.contract_years || null,
+          contract_value: player.contractValue || player.contract_value || null,
+        }));
+
         const roster: RosterData = {
           league_id: state.selectedLeague.league_id,
           team_id: myTeamId,
           team_name: myTeamRoster.teamName || state.selectedLeague.my_team_name || 'My Team',
-          players: myTeamRoster.rosterItems || myTeamRoster.players || [],
+          players: players,
           last_updated: new Date().toISOString(),
         };
 
