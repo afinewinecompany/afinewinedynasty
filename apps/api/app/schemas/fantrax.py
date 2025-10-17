@@ -275,6 +275,13 @@ class FantraxRosterResponse(BaseModel):
     total_players: int = Field(..., description="Total number of players on roster")
 
 
+class FantraxSecretAPIRosterResponse(BaseModel):
+    """Response with roster data from Secret ID API"""
+    league_id: str = Field(..., description="League identifier")
+    period: Optional[int] = Field(None, description="Period number")
+    rosters: List[Dict[str, Any]] = Field(..., description="Team rosters")
+
+
 class FantraxStandingsResponse(BaseModel):
     """Response with league standings"""
     league_id: str = Field(..., description="League identifier")
