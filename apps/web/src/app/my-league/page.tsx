@@ -24,11 +24,13 @@ import {
   getSecretAPILeagueInfo,
   getSecretAPIRosters,
   getSecretAPIStandings,
+  updateTeamSelection,
   type SecretAPILeague,
   type LeagueInfoResponse,
   type RosterResponse,
   type StandingsResponse,
 } from '@/lib/api/fantrax';
+import { TeamSelectorModal } from '@/components/integrations/TeamSelectorModal';
 import {
   Trophy,
   Users,
@@ -39,6 +41,7 @@ import {
   Loader2,
   RefreshCw,
   ChevronRight,
+  Settings,
 } from 'lucide-react';
 
 /**
@@ -65,6 +68,7 @@ export default function MyLeaguePage() {
     standings: false,
   });
   const [error, setError] = useState<string | null>(null);
+  const [showTeamSelector, setShowTeamSelector] = useState(false);
 
   const isPremium = user?.subscriptionTier === 'premium';
 
@@ -155,6 +159,32 @@ export default function MyLeaguePage() {
       loadLeagueData(selectedLeagueId);
     }
   };
+
+  /**
+   * Handle team selection
+   */
+  const handleTeamSelection = async (teamId: string, teamName: string) => {
+    const league = leagues.find(l => l.league_id === selectedLeagueId);
+    if (!league) return;
+
+    // Update the team selection in the backend
+    await updateTeamSelection(selectedLeagueId, teamId, teamName);
+
+    // Update local state
+    const updatedLeagues = leagues.map(l =>
+      l.league_id === selectedLeagueId
+        ? { ...l, my_team_id: teamId, my_team_name: teamName }
+        : l
+    );
+    setLeagues(updatedLeagues);
+
+    // Reload league data with new team
+    loadLeagueData(selectedLeagueId);
+  };
+
+  // Get current league and check if team is selected
+  const currentLeague = leagues.find(l => l.league_id === selectedLeagueId);
+  const hasTeamSelected = currentLeague?.my_team_id || false;
 
   // Loading state
   if (authLoading) {
@@ -433,8 +463,24 @@ export default function MyLeaguePage() {
             <TabsContent value="roster" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>My Roster</CardTitle>
-                  <CardDescription>Current team roster</CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>My Roster</CardTitle>
+                      <CardDescription>
+                        {currentLeague?.my_team_name
+                          ? `Team: ${currentLeague.my_team_name}`
+                          : 'Current team roster'}
+                      </CardDescription>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowTeamSelector(true)}
+                    >
+                      <Settings className="h-4 w-4 mr-1" />
+                      {hasTeamSelected ? 'Change Team' : 'Select Your Team'}
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   {loading.rosters ? (
@@ -541,6 +587,18 @@ export default function MyLeaguePage() {
             </TabsContent>
           </Tabs>
         </div>
+      )}
+
+      {/* Team Selector Modal */}
+      {selectedLeagueId && currentLeague && (
+        <TeamSelectorModal
+          isOpen={showTeamSelector}
+          onClose={() => setShowTeamSelector(false)}
+          leagueId={selectedLeagueId}
+          leagueName={currentLeague.name}
+          currentTeamId={currentLeague.my_team_id}
+          onTeamSelected={handleTeamSelection}
+        />
       )}
     </div>
   );
