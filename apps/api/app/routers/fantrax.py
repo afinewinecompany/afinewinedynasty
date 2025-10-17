@@ -64,7 +64,7 @@ class FantraxRosterResponse(BaseModel):
     """Team rosters response"""
     league_id: str
     period: Optional[int] = None
-    rosters: List[dict]
+    rosters: dict  # Dictionary keyed by team ID
 
 
 class FantraxStandingsResponse(BaseModel):
