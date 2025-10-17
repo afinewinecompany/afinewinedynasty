@@ -124,9 +124,10 @@ class MiLBPBPCollector2025:
                     p.position,
                     p.organization
                 FROM player_game_counts pgc
+                INNER JOIN prospects p ON pgc.mlb_player_id::text = p.mlb_player_id
                 LEFT JOIN player_pbp_counts ppc ON pgc.mlb_player_id = ppc.mlb_player_id
-                LEFT JOIN prospects p ON pgc.mlb_player_id::text = p.mlb_player_id
                 WHERE COALESCE(ppc.pbp_count, 0) = 0
+                AND p.mlb_player_id IS NOT NULL
                 ORDER BY pgc.game_count DESC
                 LIMIT :limit
             """)

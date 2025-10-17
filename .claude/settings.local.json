@@ -26,7 +26,12 @@
       "Bash(npm run build:*)",
       "Bash(wmic process where \"name=''python.exe''\" get ProcessId,CommandLine /format:list)",
       "Bash(git restore:*)",
-      "Bash(alembic revision:*)"
+      "Bash(alembic revision:*)",
+      "Bash(/opt/venv/bin/alembic revision:*)",
+      "Bash(for log in logs/*_prospects.log)",
+      "Bash(do echo \"=== $log ===\")",
+      "Bash(head:*)",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []

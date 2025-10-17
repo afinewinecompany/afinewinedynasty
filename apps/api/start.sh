@@ -26,11 +26,16 @@ else
 fi
 echo ""
 
+# Check and fix migration state if needed
+echo ""
+echo "🔍 Checking migration state..."
+/opt/venv/bin/python scripts/fix_migration_state.py 2>/dev/null || echo "   Skipping migration state check"
+
 # Run database migrations
 echo ""
 echo "📊 Running database migrations..."
-/opt/venv/bin/alembic upgrade head || {
-    echo "⚠️  WARNING: Migrations failed, but continuing to start server..."
+timeout 120 /opt/venv/bin/alembic upgrade head || {
+    echo "⚠️  WARNING: Migrations failed or timed out, but continuing to start server..."
     echo "⚠️  This allows healthchecks to pass while we debug the migration issue"
     echo "⚠️  Check Railway logs for migration error details"
 }
