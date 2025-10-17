@@ -321,6 +321,13 @@ export function useFantrax(): UseFantraxReturn {
       recommendations: [],
     }));
 
+    // Save selected league to localStorage for persistence
+    try {
+      localStorage.setItem('fantrax_selected_league', JSON.stringify(league));
+    } catch (err) {
+      console.error('Failed to save selected league to localStorage:', err);
+    }
+
     // Try to load saved roster for this league
     loadSavedRoster(league.league_id);
   }, [loadSavedRoster]);
@@ -499,6 +506,26 @@ export function useFantrax(): UseFantraxReturn {
       refreshLeagues();
     }
   }, [state.isConnected, state.leagues.length, refreshLeagues]);
+
+  // Restore selected league from localStorage when leagues are loaded
+  useEffect(() => {
+    if (state.leagues.length > 0 && !state.selectedLeague) {
+      try {
+        const savedLeagueStr = localStorage.getItem('fantrax_selected_league');
+        if (savedLeagueStr) {
+          const savedLeague = JSON.parse(savedLeagueStr);
+          // Find the league in current leagues list to ensure it still exists
+          const league = state.leagues.find(l => l.league_id === savedLeague.league_id);
+          if (league) {
+            console.log('Restoring previously selected league:', league.league_name);
+            selectLeague(league);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to restore selected league from localStorage:', err);
+      }
+    }
+  }, [state.leagues, state.selectedLeague, selectLeague]);
 
   return {
     ...state,
