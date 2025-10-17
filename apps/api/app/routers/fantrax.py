@@ -209,7 +209,14 @@ async def get_leagues(
     Returns leagues from the database if available, otherwise fetches from Fantrax API.
     Includes is_active flag to indicate which leagues user has selected.
     """
-    secret_id = await get_fantrax_secret_id(db, current_user.id)
+    try:
+        secret_id = await get_fantrax_secret_id(db, current_user.id)
+    except Exception as e:
+        logger.error(f"Failed to get secret ID for user {current_user.id}: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve Fantrax credentials"
+        )
 
     if not secret_id:
         raise HTTPException(
@@ -241,14 +248,21 @@ async def get_leagues(
         # Merge data - add is_active from database
         merged_leagues = []
         for league in api_leagues:
-            league_id = league['league_id']
+            league_id = league.get('league_id')
+            if not league_id:
+                logger.warning(f"League missing league_id: {league}")
+                continue
+
             db_league = db_leagues.get(league_id)
 
-            # Add is_active field (default to False if not in DB)
-            league_data = {
-                **league,
-                'is_active': db_league.is_active if db_league else False
-            }
+            # Create properly structured response
+            league_data = FantraxLeagueResponse(
+                league_id=league_id,
+                name=league.get('name', 'Unknown League'),
+                sport=league.get('sport'),
+                teams=league.get('teams', []),
+                is_active=db_league.is_active if db_league else False
+            )
             merged_leagues.append(league_data)
 
         return merged_leagues
@@ -256,7 +270,9 @@ async def get_leagues(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to fetch leagues for user {current_user.id}: {str(e)}")
+        import traceback
+        error_details = traceback.format_exc()
+        logger.error(f"Failed to fetch leagues for user {current_user.id}: {str(e)}\n{error_details}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to fetch leagues: {str(e)}"
