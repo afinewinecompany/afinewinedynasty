@@ -86,7 +86,7 @@ async def create_checkout_session(
 
 @router.get("/status")
 async def get_subscription_status_endpoint(
-    current_user: Optional[UserLogin] = Depends(get_current_user_optional),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db)
 ) -> Dict[str, Any]:
     """
