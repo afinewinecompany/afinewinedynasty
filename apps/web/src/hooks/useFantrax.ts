@@ -316,16 +316,33 @@ export function useFantrax(): UseFantraxReturn {
           state.selectedLeague.league_id
         );
 
-        // TODO: Transform roster data to match RosterData interface
-        // The API returns rosters as a dict keyed by team ID, but we need
-        // to convert it to the expected format with team_id, team_name, players, etc.
         console.log('Roster data received:', rosterData);
 
-        // For now, just log success - we'll need to transform the data later
-        alert('Roster sync successful! Rosters fetched from Fantrax.');
+        // Extract user's team roster from the rosters dictionary
+        // The API returns rosters as { "teamId1": {...}, "teamId2": {...} }
+        const myTeamId = state.selectedLeague.my_team_id;
 
-        // Don't set roster state yet since format doesn't match
-        // setState((prev) => ({ ...prev, roster }));
+        if (!myTeamId) {
+          throw new Error('User team ID not found for this league');
+        }
+
+        const myTeamRoster = rosterData.rosters[myTeamId];
+
+        if (!myTeamRoster) {
+          throw new Error(`Roster not found for team ${myTeamId}`);
+        }
+
+        // Transform to RosterData format
+        const roster: RosterData = {
+          league_id: state.selectedLeague.league_id,
+          team_id: myTeamId,
+          team_name: state.selectedLeague.my_team_name || 'My Team',
+          players: myTeamRoster.players || [],
+          last_updated: new Date().toISOString(),
+        };
+
+        setState((prev) => ({ ...prev, roster }));
+        console.log('Roster synced successfully for team:', roster.team_name);
       } catch (err) {
         const message =
           err instanceof Error ? err.message : 'Failed to sync roster';

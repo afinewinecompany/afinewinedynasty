@@ -17,9 +17,17 @@ export interface FantraxLeague {
   /** League name */
   league_name: string;
   /** League type */
-  league_type: 'dynasty' | 'keeper' | 'redraft';
+  league_type?: 'dynasty' | 'keeper' | 'redraft';
+  /** Sport (e.g., MLB, NFL) */
+  sport?: string;
+  /** Season year */
+  season?: number;
   /** Number of teams in league */
   team_count: number;
+  /** User's team ID in this league */
+  my_team_id?: string;
+  /** User's team name in this league */
+  my_team_name?: string;
   /** Total roster size */
   roster_size: number;
   /** Scoring system type */
