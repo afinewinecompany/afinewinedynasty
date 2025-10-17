@@ -104,15 +104,19 @@ export function TeamSelectorModal({
     setError(null);
 
     try {
-      // Get league info which includes all teams
-      const leagueInfo = await fantraxApi.getSecretAPILeagueInfo(leagueId);
+      // Get rosters which includes all teams
+      const rostersData = await fantraxApi.getSecretAPIRosters(leagueId);
 
-      if (leagueInfo.teams && Array.isArray(leagueInfo.teams)) {
-        const teamList: Team[] = leagueInfo.teams.map((team: any) => ({
-          team_id: team.id || team.team_id || team.teamId,
-          team_name: team.name || team.team_name || team.teamName || 'Unknown Team',
-          owner_name: team.owner || team.owner_name || team.ownerName,
-        }));
+      if (rostersData.rosters && typeof rostersData.rosters === 'object') {
+        // Rosters is a dictionary keyed by team ID
+        const teamList: Team[] = Object.keys(rostersData.rosters).map((teamId) => {
+          const rosterData = rostersData.rosters[teamId];
+          return {
+            team_id: teamId,
+            team_name: rosterData.teamName || rosterData.team_name || 'Unknown Team',
+            owner_name: rosterData.ownerName || rosterData.owner_name,
+          };
+        });
 
         setTeams(teamList);
 
