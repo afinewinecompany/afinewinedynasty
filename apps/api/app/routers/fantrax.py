@@ -274,11 +274,15 @@ async def get_leagues(
         if is_first_fetch and merged_leagues:
             logger.info(f"First league fetch for user {current_user.id}, saving all {len(merged_leagues)} leagues as active")
             for league_data in merged_leagues:
+                # Map sport to valid league_type (dynasty, keeper, redraft)
+                # Default to 'dynasty' if sport is not mapped
+                league_type = 'dynasty'  # Default for most fantasy baseball leagues
+
                 new_league = FantraxLeagueModel(
                     user_id=current_user.id,
                     league_id=league_data.league_id,
                     league_name=league_data.name,
-                    league_type=league_data.sport or 'MLB',
+                    league_type=league_type,
                     is_active=True  # All active by default
                 )
                 db.add(new_league)
@@ -516,17 +520,16 @@ async def update_league_selections(
             is_active = league['league_id'] in request.league_ids
 
             if existing_league:
-                # Update existing league
+                # Update existing league - keep existing league_type, just update name and active status
                 existing_league.league_name = league['name']
-                existing_league.league_type = league.get('sport', 'MLB')  # Default to MLB
                 existing_league.is_active = is_active
             else:
-                # Create new league
+                # Create new league - default to 'dynasty' type
                 new_league = FantraxLeagueModel(
                     user_id=current_user.id,
                     league_id=league['league_id'],
                     league_name=league['name'],
-                    league_type=league.get('sport', 'dynasty'),  # Default to dynasty
+                    league_type='dynasty',  # Default to dynasty (valid values: dynasty, keeper, redraft)
                     is_active=is_active
                 )
                 db.add(new_league)
