@@ -748,3 +748,171 @@ async def update_team_selection(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to update team selection: {str(e)}"
         )
+
+
+class SaveRosterRequest(BaseModel):
+    """Request to save roster data"""
+    league_id: str = Field(..., description="Fantrax League ID")
+    team_id: str = Field(..., description="Team ID")
+    team_name: str = Field(..., description="Team name")
+    players: List[dict] = Field(..., description="List of player data")
+
+
+@router.post("/leagues/{league_id}/rosters/save")
+async def save_roster(
+    league_id: str,
+    request: SaveRosterRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Save synced roster data to database
+
+    This persists the roster so it can be viewed later without re-syncing.
+    Replaces any existing roster for this league.
+    """
+    try:
+        from sqlalchemy import select, delete
+        from app.db.models import FantraxLeague as FantraxLeagueModel, FantraxRoster, FantraxSyncHistory
+        from datetime import datetime
+
+        # Find the league record
+        stmt = select(FantraxLeagueModel).where(
+            FantraxLeagueModel.user_id == current_user.id,
+            FantraxLeagueModel.league_id == league_id
+        )
+        result = await db.execute(stmt)
+        league = result.scalar_one_or_none()
+
+        if not league:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"League {league_id} not found for user"
+            )
+
+        # Delete existing roster for this league
+        delete_stmt = delete(FantraxRoster).where(
+            FantraxRoster.league_id == league.id
+        )
+        await db.execute(delete_stmt)
+
+        # Save new roster players
+        players_saved = 0
+        for player_data in request.players:
+            roster_player = FantraxRoster(
+                league_id=league.id,
+                player_id=player_data.get('player_id', ''),
+                player_name=player_data.get('player_name', 'Unknown'),
+                positions=player_data.get('positions', []),
+                contract_years=player_data.get('contract_years'),
+                contract_value=player_data.get('contract_value'),
+                age=player_data.get('age'),
+                team=player_data.get('team', ''),
+                status=player_data.get('status', 'active'),
+                minor_league_eligible=player_data.get('minor_league_eligible', False)
+            )
+            db.add(roster_player)
+            players_saved += 1
+
+        # Update league's last_sync timestamp
+        league.last_sync = datetime.utcnow()
+
+        # Create sync history entry
+        sync_history = FantraxSyncHistory(
+            league_id=league.id,
+            sync_type='roster',
+            players_synced=players_saved,
+            success=True,
+            sync_duration_ms=None
+        )
+        db.add(sync_history)
+
+        await db.commit()
+
+        logger.info(f"Saved roster for user {current_user.id}, league {league_id}: {players_saved} players")
+
+        return {
+            "success": True,
+            "message": f"Successfully saved roster with {players_saved} players",
+            "players_saved": players_saved
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to save roster for user {current_user.id}, league {league_id}: {str(e)}")
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to save roster: {str(e)}"
+        )
+
+
+@router.get("/leagues/{league_id}/rosters/saved")
+async def get_saved_roster(
+    league_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Retrieve previously saved roster from database
+
+    Returns the last synced roster for this league.
+    """
+    try:
+        from sqlalchemy import select
+        from app.db.models import FantraxLeague as FantraxLeagueModel, FantraxRoster
+
+        # Find the league record
+        stmt = select(FantraxLeagueModel).where(
+            FantraxLeagueModel.user_id == current_user.id,
+            FantraxLeagueModel.league_id == league_id
+        )
+        result = await db.execute(stmt)
+        league = result.scalar_one_or_none()
+
+        if not league:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"League {league_id} not found for user"
+            )
+
+        # Get roster players
+        stmt = select(FantraxRoster).where(
+            FantraxRoster.league_id == league.id
+        )
+        result = await db.execute(stmt)
+        roster_players = result.scalars().all()
+
+        # Transform to response format
+        players = [
+            {
+                "player_id": player.player_id,
+                "player_name": player.player_name,
+                "positions": player.positions or [],
+                "contract_years": player.contract_years,
+                "contract_value": player.contract_value,
+                "age": player.age,
+                "team": player.team,
+                "status": player.status,
+                "minor_league_eligible": player.minor_league_eligible
+            }
+            for player in roster_players
+        ]
+
+        return {
+            "league_id": league_id,
+            "team_id": league.my_team_id,
+            "team_name": league.my_team_name,
+            "players": players,
+            "last_updated": league.last_sync.isoformat() if league.last_sync else None
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get saved roster for user {current_user.id}, league {league_id}: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve saved roster: {str(e)}"
+        )
