@@ -307,19 +307,22 @@ export function useFantrax(): UseFantraxReturn {
       }
 
       setLoading('sync', true);
+      setLoading('roster', true);
       setError('sync', null);
 
       try {
-        await fantraxApi.syncRoster({
-          league_id: state.selectedLeague.league_id,
-          force_refresh: forceRefresh,
-        });
-
-        // Load the roster data after sync
-        setLoading('roster', true);
-        const roster = await fantraxApi.getRoster(
+        // Use Secret ID API to fetch rosters
+        const rosterData = await fantraxApi.getSecretAPIRosters(
           state.selectedLeague.league_id
         );
+
+        // Convert to expected format
+        const roster = {
+          league_id: rosterData.league_id,
+          rosters: rosterData.rosters,
+          period: rosterData.period,
+        } as RosterData;
+
         setState((prev) => ({ ...prev, roster }));
       } catch (err) {
         const message =
