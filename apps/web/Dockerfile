@@ -1,30 +1,62 @@
-FROM node:18-alpine
+# Use Node.js 18 Alpine
+FROM node:18-alpine AS base
 
+# Install dependencies
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
-# Force rebuild: 2025-10-12
 
-# Copy package files
-COPY package*.json ./
-RUN npm ci
+# Copy package files (Railway sets build context to apps/web/)
+COPY package.json package-lock.json* ./
 
-# Copy source code
+# Install dependencies WITHOUT cache directory issues
+RUN npm ci --prefer-offline --no-optional
+
+# Build the application
+FROM base AS builder
+WORKDIR /app
+
+# Copy dependencies from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+# Copy all web app files (Railway build context is already apps/web/)
 COPY . .
 
-# Accept build arguments from Railway environment variables
+# Accept build arguments from Railway
 ARG NEXT_PUBLIC_GOOGLE_CLIENT_ID
+ARG NEXT_PUBLIC_GOOGLE_REDIRECT_URI
 ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_API_VERSION
 
-# Set them as environment variables for the build process
+# Set environment variables for Next.js build
 ENV NEXT_PUBLIC_GOOGLE_CLIENT_ID=$NEXT_PUBLIC_GOOGLE_CLIENT_ID
+ENV NEXT_PUBLIC_GOOGLE_REDIRECT_URI=$NEXT_PUBLIC_GOOGLE_REDIRECT_URI
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_VERSION=$NEXT_PUBLIC_API_VERSION
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# Remove any existing .next cache to force fresh build
-RUN rm -rf .next
-
-# Build Next.js app with environment variables available
+# Build Next.js (no standalone mode, uses full node_modules)
 RUN npm run build
 
+# Production image
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Copy everything needed for production (built in previous stage)
+COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+
+USER nextjs
+
 EXPOSE 3000
+
 ENV PORT=3000
 
-CMD ["sh", "-c", "next start -p ${PORT:-3000}"]
+CMD ["npm", "start"]

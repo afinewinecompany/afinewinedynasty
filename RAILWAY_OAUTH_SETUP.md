@@ -4,27 +4,30 @@
 
 You need to add Google OAuth environment variables to **BOTH** your Railway services:
 
-### 🔹 Backend API Service (FastAPI)
+### 🔹 Backend API Service (FastAPI) ⚠️ MISSING - THIS IS CAUSING THE 502 ERROR
 
 Add these in Railway Dashboard → Your API Service → Variables:
 
 ```bash
-GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_CLIENT_ID=733729983983-fnm9vvitbqu2uj2i36auqmmbvrmoplh6.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=<your-google-client-secret-from-google-cloud-console>
+GOOGLE_REDIRECT_URI=https://web-production-5cfe0.up.railway.app/auth/callback
 ```
 
-> **Note:** Use the actual values from your `.env` files or Google Cloud Console
+> **CRITICAL:** These are MISSING in Railway backend! The 502 error happens because the backend can't exchange the OAuth code without these credentials.
+> **SECURITY:** Get the actual `GOOGLE_CLIENT_SECRET` from your local `.env` file or Google Cloud Console. Never commit secrets to Git!
 
 ### 🔹 Frontend Web Service (Next.js)
 
 Add these in Railway Dashboard → Your Web Service → Variables:
 
 ```bash
-NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
-NEXT_PUBLIC_API_URL=https://your-api.railway.app
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=733729983983-fnm9vvitbqu2uj2i36auqmmbvrmoplh6.apps.googleusercontent.com
+NEXT_PUBLIC_GOOGLE_REDIRECT_URI=https://web-production-5cfe0.up.railway.app/auth/callback
+NEXT_PUBLIC_API_URL=https://api-production-f7e0.up.railway.app
 ```
 
-> **Note:** Use the same client ID as the backend service and your actual API URL
+> **Note:** These values are from your `.env.local` file - use the actual production URLs
 
 ---
 
@@ -38,12 +41,12 @@ Click on your OAuth 2.0 Client ID
 
 **Add to Authorized JavaScript origins:**
 ```
-https://your-frontend-url.railway.app
+https://web-production-5cfe0.up.railway.app
 ```
 
 **Add to Authorized redirect URIs:**
 ```
-https://your-frontend-url.railway.app/auth/callback
+https://web-production-5cfe0.up.railway.app/auth/callback
 ```
 
 ### 2. Add Variables to Railway Backend
@@ -56,8 +59,9 @@ https://your-frontend-url.railway.app/auth/callback
 
 | Variable Name | Value |
 |--------------|-------|
-| `GOOGLE_CLIENT_ID` | Your Google OAuth Client ID |
-| `GOOGLE_CLIENT_SECRET` | Your Google OAuth Client Secret |
+| `GOOGLE_CLIENT_ID` | `733729983983-fnm9vvitbqu2uj2i36auqmmbvrmoplh6.apps.googleusercontent.com` |
+| `GOOGLE_CLIENT_SECRET` | Get from your `.env` file or Google Cloud Console (never commit to Git!) |
+| `GOOGLE_REDIRECT_URI` | `https://web-production-5cfe0.up.railway.app/auth/callback` |
 
 6. Click **Deploy** to restart with new variables
 
@@ -70,8 +74,9 @@ https://your-frontend-url.railway.app/auth/callback
 
 | Variable Name | Value |
 |--------------|-------|
-| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Your Google OAuth Client ID (same as backend) |
-| `NEXT_PUBLIC_API_URL` | Your Railway API URL (e.g., `https://api-production-xxx.up.railway.app`) |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | `733729983983-fnm9vvitbqu2uj2i36auqmmbvrmoplh6.apps.googleusercontent.com` |
+| `NEXT_PUBLIC_GOOGLE_REDIRECT_URI` | `https://web-production-5cfe0.up.railway.app/auth/callback` |
+| `NEXT_PUBLIC_API_URL` | `https://api-production-f7e0.up.railway.app` |
 
 5. Click **Deploy** to rebuild with new variables
 
@@ -157,23 +162,25 @@ You should get a 400/401 error (not 500) - this means OAuth is configured.
 
 ### Backend API (Required for OAuth to work)
 ```bash
-# Core Google OAuth
-GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=your-google-client-secret
+# Core Google OAuth - ⚠️ ADD THESE TO RAILWAY BACKEND SERVICE
+GOOGLE_CLIENT_ID=733729983983-fnm9vvitbqu2uj2i36auqmmbvrmoplh6.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=<get-from-your-local-env-file-or-google-console>
+GOOGLE_REDIRECT_URI=https://web-production-5cfe0.up.railway.app/auth/callback
 
 # Already set (verify these exist)
 SECRET_KEY=<your-jwt-secret>
 DATABASE_URL=<railway-postgres-url>
-BACKEND_CORS_ORIGINS=<frontend-railway-url>
+BACKEND_CORS_ORIGINS=["https://web-production-5cfe0.up.railway.app"]
 ```
+
+> **SECURITY NOTE:** The actual `GOOGLE_CLIENT_SECRET` is in `apps/api/.env` file (starts with `GOCSPX-`). Get it from there or Google Cloud Console.
 
 ### Frontend Web (Required for OAuth to work)
 ```bash
-# Core Google OAuth
-NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
-
-# Already set (verify these exist)
-NEXT_PUBLIC_API_URL=https://your-api.railway.app
+# Core Google OAuth - ✅ ALREADY SET
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=733729983983-fnm9vvitbqu2uj2i36auqmmbvrmoplh6.apps.googleusercontent.com
+NEXT_PUBLIC_GOOGLE_REDIRECT_URI=https://web-production-5cfe0.up.railway.app/auth/callback
+NEXT_PUBLIC_API_URL=https://api-production-f7e0.up.railway.app
 ```
 
 ---
@@ -182,13 +189,15 @@ NEXT_PUBLIC_API_URL=https://your-api.railway.app
 
 Before testing OAuth in production:
 
-- [ ] Backend Railway service has `GOOGLE_CLIENT_ID`
-- [ ] Backend Railway service has `GOOGLE_CLIENT_SECRET`
-- [ ] Frontend Railway service has `NEXT_PUBLIC_GOOGLE_CLIENT_ID`
-- [ ] Frontend Railway service has `NEXT_PUBLIC_API_URL`
+- [ ] ⚠️ **Backend Railway service has `GOOGLE_CLIENT_ID`** (MISSING - ADD THIS!)
+- [ ] ⚠️ **Backend Railway service has `GOOGLE_CLIENT_SECRET`** (MISSING - ADD THIS!)
+- [ ] ⚠️ **Backend Railway service has `GOOGLE_REDIRECT_URI`** (MISSING - ADD THIS!)
+- [x] Frontend Railway service has `NEXT_PUBLIC_GOOGLE_CLIENT_ID` ✅
+- [x] Frontend Railway service has `NEXT_PUBLIC_GOOGLE_REDIRECT_URI` ✅
+- [x] Frontend Railway service has `NEXT_PUBLIC_API_URL` ✅
 - [ ] Google Cloud Console has your Railway frontend URL in authorized origins
 - [ ] Google Cloud Console has your Railway frontend `/auth/callback` in redirect URIs
-- [ ] Both services have been redeployed after adding variables
+- [ ] Backend service redeployed after adding variables
 - [ ] Browser cache cleared / hard refresh performed
 
 ---

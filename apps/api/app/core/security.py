@@ -23,16 +23,28 @@ fernet = Fernet(ENCRYPTION_KEY.encode())
 
 
 def create_access_token(
-    subject: Union[str, Any], expires_delta: Optional[timedelta] = None
+    subject: Union[str, Any],
+    expires_delta: Optional[timedelta] = None,
+    subscription_tier: str = "free",
+    is_admin: bool = False,
+    user_id: Optional[int] = None
 ) -> str:
-    """Create access token"""
+    """Create access token with user metadata"""
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
         expire = datetime.now(timezone.utc) + timedelta(
             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
         )
-    to_encode = {"exp": expire, "sub": str(subject)}
+    to_encode = {
+        "exp": expire,
+        "sub": str(subject),
+        "tier": subscription_tier,
+        "admin": is_admin
+    }
+    if user_id is not None:
+        to_encode["user_id"] = user_id
+
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 

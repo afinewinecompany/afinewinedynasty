@@ -177,9 +177,8 @@ export function useFantrax(): UseFantraxReturn {
         isConnected: status.connected,
       }));
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to check connection';
-      setError('connection', message);
+      // Silently set as not connected - this is expected if user hasn't connected yet
+      // Don't show error message for initial connection check
       setState((prev) => ({ ...prev, isConnected: false }));
     } finally {
       setLoading('connection', false);
@@ -213,7 +212,7 @@ export function useFantrax(): UseFantraxReturn {
     setError('connection', null);
 
     try {
-      await fantraxApi.disconnectFantrax();
+      await fantraxApi.disconnectSecretAPI();
       setState({
         isConnected: false,
         leagues: [],
@@ -255,7 +254,20 @@ export function useFantrax(): UseFantraxReturn {
     setError('leagues', null);
 
     try {
-      const leagues = await fantraxApi.getUserLeagues();
+      const secretAPILeagues = await fantraxApi.getSecretAPILeagues();
+      // Convert Secret API league format to existing FantraxLeague format
+      const leagues: FantraxLeague[] = secretAPILeagues.map((league) => ({
+        league_id: league.league_id,
+        league_name: league.name,
+        sport: league.sport || 'MLB',
+        team_count: league.teams?.length || 0,
+        my_team_id: league.teams?.[0]?.team_id,
+        my_team_name: league.teams?.[0]?.team_name,
+        roster_size: 0, // Will be populated when league details are fetched
+        scoring_type: league.sport || 'MLB',
+        is_active: league.is_active !== undefined ? league.is_active : true,
+        season: new Date().getFullYear(),
+      }));
       setState((prev) => ({
         ...prev,
         leagues,
@@ -295,20 +307,42 @@ export function useFantrax(): UseFantraxReturn {
       }
 
       setLoading('sync', true);
+      setLoading('roster', true);
       setError('sync', null);
 
       try {
-        await fantraxApi.syncRoster({
-          league_id: state.selectedLeague.league_id,
-          force_refresh: forceRefresh,
-        });
-
-        // Load the roster data after sync
-        setLoading('roster', true);
-        const roster = await fantraxApi.getRoster(
+        // Use Secret ID API to fetch rosters
+        const rosterData = await fantraxApi.getSecretAPIRosters(
           state.selectedLeague.league_id
         );
+
+        console.log('Roster data received:', rosterData);
+
+        // Extract user's team roster from the rosters dictionary
+        // The API returns rosters as { "teamId1": {...}, "teamId2": {...} }
+        const myTeamId = state.selectedLeague.my_team_id;
+
+        if (!myTeamId) {
+          throw new Error('User team ID not found for this league');
+        }
+
+        const myTeamRoster = rosterData.rosters[myTeamId];
+
+        if (!myTeamRoster) {
+          throw new Error(`Roster not found for team ${myTeamId}`);
+        }
+
+        // Transform to RosterData format
+        const roster: RosterData = {
+          league_id: state.selectedLeague.league_id,
+          team_id: myTeamId,
+          team_name: state.selectedLeague.my_team_name || 'My Team',
+          players: myTeamRoster.players || [],
+          last_updated: new Date().toISOString(),
+        };
+
         setState((prev) => ({ ...prev, roster }));
+        console.log('Roster synced successfully for team:', roster.team_name);
       } catch (err) {
         const message =
           err instanceof Error ? err.message : 'Failed to sync roster';

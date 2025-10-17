@@ -36,3 +36,4 @@ class UserLogin(BaseModel):
     hashed_password: str
     is_active: bool
     subscription_tier: str = "free"
+    is_admin: bool = False

@@ -13,8 +13,7 @@ import re
 
 from app.db.database import get_db
 from app.db.models import User, Subscription, PaymentAuditLog
-from app.models.user import UserLogin
-from app.api.deps import get_current_user, get_subscription_status
+from app.api.deps import get_current_user, get_current_user_optional, get_subscription_status
 from app.services.subscription_service import SubscriptionService
 from sqlalchemy import select
 
@@ -47,7 +46,7 @@ class UpdatePaymentMethodRequest(BaseModel):
 @router.post("/checkout-session")
 async def create_checkout_session(
     request_body: CheckoutSessionRequest,
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> Dict[str, Any]:
     """
@@ -87,19 +86,56 @@ async def create_checkout_session(
 
 @router.get("/status")
 async def get_subscription_status_endpoint(
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db)
 ) -> Dict[str, Any]:
     """
     Get current user's subscription status.
 
+    This endpoint supports both authenticated and unauthenticated requests.
+    Unauthenticated users receive the default free tier status.
+
     Args:
-        current_user: Current authenticated user
+        current_user: Current authenticated user (optional)
         db: Database session
 
     Returns:
         Subscription status details
     """
+    # If user is not authenticated, return free tier status
+    if not current_user:
+        return {
+            "status": "no_subscription",
+            "tier": "free",
+            "features": {
+                "prospects_limit": 100,
+                "export_enabled": False,
+                "advanced_filters_enabled": False,
+                "comparison_enabled": False
+            }
+        }
+
+    # First, check the user's subscription_tier from the database
+    # This handles manually-granted premium access (e.g., admin users)
+    stmt = select(User).where(User.email == current_user.email)
+    result = await db.execute(stmt)
+    user_db = result.scalar_one_or_none()
+
+    if user_db and user_db.subscription_tier == "premium":
+        # User has premium tier set in database (manual grant or active subscription)
+        return {
+            "status": "active",
+            "tier": "premium",
+            "is_admin": user_db.is_admin,
+            "features": {
+                "prospects_limit": 500,
+                "export_enabled": True,
+                "advanced_filters_enabled": True,
+                "comparison_enabled": True
+            }
+        }
+
+    # Check Stripe subscription status for regular subscribers
     subscription = await get_subscription_status(current_user, db)
 
     if not subscription:
@@ -133,7 +169,7 @@ async def get_subscription_status_endpoint(
 @router.post("/cancel")
 async def cancel_subscription(
     immediate: bool = False,
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> Dict[str, Any]:
     """
@@ -171,7 +207,7 @@ async def cancel_subscription(
 
 @router.post("/reactivate")
 async def reactivate_subscription(
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> Dict[str, Any]:
     """
@@ -210,7 +246,7 @@ async def reactivate_subscription(
 async def update_payment_method(
     request_body: UpdatePaymentMethodRequest,
     request: Request,
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> Dict[str, Any]:
     """

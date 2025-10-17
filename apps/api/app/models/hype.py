@@ -44,6 +44,7 @@ class PlayerHype(Base):
     social_mentions = relationship("SocialMention", back_populates="player_hype")
     media_articles = relationship("MediaArticle", back_populates="player_hype")
     hype_history = relationship("HypeHistory", back_populates="player_hype")
+    search_trends = relationship("SearchTrend", back_populates="player_hype")
 
 
 class SocialMention(Base):
@@ -191,3 +192,33 @@ class TrendingTopic(Base):
     started_trending = Column(DateTime)
     last_updated = Column(DateTime, default=datetime.utcnow)
     is_active = Column(Boolean, default=True)
+
+
+class SearchTrend(Base):
+    """Track Google Trends search interest data for players"""
+    __tablename__ = 'search_trends'
+
+    id = Column(Integer, primary_key=True, index=True)
+    player_hype_id = Column(Integer, ForeignKey('player_hype.id'))
+
+    # Search metrics
+    search_interest = Column(Float, nullable=False)  # 0-100 score from Google Trends
+    search_interest_avg_7d = Column(Float, default=0.0)  # 7-day average
+    search_interest_avg_30d = Column(Float, default=0.0)  # 30-day average
+    search_growth_rate = Column(Float, default=0.0)  # Percentage change
+
+    # Geographic data
+    region = Column(String, default='US')  # Geographic region
+    regional_interest = Column(JSON)  # Regional breakdown (state/country level)
+
+    # Related data
+    related_queries = Column(JSON)  # Top related search queries
+    rising_queries = Column(JSON)  # Breakout/rising search queries
+
+    # Metadata
+    collected_at = Column(DateTime, default=datetime.utcnow)
+    data_period_start = Column(DateTime)  # Start of the trend data period
+    data_period_end = Column(DateTime)  # End of the trend data period
+
+    # Relationships
+    player_hype = relationship("PlayerHype", back_populates="search_trends")

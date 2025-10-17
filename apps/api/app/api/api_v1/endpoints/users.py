@@ -3,7 +3,6 @@ from pydantic import BaseModel, EmailStr, validator
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, delete
 from app.api.deps import get_current_user
-from app.models.user import UserLogin
 from app.db.models import User
 from app.db.database import get_db
 from app.core.security import get_password_hash, verify_password, is_password_complex
@@ -78,9 +77,10 @@ class AccountDeletionRequest(BaseModel):
         return v
 
 
+@router.get("/me", response_model=UserProfileResponse)
 @router.get("/profile", response_model=UserProfileResponse)
 async def get_user_profile(
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> UserProfileResponse:
     """Get current user's profile"""
@@ -119,7 +119,7 @@ async def get_user_profile(
 @router.put("/profile", response_model=UserProfileResponse)
 async def update_user_profile(
     update_request: UserProfileUpdateRequest,
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> UserProfileResponse:
     """Update current user's profile"""
@@ -170,7 +170,7 @@ async def update_user_profile(
 @router.put("/password")
 async def update_password(
     password_request: PasswordUpdateRequest,
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Update user's password"""
@@ -217,7 +217,7 @@ async def update_password(
 
 @router.get("/preferences")
 async def get_user_preferences(
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> Dict[str, Any]:
     """Get current user's preferences"""
@@ -247,7 +247,7 @@ async def get_user_preferences(
 @router.put("/preferences")
 async def update_user_preferences(
     preferences: Dict[str, Any],
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> Dict[str, Any]:
     """Update current user's preferences"""
@@ -272,7 +272,7 @@ async def update_user_preferences(
 
 @router.get("/export", response_model=UserDataExportResponse)
 async def export_user_data(
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> UserDataExportResponse:
     """Export all user data for GDPR compliance"""
@@ -328,7 +328,7 @@ async def export_user_data(
 @router.put("/consent")
 async def update_consent(
     consent_request: ConsentUpdateRequest,
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Update user consent preferences"""
@@ -363,7 +363,7 @@ async def update_consent(
 @router.delete("/delete")
 async def delete_user_account(
     deletion_request: AccountDeletionRequest,
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Delete user account and all associated data (GDPR right to be forgotten)"""

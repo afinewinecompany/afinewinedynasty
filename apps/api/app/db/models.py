@@ -31,8 +31,10 @@ class User(Base):
     subscription_tier: Mapped[str] = mapped_column(String(20), default='free', nullable=False)
     stripe_customer_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, unique=True)
 
-    # Fantrax Integration (Cookie-based authentication)
-    fantrax_cookies: Mapped[Optional[str]] = mapped_column(Text, nullable=True)  # Encrypted JSON
+    # Fantrax Integration
+    fantrax_secret_id: Mapped[Optional[str]] = mapped_column(Text, nullable=True)  # Encrypted Secret ID (Official API)
+    fantrax_cookies: Mapped[Optional[str]] = mapped_column(Text, nullable=True)  # Encrypted JSON (deprecated)
+    fantrax_connected: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     fantrax_connected_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
     # User preferences (JSONB)
@@ -85,6 +87,7 @@ class Prospect(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     mlb_id: Mapped[str] = mapped_column(String(10), unique=True, nullable=False, index=True)
+    mlb_player_id: Mapped[Optional[str]] = mapped_column(String(20), nullable=True, index=True)  # MLB Stats API player ID
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     position: Mapped[str] = mapped_column(String(10), nullable=False)
     organization: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
@@ -467,6 +470,8 @@ class FantraxLeague(Base):
     league_id: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
     league_name: Mapped[str] = mapped_column(String(200), nullable=False)
     league_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    my_team_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)  # User's team ID in this league
+    my_team_name: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)  # User's team name
     scoring_system: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
     roster_settings: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)

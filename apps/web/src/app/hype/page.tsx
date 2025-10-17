@@ -48,6 +48,18 @@ interface HypeData {
     change: number;
     created_at: string;
   }>;
+  search_trends?: {
+    search_interest: number;
+    search_interest_avg_7d: number;
+    search_interest_avg_30d: number;
+    growth_rate: number;
+    regional_interest: Record<string, number>;
+    related_queries: Array<{ query: string; value: number }>;
+    rising_queries: Array<{ query: string; value: string }>;
+    collected_at: string;
+    data_period_start: string;
+    data_period_end: string;
+  };
 }
 
 interface LeaderboardItem {
@@ -90,7 +102,7 @@ export default function HypePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'prospect' | 'mlb'>('all');
   const [refreshing, setRefreshing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'social' | 'media' | 'alerts'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'social' | 'media' | 'trends' | 'alerts'>('overview');
   const [socialMentions, setSocialMentions] = useState<SocialMention[]>([]);
   const [loadingSocial, setLoadingSocial] = useState(false);
   const [mediaArticles, setMediaArticles] = useState<MediaArticle[]>([]);
@@ -553,7 +565,7 @@ export default function HypePage() {
                 </div>
 
                 {/* Metrics Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                   <div className="bg-gray-700/50 p-4 rounded-lg">
                     <div className="text-xs text-gray-400 mb-1">Sentiment</div>
                     <div className={`text-xl font-bold ${getSentimentColor(selectedPlayer.sentiment_score)}`}>
@@ -579,13 +591,22 @@ export default function HypePage() {
                       {selectedPlayer.engagement_rate.toFixed(1)}%
                     </div>
                   </div>
+                  <div className="bg-gray-700/50 p-4 rounded-lg">
+                    <div className="text-xs text-gray-400 mb-1 flex items-center gap-1">
+                      <Search className="w-3 h-3" />
+                      Search Interest
+                    </div>
+                    <div className="text-xl font-bold text-cyan-400">
+                      {selectedPlayer.search_trends ? selectedPlayer.search_trends.search_interest.toFixed(0) : 'N/A'}
+                    </div>
+                  </div>
                 </div>
               </motion.div>
 
               {/* Tabs */}
               <div className="bg-gray-800 rounded-xl">
                 <div className="flex border-b border-gray-700">
-                  {(['overview', 'social', 'media', 'alerts'] as const).map((tab) => (
+                  {(['overview', 'social', 'media', 'trends', 'alerts'] as const).map((tab) => (
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
@@ -757,6 +778,128 @@ export default function HypePage() {
                           <p className="text-gray-400">No recent media coverage found</p>
                           <p className="text-xs text-gray-500 mt-2">
                             RSS feed collection runs every 2 hours
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {activeTab === 'trends' && (
+                    <div className="space-y-4">
+                      {selectedPlayer.search_trends ? (
+                        <>
+                          {/* Google Trends Summary */}
+                          <div className="bg-gray-700/30 p-4 rounded-lg">
+                            <h4 className="font-medium mb-3 flex items-center gap-2">
+                              <Search className="w-5 h-5 text-cyan-400" />
+                              Google Search Trends
+                            </h4>
+                            <div className="grid grid-cols-3 gap-4 mb-4">
+                              <div className="bg-gray-800/50 p-3 rounded">
+                                <div className="text-xs text-gray-400 mb-1">Current Interest</div>
+                                <div className="text-2xl font-bold text-cyan-400">
+                                  {selectedPlayer.search_trends.search_interest.toFixed(0)}
+                                </div>
+                                <div className="text-xs text-gray-500">out of 100</div>
+                              </div>
+                              <div className="bg-gray-800/50 p-3 rounded">
+                                <div className="text-xs text-gray-400 mb-1">7-Day Average</div>
+                                <div className="text-2xl font-bold text-blue-400">
+                                  {selectedPlayer.search_trends.search_interest_avg_7d.toFixed(1)}
+                                </div>
+                              </div>
+                              <div className="bg-gray-800/50 p-3 rounded">
+                                <div className="text-xs text-gray-400 mb-1">Growth Rate</div>
+                                <div className={`text-2xl font-bold ${selectedPlayer.search_trends.growth_rate > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                  {selectedPlayer.search_trends.growth_rate > 0 ? '+' : ''}
+                                  {selectedPlayer.search_trends.growth_rate.toFixed(1)}%
+                                </div>
+                              </div>
+                            </div>
+                            <p className="text-sm text-gray-400">
+                              Search interest shows how frequently people are searching for{' '}
+                              <span className="text-white font-medium">{selectedPlayer.player_name}</span> on Google.
+                              {selectedPlayer.search_trends.growth_rate > 10 ? (
+                                <span className="text-green-400"> This player is trending upward, indicating growing public interest.</span>
+                              ) : selectedPlayer.search_trends.growth_rate < -10 ? (
+                                <span className="text-red-400"> Search interest is declining.</span>
+                              ) : (
+                                <span className="text-gray-300"> Search interest is relatively stable.</span>
+                              )}
+                            </p>
+                          </div>
+
+                          {/* Related Queries */}
+                          {selectedPlayer.search_trends.related_queries && selectedPlayer.search_trends.related_queries.length > 0 && (
+                            <div className="bg-gray-700/30 p-4 rounded-lg">
+                              <h4 className="font-medium mb-3">Related Search Queries</h4>
+                              <div className="space-y-2">
+                                {selectedPlayer.search_trends.related_queries.map((query, idx) => (
+                                  <div key={idx} className="flex items-center justify-between bg-gray-800/50 p-2 rounded">
+                                    <span className="text-sm text-gray-300">{query.query}</span>
+                                    <span className="text-xs text-gray-500">Interest: {query.value}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Rising Queries */}
+                          {selectedPlayer.search_trends.rising_queries && selectedPlayer.search_trends.rising_queries.length > 0 && (
+                            <div className="bg-gray-700/30 p-4 rounded-lg">
+                              <h4 className="font-medium mb-3 flex items-center gap-2">
+                                <TrendingUp className="w-5 h-5 text-green-400" />
+                                Rising Searches (Breakout Topics)
+                              </h4>
+                              <div className="space-y-2">
+                                {selectedPlayer.search_trends.rising_queries.map((query, idx) => (
+                                  <div key={idx} className="flex items-center justify-between bg-gray-800/50 p-2 rounded">
+                                    <span className="text-sm text-gray-300">{query.query}</span>
+                                    <span className={`text-xs px-2 py-0.5 rounded ${
+                                      query.value === 'Breakout' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'
+                                    }`}>
+                                      {query.value}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Regional Interest */}
+                          {selectedPlayer.search_trends.regional_interest && Object.keys(selectedPlayer.search_trends.regional_interest).length > 0 && (
+                            <div className="bg-gray-700/30 p-4 rounded-lg">
+                              <h4 className="font-medium mb-3">Top Regions by Search Interest</h4>
+                              <div className="space-y-2">
+                                {Object.entries(selectedPlayer.search_trends.regional_interest)
+                                  .slice(0, 5)
+                                  .map(([region, interest], idx) => (
+                                    <div key={idx} className="flex items-center gap-3">
+                                      <span className="text-sm text-gray-300 w-32">{region}</span>
+                                      <div className="flex-1 h-6 bg-gray-800 rounded-full overflow-hidden">
+                                        <div
+                                          className="h-full bg-gradient-to-r from-cyan-500 to-blue-500"
+                                          style={{ width: `${interest}%` }}
+                                        />
+                                      </div>
+                                      <span className="text-xs text-gray-500 w-10 text-right">{interest}</span>
+                                    </div>
+                                  ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Data Collection Info */}
+                          <div className="text-xs text-gray-500 text-center">
+                            Last updated: {new Date(selectedPlayer.search_trends.collected_at).toLocaleString()}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="bg-gray-700/30 p-4 rounded-lg text-center py-8">
+                          <Search className="w-12 h-12 mx-auto mb-3 text-gray-600" />
+                          <p className="text-gray-400">No Google Trends data available</p>
+                          <p className="text-xs text-gray-500 mt-2">
+                            Google Trends data is collected periodically for players with hype scores
                           </p>
                         </div>
                       )}

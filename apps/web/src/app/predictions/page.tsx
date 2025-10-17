@@ -20,7 +20,7 @@ import {
   Sparkles,
   AlertCircle,
   Info,
-  TrendingFlat,
+  Minus,
 } from 'lucide-react';
 
 interface MLProjection {
@@ -246,7 +246,7 @@ export default function PredictionsPage() {
       case 'buy':
         return <TrendingUp className="w-5 h-5" />;
       case 'hold':
-        return <TrendingFlat className="w-5 h-5" />;
+        return <Minus className="w-5 h-5" />;
       case 'caution':
         return <AlertCircle className="w-5 h-5" />;
       case 'sell':

@@ -10,7 +10,7 @@ from app.core.security import create_access_token, create_refresh_token, is_pass
 from app.core.validation import validate_email_format, validate_password_input, validate_name_input
 from app.services.user_service import authenticate_user, create_user, get_generic_error_message, get_user_by_email, create_user_session, revoke_user_session, revoke_all_user_sessions, is_session_valid
 from app.api.deps import get_current_user
-from app.models.user import UserLogin
+from app.db.models import User
 from app.services.oauth_service import GoogleOAuthService
 from app.services.password_reset_service import PasswordResetService
 from app.db.database import get_db
@@ -173,8 +173,13 @@ async def login(request: Request, login_request: LoginRequest, db: AsyncSession 
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # Create access and refresh tokens
-    access_token = create_access_token(subject=user.email)
+    # Create access and refresh tokens with user metadata
+    access_token = create_access_token(
+        subject=user.email,
+        subscription_tier=user.subscription_tier or "free",
+        is_admin=user.is_admin,
+        user_id=user.id
+    )
     refresh_token = create_refresh_token(subject=user.email)
 
     # Create session for token revocation tracking
@@ -251,8 +256,13 @@ async def refresh_access_token(request: Request, refresh_request: RefreshTokenRe
     # Revoke the old session
     await revoke_user_session(db, refresh_request.refresh_token)
 
-    # Create new access and refresh tokens
-    new_access_token = create_access_token(subject=username)
+    # Create new access and refresh tokens with user metadata
+    new_access_token = create_access_token(
+        subject=username,
+        subscription_tier=user.subscription_tier or "free",
+        is_admin=user.is_admin,
+        user_id=user.id
+    )
     new_refresh_token = create_refresh_token(subject=username)
 
     # Create new session for token revocation tracking
@@ -268,7 +278,7 @@ async def refresh_access_token(request: Request, refresh_request: RefreshTokenRe
 
 
 @router.post("/logout")
-async def logout(current_user: UserLogin = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def logout(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     """Log out the current user and revoke all sessions"""
     # Revoke all user sessions
     revoked_count = await revoke_all_user_sessions(db, current_user.email)
@@ -356,8 +366,13 @@ async def google_oauth_login(request: Request, oauth_request: GoogleOAuthRequest
         is_new_user = await get_user_by_email(db, google_user_info.get("email")) is None
         user = await GoogleOAuthService.create_or_get_oauth_user(db, google_user_info)
 
-        # Create JWT access and refresh tokens
-        jwt_access_token = create_access_token(subject=user.email)
+        # Create JWT access and refresh tokens with user metadata
+        jwt_access_token = create_access_token(
+            subject=user.email,
+            subscription_tier=user.subscription_tier or "free",
+            is_admin=user.is_admin,
+            user_id=user.id
+        )
         jwt_refresh_token = create_refresh_token(subject=user.email)
 
         # Create session for token revocation tracking
@@ -376,9 +391,13 @@ async def google_oauth_login(request: Request, oauth_request: GoogleOAuthRequest
     except HTTPException:
         raise
     except Exception as e:
+        # Log the actual error for debugging
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Google OAuth error: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Google OAuth authentication failed"
+            detail=f"Google OAuth authentication failed: {str(e)}"
         )
 
 

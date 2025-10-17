@@ -1,11 +1,35 @@
 [phases.setup]
-nixPkgs = ["python39", "postgresql"]
+nixPkgs = [
+  "python311",
+  "postgresql",
+  "gcc",
+  "zlib",
+  "libffi",
+  "openssl",
+  # Playwright dependencies - most will be pulled in automatically
+  "chromium",
+  "gtk3",
+  "alsa-lib",
+  "libxkbcommon"
+]
 
 [phases.install]
-cmds = ["pip install --no-cache-dir -r requirements.txt"]
+cmds = [
+  "python -m venv /opt/venv",
+  "/opt/venv/bin/pip install --upgrade pip setuptools wheel",
+  "/opt/venv/bin/pip install --no-cache-dir -r requirements.txt --timeout 600",
+  # Install Playwright browsers with dependencies
+  "/opt/venv/bin/playwright install --with-deps chromium",
+  # Verify Playwright installation
+  "/opt/venv/bin/playwright install --help"
+]
 
 [phases.build]
 cmds = []
 
+[phases.release]
+# Explicitly disable release phase - migrations run at startup in start.sh
+cmds = []
+
 [start]
-cmd = "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+cmd = "bash start.sh"

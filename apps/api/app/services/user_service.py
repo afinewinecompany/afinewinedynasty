@@ -23,9 +23,12 @@ async def get_user_by_email(db: AsyncSession, email: str) -> Optional[UserLogin]
 
     if user_db:
         return UserLogin(
+            id=user_db.id,
             email=user_db.email,
             hashed_password=user_db.hashed_password,
-            is_active=user_db.is_active
+            is_active=user_db.is_active,
+            subscription_tier=user_db.subscription_tier or "free",
+            is_admin=user_db.is_admin
         )
     return None
 

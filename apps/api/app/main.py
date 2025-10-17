@@ -1,11 +1,29 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, status, Request
+from fastapi.responses import Response, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from sqlalchemy import text
+import logging
+import sys
 
 from app.api.api_v1.api import api_router
 from app.core.config import settings
 from app.core.rate_limiter import setup_rate_limiter
 from app.middleware.security_middleware import add_security_middleware
 from app.services.hype_scheduler import start_hype_scheduler, stop_hype_scheduler
+from app.db.database import AsyncSessionLocal
+
+# Configure logging for Railway/production deployment
+# Ensures all logger.info() calls are visible in Railway logs
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -66,18 +84,18 @@ For support, please contact: support@afinewinedynasty.com
     ]
 )
 
-# CORS MUST be added FIRST - before rate limiting and security middleware
-# This ensures OPTIONS preflight requests are handled correctly
-cors_origins = [str(origin) for origin in settings.BACKEND_CORS_ORIGINS] if settings.BACKEND_CORS_ORIGINS else ["http://localhost:3000"]
-
 # Debug: Log CORS configuration at startup
-import logging
-logger = logging.getLogger(__name__)
 logger.info(f"🔧 CORS Configuration:")
 logger.info(f"   Raw BACKEND_CORS_ORIGINS: {settings.BACKEND_CORS_ORIGINS}")
+cors_origins = [str(origin) for origin in settings.BACKEND_CORS_ORIGINS] if settings.BACKEND_CORS_ORIGINS else ["http://localhost:3000"]
 logger.info(f"   Processed cors_origins: {cors_origins}")
 logger.info(f"   Total origins: {len(cors_origins)}")
 
+# MIDDLEWARE ORDER (applied in reverse, so last added = first executed):
+# 1. Security middleware FIRST (includes TrustedHost for Railway domains)
+app = add_security_middleware(app)
+
+# 2. CORS middleware (after host validation, before rate limiting)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
@@ -87,11 +105,52 @@ app.add_middleware(
     expose_headers=["X-Total-Count"],
 )
 
-# Setup rate limiting (after CORS)
+# 3. Rate limiting LAST (after CORS, with healthcheck exemption)
 app = setup_rate_limiter(app)
 
-# Add security middleware (after CORS)
-app = add_security_middleware(app)
+# CORS Exception Handlers - ensure CORS headers on error responses
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    """Add CORS headers to HTTP exceptions"""
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+        headers={
+            "Access-Control-Allow-Origin": request.headers.get("origin", "*"),
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+            "Access-Control-Allow-Headers": "Authorization, Content-Type, Accept, X-Requested-With",
+        }
+    )
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """Add CORS headers to validation errors"""
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"detail": exc.errors()},
+        headers={
+            "Access-Control-Allow-Origin": request.headers.get("origin", "*"),
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+            "Access-Control-Allow-Headers": "Authorization, Content-Type, Accept, X-Requested-With",
+        }
+    )
+
+@app.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception):
+    """Add CORS headers to all unhandled exceptions"""
+    logger.error(f"Unhandled exception: {exc}", exc_info=True)
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={"detail": "Internal server error"},
+        headers={
+            "Access-Control-Allow-Origin": request.headers.get("origin", "*"),
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+            "Access-Control-Allow-Headers": "Authorization, Content-Type, Accept, X-Requested-With",
+        }
+    )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
@@ -101,20 +160,81 @@ async def root():
     return {"message": "A Fine Wine Dynasty API", "version": settings.VERSION}
 
 
-@app.get("/health")
+@app.get("/health", include_in_schema=False)
 async def health_check():
-    return {"status": "healthy", "service": "api"}
+    """Enhanced health check that verifies DB connectivity.
+
+    Returns 200 OK only if the database is accessible.
+    This prevents Railway from routing traffic before the app is fully ready.
+    """
+    try:
+        # Test database connection
+        async with AsyncSessionLocal() as session:
+            await session.execute(text("SELECT 1"))
+
+        return {
+            "status": "healthy",
+            "service": "api",
+            "database": "connected"
+        }
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        # Return 503 Service Unavailable if DB is down
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content={
+                "status": "unhealthy",
+                "service": "api",
+                "database": "disconnected",
+                "error": str(e)
+            }
+        )
+
+
+@app.head("/health", include_in_schema=False)
+async def health_check_head():
+    """HEAD handler for Railway healthchecks"""
+    return Response(status_code=200)
 
 
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
+
+    # Validate critical environment variables
+    logger.info("=" * 60)
+    logger.info("🔍 Validating environment configuration...")
+    try:
+        logger.info(f"   Environment: {settings.ENVIRONMENT}")
+        logger.info(f"   CORS Origins: {len(settings.BACKEND_CORS_ORIGINS)} configured")
+        if settings.BACKEND_CORS_ORIGINS:
+            for origin in settings.BACKEND_CORS_ORIGINS[:5]:  # Show first 5
+                logger.info(f"     - {origin}")
+        else:
+            logger.warning("   ⚠️  No CORS origins configured - all origins blocked!")
+        logger.info(f"   Database: {'✅ Configured' if settings.SQLALCHEMY_DATABASE_URI else '❌ Not set'}")
+        logger.info(f"   Redis: {'✅ Configured' if settings.REDIS_URL else '❌ Not set'}")
+        logger.info(f"   Google OAuth: {'✅ Configured' if settings.GOOGLE_CLIENT_ID else '❌ Not set'}")
+        logger.info("✅ Environment validation complete")
+    except Exception as e:
+        logger.error(f"❌ Environment validation failed: {e}")
+        logger.error("   Check Railway environment variables for malformed JSON or missing values")
+        # Don't raise - let app start but warn loudly
+        pass
+    logger.info("=" * 60)
+    logger.info("")
+
+    # Start HYPE scheduler
     logger.info("Starting HYPE scheduler...")
     try:
         start_hype_scheduler()
         logger.info("HYPE scheduler started successfully")
     except Exception as e:
         logger.error(f"Failed to start HYPE scheduler: {e}")
+        logger.warning("Continuing startup despite scheduler failure - app will function without HYPE updates")
+        # Don't re-raise - allow app to start even if scheduler fails
+        # This prevents healthcheck failures when DB tables are missing
+        pass
 
 
 @app.on_event("shutdown")

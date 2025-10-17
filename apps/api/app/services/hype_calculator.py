@@ -74,32 +74,38 @@ class HypeCalculator:
             now = datetime.utcnow()
             time_windows = self._get_time_windows(now)
 
-            # 1. Social Media Score (40% of total)
+            # 1. Social Media Score (35% of total, reduced from 40%)
             social_score, social_metrics = self._calculate_social_score(
                 player_hype.id, time_windows
             )
 
-            # 2. Media Coverage Score (30% of total)
+            # 2. Media Coverage Score (25% of total, reduced from 30%)
             media_score, media_metrics = self._calculate_media_score(
                 player_hype.id, time_windows
             )
 
-            # 3. Virality Score (20% of total)
+            # 3. Virality Score (15% of total, reduced from 20%)
             virality_score, virality_metrics = self._calculate_virality_score(
                 player_hype.id, time_windows
             )
 
-            # 4. Sentiment Score (10% of total)
+            # 4. Sentiment Score (10% of total, unchanged)
             sentiment_score, sentiment_metrics = self._calculate_sentiment_score(
                 player_hype.id, time_windows
             )
 
+            # 5. Search Trends Score (15% of total, NEW!)
+            search_trends_score, search_trends_metrics = self._calculate_search_trends_score(
+                player_hype.id
+            )
+
             # Calculate weighted final score
             final_score = (
-                social_score * 0.4 +
-                media_score * 0.3 +
-                virality_score * 0.2 +
-                sentiment_score * 0.1
+                social_score * 0.35 +
+                media_score * 0.25 +
+                virality_score * 0.15 +
+                sentiment_score * 0.10 +
+                search_trends_score * 0.15
             )
 
             # Calculate trend (compare with previous score)
@@ -134,12 +140,14 @@ class HypeCalculator:
                     'media': media_score,
                     'virality': virality_score,
                     'sentiment': sentiment_score,
+                    'search_trends': search_trends_score,
                 },
                 'metrics': {
                     'social': social_metrics,
                     'media': media_metrics,
                     'virality': virality_metrics,
                     'sentiment': sentiment_metrics,
+                    'search_trends': search_trends_metrics,
                 }
             }
 
@@ -638,3 +646,81 @@ class HypeCalculator:
         )
         self.db.add(history)
         self.db.commit()
+
+    def _calculate_search_trends_score(
+        self, player_hype_id: int
+    ) -> Tuple[float, Dict]:
+        """
+        Calculate search trends score from Google Trends data
+
+        This considers:
+        - Current search interest (0-100 from Google)
+        - Growth rate (trending up/down)
+        - Regional interest spread (how widely searched)
+        - Related/rising queries (indicates sustained interest)
+        """
+        from app.models.hype import SearchTrend
+        from sqlalchemy import desc
+
+        # Get most recent search trends data
+        latest_trend = self.db.query(SearchTrend).filter(
+            SearchTrend.player_hype_id == player_hype_id
+        ).order_by(desc(SearchTrend.collected_at)).first()
+
+        if not latest_trend:
+            # No trends data available yet
+            return 0.0, {
+                'search_interest': 0.0,
+                'growth_rate': 0.0,
+                'regional_spread': 0,
+                'related_queries_count': 0,
+                'rising_queries_count': 0,
+                'has_data': False
+            }
+
+        # Calculate score components
+
+        # 1. Base search interest (0-100 from Google, 50% weight)
+        base_score = latest_trend.search_interest * 0.5
+
+        # 2. Growth rate bonus/penalty (25% weight)
+        # Normalize growth rate to 0-100 scale
+        # Positive growth adds to score, negative growth subtracts
+        growth_rate = latest_trend.search_growth_rate
+        if growth_rate > 0:
+            growth_score = min(25, growth_rate * 0.5)  # Cap at 25
+        else:
+            growth_score = max(-25, growth_rate * 0.5)  # Floor at -25
+
+        # 3. Regional spread (15% weight)
+        # More regions = more widespread interest
+        regional_interest = latest_trend.regional_interest or {}
+        num_regions = len(regional_interest)
+        regional_score = min(15, num_regions * 0.3)  # Cap at 15
+
+        # 4. Related/Rising queries (10% weight)
+        # Having related and rising queries indicates sustained interest
+        related_queries = latest_trend.related_queries or []
+        rising_queries = latest_trend.rising_queries or []
+        query_score = min(10, (len(related_queries) + len(rising_queries)) * 0.5)
+
+        # Calculate final search trends score (0-100)
+        search_trends_score = max(0, base_score + growth_score + regional_score + query_score)
+        search_trends_score = min(100, search_trends_score)  # Cap at 100
+
+        metrics = {
+            'search_interest': latest_trend.search_interest,
+            'search_interest_avg_7d': latest_trend.search_interest_avg_7d,
+            'search_interest_avg_30d': latest_trend.search_interest_avg_30d,
+            'growth_rate': growth_rate,
+            'regional_spread': num_regions,
+            'top_regions': dict(list(regional_interest.items())[:5]) if regional_interest else {},
+            'related_queries_count': len(related_queries),
+            'rising_queries_count': len(rising_queries),
+            'related_queries': related_queries[:5],  # Top 5
+            'rising_queries': rising_queries[:5],  # Top 5
+            'has_data': True,
+            'collected_at': latest_trend.collected_at
+        }
+
+        return float(search_trends_score), metrics

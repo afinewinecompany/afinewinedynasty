@@ -3,6 +3,7 @@ from functools import wraps
 from fastapi import HTTPException, Depends, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 from app.core.security import verify_token
 from app.services.auth_service import get_user_by_email
 from app.models.user import UserLogin
@@ -11,9 +12,13 @@ from app.db.models import User, Subscription
 from app.services.subscription_service import SubscriptionService
 
 security = HTTPBearer()
+security_optional = HTTPBearer(auto_error=False)
 
 
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> Optional[UserLogin]:
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_db)
+) -> User:
     """Get current user from JWT token"""
     token = credentials.credentials
     username = verify_token(token)
@@ -25,7 +30,11 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    user = get_user_by_email(username)
+    # Get the actual User model from database
+    stmt = select(User).where(User.email == username)
+    result = await db.execute(stmt)
+    user = result.scalar_one_or_none()
+
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -43,13 +52,38 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
     return user
 
 
-def get_current_active_user(current_user: UserLogin = Depends(get_current_user)) -> UserLogin:
+def get_current_active_user(current_user: User = Depends(get_current_user)) -> User:
     """Get current active user (alias for compatibility)"""
     return current_user
 
 
+async def get_current_user_optional(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_optional),
+    db: AsyncSession = Depends(get_db)
+) -> Optional[User]:
+    """Get current user from JWT token, or None if not authenticated"""
+    if not credentials:
+        return None
+
+    token = credentials.credentials
+    username = verify_token(token)
+
+    if not username:
+        return None
+
+    # Get the actual User model from database
+    stmt = select(User).where(User.email == username)
+    result = await db.execute(stmt)
+    user = result.scalar_one_or_none()
+
+    if not user or not user.is_active:
+        return None
+
+    return user
+
+
 async def get_subscription_status(
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> Optional[Subscription]:
     """
@@ -63,20 +97,11 @@ async def get_subscription_status(
         Subscription record or None if no subscription
     """
     service = SubscriptionService()
-    # Get user by email to get the user ID
-    from sqlalchemy import select
-    stmt = select(User).where(User.email == current_user.email)
-    result = await db.execute(stmt)
-    user = result.scalar_one_or_none()
-
-    if not user:
-        return None
-
-    return await service.get_subscription_status(db, user.id)
+    return await service.get_subscription_status(db, current_user.id)
 
 
 async def require_admin_access(
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> User:
     """
@@ -92,28 +117,16 @@ async def require_admin_access(
     Raises:
         HTTPException: If user is not admin
     """
-    from sqlalchemy import select
-    stmt = select(User).where(User.email == current_user.email)
-    result = await db.execute(stmt)
-    user = result.scalar_one_or_none()
-
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
-        )
-
-    # Check for admin flag (should be added to User model)
-    # For now, using subscription_tier == "admin" as temporary check
-    if not hasattr(user, 'is_admin') or not user.is_admin:
+    # Check for admin flag
+    if not hasattr(current_user, 'is_admin') or not current_user.is_admin:
         # Fallback to subscription_tier check
-        if user.subscription_tier != "admin":
+        if current_user.subscription_tier != "admin":
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Admin access required"
             )
 
-    return user
+    return current_user
 
 
 def subscription_tier_required(tier: str):
@@ -136,27 +149,15 @@ def subscription_tier_required(tier: str):
         @wraps(func)
         async def wrapper(
             *args,
-            current_user: UserLogin = Depends(get_current_user),
+            current_user: User = Depends(get_current_user),
             db: AsyncSession = Depends(get_db),
             **kwargs
         ):
-            # Get user subscription status
-            from sqlalchemy import select
-            stmt = select(User).where(User.email == current_user.email)
-            result = await db.execute(stmt)
-            user = result.scalar_one_or_none()
-
-            if not user:
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="User not found"
-                )
-
             # Check subscription tier
-            if tier == "premium" and user.subscription_tier != "premium":
+            if tier == "premium" and current_user.subscription_tier != "premium":
                 # Check if user has active subscription
                 service = SubscriptionService()
-                subscription = await service.get_subscription_status(db, user.id)
+                subscription = await service.get_subscription_status(db, current_user.id)
 
                 if not subscription or subscription.status not in ["active", "trialing"]:
                     raise HTTPException(
@@ -171,7 +172,7 @@ def subscription_tier_required(tier: str):
 
 async def check_subscription_feature(
     feature: str,
-    current_user: UserLogin = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> bool:
     """
@@ -185,14 +186,6 @@ async def check_subscription_feature(
     Returns:
         True if user has access to feature, False otherwise
     """
-    from sqlalchemy import select
-    stmt = select(User).where(User.email == current_user.email)
-    result = await db.execute(stmt)
-    user = result.scalar_one_or_none()
-
-    if not user:
-        return False
-
     # Feature access rules
     feature_rules = {
         "prospects_limit": {
@@ -217,7 +210,7 @@ async def check_subscription_feature(
         return False
 
     rule = feature_rules[feature]
-    tier = user.subscription_tier or "free"
+    tier = current_user.subscription_tier or "free"
 
     if isinstance(rule[tier], bool):
         return rule[tier]

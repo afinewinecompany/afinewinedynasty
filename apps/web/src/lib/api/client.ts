@@ -144,8 +144,10 @@ export class APIClient {
 }
 
 // Default API client instance
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const apiVersion = process.env.NEXT_PUBLIC_API_VERSION || 'v1';
 export const apiClient = new APIClient({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+  baseURL: `${apiBaseUrl}/api/${apiVersion}`,
 });
 
 // Export as 'api' for compatibility

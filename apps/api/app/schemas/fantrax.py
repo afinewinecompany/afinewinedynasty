@@ -208,3 +208,90 @@ class ConnectionStatusResponse(BaseModel):
     fantrax_user_id: Optional[str] = Field(None, description="Connected Fantrax user ID")
     connected_at: Optional[datetime] = Field(None, description="When connection was established")
     leagues_count: Optional[int] = Field(None, description="Number of leagues found")
+
+
+# In-Browser Authentication Schemas
+
+class AuthInitiateResponse(BaseModel):
+    """Response when initiating in-browser authentication"""
+    session_id: str = Field(..., description="Unique session identifier for polling")
+    status_url: str = Field(..., description="URL to poll for authentication status")
+    expires_in: int = Field(..., description="Seconds until session expires")
+    message: str = Field(..., description="User-friendly status message")
+
+
+class AuthStatusResponse(BaseModel):
+    """Response for authentication status polling"""
+    session_id: str = Field(..., description="Session identifier")
+    status: str = Field(..., description="Current status (initializing, ready, authenticating, success, failed, timeout)")
+    current_url: Optional[str] = Field(None, description="Current browser URL")
+    elapsed_seconds: int = Field(..., description="Seconds since session started")
+    expires_in: int = Field(..., description="Seconds until session expires")
+    message: str = Field(..., description="User-friendly status message")
+
+    @validator('status')
+    def validate_status(cls, v):
+        allowed = ['initializing', 'ready', 'authenticating', 'success', 'failed', 'timeout', 'cancelled']
+        if v not in allowed:
+            raise ValueError(f'status must be one of {allowed}')
+        return v
+
+
+class AuthCompleteResponse(BaseModel):
+    """Response after completing authentication"""
+    success: bool = Field(..., description="Whether authentication was successful")
+    message: str = Field(..., description="Success message")
+    connected_at: datetime = Field(..., description="Timestamp of successful connection")
+
+
+class AuthCancelResponse(BaseModel):
+    """Response after cancelling authentication"""
+    success: bool = Field(..., description="Whether cancellation was successful")
+    message: str = Field(..., description="Cancellation message")
+
+
+class FantraxConnectionResponse(BaseModel):
+    """Response for Fantrax connection via cookie upload"""
+    success: bool = Field(..., description="Whether connection was successful")
+    message: str = Field(..., description="Status message")
+    connected_at: Optional[datetime] = Field(None, description="Connection timestamp")
+
+
+class FantraxLeagueInfo(BaseModel):
+    """Information about a Fantrax league"""
+    league_id: str = Field(..., description="Unique league identifier")
+    league_name: str = Field(..., description="League name")
+    league_type: str = Field(..., description="League type (dynasty, keeper, redraft)")
+    team_name: Optional[str] = Field(None, description="User's team name in this league")
+    roster_size: Optional[int] = Field(None, description="Total roster spots")
+    scoring_categories: Optional[List[str]] = Field(None, description="Scoring categories")
+
+
+class FantraxRosterResponse(BaseModel):
+    """Response with roster data"""
+    league_id: str = Field(..., description="League identifier")
+    players: List[FantraxRosterPlayerInDB] = Field(..., description="Roster players")
+    last_sync: datetime = Field(..., description="Last sync timestamp")
+    total_players: int = Field(..., description="Total number of players on roster")
+
+
+class FantraxSecretAPIRosterResponse(BaseModel):
+    """Response with roster data from Secret ID API"""
+    league_id: str = Field(..., description="League identifier")
+    period: Optional[int] = Field(None, description="Period number")
+    rosters: Dict[str, Any] = Field(..., description="Team rosters (keyed by team ID)")
+
+
+class FantraxStandingsResponse(BaseModel):
+    """Response with league standings"""
+    league_id: str = Field(..., description="League identifier")
+    standings: List[Dict[str, Any]] = Field(..., description="Team standings")
+    user_rank: int = Field(..., description="User's current rank")
+    total_teams: int = Field(..., description="Total teams in league")
+
+
+class FantraxTransactionsResponse(BaseModel):
+    """Response with recent transactions"""
+    league_id: str = Field(..., description="League identifier")
+    transactions: List[Dict[str, Any]] = Field(..., description="Recent transactions")
+    last_updated: datetime = Field(..., description="Last update timestamp")

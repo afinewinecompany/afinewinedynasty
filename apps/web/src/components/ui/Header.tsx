@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Search, User, Zap, Menu, Wine, Brain, TrendingUp } from 'lucide-react';
+import { Search, User, Zap, Menu, Wine, Brain, TrendingUp, Trophy } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from './button';
 
@@ -16,6 +16,7 @@ const Header: React.FC = () => {
 
   const navLinks = [
     { href: '/', label: 'Dashboard' },
+    ...(user?.subscriptionTier === 'premium' ? [{ href: '/my-league', label: 'My League', icon: 'trophy' }] : []),
     { href: '/prospects', label: 'Prospects' },
     { href: '/hype', label: 'HYPE', icon: 'trending' },
     { href: '/predictions', label: 'ML Predictions', icon: 'brain' },
@@ -51,6 +52,7 @@ const Header: React.FC = () => {
               >
                 {link.icon === 'brain' && <Brain className="w-4 h-4" />}
                 {link.icon === 'trending' && <TrendingUp className="w-4 h-4" />}
+                {link.icon === 'trophy' && <Trophy className="w-4 h-4" />}
                 {link.label}
               </Link>
             ))}
@@ -129,6 +131,7 @@ const Header: React.FC = () => {
               >
                 {link.icon === 'brain' && <Brain className="w-4 h-4" />}
                 {link.icon === 'trending' && <TrendingUp className="w-4 h-4" />}
+                {link.icon === 'trophy' && <Trophy className="w-4 h-4" />}
                 {link.label}
               </Link>
             ))}
