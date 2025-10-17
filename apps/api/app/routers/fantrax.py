@@ -271,6 +271,18 @@ async def get_leagues(
                 # Use values from database if available
                 my_team_id = db_league.my_team_id
                 my_team_name = db_league.my_team_name
+
+                # If database values are NULL, update them from API response
+                if not my_team_id and league.get('teams') and len(league.get('teams', [])) > 0:
+                    first_team = league.get('teams')[0]
+                    my_team_id = first_team.get('team_id')
+                    my_team_name = first_team.get('team_name')
+
+                    # Update the database league with the team info
+                    if my_team_id:
+                        db_league.my_team_id = my_team_id
+                        db_league.my_team_name = my_team_name
+                        logger.info(f"Auto-updated team ID for league {league_id}: {my_team_name}")
             elif league.get('teams') and len(league.get('teams', [])) > 0:
                 # Fallback to first team from API response if not in DB yet
                 first_team = league.get('teams')[0]
@@ -287,6 +299,10 @@ async def get_leagues(
                 my_team_name=my_team_name
             )
             merged_leagues.append(league_data)
+
+        # Commit any auto-updates to team IDs
+        if not is_first_fetch:
+            await db.commit()
 
         # If this is first fetch, save all leagues as active to database
         if is_first_fetch and merged_leagues:
