@@ -290,19 +290,24 @@ export function useFantrax(): UseFantraxReturn {
   const loadSavedRoster = useCallback(async (leagueId: string) => {
     setLoading('roster', true);
     try {
+      console.log(`Loading saved roster for league: ${leagueId}`);
       const savedRoster = await fantraxApi.getSavedRoster(leagueId);
+      console.log('Saved roster response:', savedRoster);
+      console.log('Saved roster players:', savedRoster.players);
+      console.log('Number of players in saved roster:', savedRoster.players?.length || 0);
+
       const roster: RosterData = {
         league_id: savedRoster.league_id,
         team_id: savedRoster.team_id,
         team_name: savedRoster.team_name,
-        players: savedRoster.players,
+        players: savedRoster.players || [],
         last_updated: savedRoster.last_updated || new Date().toISOString(),
       };
       setState((prev) => ({ ...prev, roster }));
       console.log(`Loaded saved roster with ${roster.players.length} players`);
     } catch (err) {
       // It's okay if there's no saved roster yet - user needs to sync first
-      console.log('No saved roster found for league:', leagueId);
+      console.log('No saved roster found for league:', leagueId, err);
     } finally {
       setLoading('roster', false);
     }
@@ -416,13 +421,16 @@ export function useFantrax(): UseFantraxReturn {
 
         // Save roster to database for persistence
         try {
-          await fantraxApi.saveRoster(state.selectedLeague.league_id, {
+          console.log(`Saving roster to database: ${roster.players.length} players`);
+          console.log('First player being saved:', roster.players[0]);
+          const saveResponse = await fantraxApi.saveRoster(state.selectedLeague.league_id, {
             league_id: roster.league_id,
             team_id: roster.team_id,
             team_name: roster.team_name,
             players: roster.players,
           });
-          console.log('Roster saved to database');
+          console.log('Roster save response:', saveResponse);
+          console.log(`Successfully saved ${saveResponse.players_saved} players to database`);
         } catch (saveErr) {
           console.error('Failed to save roster to database:', saveErr);
           // Don't fail the sync if save fails - roster is still in memory
