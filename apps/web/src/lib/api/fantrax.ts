@@ -616,6 +616,36 @@ export async function getSecretAPIRosters(
 }
 
 /**
+ * Get enriched team roster with full player information
+ *
+ * Combines roster data (contracts) with league player pool (names, teams, ages)
+ * to provide complete player information.
+ *
+ * @param leagueId - Fantrax League ID
+ * @param teamId - Team ID
+ * @param period - Optional lineup period
+ * @returns Promise resolving to enriched roster
+ * @throws Error if request fails
+ *
+ * @since 2.0.0
+ */
+export async function getEnrichedRoster(
+  leagueId: string,
+  teamId: string,
+  period?: number
+): Promise<any> {
+  const url = period
+    ? `${FANTRAX_SECRET_API_BASE}/leagues/${leagueId}/rosters/${teamId}/enriched?period=${period}`
+    : `${FANTRAX_SECRET_API_BASE}/leagues/${leagueId}/rosters/${teamId}/enriched`;
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+  return handleResponse<any>(response);
+}
+
+/**
  * Get league standings using Secret ID API
  *
  * @param leagueId - Fantrax League ID

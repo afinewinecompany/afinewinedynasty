@@ -312,41 +312,35 @@ export function useFantrax(): UseFantraxReturn {
       setError('sync', null);
 
       try {
-        // Use Secret ID API to fetch rosters
-        const rosterData = await fantraxApi.getSecretAPIRosters(
-          state.selectedLeague.league_id
-        );
-
-        console.log('Roster data received:', rosterData);
-
-        // Extract user's team roster from the rosters dictionary
-        // The API returns rosters as { "teamId1": {...}, "teamId2": {...} }
+        // Get team ID
         const myTeamId = state.selectedLeague.my_team_id;
 
         if (!myTeamId) {
           throw new Error('User team ID not found for this league');
         }
 
-        const myTeamRoster = rosterData.rosters[myTeamId];
+        // Use enriched roster endpoint to get full player information
+        const enrichedRoster = await fantraxApi.getEnrichedRoster(
+          state.selectedLeague.league_id,
+          myTeamId
+        );
 
-        if (!myTeamRoster) {
-          throw new Error(`Roster not found for team ${myTeamId}`);
-        }
+        console.log('Enriched roster data received:', enrichedRoster);
 
         // Transform to RosterData format
-        // Fantrax API returns players in 'rosterItems' array
-        const rawPlayers = myTeamRoster.rosterItems || myTeamRoster.players || [];
+        // The enriched roster already has player names, teams, ages, etc.
+        const rawPlayers = enrichedRoster.rosterItems || [];
 
         // Log first player to see data structure
         if (rawPlayers.length > 0) {
-          console.log('Sample player data:', rawPlayers[0]);
+          console.log('Sample enriched player data:', rawPlayers[0]);
         }
 
-        // Transform Fantrax player data to our format
+        // Transform enriched player data to our format
         const players = rawPlayers.map((player: any) => ({
           player_id: player.id || player.playerId || player.player_id || '',
           player_name: player.name || player.playerName || player.player_name || 'Unknown Player',
-          positions: player.positions || player.eligiblePositions || player.position ? [player.position] : [],
+          positions: player.positions || player.eligiblePositions || (player.position ? [player.position] : []),
           team: player.mlbTeam || player.team || player.mlb_team || '',
           age: player.age || null,
           status: player.status || player.injuryStatus || 'active',
@@ -358,7 +352,7 @@ export function useFantrax(): UseFantraxReturn {
         const roster: RosterData = {
           league_id: state.selectedLeague.league_id,
           team_id: myTeamId,
-          team_name: myTeamRoster.teamName || state.selectedLeague.my_team_name || 'My Team',
+          team_name: enrichedRoster.team_name || state.selectedLeague.my_team_name || 'My Team',
           players: players,
           last_updated: new Date().toISOString(),
         };

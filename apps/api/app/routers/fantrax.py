@@ -432,6 +432,57 @@ async def get_team_rosters(
         )
 
 
+@router.get("/leagues/{league_id}/rosters/{team_id}/enriched")
+async def get_enriched_team_roster(
+    league_id: str,
+    team_id: str,
+    period: Optional[int] = None,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get enriched team roster with full player information
+
+    Combines roster data (contracts) with league player pool (names, teams, ages)
+    to provide complete player information.
+
+    Args:
+        league_id: Fantrax League ID
+        team_id: Team ID
+        period: Optional lineup period (defaults to current/upcoming)
+    """
+    secret_id = await get_fantrax_secret_id(db, current_user.id)
+
+    if not secret_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Fantrax account not connected"
+        )
+
+    try:
+        fantrax_service = FantraxSecretAPIService(secret_id)
+        enriched_roster = await fantrax_service.get_enriched_team_roster(league_id, team_id, period)
+
+        if enriched_roster is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Roster not found for team {team_id} in league {league_id}"
+            )
+
+        return enriched_roster
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        logger.error(f"Failed to fetch enriched roster for user {current_user.id}, league {league_id}, team {team_id}: {str(e)}\n{error_details}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch enriched roster: {str(e)}"
+        )
+
+
 @router.get("/leagues/{league_id}/standings", response_model=FantraxStandingsResponse)
 async def get_standings(
     league_id: str,

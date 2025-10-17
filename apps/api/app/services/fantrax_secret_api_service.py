@@ -222,10 +222,26 @@ class FantraxSecretAPIService:
         if not response:
             return None
 
+        # Log sample roster data to understand structure
+        rosters_data = response.get("rosters", [])
+        if rosters_data:
+            if isinstance(rosters_data, dict):
+                # If rosters is a dict keyed by team ID
+                first_team_id = list(rosters_data.keys())[0]
+                first_roster = rosters_data[first_team_id]
+                logger.info(f"Sample roster structure for team {first_team_id}: {json.dumps(first_roster, indent=2)[:1000]}")
+
+                # Check roster items
+                roster_items = first_roster.get("rosterItems", first_roster.get("players", []))
+                if roster_items and len(roster_items) > 0:
+                    logger.info(f"Sample roster item: {json.dumps(roster_items[0], indent=2)[:500]}")
+            elif isinstance(rosters_data, list) and len(rosters_data) > 0:
+                logger.info(f"Sample roster structure: {json.dumps(rosters_data[0], indent=2)[:1000]}")
+
         return {
             "league_id": league_id,
             "period": response.get("period"),
-            "rosters": response.get("rosters", [])
+            "rosters": rosters_data
         }
 
     async def get_standings(self, league_id: str) -> Optional[Dict[str, Any]]:
@@ -323,6 +339,95 @@ class FantraxSecretAPIService:
         )
 
         return response
+
+    async def get_enriched_team_roster(
+        self,
+        league_id: str,
+        team_id: str,
+        period: Optional[int] = None
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Get team roster enriched with full player information
+
+        Combines data from getTeamRosters (contract/roster info) with
+        getLeagueInfo (player names, teams, positions, ages)
+
+        Args:
+            league_id: Fantrax League ID
+            team_id: Team ID to get roster for
+            period: Optional lineup period
+
+        Returns:
+            Enriched roster with full player details
+        """
+        # Fetch roster data (has contracts but maybe not full player info)
+        rosters_response = await self.get_team_rosters(league_id, period)
+        if not rosters_response:
+            logger.error(f"Failed to fetch rosters for league {league_id}")
+            return None
+
+        # Fetch league info (has full player pool data)
+        league_info = await self.get_league_info(league_id)
+        if not league_info:
+            logger.warning(f"Failed to fetch league info for player enrichment, league {league_id}")
+
+        # Extract the specific team's roster
+        rosters = rosters_response.get("rosters", {})
+        if isinstance(rosters, dict):
+            team_roster = rosters.get(team_id)
+        else:
+            # If rosters is a list, find by team_id
+            team_roster = next((r for r in rosters if r.get("teamId") == team_id), None)
+
+        if not team_roster:
+            logger.error(f"Team {team_id} not found in rosters")
+            return None
+
+        # Create player lookup from league info
+        player_lookup = {}
+        if league_info and "players" in league_info:
+            for player in league_info.get("players", []):
+                player_id = player.get("id") or player.get("playerId")
+                if player_id:
+                    player_lookup[player_id] = player
+
+        # Enrich roster items with full player data
+        roster_items = team_roster.get("rosterItems", team_roster.get("players", []))
+        enriched_items = []
+
+        for item in roster_items:
+            # Get player ID from roster item
+            player_id = item.get("playerId") or item.get("id") or item.get("player_id")
+
+            # Start with roster item data (has contracts)
+            enriched_player = dict(item)
+
+            # Enrich with league player pool data if available
+            if player_id and player_id in player_lookup:
+                pool_player = player_lookup[player_id]
+                # Merge data, preferring pool data for player details
+                enriched_player.update({
+                    "id": player_id,
+                    "name": pool_player.get("name") or pool_player.get("playerName") or enriched_player.get("name"),
+                    "mlbTeam": pool_player.get("mlbTeam") or pool_player.get("team") or enriched_player.get("mlbTeam"),
+                    "positions": pool_player.get("positions") or pool_player.get("eligiblePositions") or enriched_player.get("positions", []),
+                    "age": pool_player.get("age") or enriched_player.get("age"),
+                    "status": pool_player.get("status") or pool_player.get("injuryStatus") or enriched_player.get("status"),
+                })
+
+            enriched_items.append(enriched_player)
+
+        # Log sample enriched player
+        if enriched_items:
+            logger.info(f"Sample enriched player: {json.dumps(enriched_items[0], indent=2)[:500]}")
+
+        return {
+            "league_id": league_id,
+            "team_id": team_id,
+            "team_name": team_roster.get("teamName") or team_roster.get("name"),
+            "period": rosters_response.get("period"),
+            "rosterItems": enriched_items
+        }
 
     async def get_adp(
         self,
