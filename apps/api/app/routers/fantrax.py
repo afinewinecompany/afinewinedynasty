@@ -278,11 +278,23 @@ async def get_leagues(
                 # Default to 'dynasty' if sport is not mapped
                 league_type = 'dynasty'  # Default for most fantasy baseball leagues
 
+                # Extract user's team ID and name from the teams array
+                # The Secret ID API returns only the user's teams in the league
+                my_team_id = None
+                my_team_name = None
+                if league_data.teams and len(league_data.teams) > 0:
+                    # Use the first team (usually there's only one team per user per league)
+                    first_team = league_data.teams[0]
+                    my_team_id = first_team.get('team_id')
+                    my_team_name = first_team.get('team_name')
+
                 new_league = FantraxLeagueModel(
                     user_id=current_user.id,
                     league_id=league_data.league_id,
                     league_name=league_data.name,
                     league_type=league_type,
+                    my_team_id=my_team_id,
+                    my_team_name=my_team_name,
                     is_active=True  # All active by default
                 )
                 db.add(new_league)
@@ -519,10 +531,24 @@ async def update_league_selections(
 
             is_active = league['league_id'] in request.league_ids
 
+            # Extract user's team ID and name from the teams array
+            my_team_id = None
+            my_team_name = None
+            teams = league.get('teams', [])
+            if teams and len(teams) > 0:
+                # Use the first team (usually there's only one team per user per league)
+                first_team = teams[0]
+                my_team_id = first_team.get('team_id')
+                my_team_name = first_team.get('team_name')
+
             if existing_league:
-                # Update existing league - keep existing league_type, just update name and active status
+                # Update existing league - keep existing league_type, just update name, team info and active status
                 existing_league.league_name = league['name']
                 existing_league.is_active = is_active
+                # Update team info if available
+                if my_team_id:
+                    existing_league.my_team_id = my_team_id
+                    existing_league.my_team_name = my_team_name
             else:
                 # Create new league - default to 'dynasty' type
                 new_league = FantraxLeagueModel(
@@ -530,6 +556,8 @@ async def update_league_selections(
                     league_id=league['league_id'],
                     league_name=league['name'],
                     league_type='dynasty',  # Default to dynasty (valid values: dynasty, keeper, redraft)
+                    my_team_id=my_team_id,
+                    my_team_name=my_team_name,
                     is_active=is_active
                 )
                 db.add(new_league)

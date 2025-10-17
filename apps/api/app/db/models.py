@@ -470,6 +470,8 @@ class FantraxLeague(Base):
     league_id: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
     league_name: Mapped[str] = mapped_column(String(200), nullable=False)
     league_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    my_team_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)  # User's team ID in this league
+    my_team_name: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)  # User's team name
     scoring_system: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
     roster_settings: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)

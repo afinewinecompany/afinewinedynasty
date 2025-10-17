@@ -24,7 +24,9 @@
       "Bash(dir:*)",
       "Bash(powershell -Command:*)",
       "Bash(npm run build:*)",
-      "Bash(wmic process where \"name=''python.exe''\" get ProcessId,CommandLine /format:list)"
+      "Bash(wmic process where \"name=''python.exe''\" get ProcessId,CommandLine /format:list)",
+      "Bash(git restore:*)",
+      "Bash(alembic revision:*)"
     ],
     "deny": [],
     "ask": []
