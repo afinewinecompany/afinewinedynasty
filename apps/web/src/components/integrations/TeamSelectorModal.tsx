@@ -24,7 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Loader2, Users, CheckCircle } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import * as fantraxApi from '@/lib/api/fantrax';
 
 /**
@@ -183,8 +183,9 @@ export function TeamSelectorModal({
 
           {error && (
             <Alert variant="destructive" className="mb-4">
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription>
+                <strong>Error:</strong> {error}
+              </AlertDescription>
             </Alert>
           )}
 
@@ -240,9 +241,8 @@ export function TeamSelectorModal({
 
           {!isLoading && teams.length === 0 && !error && (
             <Alert>
-              <AlertTitle>No teams found</AlertTitle>
               <AlertDescription>
-                No teams were found in this league. Please refresh and try again.
+                <strong>No teams found.</strong> No teams were found in this league. Please refresh and try again.
               </AlertDescription>
             </Alert>
           )}
