@@ -336,7 +336,10 @@ export function FantraxTab(): JSX.Element {
                       <Checkbox
                         id={league.league_id}
                         checked={selectedLeagueIds.has(league.league_id)}
-                        onCheckedChange={() => handleLeagueToggle(league.league_id)}
+                        onCheckedChange={(checked) => {
+                          console.log('Checkbox changed:', league.league_id, checked);
+                          handleLeagueToggle(league.league_id);
+                        }}
                       />
                       <label
                         htmlFor={league.league_id}

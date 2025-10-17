@@ -260,12 +260,12 @@ export function useFantrax(): UseFantraxReturn {
         league_id: league.league_id,
         league_name: league.name,
         sport: league.sport || 'MLB',
-        team_count: league.teams.length,
-        my_team_id: league.teams[0]?.team_id,
-        my_team_name: league.teams[0]?.team_name,
-        roster_size: 0, // Not available from initial API call
-        scoring_type: 'unknown',
-        is_active: true,
+        team_count: league.teams?.length || 0,
+        my_team_id: league.teams?.[0]?.team_id,
+        my_team_name: league.teams?.[0]?.team_name,
+        roster_size: 0, // Will be populated when league details are fetched
+        scoring_type: league.sport || 'MLB',
+        is_active: league.is_active !== undefined ? league.is_active : true,
         season: new Date().getFullYear(),
       }));
       setState((prev) => ({
