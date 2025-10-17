@@ -85,9 +85,13 @@ export function FantraxTab(): JSX.Element {
     try {
       const leagues = await getSecretAPILeagues();
       setFantraxLeagues(leagues);
-      // Initialize selected leagues based on is_active
+      // Default to all leagues selected if none are active yet
+      // Otherwise use the saved active state
+      const hasAnyActive = leagues.some(l => l.is_active);
       const selected = new Set(
-        leagues.filter(l => l.is_active).map(l => l.league_id)
+        hasAnyActive
+          ? leagues.filter(l => l.is_active).map(l => l.league_id)
+          : leagues.map(l => l.league_id) // Select all by default
       );
       setSelectedLeagueIds(selected);
     } catch (error) {

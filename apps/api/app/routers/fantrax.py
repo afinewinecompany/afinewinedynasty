@@ -245,6 +245,9 @@ async def get_leagues(
         result = await db.execute(stmt)
         db_leagues = {league.league_id: league for league in result.scalars().all()}
 
+        # Check if this is the first time we're fetching leagues (no leagues in DB)
+        is_first_fetch = len(db_leagues) == 0
+
         # Merge data - add is_active from database
         merged_leagues = []
         for league in api_leagues:
@@ -257,14 +260,29 @@ async def get_leagues(
             db_league = db_leagues.get(league_id)
 
             # Create properly structured response
+            # Default to active=True on first fetch, otherwise use DB value
             league_data = FantraxLeagueResponse(
                 league_id=league_id,
                 name=league.get('name', 'Unknown League'),
                 sport=league.get('sport', 'MLB'),
                 teams=league.get('teams', []),
-                is_active=db_league.is_active if db_league else False
+                is_active=True if is_first_fetch else (db_league.is_active if db_league else False)
             )
             merged_leagues.append(league_data)
+
+        # If this is first fetch, save all leagues as active to database
+        if is_first_fetch and merged_leagues:
+            logger.info(f"First league fetch for user {current_user.id}, saving all {len(merged_leagues)} leagues as active")
+            for league_data in merged_leagues:
+                new_league = FantraxLeagueModel(
+                    user_id=current_user.id,
+                    league_id=league_data.league_id,
+                    league_name=league_data.name,
+                    league_type=league_data.sport or 'MLB',
+                    is_active=True  # All active by default
+                )
+                db.add(new_league)
+            await db.commit()
 
         logger.info(f"Returning {len(merged_leagues)} leagues for user {current_user.id}")
         return merged_leagues
