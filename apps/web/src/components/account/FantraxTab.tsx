@@ -396,6 +396,15 @@ export function FantraxTab(): JSX.Element {
                               No team selected - click to select your team
                             </p>
                           )}
+                          {league.last_sync && league.roster_count ? (
+                            <p className="text-xs text-green-600">
+                              Synced: {league.roster_count} players • {new Date(league.last_sync).toLocaleDateString()}
+                            </p>
+                          ) : (
+                            <p className="text-xs text-gray-500">
+                              Not synced
+                            </p>
+                          )}
                         </div>
                       </label>
                       <div className="flex items-center gap-2">

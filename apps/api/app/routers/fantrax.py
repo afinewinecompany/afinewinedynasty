@@ -47,6 +47,8 @@ class FantraxLeagueResponse(BaseModel):
     is_active: bool = False  # Whether user has selected this league
     my_team_id: Optional[str] = None  # User's team ID in this league
     my_team_name: Optional[str] = None  # User's team name in this league
+    last_sync: Optional[str] = None  # ISO timestamp of last roster sync
+    roster_count: int = 0  # Number of players in saved roster
 
 
 class FantraxLeagueInfoResponse(BaseModel):
@@ -227,8 +229,8 @@ async def get_leagues(
         )
 
     try:
-        from sqlalchemy import select
-        from app.db.models import FantraxLeague as FantraxLeagueModel
+        from sqlalchemy import select, func
+        from app.db.models import FantraxLeague as FantraxLeagueModel, FantraxRoster
 
         # Fetch leagues from Fantrax API
         fantrax_service = FantraxSecretAPIService(secret_id)
@@ -246,6 +248,15 @@ async def get_leagues(
         )
         result = await db.execute(stmt)
         db_leagues = {league.league_id: league for league in result.scalars().all()}
+
+        # Get roster counts for each league
+        roster_counts = {}
+        for db_league in db_leagues.values():
+            count_stmt = select(func.count()).select_from(FantraxRoster).where(
+                FantraxRoster.league_id == db_league.id
+            )
+            count_result = await db.execute(count_stmt)
+            roster_counts[db_league.league_id] = count_result.scalar() or 0
 
         # Check if this is the first time we're fetching leagues (no leagues in DB)
         is_first_fetch = len(db_leagues) == 0
@@ -289,6 +300,13 @@ async def get_leagues(
                 my_team_id = first_team.get('team_id')
                 my_team_name = first_team.get('team_name')
 
+            # Get sync data from database
+            last_sync = None
+            roster_count = 0
+            if db_league:
+                last_sync = db_league.last_sync.isoformat() if db_league.last_sync else None
+                roster_count = roster_counts.get(league_id, 0)
+
             league_data = FantraxLeagueResponse(
                 league_id=league_id,
                 name=league.get('name', 'Unknown League'),
@@ -296,7 +314,9 @@ async def get_leagues(
                 teams=league.get('teams', []),
                 is_active=True if is_first_fetch else (db_league.is_active if db_league else False),
                 my_team_id=my_team_id,
-                my_team_name=my_team_name
+                my_team_name=my_team_name,
+                last_sync=last_sync,
+                roster_count=roster_count
             )
             merged_leagues.append(league_data)
 

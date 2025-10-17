@@ -460,6 +460,10 @@ export interface SecretAPILeague {
     team_name: string;
   }>;
   is_active: boolean; // Whether user has selected this league
+  my_team_id?: string | null; // User's team ID in this league
+  my_team_name?: string | null; // User's team name in this league
+  last_sync?: string | null; // ISO timestamp of last roster sync
+  roster_count?: number; // Number of players in saved roster
 }
 
 /**
