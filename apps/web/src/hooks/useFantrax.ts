@@ -285,6 +285,30 @@ export function useFantrax(): UseFantraxReturn {
   }, [setLoading, setError]);
 
   /**
+   * Load saved roster from database
+   */
+  const loadSavedRoster = useCallback(async (leagueId: string) => {
+    setLoading('roster', true);
+    try {
+      const savedRoster = await fantraxApi.getSavedRoster(leagueId);
+      const roster: RosterData = {
+        league_id: savedRoster.league_id,
+        team_id: savedRoster.team_id,
+        team_name: savedRoster.team_name,
+        players: savedRoster.players,
+        last_updated: savedRoster.last_updated || new Date().toISOString(),
+      };
+      setState((prev) => ({ ...prev, roster }));
+      console.log(`Loaded saved roster with ${roster.players.length} players`);
+    } catch (err) {
+      // It's okay if there's no saved roster yet - user needs to sync first
+      console.log('No saved roster found for league:', leagueId);
+    } finally {
+      setLoading('roster', false);
+    }
+  }, [setLoading]);
+
+  /**
    * Select a league
    */
   const selectLeague = useCallback((league: FantraxLeague) => {
@@ -296,7 +320,10 @@ export function useFantrax(): UseFantraxReturn {
       analysis: null,
       recommendations: [],
     }));
-  }, []);
+
+    // Try to load saved roster for this league
+    loadSavedRoster(league.league_id);
+  }, [loadSavedRoster]);
 
   /**
    * Sync roster for selected league
@@ -379,6 +406,20 @@ export function useFantrax(): UseFantraxReturn {
 
         setState((prev) => ({ ...prev, roster }));
         console.log('Roster synced successfully for team:', roster.team_name);
+
+        // Save roster to database for persistence
+        try {
+          await fantraxApi.saveRoster(state.selectedLeague.league_id, {
+            league_id: roster.league_id,
+            team_id: roster.team_id,
+            team_name: roster.team_name,
+            players: roster.players,
+          });
+          console.log('Roster saved to database');
+        } catch (saveErr) {
+          console.error('Failed to save roster to database:', saveErr);
+          // Don't fail the sync if save fails - roster is still in memory
+        }
       } catch (err) {
         const message =
           err instanceof Error ? err.message : 'Failed to sync roster';

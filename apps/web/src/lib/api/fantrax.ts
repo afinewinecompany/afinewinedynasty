@@ -766,3 +766,93 @@ export async function updateTeamSelection(
     team_name: string;
   }>(response);
 }
+
+/**
+ * Save synced roster to database
+ *
+ * Persists roster data so it can be viewed later without re-syncing.
+ *
+ * @param leagueId - The league ID
+ * @param rosterData - Roster data to save
+ * @returns Promise resolving to success response
+ * @throws Error if save fails
+ *
+ * @example
+ * ```typescript
+ * await saveRoster('league_123', {
+ *   league_id: 'league_123',
+ *   team_id: 'team_456',
+ *   team_name: 'Athletics',
+ *   players: [...]
+ * });
+ * ```
+ *
+ * @since 2.0.0
+ */
+export async function saveRoster(
+  leagueId: string,
+  rosterData: {
+    league_id: string;
+    team_id: string;
+    team_name: string;
+    players: any[];
+  }
+): Promise<{
+  success: boolean;
+  message: string;
+  players_saved: number;
+}> {
+  const response = await fetch(
+    `${FANTRAX_SECRET_API_BASE}/leagues/${leagueId}/rosters/save`,
+    {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(rosterData),
+    }
+  );
+  return handleResponse<{
+    success: boolean;
+    message: string;
+    players_saved: number;
+  }>(response);
+}
+
+/**
+ * Get saved roster from database
+ *
+ * Retrieves the last synced roster for a league.
+ *
+ * @param leagueId - The league ID
+ * @returns Promise resolving to saved roster data
+ * @throws Error if retrieval fails or roster not found
+ *
+ * @example
+ * ```typescript
+ * const roster = await getSavedRoster('league_123');
+ * console.log(`Loaded ${roster.players.length} players`);
+ * ```
+ *
+ * @since 2.0.0
+ */
+export async function getSavedRoster(leagueId: string): Promise<{
+  league_id: string;
+  team_id: string;
+  team_name: string;
+  players: any[];
+  last_updated: string | null;
+}> {
+  const response = await fetch(
+    `${FANTRAX_SECRET_API_BASE}/leagues/${leagueId}/rosters/saved`,
+    {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    }
+  );
+  return handleResponse<{
+    league_id: string;
+    team_id: string;
+    team_name: string;
+    players: any[];
+    last_updated: string | null;
+  }>(response);
+}
