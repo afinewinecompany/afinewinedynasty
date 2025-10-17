@@ -799,16 +799,31 @@ async def save_roster(
         # Save new roster players
         players_saved = 0
         for player_data in request.players:
+            # Handle contract_years field - it's Integer but we have string contract names
+            # For now, store NULL and keep contract data in contract_value
+            contract_years_val = None
+            try:
+                if player_data.get('contract_years'):
+                    contract_years_val = int(player_data.get('contract_years'))
+            except (ValueError, TypeError):
+                # If it's a string like "1st" or "2050", skip it
+                pass
+
+            # Map status to allowed values (DB constraint: 'active', 'injured', 'minors', 'suspended', 'il')
+            status = player_data.get('status', 'active')
+            if status == 'reserve':
+                status = 'active'  # Treat reserve roster spots as active for DB storage
+
             roster_player = FantraxRoster(
                 league_id=league.id,
                 player_id=player_data.get('player_id', ''),
                 player_name=player_data.get('player_name', 'Unknown'),
                 positions=player_data.get('positions', []),
-                contract_years=player_data.get('contract_years'),
+                contract_years=contract_years_val,  # Only store if it's actually a number
                 contract_value=player_data.get('contract_value'),
                 age=player_data.get('age'),
                 team=player_data.get('team', ''),
-                status=player_data.get('status', 'active'),
+                status=status,
                 minor_league_eligible=player_data.get('minor_league_eligible', False)
             )
             db.add(roster_player)
