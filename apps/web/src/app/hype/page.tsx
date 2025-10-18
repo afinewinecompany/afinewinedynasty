@@ -108,11 +108,12 @@ export default function HypePage() {
   const [mediaArticles, setMediaArticles] = useState<MediaArticle[]>([]);
   const [loadingMedia, setLoadingMedia] = useState(false);
   const [sortBy, setSortBy] = useState<'hype_score' | 'change_24h'>('change_24h');
+  const [changePeriod, setChangePeriod] = useState<'24h' | '7d' | '14d' | '21d'>('7d'); // Default to 7 days
 
   // Fetch data from API
   useEffect(() => {
     fetchLeaderboard();
-  }, [filterType]);
+  }, [filterType, changePeriod]); // Re-fetch when period changes
 
   // Filter and sort leaderboard based on search query and sort preference
   useEffect(() => {
@@ -152,6 +153,7 @@ export default function HypePage() {
       // Build params with limit=100 to get all players (API max)
       const queryParams = new URLSearchParams();
       queryParams.append('limit', '100'); // Get all players for searchability
+      queryParams.append('change_period', changePeriod); // Pass selected time period
       if (filterType !== 'all') {
         queryParams.append('player_type', filterType);
       }
@@ -390,6 +392,26 @@ export default function HypePage() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Leaderboard */}
         <div className="lg:col-span-1 space-y-4">
+          {/* Time Period Selector */}
+          <div className="bg-gray-800 rounded-xl p-4">
+            <h3 className="text-sm font-medium text-gray-400 mb-3">% Change Period</h3>
+            <div className="grid grid-cols-4 gap-2">
+              {(['24h', '7d', '14d', '21d'] as const).map((period) => (
+                <button
+                  key={period}
+                  onClick={() => setChangePeriod(period)}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                    changePeriod === period
+                      ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/50'
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  }`}
+                >
+                  {period === '24h' ? '24 Hours' : period === '7d' ? '7 Days' : period === '14d' ? '14 Days' : '21 Days'}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="bg-gray-800 rounded-xl p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold flex items-center gap-2">
@@ -457,7 +479,7 @@ export default function HypePage() {
                           {Math.abs(player.change_24h).toFixed(1)}%
                         </span>
                       </div>
-                      <span className="text-xs text-gray-500">24h</span>
+                      <span className="text-xs text-gray-500">{changePeriod}</span>
                     </div>
                   </div>
                 </motion.div>

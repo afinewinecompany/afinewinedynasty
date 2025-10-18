@@ -279,6 +279,7 @@ async def get_media_feed(
 async def get_hype_leaderboard(
     player_type: Optional[str] = None,
     limit: int = Query(20, le=100),
+    change_period: str = Query("7d", regex="^(24h|7d|14d|21d)$"),
     db: AsyncSession = Depends(get_db)
 ):
     """Get HYPE leaderboard - Shows prospects only by default (public endpoint)"""
@@ -298,11 +299,61 @@ async def get_hype_leaderboard(
     result = await db.execute(stmt)
     players = result.scalars().all()
 
+    # Calculate time cutoff based on selected period
+    period_hours = {
+        '24h': 24,
+        '7d': 168,  # 7 * 24
+        '14d': 336,  # 14 * 24
+        '21d': 504   # 21 * 24
+    }
+
+    hours_ago = period_hours[change_period]
+    cutoff_time = datetime.utcnow() - timedelta(hours=hours_ago)
+
+    # Batch fetch all historical data in one query
+    player_ids = [p.id for p in players]
+
+    # Get the most recent historical record before cutoff for each player
+    # Using a subquery to get the latest record per player
+    from sqlalchemy import and_
+
+    subq = select(
+        HypeHistory.player_hype_id,
+        func.max(HypeHistory.period_end).label('max_period_end')
+    ).filter(
+        HypeHistory.player_hype_id.in_(player_ids),
+        HypeHistory.period_end <= cutoff_time
+    ).group_by(HypeHistory.player_hype_id).subquery()
+
+    history_stmt = select(HypeHistory).join(
+        subq,
+        and_(
+            HypeHistory.player_hype_id == subq.c.player_hype_id,
+            HypeHistory.period_end == subq.c.max_period_end
+        )
+    )
+
+    history_result = await db.execute(history_stmt)
+    historical_records = history_result.scalars().all()
+
+    # Create lookup dict for quick access
+    history_lookup = {h.player_hype_id: h for h in historical_records}
+
     leaderboard = []
     for idx, player in enumerate(players, 1):
-        # Calculate 24h and 7d changes (simplified - in production, query historical data)
-        change_24h = player.hype_trend * 2.5  # Simplified calculation
-        change_7d = player.hype_trend * 10  # Simplified calculation
+        # Look up historical data
+        historical_record = history_lookup.get(player.id)
+
+        if historical_record and historical_record.hype_score > 0:
+            # Calculate actual percentage change
+            change_24h = ((player.hype_score - historical_record.hype_score) / historical_record.hype_score) * 100
+        else:
+            # Fallback to trend-based estimation if no historical data
+            period_multipliers = {'24h': 2.5, '7d': 10, '14d': 15, '21d': 20}
+            change_24h = player.hype_trend * period_multipliers.get(change_period, 10)
+
+        # Keep 7d calculation for backward compatibility
+        change_7d = player.hype_trend * 10
 
         sentiment = "positive" if player.sentiment_score > 0.2 else (
             "negative" if player.sentiment_score < -0.2 else "neutral"
