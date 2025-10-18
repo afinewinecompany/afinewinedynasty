@@ -298,47 +298,53 @@ export default function MyLeaguePage() {
           </div>
         </div>
 
-        {/* League Selector */}
+        {/* Team Switcher */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Select League</CardTitle>
+            <CardTitle className="text-lg">Select Team</CardTitle>
+            <CardDescription>Switch between your synced teams</CardDescription>
           </CardHeader>
           <CardContent>
             {loading.leagues ? (
               <div className="h-10 w-full bg-gray-200 animate-pulse rounded" />
             ) : leagues.length > 0 ? (
-              <Select
-                value={selectedLeagueId}
-                onValueChange={setSelectedLeagueId}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Choose a league" />
-                </SelectTrigger>
-                <SelectContent>
-                  {leagues.map(league => (
-                    <SelectItem key={league.league_id} value={league.league_id}>
-                      <div className="flex items-center justify-between w-full gap-2">
-                        <span>{league.name}</span>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          {league.my_team_name && (
-                            <span>({league.my_team_name})</span>
-                          )}
-                          {league.roster_count && league.roster_count > 0 && (
-                            <Badge variant="outline" className="text-xs">
-                              {league.roster_count} players
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="space-y-2">
+                <Select
+                  value={selectedLeagueId}
+                  onValueChange={setSelectedLeagueId}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Choose a team" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {leagues
+                      .filter(league => league.roster_count && league.roster_count > 0)
+                      .map(league => (
+                        <SelectItem key={league.league_id} value={league.league_id}>
+                          <div className="flex items-center gap-2">
+                            <Trophy className="h-3 w-3 text-blue-600" />
+                            <span className="font-medium">{league.my_team_name || 'My Team'}</span>
+                            <span className="text-muted-foreground">-</span>
+                            <span className="text-sm text-muted-foreground">{league.name}</span>
+                            {league.roster_count > 0 && (
+                              <Badge variant="outline" className="text-xs ml-auto">
+                                {league.roster_count} players
+                              </Badge>
+                            )}
+                          </div>
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Showing {leagues.filter(l => l.roster_count && l.roster_count > 0).length} synced team(s)
+                </p>
+              </div>
             ) : (
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  {error || 'No leagues available. Please select leagues in Account Settings.'}
+                  {error || 'No synced teams available. Please sync your rosters in Account Settings.'}
                 </AlertDescription>
               </Alert>
             )}
@@ -523,12 +529,16 @@ export default function MyLeaguePage() {
                           <tbody>
                             {savedRoster.players.map((player: any, idx: number) => (
                               <tr key={idx} className="border-b hover:bg-gray-50">
-                                <td className="py-2">{player.name || 'Unknown Player'}</td>
-                                <td className="py-2">{player.position || 'N/A'}</td>
-                                <td className="py-2">{player.team || 'N/A'}</td>
+                                <td className="py-2 font-medium">{player.player_name || 'Unknown Player'}</td>
+                                <td className="py-2">
+                                  {player.positions && player.positions.length > 0
+                                    ? player.positions.join(', ')
+                                    : 'N/A'}
+                                </td>
+                                <td className="py-2">{player.team || 'FA'}</td>
                                 <td className="py-2">
                                   <Badge variant={player.status === 'active' ? 'default' : 'secondary'}>
-                                    {player.status || 'Active'}
+                                    {player.status || 'active'}
                                   </Badge>
                                 </td>
                               </tr>
