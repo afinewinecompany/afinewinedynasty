@@ -49,7 +49,7 @@ function OAuthCallbackContent() {
         setMessage('Authentication successful! Redirecting to your account...');
 
         // Redirect to account page after successful login
-        setTimeout(() => router.push('/account'), 1500);
+        setTimeout(() => router.push('/account?tab=profile'), 1500);
       } catch (err) {
         console.error('OAuth error:', err);
         setStatus('error');

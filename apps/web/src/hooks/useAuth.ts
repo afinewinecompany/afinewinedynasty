@@ -113,7 +113,7 @@ export function useAuth(): UseAuthReturn {
       try {
         await AuthAPI.login({ email, password });
         await fetchUser();
-        router.push('/');
+        router.push('/account?tab=profile');
       } catch (error) {
         setIsLoading(false);
         throw error;

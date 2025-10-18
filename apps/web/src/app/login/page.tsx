@@ -36,7 +36,7 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
-      router.push('/account');
+      // Redirect is handled by useAuth hook
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {

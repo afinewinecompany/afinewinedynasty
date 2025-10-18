@@ -21,7 +21,7 @@ const Header: React.FC = () => {
     { href: '/hype', label: 'HYPE', icon: 'trending' },
     { href: '/predictions', label: 'ML Predictions', icon: 'brain' },
     { href: '/discovery', label: 'Tools' },
-    { href: '/account/subscription', label: 'Account' },
+    { href: '/account?tab=profile', label: 'Account' },
   ];
 
   return (
@@ -69,7 +69,7 @@ const Header: React.FC = () => {
               <>
                 {/* Profile */}
                 <Link
-                  href="/account/subscription"
+                  href="/account?tab=profile"
                   className="p-2 text-muted-foreground hover:text-accent transition-colors"
                 >
                   <User className="w-5 h-5" />
