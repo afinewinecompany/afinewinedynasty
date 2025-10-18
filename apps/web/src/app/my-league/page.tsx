@@ -25,6 +25,7 @@ import {
   getSecretAPIRosters,
   getSecretAPIStandings,
   updateTeamSelection,
+  getSavedRoster,
   type SecretAPILeague,
   type LeagueInfoResponse,
   type RosterResponse,
@@ -60,12 +61,14 @@ export default function MyLeaguePage() {
   const [selectedLeagueId, setSelectedLeagueId] = useState<string>('');
   const [leagueInfo, setLeagueInfo] = useState<LeagueInfoResponse | null>(null);
   const [rosters, setRosters] = useState<RosterResponse | null>(null);
+  const [savedRoster, setSavedRoster] = useState<any | null>(null);
   const [standings, setStandings] = useState<StandingsResponse | null>(null);
   const [loading, setLoading] = useState({
     leagues: false,
     info: false,
     rosters: false,
     standings: false,
+    savedRoster: false,
   });
   const [error, setError] = useState<string | null>(null);
   const [showTeamSelector, setShowTeamSelector] = useState(false);
@@ -95,11 +98,13 @@ export default function MyLeaguePage() {
 
     try {
       const allLeagues = await getSecretAPILeagues();
-      // Filter to only active leagues
-      const activeLeagues = allLeagues.filter(league => league.is_active);
+      // Filter to active leagues OR leagues with synced rosters
+      const activeLeagues = allLeagues.filter(
+        league => league.is_active || (league.roster_count && league.roster_count > 0)
+      );
 
       if (activeLeagues.length === 0) {
-        setError('No leagues selected. Please go to Account Settings to select your leagues.');
+        setError('No leagues with synced rosters. Please go to Account Settings to sync your rosters.');
       } else {
         setLeagues(activeLeagues);
         // Auto-select first league
@@ -128,15 +133,17 @@ export default function MyLeaguePage() {
       setLoading(prev => ({ ...prev, info: false }));
     }
 
-    // Load rosters
-    setLoading(prev => ({ ...prev, rosters: true }));
+    // Load saved roster
+    setLoading(prev => ({ ...prev, savedRoster: true }));
     try {
-      const rostersData = await getSecretAPIRosters(leagueId);
-      setRosters(rostersData);
+      const rosterData = await getSavedRoster(leagueId);
+      setSavedRoster(rosterData);
+      console.log('Saved roster loaded:', rosterData);
     } catch (err) {
-      console.error('Failed to load rosters:', err);
+      console.error('Failed to load saved roster:', err);
+      setSavedRoster(null);
     } finally {
-      setLoading(prev => ({ ...prev, rosters: false }));
+      setLoading(prev => ({ ...prev, savedRoster: false }));
     }
 
     // Load standings
@@ -310,13 +317,18 @@ export default function MyLeaguePage() {
                 <SelectContent>
                   {leagues.map(league => (
                     <SelectItem key={league.league_id} value={league.league_id}>
-                      <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center justify-between w-full gap-2">
                         <span>{league.name}</span>
-                        {league.teams && league.teams.length > 0 && (
-                          <span className="text-xs text-muted-foreground ml-2">
-                            ({league.teams[0].team_name})
-                          </span>
-                        )}
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          {league.my_team_name && (
+                            <span>({league.my_team_name})</span>
+                          )}
+                          {league.roster_count && league.roster_count > 0 && (
+                            <Badge variant="outline" className="text-xs">
+                              {league.roster_count} players
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                     </SelectItem>
                   ))}
@@ -467,7 +479,9 @@ export default function MyLeaguePage() {
                     <div>
                       <CardTitle>My Roster</CardTitle>
                       <CardDescription>
-                        {currentLeague?.my_team_name
+                        {savedRoster?.team_name
+                          ? `Team: ${savedRoster.team_name}`
+                          : currentLeague?.my_team_name
                           ? `Team: ${currentLeague.my_team_name}`
                           : 'Current team roster'}
                       </CardDescription>
@@ -483,26 +497,61 @@ export default function MyLeaguePage() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  {loading.rosters ? (
+                  {loading.savedRoster ? (
                     <div className="space-y-2">
                       {[1, 2, 3, 4, 5].map(i => (
                         <div key={i} className="h-12 w-full bg-gray-200 animate-pulse rounded" />
                       ))}
                     </div>
-                  ) : rosters?.rosters?.length ? (
+                  ) : savedRoster?.players?.length ? (
                     <div className="space-y-4">
-                      <p className="text-sm text-muted-foreground">
-                        Roster data loaded for period {rosters.period}
-                      </p>
-                      <div className="grid gap-2">
-                        {/* Would need to parse and display roster data based on actual structure */}
-                        <p className="text-muted-foreground">
-                          {rosters.rosters.length} roster(s) available
+                      {savedRoster.last_updated && (
+                        <p className="text-sm text-muted-foreground">
+                          Last synced: {new Date(savedRoster.last_updated).toLocaleString()}
                         </p>
+                      )}
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b">
+                              <th className="text-left py-2">Player</th>
+                              <th className="text-left py-2">Position</th>
+                              <th className="text-left py-2">Team</th>
+                              <th className="text-left py-2">Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {savedRoster.players.map((player: any, idx: number) => (
+                              <tr key={idx} className="border-b hover:bg-gray-50">
+                                <td className="py-2">{player.name || 'Unknown Player'}</td>
+                                <td className="py-2">{player.position || 'N/A'}</td>
+                                <td className="py-2">{player.team || 'N/A'}</td>
+                                <td className="py-2">
+                                  <Badge variant={player.status === 'active' ? 'default' : 'secondary'}>
+                                    {player.status || 'Active'}
+                                  </Badge>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
+                      <p className="text-sm text-muted-foreground mt-4">
+                        Total players: {savedRoster.players.length}
+                      </p>
                     </div>
                   ) : (
-                    <p className="text-muted-foreground">No roster data available</p>
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground mb-4">
+                        No roster data synced for this league yet.
+                      </p>
+                      <Button
+                        variant="outline"
+                        onClick={() => router.push('/account?tab=fantrax')}
+                      >
+                        Sync Roster in Account Settings
+                      </Button>
+                    </div>
                   )}
                 </CardContent>
               </Card>
