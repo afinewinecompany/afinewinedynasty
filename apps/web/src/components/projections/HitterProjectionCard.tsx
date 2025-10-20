@@ -42,7 +42,7 @@ export default function HitterProjectionCard({ prospectId }: Props) {
     queryKey: ['hitter-projection', prospectId],
     queryFn: async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/ml/projections/hitter/${prospectId}`
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/ml/projections/hitter/${prospectId}`
       );
       if (!res.ok) {
         if (res.status === 404) throw new Error('Projection not available');
