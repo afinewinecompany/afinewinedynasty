@@ -32,6 +32,15 @@ export default function ProjectionsPage() {
             actual MLB results may vary significantly. Use these as rough estimates, not definitive predictions.
           </AlertDescription>
         </Alert>
+
+        {/* Data Availability Warning */}
+        <Alert className="mb-6 bg-yellow-900/30 border-yellow-500/30">
+          <AlertDescription className="text-yellow-200">
+            <strong>Important:</strong> Most prospects will show "Projection not available". Projections require pre-debut
+            MiLB stats, so they're only available for prospects who debuted in MLB between 2021-2025. Current MLB players
+            and very young prospects won't have projections.
+          </AlertDescription>
+        </Alert>
         {/* Note: Requires HTTPS API endpoint in production */}
 
         {/* Tabs */}
