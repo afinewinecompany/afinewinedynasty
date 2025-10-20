@@ -32,6 +32,7 @@ export default function ProjectionsPage() {
             actual MLB results may vary significantly. Use these as rough estimates, not definitive predictions.
           </AlertDescription>
         </Alert>
+        {/* Note: Requires HTTPS API endpoint in production */}
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
