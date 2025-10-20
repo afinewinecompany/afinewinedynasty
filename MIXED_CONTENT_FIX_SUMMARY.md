@@ -99,9 +99,43 @@ web: uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarde
 
 ---
 
+### Fix 4: Make Endpoint Public (Commit `0b205ec`)
+
+**File:** `apps/api/app/api/api_v1/endpoints/prospects.py`
+
+**Issue:** After fixing HTTPS, got 403 Forbidden error because endpoint required authentication
+
+Changed authentication from required to optional:
+```python
+# Before
+current_user: User = Depends(get_current_user),
+
+# After
+current_user: Optional[User] = Depends(get_current_user_optional),
+```
+
+Added null check for unauthenticated users:
+```python
+if current_user:
+    stmt = select(User).where(User.email == current_user.email)
+    result = await db.execute(stmt)
+    user = result.scalar_one_or_none()
+    user_tier = user.subscription_tier if user else "free"
+else:
+    # Unauthenticated users default to free tier
+    user_tier = "free"
+```
+
+**Result:**
+- Unauthenticated users can access endpoint (free tier limits)
+- Authenticated users still get tier-based limits
+- Projections page works without login
+
+---
+
 ## Verification Steps
 
-After Railway deploys all 3 commits (~5-10 minutes):
+After Railway deploys all 4 commits (~5-10 minutes):
 
 1. **Visit:** https://web-production-5cfe0.up.railway.app/projections
 
@@ -213,7 +247,10 @@ The redirect is necessary for FastAPI's route resolution, but now it uses HTTPS.
 | 14:50 | Commit `b5a15f9` | Trigger rebuild |
 | 14:55 | Commit `5449fbc` | Add trailing slash |
 | 15:00 | Commit `add5a59` | Configure proxy headers |
-| 15:10 | All deploys complete | ✅ Issue resolved |
+| 15:05 | Issue resolved | Mixed content fixed |
+| 15:10 | New issue | 403 Forbidden error |
+| 15:15 | Commit `0b205ec` | Make endpoint public |
+| 15:20 | All deploys complete | ✅ All issues resolved |
 
 ---
 
