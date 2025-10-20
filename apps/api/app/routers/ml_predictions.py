@@ -1092,3 +1092,89 @@ async def regenerate_predictions(prospect_id: int, db: AsyncSession):
         pass
     except Exception as e:
         logger.error(f"Failed to regenerate predictions for prospect {prospect_id}: {str(e)}")
+
+
+# ===== MLB Expectation Prediction =====
+
+class MLBExpectationResponse(BaseModel):
+    """MLB Expectation prediction response"""
+    prospect_id: int
+    name: str
+    position: str
+    player_type: str
+    year: int
+    prediction: Dict[str, Any]
+    timestamp: str
+
+
+@router.get("/prospects/{prospect_id}/mlb-expectation", response_model=Dict[str, Any])
+async def get_mlb_expectation_prediction(
+    prospect_id: int,
+    year: int = Query(default=2024, description="Year for prediction"),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get MLB expectation prediction for a prospect
+    
+    Returns a 3-class prediction:
+    - Bench/Reserve (FV 35-40): Limited MLB role
+    - Part-Time (FV 45): Platoon/depth piece  
+    - MLB Regular+ (FV 50+): Starter or better
+    
+    Models:
+    - Hitter model: 0.713 F1 (72.4% accuracy)
+    - Pitcher model: 0.796 F1 (82.5% accuracy)
+    """
+    import subprocess
+    import json
+    import os
+    
+    try:
+        # Verify prospect exists
+        query = select(Prospect).where(Prospect.id == prospect_id)
+        result = await db.execute(query)
+        prospect = result.scalar_one_or_none()
+        
+        if not prospect:
+            raise HTTPException(status_code=404, detail=f"Prospect {prospect_id} not found")
+        
+        # Get script path relative to project root
+        script_path = os.path.join(os.path.dirname(__file__), '..', '..', 'scripts', 'predict_mlb_expectation.py')
+        
+        # Run prediction script
+        result = subprocess.run(
+            [
+                'python',
+                script_path,
+                '--prospect-id', str(prospect_id),
+                '--year', str(year),
+                '--output', 'json'
+            ],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            cwd=os.path.join(os.path.dirname(__file__), '..', '..')
+        )
+        
+        if result.returncode == 0:
+            prediction = json.loads(result.stdout)
+            return {
+                "success": True,
+                "data": prediction
+            }
+        else:
+            logger.error(f"MLB expectation prediction failed for prospect {prospect_id}: {result.stderr}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Prediction failed: {result.stderr[:200]}"
+            )
+            
+    except subprocess.TimeoutExpired:
+        logger.error(f"MLB expectation prediction timed out for prospect {prospect_id}")
+        raise HTTPException(status_code=504, detail="Prediction request timed out")
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON response from prediction script: {e}")
+        raise HTTPException(status_code=500, detail="Invalid prediction response format")
+    except Exception as e:
+        logger.error(f"Unexpected error in MLB expectation prediction: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))

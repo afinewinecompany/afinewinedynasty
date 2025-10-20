@@ -8,6 +8,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import ProspectOutlook from './ProspectOutlook';
 import { MLPredictionExplanation } from './MLPredictionExplanation';
+import { MLBExpectationPrediction } from './MLBExpectationPrediction';
 import { ScoutingRadar } from './ScoutingRadar';
 import { PerformanceTrends } from './PerformanceTrends';
 import { Button } from '@/components/ui/button';
@@ -287,13 +288,22 @@ function OverviewTab({ prospect }: OverviewTabProps) {
         </Card>
       </div>
 
-      {/* Enhanced ML Prediction */}
-      {prospect.ml_prediction && (
-        <MLPredictionExplanation
-          prediction={prospect.ml_prediction}
-          prospectName={prospect.name}
+      {/* ML Predictions Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Enhanced ML Prediction */}
+        {prospect.ml_prediction && (
+          <MLPredictionExplanation
+            prediction={prospect.ml_prediction}
+            prospectName={prospect.name}
+          />
+        )}
+
+        {/* MLB Expectation Prediction */}
+        <MLBExpectationPrediction
+          prospectId={prospect.id}
+          year={new Date().getFullYear()}
         />
-      )}
+      </div>
     </div>
   );
 }

@@ -1,0 +1,35 @@
+{
+  "created_at": "2025-10-19T23:12:34.302637",
+  "hitter_model": {
+    "file": "hitter_model_3class.pkl",
+    "test_f1": 0.7126808544435654,
+    "test_accuracy": 0.7237936772046589,
+    "train_samples": 338,
+    "val_samples": 363,
+    "test_samples": 601,
+    "features_count": 35,
+    "timestamp": "20251019_225954"
+  },
+  "pitcher_model": {
+    "file": "pitcher_model_3class.pkl",
+    "test_f1": 0.7957290190415435,
+    "test_accuracy": 0.8245877061469266,
+    "train_samples": 334,
+    "val_samples": 347,
+    "test_samples": 667,
+    "features_count": 35,
+    "timestamp": "20251019_225954"
+  },
+  "class_names": [
+    "Bench/Reserve",
+    "Part-Time",
+    "MLB Regular+"
+  ],
+  "class_mapping": {
+    "0": "Bench/Reserve (FV 35-40)",
+    "1": "Part-Time (FV 45)",
+    "2": "MLB Regular+ (FV 50+)"
+  },
+  "version": "1.0.0",
+  "model_type": "XGBoost 3-Class"
+}
