@@ -9,7 +9,7 @@ import logging
 import io
 from datetime import datetime
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, get_current_user_optional
 from app.db.database import get_db
 from app.db.models import Prospect, ProspectStats, ScoutingGrades, MLPrediction, User
 from app.services.dynasty_ranking_service import DynastyRankingService
@@ -93,7 +93,7 @@ async def get_prospect_rankings(
     sort_order: str = Query("asc", regex="^(asc|desc)$", description="Sort order"),
 
     # Dependencies
-    current_user: User = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db)
 ) -> ProspectRankingsPage:
     """
@@ -119,14 +119,14 @@ async def get_prospect_rankings(
     from sqlalchemy import select
 
     # Get user from database to check subscription tier
-    stmt = select(User).where(User.email == current_user.email)
-    result = await db.execute(stmt)
-    user = result.scalar_one_or_none()
-
-    if not user:
-        user_tier = "free"
+    if current_user:
+        stmt = select(User).where(User.email == current_user.email)
+        result = await db.execute(stmt)
+        user = result.scalar_one_or_none()
+        user_tier = user.subscription_tier if user else "free"
     else:
-        user_tier = user.subscription_tier or "free"
+        # Unauthenticated users default to free tier
+        user_tier = "free"
 
     # Determine prospect limit based on tier
     if limit is None:
