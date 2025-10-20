@@ -31,8 +31,9 @@ export default function HitterProjectionsList() {
     queryKey: ['hitter-prospects'],
     queryFn: async () => {
       // Fetch hitters only (exclude pitchers)
+      // Note: Trailing slash required to avoid 307 redirect from FastAPI
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/prospects?position_type=hitter&limit=200`
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/prospects/?position_type=hitter&limit=200`
       );
       if (!res.ok) throw new Error('Failed to fetch prospects');
       return res.json();
