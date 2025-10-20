@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Search, User, Zap, Menu, Wine, Brain, TrendingUp, Trophy } from 'lucide-react';
+import { Search, User, Zap, Menu, Wine, Brain, TrendingUp, Trophy, BarChart3 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from './button';
 
@@ -20,6 +20,7 @@ const Header: React.FC = () => {
     { href: '/prospects', label: 'Prospects' },
     { href: '/hype', label: 'HYPE', icon: 'trending' },
     { href: '/predictions', label: 'ML Predictions', icon: 'brain' },
+    { href: '/projections', label: 'Projections', icon: 'chart', badge: 'Beta' },
     { href: '/discovery', label: 'Tools' },
     { href: '/account?tab=profile', label: 'Account' },
   ];
@@ -53,7 +54,13 @@ const Header: React.FC = () => {
                 {link.icon === 'brain' && <Brain className="w-4 h-4" />}
                 {link.icon === 'trending' && <TrendingUp className="w-4 h-4" />}
                 {link.icon === 'trophy' && <Trophy className="w-4 h-4" />}
+                {link.icon === 'chart' && <BarChart3 className="w-4 h-4" />}
                 {link.label}
+                {link.badge && (
+                  <span className="ml-1 px-1.5 py-0.5 text-xs font-semibold rounded bg-yellow-500/20 text-yellow-300 border border-yellow-500/30">
+                    {link.badge}
+                  </span>
+                )}
               </Link>
             ))}
           </nav>
@@ -132,7 +139,13 @@ const Header: React.FC = () => {
                 {link.icon === 'brain' && <Brain className="w-4 h-4" />}
                 {link.icon === 'trending' && <TrendingUp className="w-4 h-4" />}
                 {link.icon === 'trophy' && <Trophy className="w-4 h-4" />}
+                {link.icon === 'chart' && <BarChart3 className="w-4 h-4" />}
                 {link.label}
+                {link.badge && (
+                  <span className="ml-auto px-1.5 py-0.5 text-xs font-semibold rounded bg-yellow-500/20 text-yellow-300 border border-yellow-500/30">
+                    {link.badge}
+                  </span>
+                )}
               </Link>
             ))}
             {user ? (

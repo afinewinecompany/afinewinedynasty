@@ -1178,3 +1178,125 @@ async def get_mlb_expectation_prediction(
     except Exception as e:
         logger.error(f"Unexpected error in MLB expectation prediction: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ===== Stat Projections API =====
+
+from app.services.stat_projection_service import StatProjectionService
+
+# Initialize projection service (singleton)
+projection_service = StatProjectionService()
+
+
+class StatProjectionResponse(BaseModel):
+    """MLB stat projection response"""
+    prospect_id: int
+    prospect_name: str
+    position: str
+    slash_line: str  # e.g. ".265/.340/.445"
+    projections: Dict[str, float]
+    confidence_scores: Dict[str, float]
+    overall_confidence: float
+    confidence_level: str  # "high" | "medium" | "low"
+    model_version: str
+    disclaimer: str
+
+
+@router.get("/projections/hitter/{prospect_id}", response_model=StatProjectionResponse)
+async def get_hitter_projection(
+    prospect_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get MLB stat projections for a hitter prospect.
+
+    Predicts MLB rate stats based on MiLB performance:
+    - Batting Average (AVG)
+    - On-Base Percentage (OBP)
+    - Slugging Percentage (SLG)
+    - On-Base Plus Slugging (OPS)
+    - Walk Rate (BB%)
+    - Strikeout Rate (K%)
+    - Isolated Power (ISO)
+
+    **Beta Feature**: Projections are experimental and based on limited training data.
+    Model performance: Average R² = 0.344 (moderate predictive power).
+
+    Best predictions: AVG (R²=0.444), K% (R²=0.444), OBP (R²=0.409)
+    """
+
+    if not projection_service.is_available():
+        raise HTTPException(
+            status_code=503,
+            detail="Stat projection models are not currently available"
+        )
+
+    try:
+        # Fetch prospect's MiLB stats
+        milb_stats = await projection_service.get_prospect_milb_stats(db, prospect_id)
+
+        if not milb_stats:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Prospect {prospect_id} not found or has no MiLB data"
+            )
+
+        # Generate projection
+        projection = projection_service.generate_projection(milb_stats)
+
+        if not projection:
+            raise HTTPException(
+                status_code=500,
+                detail="Failed to generate projection"
+            )
+
+        # Add confidence level
+        confidence_level = projection_service.get_confidence_level(
+            projection['overall_confidence']
+        )
+
+        return StatProjectionResponse(
+            prospect_id=projection['prospect_id'],
+            prospect_name=projection['prospect_name'],
+            position=projection['position'],
+            slash_line=projection['slash_line'],
+            projections=projection['projections'],
+            confidence_scores=projection['confidence_scores'],
+            overall_confidence=projection['overall_confidence'],
+            confidence_level=confidence_level,
+            model_version=projection['model_version'],
+            disclaimer=projection['disclaimer']
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating projection for prospect {prospect_id}: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to generate projection: {str(e)}"
+        )
+
+
+@router.get("/projections/status")
+async def get_projection_status():
+    """
+    Get status of the stat projection models.
+
+    Returns information about model availability, version, and performance metrics.
+    """
+
+    return {
+        "available": projection_service.is_available(),
+        "model_version": projection_service.model_version if projection_service.is_available() else None,
+        "models_loaded": len(projection_service.models) if projection_service.is_available() else 0,
+        "targets": projection_service.target_names if projection_service.is_available() else [],
+        "features_count": len(projection_service.feature_names) if projection_service.is_available() else 0,
+        "performance": {
+            "avg_validation_r2": 0.344,
+            "best_target": "target_avg",
+            "best_r2": 0.444,
+            "model_type": "XGBoost Regressor (single-output)",
+            "status": "beta"
+        }
+    }
