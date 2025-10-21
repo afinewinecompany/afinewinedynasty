@@ -208,25 +208,62 @@ class CacheManager:
             self._metrics["errors"] += 1
             logger.error(f"Failed to cache features for prospect {prospect_id}: {e}")
 
-    async def get_cached_features(self, prospect_id: int) -> Optional[Dict[str, Any]]:
-        """Retrieve cached prospect features."""
+    async def get_cached_features(self, cache_key: Union[int, str]) -> Optional[Dict[str, Any]]:
+        """Retrieve cached prospect features or generic cached data.
+
+        Args:
+            cache_key: Either a prospect_id (int) or a custom cache key (str)
+        """
         try:
-            cache_key = f"features:{prospect_id}"
-            data = await self.redis_client.get(cache_key)
+            # Handle both int (prospect_id) and string (custom key) inputs
+            if isinstance(cache_key, int):
+                final_key = f"features:{cache_key}"
+            else:
+                final_key = cache_key
+
+            data = await self.redis_client.get(final_key)
 
             if data:
                 self._metrics["hits"] += 1
-                logger.debug(f"Features cache hit: {cache_key}")
+                logger.debug(f"Features cache hit: {final_key}")
                 return json.loads(data.decode('utf-8'))
             else:
                 self._metrics["misses"] += 1
-                logger.debug(f"Features cache miss: {cache_key}")
+                logger.debug(f"Features cache miss: {final_key}")
                 return None
 
         except Exception as e:
             self._metrics["errors"] += 1
-            logger.error(f"Failed to get cached features for prospect {prospect_id}: {e}")
+            logger.error(f"Failed to get cached features for {cache_key}: {e}")
             return None
+
+    async def cache_features(
+        self,
+        cache_key: str,
+        features: Dict[str, Any],
+        ttl: int = 1800  # 30 minutes
+    ):
+        """Cache generic feature data with custom key.
+
+        Args:
+            cache_key: Custom cache key (string)
+            features: Data to cache
+            ttl: Time to live in seconds (default 30 minutes)
+        """
+        try:
+            features_json = json.dumps(features)
+
+            await self.redis_client.setex(
+                cache_key,
+                ttl,
+                features_json
+            )
+            self._metrics["sets"] += 1
+            logger.debug(f"Features cached: {cache_key}")
+
+        except Exception as e:
+            self._metrics["errors"] += 1
+            logger.error(f"Failed to cache features for {cache_key}: {e}")
 
     # Cache invalidation methods
     async def invalidate_model_cache(self, model_key: str):
