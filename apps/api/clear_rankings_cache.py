@@ -3,12 +3,15 @@ Clear composite rankings cache to force regeneration with new pitch data.
 """
 
 import asyncio
-from app.services.cache_manager import cache_manager
+from app.core.cache_manager import cache_manager
 
 
 async def clear_cache():
     """Clear all composite rankings cache keys."""
     print("Clearing composite rankings cache...")
+
+    # Initialize cache manager
+    await cache_manager.initialize()
 
     # Common cache key patterns
     patterns = [
@@ -16,28 +19,27 @@ async def clear_cache():
         "composite_rankings:premium:*",
     ]
 
-    cleared = 0
+    total_cleared = 0
     for pattern in patterns:
         try:
-            # Clear by pattern (if Redis supports it)
-            await cache_manager.delete_pattern(pattern)
-            cleared += 1
-            print(f"  Cleared: {pattern}")
-        except AttributeError:
-            # Fallback: clear specific known keys
-            keys_to_clear = [
-                "composite_rankings:free:None:None:None",
-                "composite_rankings:premium:None:None:None",
-            ]
-            for key in keys_to_clear:
-                try:
-                    await cache_manager.redis.delete(key)
-                    print(f"  Cleared: {key}")
-                    cleared += 1
-                except Exception as e:
-                    print(f"  Could not clear {key}: {e}")
+            # Find all keys matching pattern
+            keys = await cache_manager.redis_client.keys(pattern)
 
-    print(f"\nCache cleared! ({cleared} operations)")
+            if keys:
+                # Delete all matching keys
+                await cache_manager.redis_client.delete(*keys)
+                total_cleared += len(keys)
+                print(f"  Cleared {len(keys)} keys matching: {pattern}")
+            else:
+                print(f"  No keys found matching: {pattern}")
+
+        except Exception as e:
+            print(f"  Error clearing pattern {pattern}: {e}")
+
+    # Close cache manager connection
+    await cache_manager.close()
+
+    print(f"\nCache cleared! ({total_cleared} total keys)")
     print("Next API request will regenerate rankings with pitch data.")
 
 

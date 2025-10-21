@@ -30,7 +30,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 DB_URL = 'postgresql://postgres:BVQjtsVwITqJKqdwOhgRLQwaWdeTXKgp@nozomi.proxy.rlwy.net:39235/railway'
-SEASON = 2024
+SEASON = 2025
 
 # Level mapping from MLB Stats API
 # These are the actual sport_id values used by MLB
