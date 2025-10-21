@@ -376,6 +376,201 @@ async def prospect_autocomplete(
     ]
 
 
+# ============================================================================
+# COMPOSITE RANKINGS ENDPOINT (FanGraphs + MiLB Performance)
+# ============================================================================
+
+class CompositeRankingResponse(BaseModel):
+    """Response model for composite prospect rankings."""
+    rank: int = Field(description="Overall composite rank")
+    prospect_id: int
+    name: str
+    position: str
+    organization: Optional[str]
+    age: Optional[int]
+    level: Optional[str]
+
+    # Score breakdown
+    composite_score: float = Field(description="Final composite score")
+    base_fv: float = Field(description="FanGraphs Future Value (40-70)")
+    performance_modifier: float = Field(description="Recent MiLB performance adjustment")
+    trend_adjustment: float = Field(description="30-day vs 60-day trend")
+    age_adjustment: float = Field(description="Age-relative-to-level adjustment")
+    total_adjustment: float = Field(description="Total adjustment from base FV")
+
+    # Tool grades (for display)
+    tool_grades: Dict[str, Optional[int]] = Field(description="Position-specific tool grades")
+
+    # Additional context
+    tier: Optional[int] = Field(None, description="Tier classification (1-5)")
+    tier_label: Optional[str] = Field(None, description="Tier label (Elite, Top Prospects, etc.)")
+
+
+class CompositeRankingsPage(BaseModel):
+    """Paginated response for composite prospect rankings."""
+    prospects: List[CompositeRankingResponse]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int
+    generated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+@router.get("/composite-rankings", response_model=CompositeRankingsPage)
+async def get_composite_rankings(
+    # Pagination
+    page: int = Query(1, ge=1, description="Page number"),
+    page_size: int = Query(25, ge=1, le=100, description="Items per page"),
+
+    # Filtering
+    position: Optional[str] = Query(None, description="Filter by position (e.g., SS, SP)"),
+    organization: Optional[str] = Query(None, description="Filter by organization"),
+
+    # Limit
+    limit: Optional[int] = Query(None, ge=1, le=500, description="Total limit (for export)"),
+
+    # Dependencies
+    current_user: Optional[User] = Depends(get_current_user_optional),
+    db: AsyncSession = Depends(get_db)
+) -> CompositeRankingsPage:
+    """
+    Get composite prospect rankings combining FanGraphs grades with MiLB performance.
+
+    **Algorithm:**
+    - Base Score: FanGraphs Future Value (40-70 scale)
+    - Performance Modifier: Recent MiLB stats vs level peers (±10)
+    - Trend Adjustment: 30-day vs 60-day comparison (±5)
+    - Age Adjustment: Age-relative-to-level bonus/penalty (-5 to +5)
+
+    **Formula:**
+    ```
+    Composite = Base FV + (Performance × 0.5) + (Trend × 0.3) + (Age × 0.2)
+    ```
+
+    **Features:**
+    - Dynamic adjustments based on recent performance
+    - Age-relative-to-level analysis
+    - Transparent score breakdowns
+    - Position/organization filtering
+    - Tier classifications
+
+    **Free Tier:** Top 100 prospects
+    **Premium Tier:** Top 500 prospects
+    """
+    from app.services.prospect_ranking_service import ProspectRankingService
+
+    # Check user tier
+    if current_user:
+        from sqlalchemy import select
+        stmt = select(User).where(User.email == current_user.email)
+        result = await db.execute(stmt)
+        user = result.scalar_one_or_none()
+        user_tier = user.subscription_tier if user else "free"
+    else:
+        user_tier = "free"
+
+    # Determine max prospects based on tier
+    if user_tier == "premium":
+        max_prospects = 500
+    else:
+        max_prospects = 100
+
+    # Apply user-specified limit
+    if limit:
+        max_prospects = min(limit, max_prospects)
+
+    # Generate cache key
+    cache_key = f"composite_rankings:{user_tier}:{position}:{organization}:{limit}"
+
+    # Try cache (30-minute TTL)
+    cached_result = await cache_manager.get_cached_features(cache_key)
+    if cached_result:
+        logger.info(f"Cache hit for composite rankings: {cache_key}")
+
+        # Apply pagination to cached result
+        total = cached_result['total']
+        all_prospects = cached_result['prospects']
+
+        start_idx = (page - 1) * page_size
+        end_idx = start_idx + page_size
+        paginated_prospects = all_prospects[start_idx:end_idx]
+
+        return CompositeRankingsPage(
+            prospects=paginated_prospects,
+            total=total,
+            page=page,
+            page_size=page_size,
+            total_pages=(total + page_size - 1) // page_size,
+            generated_at=datetime.fromisoformat(cached_result['generated_at'])
+        )
+
+    # Generate rankings using service
+    service = ProspectRankingService(db)
+
+    try:
+        rankings = await service.generate_prospect_rankings(
+            position_filter=position,
+            organization_filter=organization,
+            limit=max_prospects
+        )
+
+        # Build response objects
+        response_prospects = []
+
+        for ranked_prospect in rankings:
+            # Get tier classification
+            tier_info = await service.get_tier_classification(ranked_prospect['rank'])
+
+            response_prospects.append(CompositeRankingResponse(
+                rank=ranked_prospect['rank'],
+                prospect_id=ranked_prospect['prospect_id'],
+                name=ranked_prospect['name'],
+                position=ranked_prospect['position'],
+                organization=ranked_prospect['organization'],
+                age=ranked_prospect['age'],
+                level=ranked_prospect['level'],
+                composite_score=ranked_prospect['scores']['composite_score'],
+                base_fv=ranked_prospect['scores']['base_fv'],
+                performance_modifier=ranked_prospect['scores']['performance_modifier'],
+                trend_adjustment=ranked_prospect['scores']['trend_adjustment'],
+                age_adjustment=ranked_prospect['scores']['age_adjustment'],
+                total_adjustment=ranked_prospect['scores']['total_adjustment'],
+                tool_grades=ranked_prospect['tool_grades'],
+                tier=tier_info['tier'],
+                tier_label=tier_info['label']
+            ))
+
+        total = len(response_prospects)
+
+        # Cache the full result (30-minute TTL)
+        cache_data = {
+            'total': total,
+            'prospects': [p.dict() for p in response_prospects],
+            'generated_at': datetime.utcnow().isoformat()
+        }
+        await cache_manager.cache_features(cache_key, cache_data, ttl=1800)
+
+        # Apply pagination
+        start_idx = (page - 1) * page_size
+        end_idx = start_idx + page_size
+        paginated_prospects = response_prospects[start_idx:end_idx]
+
+        return CompositeRankingsPage(
+            prospects=paginated_prospects,
+            total=total,
+            page=page,
+            page_size=page_size,
+            total_pages=(total + page_size - 1) // page_size
+        )
+
+    except Exception as e:
+        logger.error(f"Error generating composite rankings: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate rankings: {str(e)}"
+        )
+
+
 @router.get("/{prospect_id}", response_model=ProspectRankingResponse)
 # @limiter.limit("100/minute")
 async def get_prospect(
@@ -1346,196 +1541,3 @@ async def export_prospects_csv(
     )
 
 
-# ============================================================================
-# COMPOSITE RANKINGS ENDPOINT (FanGraphs + MiLB Performance)
-# ============================================================================
-
-class CompositeRankingResponse(BaseModel):
-    """Response model for composite prospect rankings."""
-    rank: int = Field(description="Overall composite rank")
-    prospect_id: int
-    name: str
-    position: str
-    organization: Optional[str]
-    age: Optional[int]
-    level: Optional[str]
-
-    # Score breakdown
-    composite_score: float = Field(description="Final composite score")
-    base_fv: float = Field(description="FanGraphs Future Value (40-70)")
-    performance_modifier: float = Field(description="Recent MiLB performance adjustment")
-    trend_adjustment: float = Field(description="30-day vs 60-day trend")
-    age_adjustment: float = Field(description="Age-relative-to-level adjustment")
-    total_adjustment: float = Field(description="Total adjustment from base FV")
-
-    # Tool grades (for display)
-    tool_grades: Dict[str, Optional[int]] = Field(description="Position-specific tool grades")
-
-    # Additional context
-    tier: Optional[int] = Field(None, description="Tier classification (1-5)")
-    tier_label: Optional[str] = Field(None, description="Tier label (Elite, Top Prospects, etc.)")
-
-
-class CompositeRankingsPage(BaseModel):
-    """Paginated response for composite prospect rankings."""
-    prospects: List[CompositeRankingResponse]
-    total: int
-    page: int
-    page_size: int
-    total_pages: int
-    generated_at: datetime = Field(default_factory=datetime.utcnow)
-
-
-@router.get("/composite-rankings", response_model=CompositeRankingsPage)
-async def get_composite_rankings(
-    # Pagination
-    page: int = Query(1, ge=1, description="Page number"),
-    page_size: int = Query(25, ge=1, le=100, description="Items per page"),
-
-    # Filtering
-    position: Optional[str] = Query(None, description="Filter by position (e.g., SS, SP)"),
-    organization: Optional[str] = Query(None, description="Filter by organization"),
-
-    # Limit
-    limit: Optional[int] = Query(None, ge=1, le=500, description="Total limit (for export)"),
-
-    # Dependencies
-    current_user: Optional[User] = Depends(get_current_user_optional),
-    db: AsyncSession = Depends(get_db)
-) -> CompositeRankingsPage:
-    """
-    Get composite prospect rankings combining FanGraphs grades with MiLB performance.
-
-    **Algorithm:**
-    - Base Score: FanGraphs Future Value (40-70 scale)
-    - Performance Modifier: Recent MiLB stats vs level peers (±10)
-    - Trend Adjustment: 30-day vs 60-day comparison (±5)
-    - Age Adjustment: Age-relative-to-level bonus/penalty (-5 to +5)
-
-    **Formula:**
-    ```
-    Composite = Base FV + (Performance × 0.5) + (Trend × 0.3) + (Age × 0.2)
-    ```
-
-    **Features:**
-    - Dynamic adjustments based on recent performance
-    - Age-relative-to-level analysis
-    - Transparent score breakdowns
-    - Position/organization filtering
-    - Tier classifications
-
-    **Free Tier:** Top 100 prospects
-    **Premium Tier:** Top 500 prospects
-    """
-    from app.services.prospect_ranking_service import ProspectRankingService
-
-    # Check user tier
-    if current_user:
-        from sqlalchemy import select
-        stmt = select(User).where(User.email == current_user.email)
-        result = await db.execute(stmt)
-        user = result.scalar_one_or_none()
-        user_tier = user.subscription_tier if user else "free"
-    else:
-        user_tier = "free"
-
-    # Determine max prospects based on tier
-    if user_tier == "premium":
-        max_prospects = 500
-    else:
-        max_prospects = 100
-
-    # Apply user-specified limit
-    if limit:
-        max_prospects = min(limit, max_prospects)
-
-    # Generate cache key
-    cache_key = f"composite_rankings:{user_tier}:{position}:{organization}:{limit}"
-
-    # Try cache (30-minute TTL)
-    cached_result = await cache_manager.get_cached_features(cache_key)
-    if cached_result:
-        logger.info(f"Cache hit for composite rankings: {cache_key}")
-
-        # Apply pagination to cached result
-        total = cached_result['total']
-        all_prospects = cached_result['prospects']
-
-        start_idx = (page - 1) * page_size
-        end_idx = start_idx + page_size
-        paginated_prospects = all_prospects[start_idx:end_idx]
-
-        return CompositeRankingsPage(
-            prospects=paginated_prospects,
-            total=total,
-            page=page,
-            page_size=page_size,
-            total_pages=(total + page_size - 1) // page_size,
-            generated_at=datetime.fromisoformat(cached_result['generated_at'])
-        )
-
-    # Generate rankings using service
-    service = ProspectRankingService(db)
-
-    try:
-        rankings = await service.generate_prospect_rankings(
-            position_filter=position,
-            organization_filter=organization,
-            limit=max_prospects
-        )
-
-        # Build response objects
-        response_prospects = []
-
-        for ranked_prospect in rankings:
-            # Get tier classification
-            tier_info = await service.get_tier_classification(ranked_prospect['rank'])
-
-            response_prospects.append(CompositeRankingResponse(
-                rank=ranked_prospect['rank'],
-                prospect_id=ranked_prospect['prospect_id'],
-                name=ranked_prospect['name'],
-                position=ranked_prospect['position'],
-                organization=ranked_prospect['organization'],
-                age=ranked_prospect['age'],
-                level=ranked_prospect['level'],
-                composite_score=ranked_prospect['scores']['composite_score'],
-                base_fv=ranked_prospect['scores']['base_fv'],
-                performance_modifier=ranked_prospect['scores']['performance_modifier'],
-                trend_adjustment=ranked_prospect['scores']['trend_adjustment'],
-                age_adjustment=ranked_prospect['scores']['age_adjustment'],
-                total_adjustment=ranked_prospect['scores']['total_adjustment'],
-                tool_grades=ranked_prospect['tool_grades'],
-                tier=tier_info['tier'],
-                tier_label=tier_info['label']
-            ))
-
-        total = len(response_prospects)
-
-        # Cache the full result (30-minute TTL)
-        cache_data = {
-            'total': total,
-            'prospects': [p.dict() for p in response_prospects],
-            'generated_at': datetime.utcnow().isoformat()
-        }
-        await cache_manager.cache_features(cache_key, cache_data, ttl=1800)
-
-        # Apply pagination
-        start_idx = (page - 1) * page_size
-        end_idx = start_idx + page_size
-        paginated_prospects = response_prospects[start_idx:end_idx]
-
-        return CompositeRankingsPage(
-            prospects=paginated_prospects,
-            total=total,
-            page=page,
-            page_size=page_size,
-            total_pages=(total + page_size - 1) // page_size
-        )
-
-    except Exception as e:
-        logger.error(f"Error generating composite rankings: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to generate rankings: {str(e)}"
-        )
