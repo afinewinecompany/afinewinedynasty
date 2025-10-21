@@ -73,7 +73,8 @@ export class APIClient {
   private async request<T>(
     endpoint: string,
     options: RequestInit = {},
-    cacheMinutes?: number
+    cacheMinutes?: number,
+    requestOptions?: { timeout?: number }
   ): Promise<T> {
     const url = `${this.config.baseURL}${endpoint}`;
     const cacheKey = `${url}:${JSON.stringify(options)}`;
@@ -87,7 +88,8 @@ export class APIClient {
     }
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
+    const timeout = requestOptions?.timeout || this.config.timeout;
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
 
     try {
       const response = await fetch(url, {
@@ -148,8 +150,12 @@ export class APIClient {
     }
   }
 
-  async get<T>(endpoint: string, cacheMinutes?: number): Promise<T> {
-    return this.request<T>(endpoint, { method: 'GET' }, cacheMinutes);
+  async get<T>(
+    endpoint: string,
+    cacheMinutes?: number,
+    requestOptions?: { timeout?: number }
+  ): Promise<T> {
+    return this.request<T>(endpoint, { method: 'GET' }, cacheMinutes, requestOptions);
   }
 
   async post<T>(endpoint: string, body?: unknown): Promise<T> {

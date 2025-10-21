@@ -27,9 +27,12 @@ export function useCompositeRankings(params: CompositeRankingsParams = {}) {
       const endpoint = `/prospects/composite-rankings?${searchParams}`;
 
       // Cache rankings for 30 minutes (same as backend)
+      // Note: This endpoint can be slow (30-50s) on first request due to complex queries
+      // Backend caches results, so subsequent requests are fast
       const result = await apiClient.get<CompositeRankingsResponse>(
         endpoint,
-        30
+        30,
+        { timeout: 60000 } // 60 second timeout for initial query
       );
 
       setData(result);
