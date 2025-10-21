@@ -24,7 +24,7 @@ export function useCompositeRankings(params: CompositeRankingsParams = {}) {
         searchParams.set('organization', params.organization);
       if (params.limit) searchParams.set('limit', params.limit.toString());
 
-      const endpoint = `/api/v1/prospects/composite-rankings?${searchParams}`;
+      const endpoint = `/prospects/composite-rankings?${searchParams}`;
 
       // Cache rankings for 30 minutes (same as backend)
       const result = await apiClient.get<CompositeRankingsResponse>(

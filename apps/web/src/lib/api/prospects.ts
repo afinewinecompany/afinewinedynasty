@@ -1,28 +1,41 @@
-import { apiClient } from './client';
 import { ProspectRankingsParams } from '@/types/prospect';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_VERSION = process.env.NEXT_PUBLIC_API_VERSION || 'v1';
+const BASE_URL = `${API_URL}/api/${API_VERSION}`;
+
 export async function exportProspectsCsv(params: ProspectRankingsParams) {
-  const response = await apiClient.get('/api/v1/prospects/export/csv', {
-    params: {
-      position: params.position,
-      organization: params.organization,
-      level: params.level,
-      eta_min: params.etaMin,
-      eta_max: params.etaMax,
-      age_min: params.ageMin,
-      age_max: params.ageMax,
-      search: params.search,
+  // Build query params
+  const searchParams = new URLSearchParams();
+  if (params.position) searchParams.set('position', params.position.toString());
+  if (params.organization) searchParams.set('organization', params.organization.toString());
+  if (params.level) searchParams.set('level', params.level.toString());
+  if (params.etaMin) searchParams.set('eta_min', params.etaMin.toString());
+  if (params.etaMax) searchParams.set('eta_max', params.etaMax.toString());
+  if (params.ageMin) searchParams.set('age_min', params.ageMin.toString());
+  if (params.ageMax) searchParams.set('age_max', params.ageMax.toString());
+  if (params.search) searchParams.set('search', params.search);
+
+  // Fetch CSV as blob
+  const url = `${BASE_URL}/prospects/export/csv?${searchParams}`;
+  const response = await fetch(url, {
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
     },
-    responseType: 'blob',
   });
 
-  // Create a download link
-  const url = window.URL.createObjectURL(new Blob([response.data]));
+  if (!response.ok) {
+    throw new Error('Failed to export CSV');
+  }
+
+  // Create download link
+  const blob = await response.blob();
+  const downloadUrl = window.URL.createObjectURL(blob);
   const link = document.createElement('a');
-  link.href = url;
+  link.href = downloadUrl;
 
   // Extract filename from Content-Disposition header or use default
-  const contentDisposition = response.headers['content-disposition'];
+  const contentDisposition = response.headers.get('content-disposition');
   let filename = 'prospect_rankings.csv';
   if (contentDisposition) {
     const filenameMatch = contentDisposition.match(/filename="(.+)"/);
@@ -35,5 +48,5 @@ export async function exportProspectsCsv(params: ProspectRankingsParams) {
   document.body.appendChild(link);
   link.click();
   link.parentNode?.removeChild(link);
-  window.URL.revokeObjectURL(url);
+  window.URL.revokeObjectURL(downloadUrl);
 }

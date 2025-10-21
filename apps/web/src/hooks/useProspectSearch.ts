@@ -23,13 +23,11 @@ export function useProspectSearch() {
 
     setIsLoading(true);
     try {
-      const response = await apiClient.get(
-        '/api/v1/prospects/search/autocomplete',
-        {
-          params: { q: query, limit: 5 },
-        }
+      const response = await apiClient.get<ProspectSearchSuggestion[]>(
+        `/prospects/search/autocomplete?q=${encodeURIComponent(query)}&limit=5`,
+        5 // Cache for 5 minutes
       );
-      setSuggestions(response.data);
+      setSuggestions(response);
     } catch (error) {
       console.error('Failed to fetch suggestions:', error);
       setSuggestions([]);
