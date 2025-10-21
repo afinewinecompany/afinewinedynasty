@@ -18,6 +18,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import text, select, func, cast, String
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
+from app.services.pitch_data_aggregator import PitchDataAggregator
 import logging
 
 logger = logging.getLogger(__name__)
@@ -71,9 +72,14 @@ class ProspectRankingService:
         prospect_data: Dict,
         recent_stats: Optional[Dict],
         is_hitter: bool
-    ) -> float:
+    ) -> Tuple[float, Optional[Dict]]:
         """
-        Calculate performance modifier based on recent MiLB stats.
+        Calculate performance modifier using pitch-level data when available.
+
+        Priority:
+        1. Pitch-level metrics (preferred) - weighted composite percentiles
+        2. Game log aggregates (fallback) - OPS/ERA percentiles
+        3. No recent data - return 0.0
 
         Args:
             prospect_data: Dictionary containing prospect information
@@ -81,44 +87,120 @@ class ProspectRankingService:
             is_hitter: True for hitters, False for pitchers
 
         Returns:
-            Performance modifier (-10 to +10)
+            Tuple of (modifier_score, detailed_breakdown)
         """
         if not recent_stats:
-            return 0.0
+            return 0.0, None
 
-        # Check for insufficient sample size
+        # Get level and player ID
+        level = recent_stats.get('recent_level') or prospect_data.get('current_level')
+        mlb_player_id = prospect_data.get('mlb_player_id')
+
+        if not level or not mlb_player_id:
+            logger.warning(f"Missing level or player ID for {prospect_data.get('name')}")
+            return 0.0, None
+
+        # Try pitch-level data first (preferred method)
+        pitch_aggregator = PitchDataAggregator(self.db)
+
+        try:
+            if is_hitter:
+                pitch_metrics = await pitch_aggregator.get_hitter_pitch_metrics(
+                    mlb_player_id, level, days=60
+                )
+            else:
+                pitch_metrics = await pitch_aggregator.get_pitcher_pitch_metrics(
+                    mlb_player_id, level, days=60
+                )
+
+            # Use pitch data if available
+            if pitch_metrics:
+                # Get OPS/K-BB% percentile for weighted composite
+                ops_percentile = await self._estimate_percentile(
+                    recent_stats.get('recent_ops'), level, is_hitter
+                ) if is_hitter else 50.0
+
+                k_bb_percentile = 50.0  # TODO: Calculate from game logs
+                if not is_hitter and recent_stats.get('recent_k_rate') and recent_stats.get('recent_bb_rate'):
+                    k_minus_bb = recent_stats['recent_k_rate'] - recent_stats['recent_bb_rate']
+                    k_bb_percentile = await self._estimate_k_bb_percentile(k_minus_bb, level)
+
+                # Calculate weighted composite
+                composite_percentile, contributions = await pitch_aggregator.calculate_weighted_composite(
+                    pitch_metrics['percentiles'],
+                    is_hitter,
+                    ops_percentile=ops_percentile,
+                    k_minus_bb_percentile=k_bb_percentile
+                )
+
+                # Convert percentile to modifier
+                modifier = pitch_aggregator.percentile_to_modifier(composite_percentile)
+
+                breakdown = {
+                    'source': 'pitch_data',
+                    'composite_percentile': composite_percentile,
+                    'metrics': pitch_metrics['metrics'],
+                    'percentiles': pitch_metrics['percentiles'],
+                    'weighted_contributions': contributions,
+                    'sample_size': pitch_metrics['sample_size'],
+                    'days_covered': pitch_metrics['days_covered'],
+                    'level': pitch_metrics['level']
+                }
+
+                logger.info(
+                    f"Using pitch data for {prospect_data.get('name')}: "
+                    f"{composite_percentile:.1f}%ile → {modifier:+.1f} modifier"
+                )
+
+                return modifier, breakdown
+
+        except Exception as e:
+            logger.error(f"Error calculating pitch-based modifier: {e}")
+            # Fall through to game log fallback
+
+        # Fallback to game log metrics (OPS/ERA)
+        logger.info(f"Using game log fallback for {prospect_data.get('name')}")
+
+        # Check for insufficient sample size in game logs
         if is_hitter:
             if not recent_stats.get('recent_games') or recent_stats['recent_games'] < 10:
-                return 0.0
+                return 0.0, {'source': 'insufficient_data', 'note': 'Less than 10 games'}
             metric = recent_stats.get('recent_ops')
         else:
             if not recent_stats.get('recent_games') or recent_stats['recent_games'] < 5:
-                return 0.0
+                return 0.0, {'source': 'insufficient_data', 'note': 'Less than 5 games'}
             metric = recent_stats.get('recent_era')
 
         if metric is None:
-            return 0.0
+            return 0.0, {'source': 'no_data', 'note': 'No metric value'}
 
-        # Get level for comparison
-        level = recent_stats.get('recent_level', prospect_data.get('current_level'))
-
-        # Calculate percentile (simplified - in production, query actual percentiles)
-        # For now, use statistical thresholds based on typical MiLB performance
+        # Calculate percentile using game log thresholds
         percentile = await self._estimate_percentile(metric, level, is_hitter)
 
         # Convert percentile to modifier
         if percentile >= 90:
-            return 10.0
+            modifier = 10.0
         elif percentile >= 75:
-            return 5.0
+            modifier = 5.0
         elif percentile >= 60:
-            return 2.0
+            modifier = 2.0
         elif percentile >= 40:
-            return 0.0
+            modifier = 0.0
         elif percentile >= 25:
-            return -5.0
+            modifier = -5.0
         else:
-            return -10.0
+            modifier = -10.0
+
+        breakdown = {
+            'source': 'game_logs',
+            'metric': 'OPS' if is_hitter else 'ERA',
+            'value': metric,
+            'percentile': percentile,
+            'games': recent_stats.get('recent_games'),
+            'level': level
+        }
+
+        return modifier, breakdown
 
     async def _estimate_percentile(
         self,
@@ -329,8 +411,8 @@ class ProspectRankingService:
             'previous_era': prospect_data.get('previous_era')
         }
 
-        # Calculate individual modifiers
-        performance_mod = await self.calculate_performance_modifier(
+        # Calculate individual modifiers (now returns tuple with breakdown)
+        performance_mod, performance_breakdown = await self.calculate_performance_modifier(
             prospect_data, recent_stats, is_hitter
         )
 
@@ -364,7 +446,7 @@ class ProspectRankingService:
             composite = base_score - 10
             total_adjustment = -10.0
 
-        return {
+        result = {
             'composite_score': round(composite, 1),
             'base_fv': round(base_score, 1),
             'performance_modifier': round(performance_mod, 1),
@@ -372,6 +454,12 @@ class ProspectRankingService:
             'age_adjustment': round(age_adjustment, 1),
             'total_adjustment': round(total_adjustment, 1)
         }
+
+        # Add detailed performance breakdown if available
+        if performance_breakdown:
+            result['performance_breakdown'] = performance_breakdown
+
+        return result
 
     async def generate_prospect_rankings(
         self,
