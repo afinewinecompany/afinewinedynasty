@@ -93,7 +93,7 @@ async def health_check() -> HealthResponse:
     return HealthResponse(
         status="healthy",
         service="A Fine Wine Dynasty API",
-        version="0.1.0"
+        version="0.1.0-composite-rankings-fix"  # Marker for Railway deployment verification
     )
 
 
@@ -192,7 +192,7 @@ async def detailed_health_check(db: AsyncSession = Depends(get_db)) -> DetailedH
     return DetailedHealthResponse(
         status=overall_status,
         service="A Fine Wine Dynasty API",
-        version="0.1.0",
+        version="0.1.0-composite-rankings-fix",  # Marker for Railway deployment verification
         timestamp=datetime.utcnow(),
         checks=checks
     )
