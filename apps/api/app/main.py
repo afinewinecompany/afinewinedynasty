@@ -224,6 +224,18 @@ async def startup_event():
     logger.info("=" * 60)
     logger.info("")
 
+    # Initialize cache manager
+    logger.info("Initializing cache manager...")
+    try:
+        from app.core.cache_manager import cache_manager
+        await cache_manager.initialize()
+        logger.info("Cache manager initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize cache manager: {e}")
+        logger.warning("Continuing startup despite cache manager failure - caching will be disabled")
+        # Don't re-raise - allow app to start even if Redis is unavailable
+        pass
+
     # Start HYPE scheduler
     logger.info("Starting HYPE scheduler...")
     try:
@@ -240,6 +252,15 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     """Clean up on shutdown"""
+    # Close cache manager connections
+    logger.info("Closing cache manager...")
+    try:
+        from app.core.cache_manager import cache_manager
+        await cache_manager.close()
+        logger.info("Cache manager closed successfully")
+    except Exception as e:
+        logger.error(f"Failed to close cache manager: {e}")
+
     logger.info("Stopping HYPE scheduler...")
     try:
         stop_hype_scheduler()

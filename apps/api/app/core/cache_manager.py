@@ -215,6 +215,11 @@ class CacheManager:
             cache_key: Either a prospect_id (int) or a custom cache key (str)
         """
         try:
+            # Check if Redis client is initialized
+            if not self.redis_client:
+                logger.warning("Redis client not initialized, skipping cache lookup")
+                return None
+
             # Handle both int (prospect_id) and string (custom key) inputs
             if isinstance(cache_key, int):
                 final_key = f"features:{cache_key}"
@@ -251,6 +256,11 @@ class CacheManager:
             ttl: Time to live in seconds (default 30 minutes)
         """
         try:
+            # Check if Redis client is initialized
+            if not self.redis_client:
+                logger.warning("Redis client not initialized, skipping cache write")
+                return
+
             features_json = json.dumps(features)
 
             await self.redis_client.setex(
