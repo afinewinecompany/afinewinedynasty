@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { useCompositeRankings } from '@/hooks/useCompositeRankings';
+import { useProspectSearch } from '@/hooks/useProspectSearch';
 import CompositeRankingsTable from './CompositeRankingsTable';
 import CompositeRankingsCard from './CompositeRankingsCard';
 import FilterPanel from '../ui/FilterPanel';
@@ -50,6 +51,9 @@ export default function CompositeRankingsDashboard() {
     organization: filters.organization.length > 0 ? filters.organization[0] : undefined,
     limit: user?.subscriptionTier === 'premium' ? 500 : 100,
   });
+
+  // Search autocomplete hook
+  const { suggestions, getSuggestions } = useProspectSearch();
 
   // Handle filter changes
   const handleFilterChange = useCallback((newFilters: Partial<FilterState>) => {
@@ -211,6 +215,8 @@ export default function CompositeRankingsDashboard() {
         <SearchBar
           value={searchQuery}
           onChange={handleSearch}
+          onSuggestionsFetch={getSuggestions}
+          suggestions={suggestions}
           placeholder="Search prospects by name or organization..."
         />
       </div>
