@@ -9,6 +9,9 @@ export const metadata: Metadata = {
     'MLB prospects, dynasty fantasy baseball, prospect rankings, baseball stats, composite rankings, FanGraphs',
 };
 
+// Force dynamic rendering - this page requires runtime data fetching
+export const dynamic = 'force-dynamic';
+
 export default function ProspectsPage() {
   return <ProspectsPageClient />;
 }
