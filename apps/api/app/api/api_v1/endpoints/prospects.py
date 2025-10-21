@@ -398,6 +398,12 @@ class CompositeRankingResponse(BaseModel):
     age_adjustment: float = Field(description="Age-relative-to-level adjustment")
     total_adjustment: float = Field(description="Total adjustment from base FV")
 
+    # Detailed performance breakdown (new - from pitch data)
+    performance_breakdown: Optional[Dict] = Field(
+        None,
+        description="Detailed performance metrics breakdown (pitch data or game logs)"
+    )
+
     # Tool grades (for display)
     tool_grades: Dict[str, Optional[int]] = Field(description="Position-specific tool grades")
 
@@ -535,6 +541,7 @@ async def get_composite_rankings(
                 trend_adjustment=ranked_prospect['scores']['trend_adjustment'],
                 age_adjustment=ranked_prospect['scores']['age_adjustment'],
                 total_adjustment=ranked_prospect['scores']['total_adjustment'],
+                performance_breakdown=ranked_prospect['scores'].get('performance_breakdown'),
                 tool_grades=ranked_prospect['tool_grades'],
                 tier=tier_info['tier'],
                 tier_label=tier_info['label']
