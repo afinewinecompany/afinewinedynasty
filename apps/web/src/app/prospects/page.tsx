@@ -1,16 +1,13 @@
-import ProspectsPageClient from './ProspectsPageClient';
-import { Metadata } from 'next';
+import dynamic from 'next/dynamic';
 
-export const metadata: Metadata = {
-  title: 'Prospect Rankings | A Fine Wine Dynasty',
-  description:
-    'Top 500 MLB prospects with detailed stats, analysis, and composite rankings combining FanGraphs grades with MiLB performance data for dynasty fantasy baseball.',
-  keywords:
-    'MLB prospects, dynasty fantasy baseball, prospect rankings, baseball stats, composite rankings, FanGraphs',
-};
-
-// Force dynamic rendering - this page requires runtime data fetching
-export const dynamic = 'force-dynamic';
+const ProspectsPageClient = dynamic(() => import('./ProspectsPageClient'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>
+  ),
+});
 
 export default function ProspectsPage() {
   return <ProspectsPageClient />;
