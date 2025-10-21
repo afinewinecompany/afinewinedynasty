@@ -1,18 +1,14 @@
+import ProspectsPageClient from './ProspectsPageClient';
 import { Metadata } from 'next';
-import ProspectRankingsDashboard from '@/components/rankings/ProspectRankingsDashboard';
 
 export const metadata: Metadata = {
   title: 'Prospect Rankings | A Fine Wine Dynasty',
   description:
-    'Top 100 MLB prospects with detailed stats, analysis, and ML predictions for dynasty fantasy baseball.',
+    'Top 500 MLB prospects with detailed stats, analysis, and composite rankings combining FanGraphs grades with MiLB performance data for dynasty fantasy baseball.',
   keywords:
-    'MLB prospects, dynasty fantasy baseball, prospect rankings, baseball stats',
+    'MLB prospects, dynasty fantasy baseball, prospect rankings, baseball stats, composite rankings, FanGraphs',
 };
 
 export default function ProspectsPage() {
-  return (
-    <main className="min-h-screen bg-gray-50">
-      <ProspectRankingsDashboard />
-    </main>
-  );
+  return <ProspectsPageClient />;
 }

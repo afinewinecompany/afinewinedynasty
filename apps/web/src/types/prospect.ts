@@ -213,3 +213,56 @@ export interface ComparisonData {
     }>;
   };
 }
+
+// Composite Rankings (FanGraphs + MiLB Performance)
+export interface CompositeRanking {
+  rank: number;
+  prospect_id: number;
+  name: string;
+  position: string;
+  organization: string | null;
+  age: number | null;
+  level: string | null;
+
+  // Score breakdown
+  composite_score: number;
+  base_fv: number;
+  performance_modifier: number;
+  trend_adjustment: number;
+  age_adjustment: number;
+  total_adjustment: number;
+
+  // Tool grades (position-specific)
+  tool_grades: {
+    hit?: number | null;
+    power?: number | null;
+    speed?: number | null;
+    field?: number | null;
+    fastball?: number | null;
+    slider?: number | null;
+    curve?: number | null;
+    change?: number | null;
+    command?: number | null;
+  };
+
+  // Tier classification
+  tier: number | null;
+  tier_label: string | null;
+}
+
+export interface CompositeRankingsResponse {
+  prospects: CompositeRanking[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+  generated_at: string;
+}
+
+export interface CompositeRankingsParams {
+  page?: number;
+  page_size?: number;
+  position?: string;
+  organization?: string;
+  limit?: number;
+}
