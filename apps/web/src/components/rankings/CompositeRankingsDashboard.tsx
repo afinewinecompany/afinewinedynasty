@@ -21,6 +21,11 @@ import {
 interface FilterState {
   position: string[];
   organization: string[];
+  level: string[];
+  etaMin?: number;
+  etaMax?: number;
+  ageMin?: number;
+  ageMax?: number;
 }
 
 interface SortState {
@@ -35,6 +40,7 @@ export default function CompositeRankingsDashboard() {
   const [filters, setFilters] = useState<FilterState>({
     position: [],
     organization: [],
+    level: [],
   });
   const [sortState, setSortState] = useState<SortState>({
     sortBy: 'rank',
@@ -81,6 +87,7 @@ export default function CompositeRankingsDashboard() {
     setFilters({
       position: [],
       organization: [],
+      level: [],
     });
     setSearchQuery('');
     setPage(1);
@@ -91,6 +98,11 @@ export default function CompositeRankingsDashboard() {
     return (
       filters.position.length > 0 ||
       filters.organization.length > 0 ||
+      filters.level.length > 0 ||
+      filters.etaMin !== undefined ||
+      filters.etaMax !== undefined ||
+      filters.ageMin !== undefined ||
+      filters.ageMax !== undefined ||
       searchQuery.length > 0
     );
   }, [filters, searchQuery]);
