@@ -10,6 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import PerformanceBreakdown from './PerformanceBreakdown';
 
 interface CompositeRankingsTableProps {
   prospects: CompositeRanking[];
@@ -278,6 +279,25 @@ export default function CompositeRankingsTable({
               </div>
             </th>
 
+            {/* Performance Data */}
+            <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              <div className="flex items-center gap-1">
+                <span>Data</span>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="w-3 h-3 text-muted-foreground/60 hover:text-accent transition-colors" />
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-popover border-border">
+                      <p className="max-w-xs text-popover-foreground">
+                        Performance data source: Pitch Data (best) or Game Logs (fallback)
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            </th>
+
             {/* Trend */}
             <th className="px-3 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
               Trend
@@ -361,6 +381,11 @@ export default function CompositeRankingsTable({
                   </span>
                 </td>
 
+                {/* Performance Data Source */}
+                <td className="px-3 py-4 whitespace-nowrap">
+                  <PerformanceBreakdown prospect={prospect} compact />
+                </td>
+
                 {/* Trend */}
                 <td className="px-3 py-4 whitespace-nowrap">
                   <TooltipProvider>
@@ -400,8 +425,9 @@ export default function CompositeRankingsTable({
               {/* Expanded Row: Score Breakdown */}
               {expandedRows.has(prospect.prospect_id) && (
                 <tr className="bg-muted/20">
-                  <td colSpan={12} className="px-6 py-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <td colSpan={13} className="px-6 py-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                      {/* Left Column: Score Breakdown */}
                       <div>
                         <h4 className="font-semibold text-foreground mb-2">Score Breakdown</h4>
                         <div className="space-y-1 text-muted-foreground">
@@ -432,33 +458,38 @@ export default function CompositeRankingsTable({
                             <span className="font-semibold text-wine-periwinkle">{prospect.composite_score.toFixed(1)}</span>
                           </div>
                         </div>
+
+                        <div className="mt-4">
+                          <h4 className="font-semibold text-foreground mb-2">What This Means</h4>
+                          <div className="space-y-1 text-muted-foreground text-xs">
+                            {prospect.performance_modifier > 5 && (
+                              <p className="text-green-600">• Strong recent performance at current level</p>
+                            )}
+                            {prospect.performance_modifier < -5 && (
+                              <p className="text-red-600">• Struggling at current level</p>
+                            )}
+                            {prospect.trend_adjustment >= 2 && (
+                              <p className="text-green-600">• Hot streak - improving recently</p>
+                            )}
+                            {prospect.trend_adjustment <= -2 && (
+                              <p className="text-red-600">• Cooling off - recent decline</p>
+                            )}
+                            {prospect.age_adjustment > 0 && (
+                              <p className="text-green-600">• Young for level - advanced for age</p>
+                            )}
+                            {prospect.age_adjustment < 0 && (
+                              <p className="text-red-600">• Old for level - organizational depth</p>
+                            )}
+                            {Math.abs(prospect.total_adjustment) < 1 && (
+                              <p className="text-gray-600">• Performing as expected at current level</p>
+                            )}
+                          </div>
+                        </div>
                       </div>
 
+                      {/* Right Column: Performance Breakdown */}
                       <div>
-                        <h4 className="font-semibold text-foreground mb-2">What This Means</h4>
-                        <div className="space-y-1 text-muted-foreground text-xs">
-                          {prospect.performance_modifier > 5 && (
-                            <p className="text-green-600">• Strong recent performance at current level</p>
-                          )}
-                          {prospect.performance_modifier < -5 && (
-                            <p className="text-red-600">• Struggling at current level</p>
-                          )}
-                          {prospect.trend_adjustment >= 2 && (
-                            <p className="text-green-600">• Hot streak - improving recently</p>
-                          )}
-                          {prospect.trend_adjustment <= -2 && (
-                            <p className="text-red-600">• Cooling off - recent decline</p>
-                          )}
-                          {prospect.age_adjustment > 0 && (
-                            <p className="text-green-600">• Young for level - advanced for age</p>
-                          )}
-                          {prospect.age_adjustment < 0 && (
-                            <p className="text-red-600">• Old for level - organizational depth</p>
-                          )}
-                          {Math.abs(prospect.total_adjustment) < 1 && (
-                            <p className="text-gray-600">• Performing as expected at current level</p>
-                          )}
-                        </div>
+                        <PerformanceBreakdown prospect={prospect} />
                       </div>
                     </div>
                   </td>

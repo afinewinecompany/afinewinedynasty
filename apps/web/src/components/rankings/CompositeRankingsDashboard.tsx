@@ -172,7 +172,16 @@ export default function CompositeRankingsDashboard() {
                       </p>
                       <ul className="space-y-1 text-xs">
                         <li>• Base FV: FanGraphs Future Value (40-70 scale)</li>
-                        <li>• Performance: Recent stats vs level peers (±10)</li>
+                        <li>• Performance: Pitch-level metrics vs level peers (±10)</li>
+                        <li className="ml-4 text-muted-foreground">
+                          - Uses exit velocity, contact rate, whiff rate for hitters
+                        </li>
+                        <li className="ml-4 text-muted-foreground">
+                          - Uses velocity, zone rate, chase rate for pitchers
+                        </li>
+                        <li className="ml-4 text-muted-foreground">
+                          - Falls back to game logs (OPS/ERA) if no pitch data
+                        </li>
                         <li>• Trend: 30-day hot/cold streaks (±5)</li>
                         <li>• Age: Age-relative-to-level bonus/penalty (±5)</li>
                       </ul>

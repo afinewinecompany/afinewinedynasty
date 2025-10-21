@@ -232,6 +232,43 @@ export interface CompositeRanking {
   age_adjustment: number;
   total_adjustment: number;
 
+  // Detailed performance breakdown (new - from pitch data)
+  performance_breakdown?: {
+    source: 'pitch_data' | 'game_logs' | 'insufficient_data' | 'no_data';
+    composite_percentile?: number;
+    metrics?: {
+      // Hitter metrics
+      exit_velo_90th?: number;
+      hard_hit_rate?: number;
+      contact_rate?: number;
+      whiff_rate?: number;
+      chase_rate?: number;
+      // Pitcher metrics
+      zone_rate?: number;
+      avg_fb_velo?: number;
+      hard_contact_rate?: number;
+    };
+    percentiles?: {
+      exit_velo_90th?: number;
+      hard_hit_rate?: number;
+      contact_rate?: number;
+      whiff_rate?: number;
+      chase_rate?: number;
+      zone_rate?: number;
+      avg_fb_velo?: number;
+      hard_contact_rate?: number;
+      ops?: number;
+      k_minus_bb?: number;
+    };
+    weighted_contributions?: {
+      [key: string]: number;
+    };
+    sample_size?: number;
+    days_covered?: number;
+    level?: string;
+    note?: string;
+  };
+
   // Tool grades (position-specific)
   tool_grades: {
     hit?: number | null;

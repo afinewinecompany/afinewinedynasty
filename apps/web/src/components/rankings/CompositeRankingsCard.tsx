@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { ChevronDown, ChevronUp, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { CompositeRanking } from '@/types/prospect';
+import PerformanceBreakdown from './PerformanceBreakdown';
 
 interface CompositeRankingsCardProps {
   prospect: CompositeRanking;
@@ -129,6 +130,11 @@ export default function CompositeRankingsCard({ prospect }: CompositeRankingsCar
           </div>
         </div>
 
+        {/* Performance Data Source Indicator */}
+        <div className="mb-3 flex justify-center">
+          <PerformanceBreakdown prospect={prospect} compact />
+        </div>
+
         {/* Trend and Tool Grades */}
         <div className="space-y-2">
           {/* Trend */}
@@ -217,7 +223,7 @@ export default function CompositeRankingsCard({ prospect }: CompositeRankingsCar
 
         {/* Expanded Breakdown */}
         {isExpanded && (
-          <div className="mt-3 pt-3 border-t border-gray-200 space-y-3">
+          <div className="mt-3 pt-3 border-t border-gray-200 space-y-4">
             {/* Score Breakdown */}
             <div>
               <h4 className="text-sm font-semibold text-gray-900 mb-2">Score Breakdown</h4>
@@ -298,6 +304,11 @@ export default function CompositeRankingsCard({ prospect }: CompositeRankingsCar
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* Performance Breakdown */}
+            <div className="pt-3 border-t border-gray-200">
+              <PerformanceBreakdown prospect={prospect} />
             </div>
           </div>
         )}
