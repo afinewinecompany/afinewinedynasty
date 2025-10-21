@@ -34,6 +34,12 @@ export function useCompositeRankings(params: CompositeRankingsParams = {}) {
 
       setData(result);
     } catch (err) {
+      console.error('[useCompositeRankings] API Error:', err);
+      console.error('[useCompositeRankings] Error details:', {
+        message: err instanceof Error ? err.message : 'Unknown error',
+        stack: err instanceof Error ? err.stack : undefined,
+        raw: err
+      });
       setError(
         err instanceof Error
           ? err.message

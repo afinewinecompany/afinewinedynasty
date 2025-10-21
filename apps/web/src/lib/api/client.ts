@@ -103,7 +103,19 @@ export class APIClient {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Try to get error details from response body
+        let errorDetail = `HTTP ${response.status}`;
+        try {
+          const errorBody = await response.json();
+          console.error('[APIClient] Error response:', errorBody);
+          errorDetail = errorBody.detail || errorBody.message || errorDetail;
+        } catch {
+          // Response might not be JSON
+          const errorText = await response.text();
+          console.error('[APIClient] Error text:', errorText);
+          if (errorText) errorDetail = errorText;
+        }
+        throw new Error(`API Error: ${errorDetail}`);
       }
 
       const data = await response.json();
