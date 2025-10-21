@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Search, X, Filter } from 'lucide-react';
 import { debounce } from 'lodash';
+import { apiClient } from '@/lib/api/client';
 
 interface Prospect {
   id: number;
@@ -71,17 +72,9 @@ export default function ProspectSelector({
         params.append('page_size', '50');
         params.append('sort_by', 'dynasty_rank');
 
-        const response = await fetch(`/api/prospects/?${params.toString()}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch prospects');
-        }
-
-        const data = await response.json();
+        const data = await apiClient.get<{ prospects: Prospect[] }>(
+          `/prospects?${params.toString()}`
+        );
         const prospectsData = data.prospects || [];
 
         // Filter out excluded prospects
@@ -123,19 +116,10 @@ export default function ProspectSelector({
       }
 
       try {
-        const response = await fetch(
-          `/api/prospects/search/autocomplete?q=${encodeURIComponent(query)}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-          }
+        const data = await apiClient.get<Array<{ display: string }>>(
+          `/prospects/search/autocomplete?q=${encodeURIComponent(query)}`
         );
-
-        if (response.ok) {
-          const data = await response.json();
-          setSuggestions(data.map((item) => item.display));
-        }
+        setSuggestions(data.map((item) => item.display));
       } catch (err) {
         console.error('Failed to fetch suggestions:', err);
       }

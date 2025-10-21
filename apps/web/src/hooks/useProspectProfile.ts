@@ -14,7 +14,7 @@ export function useProspectProfile(id: string) {
       setLoading(true);
       setError(null);
 
-      const endpoint = `/api/prospects/${id}`;
+      const endpoint = `/prospects/${id}`;
 
       // Cache prospect profiles for 1 hour as per story requirements
       const result = await apiClient.get<ProspectProfile>(endpoint, 60);

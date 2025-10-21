@@ -22,7 +22,7 @@ export function useProspects(params: ProspectListParams = {}) {
       if (params.sort_order) searchParams.set('sort_order', params.sort_order);
       if (params.search) searchParams.set('search', params.search);
 
-      const endpoint = `/api/prospects?${searchParams}`;
+      const endpoint = `/prospects?${searchParams}`;
 
       // Cache rankings for 30 minutes as per story requirements
       const result = await apiClient.get<ProspectListResponse>(endpoint, 30);

@@ -108,7 +108,23 @@ export class APIClient {
         try {
           const errorBody = await response.json();
           console.error('[APIClient] Error response:', errorBody);
-          errorDetail = errorBody.detail || errorBody.message || errorDetail;
+          console.error('[APIClient] Error response (stringified):', JSON.stringify(errorBody, null, 2));
+
+          // Handle different error formats
+          if (errorBody.detail) {
+            if (Array.isArray(errorBody.detail)) {
+              // ValidationError format: detail is array of error objects
+              errorDetail = errorBody.detail.map((err: any) =>
+                typeof err === 'string' ? err : err.msg || JSON.stringify(err)
+              ).join(', ');
+            } else if (typeof errorBody.detail === 'object') {
+              errorDetail = JSON.stringify(errorBody.detail);
+            } else {
+              errorDetail = errorBody.detail;
+            }
+          } else if (errorBody.message) {
+            errorDetail = errorBody.message;
+          }
         } catch {
           // Response might not be JSON
           const errorText = await response.text();

@@ -18,6 +18,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { apiClient } from '@/lib/api/client';
 
 interface MLBExpectationPrediction {
   prospect_id: number;
@@ -88,17 +89,11 @@ export function MLBExpectationPrediction({
         setLoading(true);
         setError(null);
 
-        const response = await fetch(
-          `/api/prospects/${prospectId}/mlb-expectation?year=${year}`
+        const data = await apiClient.get<{ success: boolean; data?: MLBExpectationPrediction; error?: string }>(
+          `/prospects/${prospectId}/mlb-expectation?year=${year}`
         );
 
-        if (!response.ok) {
-          throw new Error('Failed to load MLB expectation');
-        }
-
-        const data = await response.json();
-
-        if (data.success) {
+        if (data.success && data.data) {
           setPrediction(data.data);
         } else {
           setError(data.error || 'Unknown error');

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { apiClient } from '@/lib/api/client';
 
 interface ComparisonData {
   prospect_ids: number[];
@@ -46,24 +47,9 @@ export function useProspectComparison(): UseProspectComparisonReturn {
         include_analogs: 'true',
       });
 
-      const response = await fetch(
-        `/api/prospects/compare?${params.toString()}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json',
-          },
-        }
+      const data = await apiClient.get<ComparisonData>(
+        `/prospects/compare?${params.toString()}`
       );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.detail || `HTTP ${response.status}: ${response.statusText}`
-        );
-      }
-
-      const data = await response.json();
       setComparisonData(data);
     } catch (err) {
       const errorMessage =
@@ -106,20 +92,9 @@ export function useComparisonAnalogs() {
           limit: limit.toString(),
         });
 
-        const response = await fetch(
-          `/api/prospects/compare/analogs?${params.toString()}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-          }
+        const data = await apiClient.get(
+          `/prospects/compare/analogs?${params.toString()}`
         );
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch analogs: ${response.statusText}`);
-        }
-
-        const data = await response.json();
         setAnalogsData(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error');
@@ -149,26 +124,14 @@ export function useComparisonExport() {
       setError(null);
 
       try {
-        const response = await fetch('/api/prospects/compare/export', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: new URLSearchParams({
-            prospect_ids: prospectIds.join(','),
-            format,
-          }),
+        const params = new URLSearchParams({
+          prospect_ids: prospectIds.join(','),
+          format,
         });
 
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(
-            errorData.detail || `Export failed: ${response.statusText}`
-          );
-        }
-
-        const data = await response.json();
+        const data = await apiClient.post(
+          `/prospects/compare/export?${params.toString()}`
+        );
 
         // Return download information
         return {
