@@ -63,6 +63,32 @@ class PitchDataAggregator:
             Dict with raw metrics, percentiles, and sample size
             None if insufficient data
         """
+        # FIXED: Check what levels the player has played at recently
+        levels_query = text("""
+            SELECT level, COUNT(*) as pitch_count
+            FROM milb_batter_pitches
+            WHERE mlb_batter_id = :mlb_player_id
+                AND game_date >= CURRENT_DATE - CAST(:days || ' days' AS INTERVAL)
+            GROUP BY level
+            ORDER BY pitch_count DESC
+        """)
+
+        levels_result = await self.db.execute(
+            levels_query,
+            {'mlb_player_id': int(mlb_player_id), 'days': str(days)}
+        )
+        levels_data = levels_result.fetchall()
+
+        if not levels_data:
+            logger.info(f"No pitch data for hitter {mlb_player_id} in last {days} days")
+            return None
+
+        levels_played = [row[0] for row in levels_data]
+        total_pitches = sum(row[1] for row in levels_data)
+
+        logger.info(f"Player {mlb_player_id}: {total_pitches} pitches at {levels_played} in {days}d")
+
+        # FIXED: Aggregate across ALL levels
         query = text("""
             WITH player_stats AS (
                 SELECT
@@ -89,11 +115,14 @@ class PitchDataAggregator:
                     -- Sample size
                     COUNT(*) as pitches_seen,
                     COUNT(*) FILTER (WHERE swing = TRUE) as swings,
-                    COUNT(*) FILTER (WHERE launch_speed IS NOT NULL) as balls_in_play
+                    COUNT(*) FILTER (WHERE launch_speed IS NOT NULL) as balls_in_play,
+
+                    -- Track levels included
+                    array_agg(DISTINCT level ORDER BY level) as levels_included
 
                 FROM milb_batter_pitches
                 WHERE mlb_batter_id = :mlb_player_id
-                    AND level = :level
+                    AND level = ANY(:levels)  -- FIXED: Include ALL levels
                     AND game_date >= CURRENT_DATE - CAST(:days || ' days' AS INTERVAL)
             )
             SELECT * FROM player_stats
@@ -105,8 +134,8 @@ class PitchDataAggregator:
                 query,
                 {
                     'mlb_player_id': int(mlb_player_id),
-                    'level': level,
-                    'days': str(days),  # Convert to string for concatenation
+                    'levels': levels_played,  # FIXED: Pass ALL levels
+                    'days': str(days),
                     'min_pitches': self.MIN_PITCHES_BATTER
                 }
             )
@@ -131,13 +160,24 @@ class PitchDataAggregator:
             # Calculate percentiles against level cohort
             percentiles = await self._calculate_hitter_percentiles(metrics, level)
 
-            return {
+            # Use specified level for percentile comparison, or highest level played
+            comparison_level = level if level in levels_played else levels_played[0]
+
+            result_dict = {
                 'metrics': metrics,
                 'percentiles': percentiles,
-                'sample_size': row[5],
+                'sample_size': row[5],  # FIXED: Now includes ALL levels
                 'days_covered': days,
-                'level': level
+                'level': comparison_level,
             }
+
+            # Add multi-level info if applicable
+            if row[8] and len(row[8]) > 1:
+                result_dict['levels_included'] = row[8]
+                result_dict['aggregation_note'] = f"Data from: {', '.join(row[8])}"
+                logger.info(f"Aggregated {row[5]} pitches from levels: {row[8]}")
+
+            return result_dict
 
         except Exception as e:
             logger.error(f"Error fetching hitter pitch metrics: {e}")
@@ -152,15 +192,43 @@ class PitchDataAggregator:
         """
         Calculate pitcher pitch-level metrics for recent performance.
 
+        FIXED: Now aggregates across ALL levels the player has played at.
+
         Args:
             mlb_player_id: MLB Stats API player ID
-            level: MiLB level (AAA, AA, A+, A, etc.)
+            level: MiLB level for percentile comparison (AAA, AA, A+, A, etc.)
             days: Number of days to look back (default 60)
 
         Returns:
             Dict with raw metrics, percentiles, and sample size
             None if insufficient data
         """
+        # FIXED: Check what levels the player has played at recently
+        levels_query = text("""
+            SELECT level, COUNT(*) as pitch_count
+            FROM milb_pitcher_pitches
+            WHERE mlb_pitcher_id = :mlb_player_id
+                AND game_date >= CURRENT_DATE - CAST(:days || ' days' AS INTERVAL)
+            GROUP BY level
+            ORDER BY pitch_count DESC
+        """)
+
+        levels_result = await self.db.execute(
+            levels_query,
+            {'mlb_pitcher_id': int(mlb_player_id), 'days': str(days)}
+        )
+        levels_data = levels_result.fetchall()
+
+        if not levels_data:
+            logger.info(f"No pitch data for pitcher {mlb_player_id} in last {days} days")
+            return None
+
+        levels_played = [row[0] for row in levels_data]
+        total_pitches = sum(row[1] for row in levels_data)
+
+        logger.info(f"Pitcher {mlb_player_id}: {total_pitches} pitches at {levels_played} in {days}d")
+
+        # FIXED: Aggregate across ALL levels
         query = text("""
             WITH player_stats AS (
                 SELECT
@@ -186,11 +254,14 @@ class PitchDataAggregator:
 
                     -- Sample size
                     COUNT(*) as pitches_thrown,
-                    COUNT(*) FILTER (WHERE swing = TRUE) as swings_induced
+                    COUNT(*) FILTER (WHERE swing = TRUE) as swings_induced,
+
+                    -- Track levels included
+                    array_agg(DISTINCT level ORDER BY level) as levels_included
 
                 FROM milb_pitcher_pitches
                 WHERE mlb_pitcher_id = :mlb_player_id
-                    AND level = :level
+                    AND level = ANY(:levels)  -- FIXED: Include ALL levels
                     AND game_date >= CURRENT_DATE - CAST(:days || ' days' AS INTERVAL)
             )
             SELECT * FROM player_stats
@@ -202,8 +273,8 @@ class PitchDataAggregator:
                 query,
                 {
                     'mlb_player_id': int(mlb_player_id),
-                    'level': level,
-                    'days': str(days),  # Convert to string for concatenation
+                    'levels': levels_played,  # FIXED: Pass ALL levels
+                    'days': str(days),
                     'min_pitches': self.MIN_PITCHES_PITCHER
                 }
             )
@@ -225,16 +296,27 @@ class PitchDataAggregator:
                 'chase_rate': row[4],
             }
 
-            # Calculate percentiles against level cohort
-            percentiles = await self._calculate_pitcher_percentiles(metrics, level)
+            # Use specified level for percentile comparison, or highest level played
+            comparison_level = level if level in levels_played else levels_played[0]
 
-            return {
+            # Calculate percentiles against level cohort
+            percentiles = await self._calculate_pitcher_percentiles(metrics, comparison_level)
+
+            result_dict = {
                 'metrics': metrics,
                 'percentiles': percentiles,
-                'sample_size': row[5],
+                'sample_size': row[5],  # FIXED: Now includes ALL levels
                 'days_covered': days,
-                'level': level
+                'level': comparison_level,
             }
+
+            # Add multi-level info if applicable (pitchers have one less field than hitters)
+            if row[7] and len(row[7]) > 1:
+                result_dict['levels_included'] = row[7]
+                result_dict['aggregation_note'] = f"Data from: {', '.join(row[7])}"
+                logger.info(f"Aggregated {row[5]} pitches from levels: {row[7]}")
+
+            return result_dict
 
         except Exception as e:
             logger.error(f"Error fetching pitcher pitch metrics: {e}")
