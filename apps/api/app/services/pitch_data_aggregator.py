@@ -5,6 +5,9 @@ Aggregates pitch-level MiLB data into weighted performance metrics
 with percentile rankings by level cohort.
 
 Used by ProspectRankingService to calculate enhanced performance modifiers.
+
+SEASON-AWARE: Automatically uses full season data when season has ended,
+or rolling window during active season.
 """
 
 from typing import Dict, Optional, List, Tuple
@@ -63,30 +66,70 @@ class PitchDataAggregator:
             Dict with raw metrics, percentiles, and sample size
             None if insufficient data
         """
-        # FIXED: Check what levels the player has played at recently
-        levels_query = text("""
-            SELECT level, COUNT(*) as pitch_count
+        # SEASON-AWARE: Check if we should use full season or rolling window
+        season_check_query = text("""
+            SELECT
+                EXTRACT(YEAR FROM CURRENT_DATE)::integer as current_year,
+                MAX(game_date) as last_game_date,
+                CURRENT_DATE - MAX(game_date) as days_since_last_game
             FROM milb_batter_pitches
-            WHERE mlb_batter_id = :mlb_player_id
-                AND game_date >= CURRENT_DATE - CAST(:days || ' days' AS INTERVAL)
-            GROUP BY level
-            ORDER BY pitch_count DESC
+            WHERE season = EXTRACT(YEAR FROM CURRENT_DATE)
         """)
 
-        levels_result = await self.db.execute(
-            levels_query,
-            {'mlb_player_id': int(mlb_player_id), 'days': str(days)}
-        )
+        season_result = await self.db.execute(season_check_query)
+        season_info = season_result.fetchone()
+
+        # Use full season if season ended >14 days ago, otherwise use rolling window
+        use_full_season = season_info and season_info.days_since_last_game and season_info.days_since_last_game > 14
+
+        if use_full_season:
+            # Use full current season data
+            current_year = season_info.current_year
+            logger.info(f"Using full {current_year} season data (season ended {season_info.days_since_last_game} days ago)")
+
+            levels_query = text("""
+                SELECT level, COUNT(*) as pitch_count
+                FROM milb_batter_pitches
+                WHERE mlb_batter_id = :mlb_player_id
+                    AND season = :season
+                GROUP BY level
+                ORDER BY pitch_count DESC
+            """)
+
+            levels_result = await self.db.execute(
+                levels_query,
+                {'mlb_player_id': int(mlb_player_id), 'season': current_year}
+            )
+        else:
+            # Use rolling window (during active season)
+            logger.info(f"Using {days}-day rolling window (season active)")
+
+            levels_query = text("""
+                SELECT level, COUNT(*) as pitch_count
+                FROM milb_batter_pitches
+                WHERE mlb_batter_id = :mlb_player_id
+                    AND game_date >= CURRENT_DATE - CAST(:days || ' days' AS INTERVAL)
+                GROUP BY level
+                ORDER BY pitch_count DESC
+            """)
+
+            levels_result = await self.db.execute(
+                levels_query,
+                {'mlb_player_id': int(mlb_player_id), 'days': str(days)}
+            )
+
         levels_data = levels_result.fetchall()
 
         if not levels_data:
-            logger.info(f"No pitch data for hitter {mlb_player_id} in last {days} days")
+            window_desc = f"full {season_info.current_year} season" if use_full_season else f"last {days} days"
+            logger.info(f"No pitch data for hitter {mlb_player_id} in {window_desc}")
             return None
 
         levels_played = [row[0] for row in levels_data]
         total_pitches = sum(row[1] for row in levels_data)
 
-        logger.info(f"Player {mlb_player_id}: {total_pitches} pitches at {levels_played} in {days}d")
+        window_desc = f"full {season_info.current_year} season" if use_full_season else f"{days}d"
+        logger.info(f"Player {mlb_player_id}: {total_pitches} pitches at {levels_played} in {window_desc}")
 
         # FIXED: Aggregate across ALL levels
         query = text("""
@@ -122,23 +165,30 @@ class PitchDataAggregator:
 
                 FROM milb_batter_pitches
                 WHERE mlb_batter_id = :mlb_player_id
-                    AND level = ANY(:levels)  -- FIXED: Include ALL levels
-                    AND game_date >= CURRENT_DATE - CAST(:days || ' days' AS INTERVAL)
+                    AND level = ANY(:levels)  -- Include ALL levels
+                    AND (
+                        -- Use season or date filter based on context
+                        CASE WHEN :use_season THEN season = :season
+                        ELSE game_date >= CURRENT_DATE - CAST(:days || ' days' AS INTERVAL)
+                        END
+                    )
             )
             SELECT * FROM player_stats
             WHERE pitches_seen >= :min_pitches
         """)
 
         try:
-            result = await self.db.execute(
-                query,
-                {
-                    'mlb_player_id': int(mlb_player_id),
-                    'levels': levels_played,  # FIXED: Pass ALL levels
-                    'days': str(days),
-                    'min_pitches': self.MIN_PITCHES_BATTER
-                }
-            )
+            # Build parameters based on season status
+            query_params = {
+                'mlb_player_id': int(mlb_player_id),
+                'levels': levels_played,
+                'min_pitches': self.MIN_PITCHES_BATTER,
+                'use_season': use_full_season,
+                'season': season_info.current_year if use_full_season else None,
+                'days': None if use_full_season else str(days)
+            }
+
+            result = await self.db.execute(query, query_params)
 
             row = result.fetchone()
 
