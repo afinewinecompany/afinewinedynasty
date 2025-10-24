@@ -74,7 +74,7 @@ export class APIClient {
     endpoint: string,
     options: RequestInit = {},
     cacheMinutes?: number,
-    requestOptions?: { timeout?: number }
+    requestOptions?: { timeout?: number; signal?: AbortSignal }
   ): Promise<T> {
     const url = `${this.config.baseURL}${endpoint}`;
     const cacheKey = `${url}:${JSON.stringify(options)}`;
@@ -87,9 +87,17 @@ export class APIClient {
       }
     }
 
-    const controller = new AbortController();
+    // Use provided signal or create a new controller for timeout
+    const controller = requestOptions?.signal ? null : new AbortController();
     const timeout = requestOptions?.timeout || this.config.timeout;
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+    // Only set timeout if we're managing our own controller
+    const timeoutId = controller
+      ? setTimeout(() => controller.abort(), timeout)
+      : null;
+
+    // Combine signals: external signal takes precedence
+    const signal = requestOptions?.signal || controller?.signal;
 
     try {
       const response = await fetch(url, {
@@ -99,10 +107,10 @@ export class APIClient {
           ...this.getAuthHeaders(),
           ...options.headers,
         },
-        signal: controller.signal,
+        signal: signal,
       });
 
-      clearTimeout(timeoutId);
+      if (timeoutId) clearTimeout(timeoutId);
 
       if (!response.ok) {
         // Try to get error details from response body
@@ -145,7 +153,7 @@ export class APIClient {
 
       return data;
     } catch (error) {
-      clearTimeout(timeoutId);
+      if (timeoutId) clearTimeout(timeoutId);
       throw error;
     }
   }
@@ -153,7 +161,7 @@ export class APIClient {
   async get<T>(
     endpoint: string,
     cacheMinutes?: number,
-    requestOptions?: { timeout?: number }
+    requestOptions?: { timeout?: number; signal?: AbortSignal }
   ): Promise<T> {
     return this.request<T>(endpoint, { method: 'GET' }, cacheMinutes, requestOptions);
   }
