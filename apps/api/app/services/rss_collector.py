@@ -31,12 +31,18 @@ class RSSCollector:
             'mlb_news': 'https://www.mlb.com/feeds/news/rss.xml',
             'mlb_pipeline': 'https://www.mlb.com/feeds/prospects/rss.xml',
             'mlb_trade_rumors': 'https://www.mlbtraderumors.com/feed',
+            'mlb_trade_rumors_transactions': 'http://feeds.feedburner.com/MLBTRTransactions',
 
             # Analytics sites
             # Note: fangraphs main site doesn't have RSS, using blogs feed instead
             'fangraphs_blogs': 'https://blogs.fangraphs.com/feed/',
             'razzball': 'https://razzball.com/feed/',
             'baseball_prospectus': 'https://www.baseballprospectus.com/feed/',
+
+            # Reddit communities
+            'reddit_baseball': 'https://www.reddit.com/r/baseball/new/.rss',
+            'reddit_fantasybaseball': 'https://www.reddit.com/r/fantasybaseball/new/.rss',
+            'reddit_fangraphs': 'https://www.reddit.com/r/FanGraphs/new/.rss',
 
             # Team blogs - SB Nation
             'red_leg_nation': 'https://www.redlegnation.com/feed/',
@@ -60,32 +66,62 @@ class RSSCollector:
             'athletic_mlb': 'https://theathletic.com/mlb?rss',
         }
 
+        # Feed-to-URL mapping for deduplication
+        # Maps different feed URLs that might provide the same content
+        self.feed_dedup_groups = {
+            'mlb_trade_rumors': ['mlbtraderumors', 'mlbtraderumors.com', 'feedburner.com/MlbTradeRumors'],
+        }
+
     async def collect_all_feeds(self) -> Dict:
-        """Collect articles from all RSS feeds"""
+        """Collect articles from all RSS feeds with enhanced logging"""
         all_articles = []
+        feed_summary = {}
 
         for source, url in self.feeds.items():
             try:
                 articles = await self.fetch_feed(source, url)
                 all_articles.extend(articles)
+                feed_summary[source] = len(articles)
                 logger.info(f"Collected {len(articles)} articles from {source}")
             except Exception as e:
                 logger.error(f"Error fetching {source}: {e}")
+                feed_summary[source] = 0
 
         # Process articles for player mentions
-        processed_count = await self.process_articles_for_players(all_articles)
+        processed_results = await self.process_articles_for_players(all_articles)
+
+        # Enhanced logging output
+        logger.info("="*80)
+        logger.info("RSS COLLECTION SUMMARY")
+        logger.info("="*80)
+        for feed_name, article_count in feed_summary.items():
+            logger.info(f"  {feed_name:40s}: {article_count:4d} articles")
+        logger.info("-"*80)
+        logger.info(f"Total articles collected: {len(all_articles)}")
+        logger.info(f"Articles with player mentions: {processed_results['articles_with_players']}")
+        logger.info(f"Total player-article associations created: {processed_results['total_saved']}")
+        logger.info(f"Players mentioned: {len(processed_results['players_mentioned'])}")
+        if processed_results['players_mentioned']:
+            logger.info(f"Top mentioned players: {', '.join(list(processed_results['players_mentioned'].keys())[:10])}")
+        logger.info("="*80)
 
         return {
             'status': 'success',
             'total_articles': len(all_articles),
-            'processed_for_players': processed_count
+            'feed_breakdown': feed_summary,
+            'processed_for_players': processed_results['total_saved'],
+            'articles_with_players': processed_results['articles_with_players'],
+            'players_mentioned': len(processed_results['players_mentioned']),
         }
 
     async def fetch_feed(self, source: str, url: str) -> List[Dict]:
         """Fetch and parse RSS feed"""
         try:
-            timeout = aiohttp.ClientTimeout(total=10)  # Reduce timeout
-            async with aiohttp.ClientSession(timeout=timeout) as session:
+            timeout = aiohttp.ClientTimeout(total=15)  # Increased timeout for Reddit feeds
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+            async with aiohttp.ClientSession(timeout=timeout, headers=headers) as session:
                 async with session.get(url) as response:
                     if response.status != 200:
                         logger.warning(f"Feed {source} returned status {response.status}")
@@ -129,19 +165,29 @@ class RSSCollector:
         else:
             return datetime.utcnow()
 
-    async def process_articles_for_players(self, articles: List[Dict]) -> int:
-        """Process articles and extract player mentions"""
+    def _is_duplicate_article(self, url: str, existing_urls: set) -> bool:
+        """Check if an article URL is a duplicate based on normalized URL"""
+        # Normalize URL for comparison (remove tracking parameters, etc.)
+        normalized_url = url.split('?')[0].lower()
+
+        # Check against existing URLs
+        for existing_url in existing_urls:
+            existing_normalized = existing_url.split('?')[0].lower()
+            if normalized_url == existing_normalized:
+                return True
+
+        return False
+
+    async def process_articles_for_players(self, articles: List[Dict]) -> Dict:
+        """Process articles and extract player mentions with enhanced tracking"""
 
         # Get all PlayerHype records to search for
-        # Note: We only use PlayerHype, not Prospect table, to avoid ID mismatch issues
         player_hypes = self.db.query(PlayerHype).all()
 
         logger.info(f"Processing {len(articles)} articles against {len(player_hypes)} PlayerHype records")
 
         # Create player name lookup - ONLY using full names to avoid false positives
-        # Do NOT match on last name only (e.g., "Smith" would match too many articles)
         player_names = {}
-
         for player_hype in player_hypes:
             name = player_hype.player_name
             player_names[name.lower()] = player_hype.player_id
@@ -150,9 +196,18 @@ class RSSCollector:
 
         processed_count = 0
         articles_with_matches = 0
+        players_mentioned = {}  # Track mention count per player
+        seen_urls = set()  # Track URLs we've already processed to avoid duplicates
 
         for article in articles:
             try:
+                # Skip if we've seen this URL already (deduplication)
+                if self._is_duplicate_article(article['url'], seen_urls):
+                    logger.debug(f"Skipping duplicate article: {article['url']}")
+                    continue
+
+                seen_urls.add(article['url'])
+
                 # Combine title and summary for searching
                 full_text = f"{article['title']} {article['summary']}".lower()
 
@@ -168,6 +223,11 @@ class RSSCollector:
 
                 # Create entries for each mentioned player
                 for player_name, player_id in mentioned_players:
+                    # Track player mention count
+                    if player_name not in players_mentioned:
+                        players_mentioned[player_name] = 0
+                    players_mentioned[player_name] += 1
+
                     # Get player hype record
                     player_hype = self.db.query(PlayerHype).filter(
                         PlayerHype.player_id == player_id
@@ -225,7 +285,12 @@ class RSSCollector:
                 continue
 
         logger.info(f"Finished processing: {articles_with_matches} articles had player mentions, {processed_count} articles successfully saved")
-        return processed_count
+
+        return {
+            'total_saved': processed_count,
+            'articles_with_players': articles_with_matches,
+            'players_mentioned': players_mentioned
+        }
 
     def _format_source_name(self, source: str) -> str:
         """Format source name for display"""
@@ -234,6 +299,7 @@ class RSSCollector:
             'mlb_news': 'MLB.com',
             'mlb_pipeline': 'MLB Pipeline',
             'mlb_trade_rumors': 'MLB Trade Rumors',
+            'mlb_trade_rumors_transactions': 'MLB Trade Rumors (Transactions)',
             'espn_mlb': 'ESPN',
             'ba_prospects': 'Baseball America',
             'fangraphs': 'FanGraphs',
@@ -241,6 +307,11 @@ class RSSCollector:
             'razzball': 'Razzball',
             'baseball_prospectus': 'Baseball Prospectus',
             'athletic_mlb': 'The Athletic',
+
+            # Reddit sources
+            'reddit_baseball': 'Reddit r/baseball',
+            'reddit_fantasybaseball': 'Reddit r/fantasybaseball',
+            'reddit_fangraphs': 'Reddit r/FanGraphs',
 
             # Team blogs
             'red_leg_nation': 'Red Leg Nation (Reds)',

@@ -1,0 +1,46 @@
+# Pitch-by-pitch collection for prospects with PBP data
+# Generated: 2025-10-17 09:39:16
+
+PITCH_ONLY_PROSPECTS = [
+    804606,  # Rank #1: Konnor Griffin
+    805808,  # Rank #2: Kevin McGonigle
+    815888,  # Rank #4: Leo De Vries
+    802139,  # Rank #8: JJ Wetherholt
+    805805,  # Rank #10: Walker Jenkins
+    703601,  # Rank #11: Max Clark
+    805795,  # Rank #12: Aidan Miller
+    701398,  # Rank #14: Sal Stewart
+    808234,  # Rank #15: Eduardo Quintero
+    823787,  # Rank #16: Rainiel Rodriguez
+    821273,  # Rank #19: Edward Florentino
+    695491,  # Rank #24: Joshua Baez
+    683953,  # Rank #28: Travis Bazzana
+    701807,  # Rank #31: Carson Benge
+    800543,  # Rank #32: Josue De Paula
+    806198,  # Rank #35: Cooper Pratt
+    701785,  # Rank #36: Kaelen Culpepper
+    695731,  # Rank #39: Braden Montgomery
+    806252,  # Rank #40: Ralphy Velazquez
+    805796,  # Rank #47: Arjun Nimmala
+    806957,  # Rank #49: Alfredo Duno
+    815896,  # Rank #50: Emil Morales
+    815352,  # Rank #51: Caleb Bonemer
+    815787,  # Rank #54: Ethan Holliday
+    702652,  # Rank #60: Andrew Fischer
+    804109,  # Rank #63: Aiva Arquette
+    828076,  # Rank #64: Dax Kilby
+    702253,  # Rank #67: Cam Collier
+    702544,  # Rank #75: Jacob Reimer
+    694876,  # Rank #78: Cooper Ingle
+    800050,  # Rank #81: Chase DeLauter
+    821181,  # Rank #88: Juneiker Caceres
+    808265,  # Rank #93: Franklin Arias
+    815589,  # Rank #94: Bo Davidson
+    809707,  # Rank #95: Charlie Condon
+    691181,  # Rank #96: Emmanuel Rodriguez
+    702610,  # Rank #98: Ike Irish
+    800060,  # Rank #99: Xavier Isaac
+
+]
+
+# Run with: python collect_pitches.py --players PITCH_ONLY_PROSPECTS --years 2021-2025

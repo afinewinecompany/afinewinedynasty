@@ -1,0 +1,28 @@
+# Quick collection for top 20 prospects with no data
+# Generated: 2025-10-17 09:39:16
+
+PRIORITY_PROSPECTS = [
+    694212,  # Rank #6: Samuel Basallo
+    805811,  # Rank #7: Bryce Eldridge
+    690997,  # Rank #13: Nolan McLean
+    801139,  # Rank #20: Payton Tolle
+    696149,  # Rank #21: Bubba Chandler
+    702056,  # Rank #22: Trey Yesavage
+    804636,  # Rank #23: Jonah Tong
+    695600,  # Rank #25: Carter Jensen
+    806258,  # Rank #26: Thomas White
+    813349,  # Rank #27: Connelly Early
+    800614,  # Rank #29: Bryce Rainer
+    691725,  # Rank #37: Andrew Painter
+    701527,  # Rank #38: Mike Sirota
+    815549,  # Rank #41: Ryan Sloan
+    811315,  # Rank #42: Brody Hopkins
+    695670,  # Rank #45: Harry Ford
+    702281,  # Rank #52: Robby Snelling
+    816113,  # Rank #53: Eli Willits
+    807739,  # Rank #57: Kade Anderson
+    150374,  # Rank #58: Jamie Arnold
+
+]
+
+# Run with: python run_collection.py --players PRIORITY_PROSPECTS --years 2024,2025

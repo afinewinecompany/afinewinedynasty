@@ -1,0 +1,3 @@
+MLB_ID,Name,Organization,Position,Rank,Has_2025_PBP,Has_2025_Pitch,Has_2024_PBP,Has_2024_Pitch,Has_Any_PBP,Has_Any_Pitch
+691181,Emmanuel Rodriguez,MIN,CF,45,False,False,False,False,True,False
+703197,Michael Arroyo,SEA,2B,48,False,False,True,True,True,True

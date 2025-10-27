@@ -1,0 +1,169 @@
+2025-10-21 21:12:34,782 - INFO - 
+================================================================================
+2025-10-21 21:12:34,783 - INFO - COMPREHENSIVE INVESTIGATION: Player 805811
+2025-10-21 21:12:34,783 - INFO - ================================================================================
+2025-10-21 21:12:34,783 - INFO - 
+This investigation will:
+2025-10-21 21:12:34,783 - INFO -   1. Check all database tables comprehensively
+2025-10-21 21:12:34,783 - INFO -   2. Query MLB API for all seasons and game types
+2025-10-21 21:12:34,783 - INFO -   3. Check career stats endpoint
+2025-10-21 21:12:34,783 - INFO -   4. Validate specific games
+2025-10-21 21:12:34,783 - INFO -   5. Cross-reference all data sources
+2025-10-21 21:12:34,783 - INFO -   6. Generate findings report
+2025-10-21 21:12:34,783 - INFO - ================================================================================
+2025-10-21 21:12:34,784 - INFO - DATABASE INVESTIGATION - COMPREHENSIVE DIAGNOSTICS
+2025-10-21 21:12:34,784 - INFO - ================================================================================
+2025-10-21 21:12:35,374 - INFO - 
+[1/7] Checking all game logs for player...
+2025-10-21 21:12:35,446 - INFO -   Found 1 season/level combinations:
+2025-10-21 21:12:35,446 - INFO -     2025 Complex: 2 games, 7 PAs, ~31 pitches
+2025-10-21 21:12:35,446 - INFO -       Date range: 2025-07-14 to 2025-07-15
+2025-10-21 21:12:35,446 - INFO - 
+[2/7] Searching for AA/AAA games with pattern matching...
+2025-10-21 21:12:35,478 - INFO -   NO AA/AAA games found
+2025-10-21 21:12:35,479 - INFO - 
+[3/7] Checking pitch data table...
+2025-10-21 21:12:35,540 - INFO -   Found 2 season/level combinations:
+2025-10-21 21:12:35,541 - INFO -     2025 AA: 10 games, 160 pitches
+2025-10-21 21:12:35,541 - INFO -       Date range: 2025-09-15 to 2025-09-28
+2025-10-21 21:12:35,541 - INFO -     2025 Complex: 2 games, 25 pitches
+2025-10-21 21:12:35,541 - INFO -       Date range: 2025-07-14 to 2025-07-15
+2025-10-21 21:12:35,541 - INFO - 
+[4/7] Cross-referencing pitch data with game logs...
+2025-10-21 21:12:35,577 - INFO -   Found 12 games with pitch data:
+2025-10-21 21:12:35,578 - INFO -     [OK] 2025-07-14 | Complex | 11 pitches, 3 PAs
+2025-10-21 21:12:35,578 - INFO -     [OK] 2025-07-15 | Complex | 14 pitches, 4 PAs
+2025-10-21 21:12:35,578 - WARNING -     [MISMATCH] 2025-09-15 | game_pk=776309
+2025-10-21 21:12:35,578 - WARNING -       Pitch level: AA, Game log level: None
+2025-10-21 21:12:35,578 - WARNING -       14 pitches, None PAs
+2025-10-21 21:12:35,578 - WARNING -     [MISMATCH] 2025-09-17 | game_pk=776279
+2025-10-21 21:12:35,578 - WARNING -       Pitch level: AA, Game log level: None
+2025-10-21 21:12:35,578 - WARNING -       21 pitches, None PAs
+2025-10-21 21:12:35,578 - WARNING -     [MISMATCH] 2025-09-18 | game_pk=776271
+2025-10-21 21:12:35,579 - WARNING -       Pitch level: AA, Game log level: None
+2025-10-21 21:12:35,579 - WARNING -       17 pitches, None PAs
+2025-10-21 21:12:35,579 - WARNING -     [MISMATCH] 2025-09-20 | game_pk=776233
+2025-10-21 21:12:35,579 - WARNING -       Pitch level: AA, Game log level: None
+2025-10-21 21:12:35,579 - WARNING -       16 pitches, None PAs
+2025-10-21 21:12:35,579 - WARNING -     [MISMATCH] 2025-09-21 | game_pk=776227
+2025-10-21 21:12:35,579 - WARNING -       Pitch level: AA, Game log level: None
+2025-10-21 21:12:35,579 - WARNING -       10 pitches, None PAs
+2025-10-21 21:12:35,579 - WARNING -     [MISMATCH] 2025-09-22 | game_pk=776220
+2025-10-21 21:12:35,579 - WARNING -       Pitch level: AA, Game log level: None
+2025-10-21 21:12:35,579 - WARNING -       21 pitches, None PAs
+2025-10-21 21:12:35,579 - WARNING -     [MISMATCH] 2025-09-23 | game_pk=776211
+2025-10-21 21:12:35,579 - WARNING -       Pitch level: AA, Game log level: None
+2025-10-21 21:12:35,579 - WARNING -       22 pitches, None PAs
+2025-10-21 21:12:35,580 - WARNING -     [MISMATCH] 2025-09-24 | game_pk=776196
+2025-10-21 21:12:35,580 - WARNING -       Pitch level: AA, Game log level: None
+2025-10-21 21:12:35,580 - WARNING -       11 pitches, None PAs
+2025-10-21 21:12:35,580 - WARNING -     [MISMATCH] 2025-09-26 | game_pk=776166
+2025-10-21 21:12:35,580 - WARNING -       Pitch level: AA, Game log level: None
+2025-10-21 21:12:35,580 - WARNING -       16 pitches, None PAs
+2025-10-21 21:12:35,580 - WARNING -     [MISMATCH] 2025-09-28 | game_pk=776137
+2025-10-21 21:12:35,580 - WARNING -       Pitch level: AA, Game log level: None
+2025-10-21 21:12:35,580 - WARNING -       12 pitches, None PAs
+2025-10-21 21:12:35,580 - WARNING - 
+  WARNING: Found 10 level mismatches!
+2025-10-21 21:12:35,580 - INFO - 
+[5/7] Checking for orphaned pitch data (no corresponding game log)...
+2025-10-21 21:12:35,620 - WARNING -   Found 10 orphaned games (pitch data without game log):
+2025-10-21 21:12:35,620 - WARNING -     2025-09-15 | game_pk=776309 | AA | 14 pitches
+2025-10-21 21:12:35,620 - WARNING -     2025-09-17 | game_pk=776279 | AA | 21 pitches
+2025-10-21 21:12:35,620 - WARNING -     2025-09-18 | game_pk=776271 | AA | 17 pitches
+2025-10-21 21:12:35,620 - WARNING -     2025-09-20 | game_pk=776233 | AA | 16 pitches
+2025-10-21 21:12:35,620 - WARNING -     2025-09-21 | game_pk=776227 | AA | 10 pitches
+2025-10-21 21:12:35,620 - WARNING -     2025-09-22 | game_pk=776220 | AA | 21 pitches
+2025-10-21 21:12:35,620 - WARNING -     2025-09-23 | game_pk=776211 | AA | 22 pitches
+2025-10-21 21:12:35,620 - WARNING -     2025-09-24 | game_pk=776196 | AA | 11 pitches
+2025-10-21 21:12:35,620 - WARNING -     2025-09-26 | game_pk=776166 | AA | 16 pitches
+2025-10-21 21:12:35,620 - WARNING -     2025-09-28 | game_pk=776137 | AA | 12 pitches
+2025-10-21 21:12:35,620 - INFO - 
+[6/7] Verifying AA/AAA level values exist in database...
+2025-10-21 21:12:35,703 - INFO -   AA: 146,402 games in database
+2025-10-21 21:12:35,703 - INFO -   AAA: 147,556 games in database
+2025-10-21 21:12:35,703 - INFO - 
+[7/7] Verifying player ID mapping in prospects table...
+2025-10-21 21:12:35,776 - INFO -   Found: Bryce Eldridge
+2025-10-21 21:12:35,776 - INFO -     MLB ID: 805811, FG ID: 33390
+2025-10-21 21:12:35,776 - INFO -     Position: 1B, Level: None
+2025-10-21 21:12:35,778 - INFO - 
+================================================================================
+2025-10-21 21:12:35,778 - INFO - MLB API INVESTIGATION - ALL SEASONS
+2025-10-21 21:12:35,778 - INFO - ================================================================================
+2025-10-21 21:12:35,778 - INFO - 
+[SEASON 2022]
+2025-10-21 21:12:37,627 - INFO -   No data found in API for 2022
+2025-10-21 21:12:37,627 - INFO - 
+[SEASON 2023]
+2025-10-21 21:12:39,682 - INFO -   No data found in API for 2023
+2025-10-21 21:12:39,682 - INFO - 
+[SEASON 2024]
+2025-10-21 21:12:40,791 - INFO -   No data found in API for 2024
+2025-10-21 21:12:40,791 - INFO - 
+[SEASON 2025]
+2025-10-21 21:12:40,946 - INFO -   Game Type 'R':
+2025-10-21 21:12:40,946 - INFO -     Sport_None: 10 games, 37 PAs, ~166 pitches
+2025-10-21 21:12:40,947 - INFO -       Sample game_pks: 776309, 776279, 776271
+2025-10-21 21:12:41,264 - INFO -   Game Type 'S':
+2025-10-21 21:12:41,264 - INFO -     Sport_None: 8 games, 12 PAs, ~54 pitches
+2025-10-21 21:12:41,265 - INFO -       Sample game_pks: 778944, 778993, 778994
+2025-10-21 21:12:42,435 - INFO - 
+================================================================================
+2025-10-21 21:12:42,435 - INFO - MLB API - CAREER STATS
+2025-10-21 21:12:42,435 - INFO - ================================================================================
+2025-10-21 21:12:42,547 - INFO -   Found 1 career stat entries:
+2025-10-21 21:12:42,547 - INFO - 
+  CAREER TOTAL: 37 PAs, ~166 pitches
+2025-10-21 21:12:42,937 - INFO - 
+================================================================================
+2025-10-21 21:12:42,937 - INFO - MLB API - SPECIFIC GAME INVESTIGATION
+2025-10-21 21:12:42,937 - INFO - ================================================================================
+2025-10-21 21:12:42,937 - INFO -   Checking 2 specific games...
+2025-10-21 21:12:43,135 - INFO - 
+    game_pk=807831 | 2025-07-14
+2025-10-21 21:12:43,136 - INFO -       ACL D-backs @ ACL Giants at Papago Sports Complex
+2025-10-21 21:12:43,136 - INFO -       Player appeared: 3 PAs, 11 pitches
+2025-10-21 21:12:43,680 - INFO - 
+    game_pk=807922 | 2025-07-15
+2025-10-21 21:12:43,680 - INFO -       ACL Giants @ ACL Cubs at Sloan Park
+2025-10-21 21:12:43,681 - INFO -       Player appeared: 4 PAs, 14 pitches
+2025-10-21 21:12:43,999 - INFO - 
+================================================================================
+2025-10-21 21:12:43,999 - INFO - FINDINGS REPORT
+2025-10-21 21:12:43,999 - INFO - ================================================================================
+2025-10-21 21:12:44,000 - INFO - 
+[DATABASE SUMMARY]
+2025-10-21 21:12:44,000 - INFO -   2025_Complex: 2 games, 7 PAs, ~31 pitches
+2025-10-21 21:12:44,000 - INFO - 
+[API SUMMARY]
+2025-10-21 21:12:44,000 - INFO -   2025_Sport_None_R: 10 games, 37 PAs, ~166 pitches
+2025-10-21 21:12:44,000 - INFO -   2025_Sport_None_S: 8 games, 12 PAs, ~54 pitches
+2025-10-21 21:12:44,000 - INFO - 
+[DISCREPANCIES]
+2025-10-21 21:12:44,000 - WARNING -   Found 10 discrepancies:
+2025-10-21 21:12:44,000 - WARNING -     game_pk=776309 | 2025-09-15
+2025-10-21 21:12:44,000 - WARNING -       Pitch level: AA, Game log level: None
+2025-10-21 21:12:44,000 - WARNING -     game_pk=776279 | 2025-09-17
+2025-10-21 21:12:44,000 - WARNING -       Pitch level: AA, Game log level: None
+2025-10-21 21:12:44,000 - WARNING -     game_pk=776271 | 2025-09-18
+2025-10-21 21:12:44,001 - WARNING -       Pitch level: AA, Game log level: None
+2025-10-21 21:12:44,001 - WARNING -     game_pk=776233 | 2025-09-20
+2025-10-21 21:12:44,001 - WARNING -       Pitch level: AA, Game log level: None
+2025-10-21 21:12:44,001 - WARNING -     game_pk=776227 | 2025-09-21
+2025-10-21 21:12:44,001 - WARNING -       Pitch level: AA, Game log level: None
+2025-10-21 21:12:44,001 - WARNING -     game_pk=776220 | 2025-09-22
+2025-10-21 21:12:44,001 - WARNING -       Pitch level: AA, Game log level: None
+2025-10-21 21:12:44,001 - WARNING -     game_pk=776211 | 2025-09-23
+2025-10-21 21:12:44,001 - WARNING -       Pitch level: AA, Game log level: None
+2025-10-21 21:12:44,001 - WARNING -     game_pk=776196 | 2025-09-24
+2025-10-21 21:12:44,001 - WARNING -       Pitch level: AA, Game log level: None
+2025-10-21 21:12:44,001 - WARNING -     game_pk=776166 | 2025-09-26
+2025-10-21 21:12:44,001 - WARNING -       Pitch level: AA, Game log level: None
+2025-10-21 21:12:44,001 - WARNING -     game_pk=776137 | 2025-09-28
+2025-10-21 21:12:44,002 - WARNING -       Pitch level: AA, Game log level: None
+2025-10-21 21:12:44,002 - INFO - 
+[RECOMMENDATIONS]
+2025-10-21 21:12:44,002 - WARNING -   1. Database is MISSING data that exists in API
+2025-10-21 21:12:44,002 - WARNING -   2. Expected ~220 pitches from API, only 31 in database
+2025-10-21 21:12:44,002 - WARNING -   3. Run collection scripts to backfill missing games

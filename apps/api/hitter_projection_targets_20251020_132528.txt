@@ -1,0 +1,13 @@
+target_avg
+target_obp
+target_slg
+target_ops
+target_bb_rate
+target_k_rate
+target_hr_per_600
+target_sb_per_600
+target_rbi_per_600
+target_r_per_600
+target_career_games
+target_career_pa
+target_iso

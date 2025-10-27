@@ -1,0 +1,87 @@
+2025-10-18 00:28:01,610 - Database connection pool initialized
+2025-10-18 00:28:01,871 - 
+=== BATCH 1/78: 5 pitchers ===
+2025-10-18 00:28:01,978 -   Antwone Kelly (P): No 2025 games found
+2025-10-18 00:28:02,632 -   Briggs McKenzie (P): No 2025 games found
+2025-10-18 00:28:03,284 -   Dalton Pence (P): No 2025 games found
+2025-10-18 00:28:04,190 -   Ethan Dorchies (P): No 2025 games found
+2025-10-18 00:28:04,850 -   Gage Stanifer (P): No 2025 games found
+2025-10-18 00:28:05,395 -   Batch 1 complete: 0 total pitches
+2025-10-18 00:28:05,400 - 
+=== BATCH 2/78: 5 pitchers ===
+2025-10-18 00:28:05,522 -   Kendry Chourio (P): No 2025 games found
+2025-10-18 00:28:06,198 -   Landon Harmon (P): No 2025 games found
+2025-10-18 00:28:06,860 -   Leandro Lopez (P): No 2025 games found
+2025-10-18 00:28:07,510 -   Luis De Leon (P): No 2025 games found
+2025-10-18 00:28:08,173 -   Ramon Marquez (P): No 2025 games found
+2025-10-18 00:28:08,715 -   Batch 2 complete: 0 total pitches
+2025-10-18 00:28:08,719 - 
+=== BATCH 3/78: 5 pitchers ===
+2025-10-18 00:28:08,843 -   Seth Hernandez (P): No 2025 games found
+2025-10-18 00:28:09,490 -   Tyler Renz (P): No 2025 games found
+2025-10-18 00:28:10,145 -   Adam Macko (RP): No 2025 games found
+2025-10-18 00:28:10,785 -   Aidan Curry (RP): No 2025 games found
+2025-10-18 00:28:11,421 -   Aiden May (RP): No 2025 games found
+2025-10-18 00:28:11,966 -   Batch 3 complete: 0 total pitches
+2025-10-18 00:28:11,969 - 
+=== BATCH 4/78: 5 pitchers ===
+2025-10-18 00:28:12,083 -   Alejandro Hidalgo (RP): No 2025 games found
+2025-10-18 00:28:12,729 -   Alimber Santa (RP): No 2025 games found
+2025-10-18 00:28:13,366 -   Alonzo Tredwell (RP): No 2025 games found
+2025-10-18 00:28:14,002 -   Andrew Taylor (RP): No 2025 games found
+2025-10-18 00:28:14,652 -   Angel Bastardo (RP): No 2025 games found
+2025-10-18 00:28:15,183 -   Batch 4 complete: 0 total pitches
+2025-10-18 00:28:15,185 - 
+=== BATCH 5/78: 5 pitchers ===
+2025-10-18 00:28:15,294 -   Blake Wehunt (RP): No 2025 games found
+2025-10-18 00:28:15,928 -   Braden Nett (RP): No 2025 games found
+2025-10-18 00:28:16,565 -   Caleb Kilian (RP): No 2025 games found
+2025-10-18 00:28:17,208 -   Carlson Reed (RP): No 2025 games found
+2025-10-18 00:28:17,861 -   Christian Oppor (RP): No 2025 games found
+2025-10-18 00:28:18,393 -   Batch 5 complete: 0 total pitches
+2025-10-18 00:28:18,396 - 
+=== BATCH 6/78: 5 pitchers ===
+2025-10-18 00:28:18,500 -   Dahian  Santos (RP): No 2025 games found
+2025-10-18 00:28:19,154 -   Dalton Rogers (RP): No 2025 games found
+2025-10-18 00:28:19,820 -   Ethan Young (RP): No 2025 games found
+2025-10-18 00:28:20,485 -   Francis Texido (RP): No 2025 games found
+2025-10-18 00:28:21,122 -   Isaiah Coupet (RP): No 2025 games found
+2025-10-18 00:28:21,664 -   Batch 6 complete: 0 total pitches
+2025-10-18 00:28:21,667 - 
+=== BATCH 7/78: 5 pitchers ===
+2025-10-18 00:28:21,777 -   Ismael Agreda (RP): No 2025 games found
+2025-10-18 00:28:22,444 -   Jack Choate (RP): No 2025 games found
+2025-10-18 00:28:23,108 -   Jackson  Humphries (RP): No 2025 games found
+2025-10-18 00:28:23,763 -   Jacob Wosinski (RP): No 2025 games found
+2025-10-18 00:28:24,413 -   Jagger Haynes (RP): No 2025 games found
+2025-10-18 00:28:24,958 -   Batch 7 complete: 0 total pitches
+2025-10-18 00:28:24,961 - 
+=== BATCH 8/78: 5 pitchers ===
+2025-10-18 00:28:25,075 -   Jake Miller (RP): No 2025 games found
+2025-10-18 00:28:25,733 -   Jakob Wright (RP): No 2025 games found
+2025-10-18 00:28:26,370 -   JB Middleton (RP): No 2025 games found
+2025-10-18 00:28:27,016 -   Jojo Ingrassia (RP): No 2025 games found
+2025-10-18 00:28:27,654 -   Jose Rodriguez (RP): No 2025 games found
+2025-10-18 00:28:28,193 -   Batch 8 complete: 0 total pitches
+2025-10-18 00:28:28,196 - 
+=== BATCH 9/78: 5 pitchers ===
+2025-10-18 00:28:28,330 -   Josh Mallitz (RP): No 2025 games found
+2025-10-18 00:28:28,985 -   Josh White (RP): No 2025 games found
+2025-10-18 00:28:29,629 -   Juaron Watts-Brown (RP): No 2025 games found
+2025-10-18 00:28:30,292 -   Kade Morris (RP): No 2025 games found
+2025-10-18 00:28:30,930 -   Karson Milbrandt (RP): No 2025 games found
+2025-10-18 00:28:31,461 -   Batch 9 complete: 0 total pitches
+2025-10-18 00:28:31,466 - 
+=== BATCH 10/78: 5 pitchers ===
+2025-10-18 00:28:31,586 -   Kevin Abel (RP): No 2025 games found
+2025-10-18 00:28:32,257 -   Khristian Curtis (RP): No 2025 games found
+2025-10-18 00:28:32,897 -   Kyle Hurt (RP): No 2025 games found
+2025-10-18 00:28:33,781 -   Luke Hayden (RP): No 2025 games found
+2025-10-18 00:28:34,425 -   Marco Raya (RP): No 2025 games found
+2025-10-18 00:28:34,963 -   Batch 10 complete: 0 total pitches
+2025-10-18 00:28:34,969 - 
+=== BATCH 11/78: 5 pitchers ===
+2025-10-18 00:28:35,317 -   Mason Morris (RP): No 2025 games found
+2025-10-18 00:28:35,955 -   Matt Jachec (RP): No 2025 games found
+2025-10-18 00:28:36,610 -   Micah Ashman (RP): No 2025 games found
+2025-10-18 00:28:37,249 -   Michael Arias (RP): No 2025 games found

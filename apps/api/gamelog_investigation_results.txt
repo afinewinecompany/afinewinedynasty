@@ -1,0 +1,100 @@
+================================================================================
+COMPREHENSIVE GAME LOG COLLECTION INVESTIGATION
+Player: Bryce Eldridge (ID: 805811)
+Season: 2025
+================================================================================
+
+================================================================================
+CURRENT DATABASE GAME LOGS
+================================================================================
+
+Game logs in database:
+  2025 Complex: 2 games, 7 PAs
+    Date range: 2025-07-14 to 2025-07-15
+
+================================================================================
+METHOD 1: /stats endpoint with gameLog (current method)
+================================================================================
+
+Game Type 'R':
+  Sport_None: 10 games
+    Sample: [(776309, '2025-09-15'), (776279, '2025-09-17'), (776271, '2025-09-18')]
+
+Game Type 'S':
+  Sport_None: 8 games
+    Sample: [(778944, '2025-02-22'), (778993, '2025-02-23'), (778994, '2025-02-24')]
+
+================================================================================
+METHOD 2: /stats endpoint with different stat groups
+================================================================================
+
+Stat Group: hitting
+  Sport_None: 10 games
+
+Stat Group: pitching
+  No data
+
+Stat Group: fielding
+  Sport_None: 10 games
+
+================================================================================
+METHOD 3: /stats endpoint with byDateRange (full season)
+================================================================================
+Status: 200
+Response keys: dict_keys(['copyright', 'stats'])
+Stats found: 1 entries
+  Type: byDateRange
+    Splits: 2
+
+================================================================================
+METHOD 4: Full stat breakdown (yearByYear, career, etc.)
+================================================================================
+
+Stat Type: yearByYear
+  Found 1 entries:
+    2025 - MLB (San Francisco Giants): 10 games, 37 PAs
+
+Stat Type: yearByYearAdvanced
+  Found 1 entries:
+
+Stat Type: career
+  Found 1 entries:
+    N/A - MLB (San Francisco Giants): 10 games, 37 PAs
+
+Stat Type: careerAdvanced
+  Found 1 entries:
+
+Stat Type: season
+  Found 1 entries:
+    2025 - MLB (San Francisco Giants): 10 games, 37 PAs
+
+Stat Type: seasonAdvanced
+  Found 1 entries:
+
+================================================================================
+METHOD 5: Direct person endpoint
+================================================================================
+Status: 200
+
+Player: Bryce Eldridge
+Current Team: N/A
+
+Stats found: 3 groups
+
+  yearByYear - hitting: 1 entries
+    MLB: 1 entries
+
+  career - hitting: 1 entries
+    MLB: 1 entries
+
+  gameLog - hitting: 10 entries
+    MLB: 10 entries
+
+================================================================================
+INVESTIGATION COMPLETE
+================================================================================
+
+Next steps:
+1. Compare database vs API results
+2. Identify any missing game logs
+3. Update collection script if needed

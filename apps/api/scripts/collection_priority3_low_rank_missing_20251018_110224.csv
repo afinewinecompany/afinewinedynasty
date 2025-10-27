@@ -1,0 +1,43 @@
+MLB_ID,Name,Organization,Position,Rank,Has_2025_PBP,Has_2025_Pitch,Has_2024_PBP,Has_2024_Pitch,Has_Any_PBP,Has_Any_Pitch
+682877,Juan Brito,CLE,2B,326,False,False,True,True,True,True
+683357,Owen Caissie,CHC,RF,327,False,False,True,True,True,True
+694377,Nick Yorke,PIT,2B,329,False,False,False,False,False,True
+703202,Leandro Arias,BAL,SS,336,False,False,True,True,True,True
+694728,Brice Matthews,HOU,2B,349,False,False,True,True,True,True
+687551,Drew Gilbert,SFG,CF,489,False,False,True,True,True,True
+691277,Deyvison De Los Santos,MIA,DH,621,False,False,True,True,True,True
+625510,Erick Mejia,WSN,DH,819,False,False,True,True,True,True
+683679,Jesus Rodriguez,SFG,C,858,False,False,True,True,True,True
+691728,Zac Veen,COL,RF,860,False,False,False,False,True,True
+672012,Tyler Black,MIL,1B,875,False,False,False,False,True,True
+687637,Dylan Beavers,BAL,CF,921,False,False,True,True,True,True
+676439,Hunter Feduccia,TBR,C,954,False,False,False,False,False,True
+686482,Logan Driscoll,TBR,C,1015,False,False,False,False,False,True
+687478,Cam Devanney,PIT,SS,1030,False,False,True,True,True,True
+694376,Shay Whitcomb,HOU,2B,1128,False,False,False,False,False,True
+694362,Blake Dunn,CIN,CF,1140,False,False,True,True,True,True
+691185,Maximo Acosta,MIA,SS,1142,False,False,False,False,False,True
+676812,Carson McCusker,MIN,RF,1223,False,False,True,True,True,True
+689288,Matt Koperniak,STL,LF,1403,False,False,True,True,True,True
+678489,Jorge Barrosa,ARI,CF,1469,False,False,False,False,True,True
+691907,Tsung-Che Cheng,PIT,SS,1477,False,False,True,True,True,True
+695257,Billy Cook,PIT,CF,1511,False,False,True,True,True,True
+685133,Wade Meckler,SFG,CF,1543,False,False,False,False,True,False
+692416,Christian Cerda,ARI,C,1553,False,False,False,False,True,False
+671655,George Valera,CLE,RF,1590,False,False,False,False,False,True
+686846,Reggie Crawford,SFG,DH,1593,False,False,False,False,True,False
+685744,Kenedy Corona,HOU,CF,1606,False,False,False,False,False,True
+672359,Tirso Ornelas,SDP,LF,1636,False,False,False,False,False,True
+691011,Drew Romo,COL,C,1644,False,False,False,False,False,True
+695930,Frederick Bencosme,BAL,SS,1652,False,False,True,True,True,True
+679822,Justin Foscue,TEX,1B,1657,False,False,False,False,True,True
+691268,Yiddi Cappe,MIA,LF,1683,False,False,False,False,True,True
+693409,César Prieto,STL,2B,1689,False,False,True,True,True,True
+678391,Jorbit Vivas,NYY,2B,1692,False,False,True,True,True,True
+683090,Matthew Lugo,LAA,LF,1712,False,False,False,False,False,True
+682997,Tyler Callihan,CIN,2B,1714,False,False,False,False,True,True
+691858,Jared Serna,MIA,SS,1745,False,False,True,True,True,True
+805904,Zach Cole,HOU,CF,1814,False,False,True,True,True,True
+665856,Jair Camargo,MIN,C,1881,False,False,True,True,True,True
+677578,Carlos D. Rodriguez,ATL,CF,9999,False,False,False,False,True,False
+811287,Carson Roccaforte,KC,OF,9999,False,False,True,True,True,True

@@ -1,0 +1,138 @@
+================================================================================
+EXHAUSTIVE MLB API SEARCH FOR BRYCE ELDRIDGE AA/AAA GAMES
+================================================================================
+
+Player ID: 805811
+Primary Season: 2024
+
+Trying ALL possible API endpoints and parameters...
+
+================================================================================
+METHOD: /stats endpoint WITH sportId parameter
+================================================================================
+
+  sportId=11 (AAA): 8 games found
+      2024-09-14 | game_pk=751667 | Sacramento River Cats vs Round Rock Express | 4 PAs
+      2024-09-15 | game_pk=751670 | Sacramento River Cats vs Round Rock Express | 6 PAs
+      2024-09-17 | game_pk=751599 | Sacramento River Cats vs Sugar Land Space Cowboys | 4 PAs
+
+  sportId=12 (AA): 9 games found
+      2024-09-03 | game_pk=750613 | Richmond Flying Squirrels vs Akron RubberDucks | 3 PAs
+      2024-09-04 | game_pk=750614 | Richmond Flying Squirrels vs Akron RubberDucks | 5 PAs
+      2024-09-05 | game_pk=750612 | Richmond Flying Squirrels vs Akron RubberDucks | 5 PAs
+
+  sportId=13 (A+): 48 games found
+      2024-06-28 | game_pk=755564 | Eugene Emeralds vs Tri-City Dust Devils | 5 PAs
+      2024-06-29 | game_pk=755559 | Eugene Emeralds vs Tri-City Dust Devils | 4 PAs
+      2024-06-30 | game_pk=755557 | Eugene Emeralds vs Tri-City Dust Devils | 5 PAs
+
+  sportId=14 (A): 51 games found
+      2024-04-05 | game_pk=756718 | San Jose Giants vs Fresno Grizzlies | 4 PAs
+      2024-04-06 | game_pk=756719 | San Jose Giants vs Fresno Grizzlies | 5 PAs
+      2024-04-07 | game_pk=756716 | San Jose Giants vs Fresno Grizzlies | 4 PAs
+
+================================================================================
+METHOD: Check team rosters for Bryce Eldridge
+================================================================================
+
+Player: Bryce Eldridge
+Current Team: N/A
+Draft Year: 2023
+
+================================================================================
+METHOD: Check player transactions
+================================================================================
+
+Found 24 transactions:
+  2022-07-01: Status Change
+    From: N/A -> To: High School Workout
+  2022-07-01: Assigned
+    From: N/A -> To: High School Workout
+  2022-07-01: Status Change
+    From: N/A -> To: High School Workout
+  2022-08-24: Assigned
+    From: N/A -> To: USA Baseball 18U National Team
+  2023-06-06: Assigned
+    From: N/A -> To: College Workout
+  2023-07-17: Signed
+    From: N/A -> To: San Francisco Giants
+  2023-07-29: Assigned
+    From: N/A -> To: N/A
+  2023-08-23: Assigned
+    From: N/A -> To: San Jose Giants
+  2024-03-07: Status Change
+    From: N/A -> To: San Francisco Giants Prospects
+  2024-06-27: Assigned
+    From: San Jose Giants -> To: Eugene Emeralds
+  2024-07-14: Status Change
+    From: N/A -> To: National League Futures
+  2024-09-03: Assigned
+    From: Eugene Emeralds -> To: Richmond Flying Squirrels
+  2024-09-14: Status Change
+    From: N/A -> To: Sacramento River Cats
+  2024-09-14: Assigned
+    From: Richmond Flying Squirrels -> To: Sacramento River Cats
+  2024-09-25: Assigned
+    From: N/A -> To: Scottsdale Scorpions
+  2025-02-07: Assigned
+    From: N/A -> To: San Francisco Giants
+  2025-03-06: Status Change
+    From: N/A -> To: San Francisco Giants Prospects
+  2025-04-04: Assigned
+    From: N/A -> To: Richmond Flying Squirrels
+  2025-04-22: Status Change
+    From: N/A -> To: Richmond Flying Squirrels
+  2025-06-03: Assigned
+    From: Richmond Flying Squirrels -> To: Sacramento River Cats
+  2025-06-24: Status Change
+    From: N/A -> To: Sacramento River Cats
+  2025-07-14: Assigned
+    From: Sacramento River Cats -> To: ACL Giants
+  2025-07-18: Status Change
+    From: N/A -> To: Sacramento River Cats
+  2025-09-15: Selected
+    From: Sacramento River Cats -> To: San Francisco Giants
+
+================================================================================
+METHOD: MiLB Central Registry search
+================================================================================
+
+Found 1 players:
+  Bryce Eldridge (ID: 805811) - N/A
+
+================================================================================
+METHOD: Prospects API
+================================================================================
+
+Found 8 roster entries:
+  Unknown: San Francisco Giants (#78)
+  Unknown: Sacramento River Cats (#14)
+  Unknown: ACL Giants (#10)
+  Unknown: Richmond Flying Squirrels (#19)
+  Unknown: Scottsdale Scorpions (#26)
+  Unknown: Eugene Emeralds (#28)
+  Unknown: San Jose Giants (#12)
+  Unknown: ACL Giants Orange (#23)
+
+================================================================================
+METHOD: Season-by-season search (2022-2025)
+================================================================================
+
+  SEASON 2022:
+    No data found for 2022
+
+  SEASON 2023:
+    No data found for 2023
+
+  SEASON 2024:
+    No data found for 2024
+
+  SEASON 2025:
+    Game Type 'R':
+      MLB: 10 games
+    Game Type 'S':
+      MLB: 8 games
+
+================================================================================
+SEARCH COMPLETE
+================================================================================

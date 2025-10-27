@@ -1,0 +1,8 @@
+703601,  # Rank #11: Max Clark
+805795,  # Rank #12: Aidan Miller
+701398,  # Rank #14: Sal Stewart
+808234,  # Rank #15: Eduardo Quintero
+823787,  # Rank #16: Rainiel Rodriguez
+821273,  # Rank #19: Edward Florentino
+695491,  # Rank #24: Joshua Baez
+683953,  # Rank #28: Travis Bazzana

@@ -136,11 +136,10 @@ const ExpandedPlayerRowV2 = ({ prospect }: ExpandedPlayerRowProps) => {
   const dataSource = getDataSourceBadge();
 
   return (
-    <>
-      <tr className="bg-gradient-to-br from-gray-50/50 to-gray-100/30">
-        <td colSpan={13} className="p-0">
-          <div className="p-6">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <tr className="bg-gradient-to-br from-gray-50/50 to-gray-100/30">
+      <td colSpan={13} className="p-0">
+        <div className="p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             {/* Header */}
             <div className="bg-gradient-to-r from-wine-cyan/10 via-wine-periwinkle/10 to-wine-rose/10 p-4 border-b border-gray-200">
               <div className="flex items-center justify-between">
@@ -362,9 +361,9 @@ const ExpandedPlayerRowV2 = ({ prospect }: ExpandedPlayerRowProps) => {
               </div>
             </div>
           </div>
-        </td>
-      </tr>
-    </>
+        </div>
+      </td>
+    </tr>
   );
 };
 
