@@ -20,8 +20,6 @@ import {
   Zap,
   Award,
   AlertCircle,
-  TrendingUp as UpIcon,
-  TrendingDown as DownIcon,
 } from 'lucide-react';
 import {
   Tooltip,
@@ -34,7 +32,7 @@ interface ExpandedPlayerRowProps {
   prospect: CompositeRanking;
 }
 
-export default function ExpandedPlayerRowV2({ prospect }: ExpandedPlayerRowProps) {
+const ExpandedPlayerRowV2 = ({ prospect }: ExpandedPlayerRowProps) => {
   const percentiles = useProspectPercentiles(prospect.prospect_id);
   const breakdown = prospect.performance_breakdown;
   const isPitcher = ['SP', 'RP', 'P'].includes(prospect.position);
@@ -367,4 +365,6 @@ export default function ExpandedPlayerRowV2({ prospect }: ExpandedPlayerRowProps
       </td>
     </tr>
   );
-}
+};
+
+export default ExpandedPlayerRowV2;
