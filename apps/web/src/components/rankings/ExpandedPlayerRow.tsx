@@ -30,16 +30,31 @@ export default function ExpandedPlayerRow({ prospect }: ExpandedPlayerRowProps) 
   const isPitcher = prospect.position === 'SP' || prospect.position === 'RP' || prospect.position === 'P';
 
   // Format percentile (0-100, with 100 being best)
-  const formatPercentile = (value: number | undefined | null): string => {
-    if (value === undefined || value === null || isNaN(value)) return '--';
+  const formatPercentile = (value: any): string => {
+    // Handle various input types safely
+    if (value === undefined || value === null) return '--';
+
+    // Convert to number if it's a string
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+
+    // Check if it's a valid number after conversion
+    if (typeof numValue !== 'number' || isNaN(numValue)) return '--';
+
     // Ensure it's between 0 and 100
-    const percentile = Math.max(0, Math.min(100, Math.round(value)));
+    const percentile = Math.max(0, Math.min(100, Math.round(numValue)));
     return percentile.toString();
   };
 
   // Format raw values with appropriate units
-  const formatRawValue = (metric: string, value: number | undefined): string => {
-    if (value === undefined || value === null || isNaN(value)) return '--';
+  const formatRawValue = (metric: string, value: any): string => {
+    // Handle various input types safely
+    if (value === undefined || value === null) return '--';
+
+    // Convert to number if it's a string
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+
+    // Check if it's a valid number after conversion
+    if (typeof numValue !== 'number' || isNaN(numValue)) return '--';
 
     const formatMap: Record<string, (v: number) => string> = {
       // Hitter metrics
@@ -59,7 +74,7 @@ export default function ExpandedPlayerRow({ prospect }: ExpandedPlayerRowProps) 
     };
 
     const formatter = formatMap[metric];
-    return formatter ? formatter(value) : value.toFixed(1);
+    return formatter ? formatter(numValue) : numValue.toFixed(1);
   };
 
   // Get metric display name
@@ -81,8 +96,9 @@ export default function ExpandedPlayerRow({ prospect }: ExpandedPlayerRowProps) 
   };
 
   // Get percentile color and label
-  const getPercentileStyle = (percentile: number | undefined | null) => {
-    if (!percentile || isNaN(percentile)) {
+  const getPercentileStyle = (percentile: any) => {
+    // Handle various input types safely
+    if (percentile === undefined || percentile === null) {
       return {
         color: 'text-gray-400',
         bg: 'bg-gray-100',
@@ -91,7 +107,20 @@ export default function ExpandedPlayerRow({ prospect }: ExpandedPlayerRowProps) 
       };
     }
 
-    const p = Math.round(percentile);
+    // Convert to number if it's a string
+    const numValue = typeof percentile === 'string' ? parseFloat(percentile) : percentile;
+
+    // Check if it's a valid number after conversion
+    if (typeof numValue !== 'number' || isNaN(numValue)) {
+      return {
+        color: 'text-gray-400',
+        bg: 'bg-gray-100',
+        barColor: 'bg-gray-300',
+        label: 'No Data'
+      };
+    }
+
+    const p = Math.round(numValue);
     if (p >= 90) return {
       color: 'text-emerald-600',
       bg: 'bg-emerald-50',
@@ -131,10 +160,15 @@ export default function ExpandedPlayerRow({ prospect }: ExpandedPlayerRowProps) 
   };
 
   // Create percentile bar visualization
-  const PercentileBar = ({ percentile }: { percentile: number | undefined | null }) => {
-    const width = percentile && !isNaN(percentile)
-      ? Math.max(0, Math.min(100, percentile))
-      : 0;
+  const PercentileBar = ({ percentile }: { percentile: any }) => {
+    // Safe conversion to number
+    let width = 0;
+    if (percentile !== undefined && percentile !== null) {
+      const numValue = typeof percentile === 'string' ? parseFloat(percentile) : percentile;
+      if (typeof numValue === 'number' && !isNaN(numValue)) {
+        width = Math.max(0, Math.min(100, numValue));
+      }
+    }
     const style = getPercentileStyle(percentile);
 
     return (
