@@ -5,11 +5,12 @@ import { useCompositeRankings } from '@/hooks/useCompositeRankings';
 import { useProspectSearch } from '@/hooks/useProspectSearch';
 import CompositeRankingsTable from './CompositeRankingsTable';
 import CompositeRankingsCard from './CompositeRankingsCard';
+import CompositeRankingsCardImproved from './CompositeRankingsCardImproved';
 import FilterPanel from '../ui/FilterPanel';
 import SearchBar from '../ui/SearchBar';
 import PaginationControls from '../ui/PaginationControls';
 import { Button } from '../ui/button';
-import { Filter, X, Download, Info } from 'lucide-react';
+import { Filter, X, Download, Info, Table2, LayoutGrid } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import {
   Tooltip,
@@ -48,6 +49,8 @@ export default function CompositeRankingsDashboard() {
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [useImprovedCards, setUseImprovedCards] = useState(true); // Default to improved cards
+  const [desktopViewMode, setDesktopViewMode] = useState<'table' | 'cards'>('table'); // Desktop view mode
 
   // Fetch composite rankings data
   const { data, loading, error, refetch } = useCompositeRankings({
@@ -198,6 +201,30 @@ export default function CompositeRankingsDashboard() {
           </div>
 
           <div className="flex gap-3">
+            {/* View Mode Toggle (Desktop only) */}
+            {!isMobile && (
+              <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+                <Button
+                  onClick={() => setDesktopViewMode('table')}
+                  size="sm"
+                  variant={desktopViewMode === 'table' ? 'default' : 'ghost'}
+                  className="px-3"
+                >
+                  <Table2 className="w-4 h-4 mr-1" />
+                  Table
+                </Button>
+                <Button
+                  onClick={() => setDesktopViewMode('cards')}
+                  size="sm"
+                  variant={desktopViewMode === 'cards' ? 'default' : 'ghost'}
+                  className="px-3"
+                >
+                  <LayoutGrid className="w-4 h-4 mr-1" />
+                  Cards
+                </Button>
+              </div>
+            )}
+
             {user?.subscriptionTier === 'premium' && (
               <Button
                 onClick={() => {
@@ -292,23 +319,44 @@ export default function CompositeRankingsDashboard() {
             </div>
           ) : filteredAndSortedProspects.length > 0 ? (
             <>
-              {/* Desktop Table View */}
+              {/* Desktop View */}
               {!isMobile ? (
-                <CompositeRankingsTable
-                  prospects={filteredAndSortedProspects}
-                  sortBy={sortState.sortBy}
-                  sortOrder={sortState.sortOrder}
-                  onSort={handleSortChange}
-                />
+                desktopViewMode === 'table' ? (
+                  <CompositeRankingsTable
+                    prospects={filteredAndSortedProspects}
+                    sortBy={sortState.sortBy}
+                    sortOrder={sortState.sortOrder}
+                    onSort={handleSortChange}
+                  />
+                ) : (
+                  // Desktop Card Grid View
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredAndSortedProspects.map((prospect) => (
+                      <CompositeRankingsCardImproved
+                        key={prospect.prospect_id}
+                        prospect={prospect}
+                        viewMode="card"
+                      />
+                    ))}
+                  </div>
+                )
               ) : (
                 // Mobile Card View
                 <div className="space-y-3">
-                  {filteredAndSortedProspects.map((prospect) => (
-                    <CompositeRankingsCard
-                      key={prospect.prospect_id}
-                      prospect={prospect}
-                    />
-                  ))}
+                  {filteredAndSortedProspects.map((prospect) =>
+                    useImprovedCards ? (
+                      <CompositeRankingsCardImproved
+                        key={prospect.prospect_id}
+                        prospect={prospect}
+                        viewMode="card"
+                      />
+                    ) : (
+                      <CompositeRankingsCard
+                        key={prospect.prospect_id}
+                        prospect={prospect}
+                      />
+                    )
+                  )}
                 </div>
               )}
 
