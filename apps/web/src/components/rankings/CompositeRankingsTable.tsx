@@ -11,6 +11,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import PerformanceBreakdown from './PerformanceBreakdown';
+import ExpandedPlayerRow from './ExpandedPlayerRow';
 
 interface CompositeRankingsTableProps {
   prospects: CompositeRanking[];
@@ -422,78 +423,9 @@ export default function CompositeRankingsTable({
                 </td>
               </tr>
 
-              {/* Expanded Row: Score Breakdown */}
+              {/* Expanded Row: Modern Performance Analysis */}
               {expandedRows.has(prospect.prospect_id) && (
-                <tr className="bg-muted/20">
-                  <td colSpan={13} className="px-6 py-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-                      {/* Left Column: Score Breakdown */}
-                      <div>
-                        <h4 className="font-semibold text-foreground mb-2">Score Breakdown</h4>
-                        <div className="space-y-1 text-muted-foreground">
-                          <div className="flex justify-between">
-                            <span>Base FV (FanGraphs):</span>
-                            <span className="font-medium text-foreground">{prospect.base_fv.toFixed(1)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Performance Modifier:</span>
-                            <span className={`font-medium ${getAdjustmentColor(prospect.performance_modifier)}`}>
-                              {prospect.performance_modifier >= 0 ? '+' : ''}{prospect.performance_modifier.toFixed(1)}
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Trend Adjustment:</span>
-                            <span className={`font-medium ${getAdjustmentColor(prospect.trend_adjustment)}`}>
-                              {prospect.trend_adjustment >= 0 ? '+' : ''}{prospect.trend_adjustment.toFixed(1)}
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Age Adjustment:</span>
-                            <span className={`font-medium ${getAdjustmentColor(prospect.age_adjustment)}`}>
-                              {prospect.age_adjustment >= 0 ? '+' : ''}{prospect.age_adjustment.toFixed(1)}
-                            </span>
-                          </div>
-                          <div className="flex justify-between pt-2 border-t border-border">
-                            <span className="font-semibold">Composite Score:</span>
-                            <span className="font-semibold text-wine-periwinkle">{prospect.composite_score.toFixed(1)}</span>
-                          </div>
-                        </div>
-
-                        <div className="mt-4">
-                          <h4 className="font-semibold text-foreground mb-2">What This Means</h4>
-                          <div className="space-y-1 text-muted-foreground text-xs">
-                            {prospect.performance_modifier > 5 && (
-                              <p className="text-green-600">• Strong recent performance at current level</p>
-                            )}
-                            {prospect.performance_modifier < -5 && (
-                              <p className="text-red-600">• Struggling at current level</p>
-                            )}
-                            {prospect.trend_adjustment >= 2 && (
-                              <p className="text-green-600">• Hot streak - improving recently</p>
-                            )}
-                            {prospect.trend_adjustment <= -2 && (
-                              <p className="text-red-600">• Cooling off - recent decline</p>
-                            )}
-                            {prospect.age_adjustment > 0 && (
-                              <p className="text-green-600">• Young for level - advanced for age</p>
-                            )}
-                            {prospect.age_adjustment < 0 && (
-                              <p className="text-red-600">• Old for level - organizational depth</p>
-                            )}
-                            {Math.abs(prospect.total_adjustment) < 1 && (
-                              <p className="text-gray-600">• Performing as expected at current level</p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Right Column: Performance Breakdown */}
-                      <div>
-                        <PerformanceBreakdown prospect={prospect} />
-                      </div>
-                    </div>
-                  </td>
-                </tr>
+                <ExpandedPlayerRow prospect={prospect} />
               )}
             </React.Fragment>
           ))}
