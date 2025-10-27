@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/tooltip';
 import PerformanceBreakdown from './PerformanceBreakdown';
 import ExpandedPlayerRow from './ExpandedPlayerRow';
+import ExpandedPlayerRowV2 from './ExpandedPlayerRowV2';
 
 interface CompositeRankingsTableProps {
   prospects: CompositeRanking[];
@@ -423,9 +424,9 @@ export default function CompositeRankingsTable({
                 </td>
               </tr>
 
-              {/* Expanded Row: Modern Performance Analysis */}
+              {/* Expanded Row: Modern Performance Analysis with Comparative Percentiles */}
               {expandedRows.has(prospect.prospect_id) && (
-                <ExpandedPlayerRow prospect={prospect} />
+                <ExpandedPlayerRowV2 prospect={prospect} />
               )}
             </React.Fragment>
           ))}

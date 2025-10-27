@@ -9,6 +9,7 @@ import CompositeRankingsCardImproved from './CompositeRankingsCardImproved';
 import FilterPanel from '../ui/FilterPanel';
 import SearchBar from '../ui/SearchBar';
 import PaginationControls from '../ui/PaginationControls';
+import { PercentilesProvider } from '@/contexts/PercentilesContext';
 import { Button } from '../ui/button';
 import { Filter, X, Download, Info, Table2, LayoutGrid } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -318,7 +319,7 @@ export default function CompositeRankingsDashboard() {
               </Button>
             </div>
           ) : filteredAndSortedProspects.length > 0 ? (
-            <>
+            <PercentilesProvider prospects={filteredAndSortedProspects}>
               {/* Desktop View */}
               {!isMobile ? (
                 desktopViewMode === 'table' ? (
@@ -374,7 +375,7 @@ export default function CompositeRankingsDashboard() {
                   }}
                 />
               </div>
-            </>
+            </PercentilesProvider>
           ) : (
             <div className="text-center py-12">
               <p className="text-gray-600">
