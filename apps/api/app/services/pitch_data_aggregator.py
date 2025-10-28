@@ -48,6 +48,29 @@ class PitchDataAggregator:
         """Initialize the aggregator with database session."""
         self.db = db
 
+    async def _check_season_status(self) -> Dict:
+        """
+        Check if we're in the offseason and should use full season data.
+
+        Returns:
+            Dict with season info including use_full_season flag
+        """
+        from datetime import datetime, timedelta
+
+        # 2025 season ended October 7, 2025
+        season_end = datetime(2025, 10, 7)
+        today = datetime.now()
+        days_since_end = (today - season_end).days
+
+        # Use full season if we're more than 7 days past season end
+        use_full_season = days_since_end > 7
+
+        return {
+            'use_full_season': use_full_season,
+            'current_year': 2025,
+            'days_since_end': days_since_end
+        }
+
     async def get_hitter_pitch_metrics(
         self,
         mlb_player_id: str,
@@ -297,20 +320,40 @@ class PitchDataAggregator:
             Dict with raw metrics, percentiles, and sample size
             None if insufficient data
         """
-        # FIXED: Check what levels the player has played at recently
-        levels_query = text("""
-            SELECT level, COUNT(*) as pitch_count
-            FROM milb_pitcher_pitches
-            WHERE mlb_pitcher_id = :mlb_player_id
-                AND game_date >= CURRENT_DATE - CAST(:days || ' days' AS INTERVAL)
-            GROUP BY level
-            ORDER BY pitch_count DESC
-        """)
+        # Check if we should use full season data
+        season_info = await self._check_season_status()
+        use_full_season = season_info.use_full_season
 
-        levels_result = await self.db.execute(
-            levels_query,
-            {'mlb_pitcher_id': int(mlb_player_id), 'days': str(days)}
-        )
+        # Determine which levels the player has played at
+        if use_full_season:
+            levels_query = text("""
+                SELECT level, COUNT(*) as pitch_count
+                FROM milb_pitcher_pitches
+                WHERE mlb_pitcher_id = :mlb_player_id
+                    AND season = :season
+                GROUP BY level
+                ORDER BY pitch_count DESC
+            """)
+
+            levels_result = await self.db.execute(
+                levels_query,
+                {'mlb_player_id': int(mlb_player_id), 'season': season_info.current_year}
+            )
+        else:
+            levels_query = text("""
+                SELECT level, COUNT(*) as pitch_count
+                FROM milb_pitcher_pitches
+                WHERE mlb_pitcher_id = :mlb_player_id
+                    AND game_date >= CURRENT_DATE - CAST(:days || ' days' AS INTERVAL)
+                GROUP BY level
+                ORDER BY pitch_count DESC
+            """)
+
+            levels_result = await self.db.execute(
+                levels_query,
+                {'mlb_player_id': int(mlb_player_id), 'days': str(days)}
+            )
+
         levels_data = levels_result.fetchall()
 
         if not levels_data:
@@ -320,10 +363,15 @@ class PitchDataAggregator:
         levels_played = [row[0] for row in levels_data]
         total_pitches = sum(row[1] for row in levels_data)
 
-        logger.info(f"Pitcher {mlb_player_id}: {total_pitches} pitches at {levels_played} in {days}d")
+        if use_full_season:
+            logger.info(f"Using full {season_info.current_year} season data (season ended {season_info.days_since_end} days ago)")
+            logger.info(f"Player {mlb_player_id}: {total_pitches} pitches at {levels_played} in full {season_info.current_year} season")
+        else:
+            logger.info(f"Pitcher {mlb_player_id}: {total_pitches} pitches at {levels_played} in {days}d")
 
-        # FIXED: Aggregate across ALL levels
-        query = text("""
+        # Build query based on season status
+        if use_full_season:
+            query = text("""
             WITH player_stats AS (
                 SELECT
                     -- Whiff Rate
@@ -355,23 +403,71 @@ class PitchDataAggregator:
 
                 FROM milb_pitcher_pitches
                 WHERE mlb_pitcher_id = :mlb_player_id
-                    AND level = ANY(:levels)  -- FIXED: Include ALL levels
-                    AND game_date >= CURRENT_DATE - CAST(:days || ' days' AS INTERVAL)
+                    AND level = ANY(:levels)
+                    AND season = :season  -- Use full season
             )
             SELECT * FROM player_stats
             WHERE pitches_thrown >= :min_pitches
         """)
+        else:
+            # Use time-based query
+            query = text("""
+                WITH player_stats AS (
+                    SELECT
+                        -- Whiff Rate
+                        COUNT(*) FILTER (WHERE swing_and_miss = TRUE) * 100.0 /
+                            NULLIF(COUNT(*) FILTER (WHERE swing = TRUE), 0) as whiff_rate,
+
+                        -- Zone Rate
+                        COUNT(*) FILTER (WHERE zone BETWEEN 1 AND 9) * 100.0 /
+                            NULLIF(COUNT(*), 0) as zone_rate,
+
+                        -- Avg FB Velocity
+                        AVG(start_speed) FILTER (WHERE pitch_type IN ('FF', 'FA', 'SI')
+                            AND start_speed IS NOT NULL) as avg_fb_velo,
+
+                        -- Hard Contact Rate
+                        COUNT(*) FILTER (WHERE launch_speed >= 95) * 100.0 /
+                            NULLIF(COUNT(*) FILTER (WHERE launch_speed IS NOT NULL), 0) as hard_contact_rate,
+
+                        -- Chase Rate
+                        COUNT(*) FILTER (WHERE swing = TRUE AND zone > 9) * 100.0 /
+                            NULLIF(COUNT(*) FILTER (WHERE zone > 9), 0) as chase_rate,
+
+                        -- Sample size
+                        COUNT(*) as pitches_thrown,
+                        COUNT(*) FILTER (WHERE swing = TRUE) as swings_induced,
+
+                        -- Track levels included
+                        array_agg(DISTINCT level ORDER BY level) as levels_included
+
+                    FROM milb_pitcher_pitches
+                    WHERE mlb_pitcher_id = :mlb_player_id
+                        AND level = ANY(:levels)
+                        AND game_date >= CURRENT_DATE - CAST(:days || ' days' AS INTERVAL)
+                )
+                SELECT * FROM player_stats
+                WHERE pitches_thrown >= :min_pitches
+            """)
 
         try:
-            result = await self.db.execute(
-                query,
-                {
+            # Build parameters based on season status
+            if use_full_season:
+                query_params = {
                     'mlb_player_id': int(mlb_player_id),
-                    'levels': levels_played,  # FIXED: Pass ALL levels
-                    'days': str(days),
-                    'min_pitches': self.MIN_PITCHES_PITCHER
+                    'levels': levels_played,
+                    'min_pitches': self.MIN_PITCHES_PITCHER,
+                    'season': season_info.current_year
                 }
-            )
+            else:
+                query_params = {
+                    'mlb_player_id': int(mlb_player_id),
+                    'levels': levels_played,
+                    'min_pitches': self.MIN_PITCHES_PITCHER,
+                    'days': str(days)
+                }
+
+            result = await self.db.execute(query, query_params)
 
             row = result.fetchone()
 

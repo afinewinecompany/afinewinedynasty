@@ -104,6 +104,8 @@ class ProspectRankingService:
         pitch_aggregator = PitchDataAggregator(self.db)
 
         try:
+            logger.info(f"Attempting to fetch pitch data for {prospect_data.get('name')} (ID: {mlb_player_id}, Level: {level})")
+
             if is_hitter:
                 pitch_metrics = await pitch_aggregator.get_hitter_pitch_metrics(
                     mlb_player_id, level, days=60
@@ -115,6 +117,7 @@ class ProspectRankingService:
 
             # Use pitch data if available
             if pitch_metrics:
+                logger.info(f"Successfully retrieved pitch data for {prospect_data.get('name')}: {pitch_metrics.get('sample_size', 0)} pitches")
                 # Get OPS/K-BB% percentile for weighted composite
                 ops_percentile = await self._estimate_percentile(
                     recent_stats.get('recent_ops'), level, is_hitter
@@ -153,13 +156,15 @@ class ProspectRankingService:
                 )
 
                 return modifier, breakdown
+            else:
+                logger.info(f"No pitch data available for {prospect_data.get('name')} (ID: {mlb_player_id})")
 
         except Exception as e:
-            logger.error(f"Error calculating pitch-based modifier: {e}")
+            logger.error(f"Error calculating pitch-based modifier for {prospect_data.get('name')}: {e}", exc_info=True)
             # Fall through to game log fallback
 
         # Fallback to game log metrics (OPS/ERA)
-        logger.info(f"Using game log fallback for {prospect_data.get('name')}")
+        logger.info(f"Using game log fallback for {prospect_data.get('name')} - either no pitch data or error occurred")
 
         # Check for insufficient sample size in game logs
         if is_hitter:
