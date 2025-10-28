@@ -11,10 +11,24 @@ More reliable than Selenium in containerized environments.
 import logging
 import asyncio
 import json
+import os
 from typing import Optional, Dict, List
 from datetime import datetime
 
-from playwright.async_api import async_playwright, Browser, BrowserContext, Page, Playwright
+# Try to import Playwright, but handle if it's not available
+try:
+    from playwright.async_api import async_playwright, Browser, BrowserContext, Page, Playwright
+    PLAYWRIGHT_AVAILABLE = True
+except ImportError:
+    logger = logging.getLogger(__name__)
+    logger.warning("Playwright not available. Fantrax browser automation features will be disabled.")
+    PLAYWRIGHT_AVAILABLE = False
+    # Create dummy types to prevent import errors
+    Browser = None
+    BrowserContext = None
+    Page = None
+    Playwright = None
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import update
 
@@ -74,6 +88,10 @@ class FantraxPlaywrightService:
         Since:
             1.1.0
         """
+        if not PLAYWRIGHT_AVAILABLE:
+            logger.error("Playwright is not available. Cannot create browser session.")
+            raise Exception("Browser automation is not available in this environment. Please use manual authentication.")
+
         try:
             logger.info(f"Creating Playwright session {session_id} for user {user_id}")
 

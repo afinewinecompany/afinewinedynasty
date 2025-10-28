@@ -5,12 +5,7 @@ nixPkgs = [
   "gcc",
   "zlib",
   "libffi",
-  "openssl",
-  # Playwright dependencies - most will be pulled in automatically
-  "chromium",
-  "gtk3",
-  "alsa-lib",
-  "libxkbcommon"
+  "openssl"
 ]
 
 [phases.install]
@@ -18,10 +13,10 @@ cmds = [
   "python -m venv /opt/venv",
   "/opt/venv/bin/pip install --upgrade pip setuptools wheel",
   "/opt/venv/bin/pip install --no-cache-dir -r requirements.txt --timeout 600",
-  # Install Playwright browsers with dependencies
-  "/opt/venv/bin/playwright install --with-deps chromium",
-  # Verify Playwright installation
-  "/opt/venv/bin/playwright install --help"
+  # Skip Playwright browser installation in Railway environment
+  # The browser automation features are not critical for the API in production
+  # If needed, we can use a cloud-based browser service instead
+  "echo 'Skipping Playwright browser installation for Railway deployment'"
 ]
 
 [phases.build]
