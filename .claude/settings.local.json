@@ -3,7 +3,8 @@
     "allow": [
       "Bash(npx tsc --noEmit src/components/rankings/ExpandedPlayerRowV2.tsx)",
       "Bash(npx next build --experimental-build-mode compile)",
-      "Bash(timeout 30 python test_leo_de_vries_metrics.py)"
+      "Bash(timeout 30 python test_leo_de_vries_metrics.py)",
+      "Bash(timeout 60 python investigate_partial_stats.py)"
     ],
     "deny": [],
     "ask": []

@@ -252,13 +252,18 @@ class PitchDataAggregator:
                 )
                 return None
 
+            # Build metrics dict, converting Decimal to float and handling NULLs
             metrics = {
-                'exit_velo_90th': row[0],
-                'hard_hit_rate': row[1],
-                'contact_rate': row[2],
-                'whiff_rate': row[3],
-                'chase_rate': row[4],
+                'exit_velo_90th': float(row[0]) if row[0] is not None else None,
+                'hard_hit_rate': float(row[1]) if row[1] is not None else None,
+                'contact_rate': float(row[2]) if row[2] is not None else None,
+                'whiff_rate': float(row[3]) if row[3] is not None else None,
+                'chase_rate': float(row[4]) if row[4] is not None and str(row[4]) != '0E-20' else None,
             }
+
+            # Log data availability
+            data_available = sum(1 for v in metrics.values() if v is not None)
+            logger.info(f"Hitter {mlb_player_id}: {data_available}/5 metrics available from {row[5]} pitches")
 
             # Calculate percentiles against level cohort
             percentiles = await self._calculate_hitter_percentiles(metrics, level)
@@ -266,12 +271,24 @@ class PitchDataAggregator:
             # Use specified level for percentile comparison, or highest level played
             comparison_level = level if level in levels_played else levels_played[0]
 
+            # Add data quality indicator
+            data_quality = {
+                'exit_velo_90th': metrics['exit_velo_90th'] is not None,
+                'hard_hit_rate': metrics['hard_hit_rate'] is not None,
+                'contact_rate': metrics['contact_rate'] is not None,
+                'whiff_rate': metrics['whiff_rate'] is not None,
+                'chase_rate': metrics['chase_rate'] is not None,
+            }
+            metrics_available = sum(1 for v in data_quality.values() if v)
+
             result_dict = {
                 'metrics': metrics,
                 'percentiles': percentiles,
                 'sample_size': row[5],  # FIXED: Now includes ALL levels
                 'days_covered': days,
                 'level': comparison_level,
+                'data_quality': data_quality,
+                'metrics_available': f"{metrics_available}/5",
             }
 
             # Add multi-level info if applicable
@@ -464,13 +481,18 @@ class PitchDataAggregator:
                 )
                 return None
 
+            # Build metrics dict, converting Decimal to float and handling NULLs
             metrics = {
-                'whiff_rate': row[0],
-                'zone_rate': row[1],
-                'avg_fb_velo': row[2],
-                'hard_contact_rate': row[3],
-                'chase_rate': row[4],
+                'whiff_rate': float(row[0]) if row[0] is not None else None,
+                'zone_rate': float(row[1]) if row[1] is not None else None,
+                'avg_fb_velo': float(row[2]) if row[2] is not None else None,
+                'hard_contact_rate': float(row[3]) if row[3] is not None else None,
+                'chase_rate': float(row[4]) if row[4] is not None and str(row[4]) != '0E-20' else None,
             }
+
+            # Log data availability
+            data_available = sum(1 for v in metrics.values() if v is not None)
+            logger.info(f"Pitcher {mlb_player_id}: {data_available}/5 metrics available from {row[5]} pitches")
 
             # Use specified level for percentile comparison, or highest level played
             comparison_level = level if level in levels_played else levels_played[0]
@@ -478,12 +500,24 @@ class PitchDataAggregator:
             # Calculate percentiles against level cohort
             percentiles = await self._calculate_pitcher_percentiles(metrics, comparison_level)
 
+            # Add data quality indicator
+            data_quality = {
+                'whiff_rate': metrics['whiff_rate'] is not None,
+                'zone_rate': metrics['zone_rate'] is not None,
+                'avg_fb_velo': metrics['avg_fb_velo'] is not None,
+                'hard_contact_rate': metrics['hard_contact_rate'] is not None,
+                'chase_rate': metrics['chase_rate'] is not None,
+            }
+            metrics_available = sum(1 for v in data_quality.values() if v)
+
             result_dict = {
                 'metrics': metrics,
                 'percentiles': percentiles,
                 'sample_size': row[5],  # FIXED: Now includes ALL levels
                 'days_covered': days,
                 'level': comparison_level,
+                'data_quality': data_quality,
+                'metrics_available': f"{metrics_available}/5",
             }
 
             # Add multi-level info if applicable (pitchers have one less field than hitters)
