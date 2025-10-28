@@ -89,26 +89,12 @@ class PitchDataAggregator:
             Dict with raw metrics, percentiles, and sample size
             None if insufficient data
         """
-        # SEASON-AWARE: Check if we should use full season or rolling window
-        season_check_query = text("""
-            SELECT
-                EXTRACT(YEAR FROM CURRENT_DATE)::integer as current_year,
-                MAX(game_date) as last_game_date,
-                CURRENT_DATE - MAX(game_date) as days_since_last_game
-            FROM milb_batter_pitches
-            WHERE season = EXTRACT(YEAR FROM CURRENT_DATE)
-        """)
-
-        season_result = await self.db.execute(season_check_query)
-        season_info = season_result.fetchone()
-
-        # Use full season if season ended >14 days ago, otherwise use rolling window
-        use_full_season = season_info and season_info.days_since_last_game and season_info.days_since_last_game > 14
+        # Check if we should use full season data
+        season_info = await self._check_season_status()
+        use_full_season = season_info['use_full_season']
 
         if use_full_season:
-            # Use full current season data
-            current_year = season_info.current_year
-            logger.info(f"Using full {current_year} season data (season ended {season_info.days_since_last_game} days ago)")
+            logger.info(f"Using full {season_info['current_year']} season data (season ended {season_info['days_since_end']} days ago)")
 
             levels_query = text("""
                 SELECT level, COUNT(*) as pitch_count
@@ -121,7 +107,7 @@ class PitchDataAggregator:
 
             levels_result = await self.db.execute(
                 levels_query,
-                {'mlb_player_id': int(mlb_player_id), 'season': current_year}
+                {'mlb_player_id': int(mlb_player_id), 'season': season_info['current_year']}
             )
         else:
             # Use rolling window (during active season)
@@ -144,14 +130,14 @@ class PitchDataAggregator:
         levels_data = levels_result.fetchall()
 
         if not levels_data:
-            window_desc = f"full {season_info.current_year} season" if use_full_season else f"last {days} days"
+            window_desc = f"full {season_info['current_year']} season" if use_full_season else f"last {days} days"
             logger.info(f"No pitch data for hitter {mlb_player_id} in {window_desc}")
             return None
 
         levels_played = [row[0] for row in levels_data]
         total_pitches = sum(row[1] for row in levels_data)
 
-        window_desc = f"full {season_info.current_year} season" if use_full_season else f"{days}d"
+        window_desc = f"full {season_info['current_year']} season" if use_full_season else f"{days}d"
         logger.info(f"Player {mlb_player_id}: {total_pitches} pitches at {levels_played} in {window_desc}")
 
         # Build query based on season status
@@ -245,7 +231,7 @@ class PitchDataAggregator:
                     'mlb_player_id': int(mlb_player_id),
                     'levels': levels_played,
                     'min_pitches': self.MIN_PITCHES_BATTER,
-                    'season': season_info.current_year
+                    'season': season_info['current_year']
                 }
             else:
                 query_params = {
@@ -322,7 +308,7 @@ class PitchDataAggregator:
         """
         # Check if we should use full season data
         season_info = await self._check_season_status()
-        use_full_season = season_info.use_full_season
+        use_full_season = season_info['use_full_season']
 
         # Determine which levels the player has played at
         if use_full_season:
@@ -337,7 +323,7 @@ class PitchDataAggregator:
 
             levels_result = await self.db.execute(
                 levels_query,
-                {'mlb_player_id': int(mlb_player_id), 'season': season_info.current_year}
+                {'mlb_player_id': int(mlb_player_id), 'season': season_info['current_year']}
             )
         else:
             levels_query = text("""
@@ -364,8 +350,8 @@ class PitchDataAggregator:
         total_pitches = sum(row[1] for row in levels_data)
 
         if use_full_season:
-            logger.info(f"Using full {season_info.current_year} season data (season ended {season_info.days_since_end} days ago)")
-            logger.info(f"Player {mlb_player_id}: {total_pitches} pitches at {levels_played} in full {season_info.current_year} season")
+            logger.info(f"Using full {season_info['current_year']} season data (season ended {season_info['days_since_end']} days ago)")
+            logger.info(f"Player {mlb_player_id}: {total_pitches} pitches at {levels_played} in full {season_info['current_year']} season")
         else:
             logger.info(f"Pitcher {mlb_player_id}: {total_pitches} pitches at {levels_played} in {days}d")
 
@@ -457,7 +443,7 @@ class PitchDataAggregator:
                     'mlb_player_id': int(mlb_player_id),
                     'levels': levels_played,
                     'min_pitches': self.MIN_PITCHES_PITCHER,
-                    'season': season_info.current_year
+                    'season': season_info['current_year']
                 }
             else:
                 query_params = {
