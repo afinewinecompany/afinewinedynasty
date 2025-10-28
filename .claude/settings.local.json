@@ -1,8 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(timeout 30 python test_percentile_display.py)",
-      "Bash(timeout 10 python -c \"\nimport psycopg2\n\nconn = psycopg2.connect(''postgresql://postgres:BVQjtsVwITqJKqdwOhgRLQwaWdeTXKgp@nozomi.proxy.rlwy.net:39235/railway'')\ncur = conn.cursor()\n\ncur.execute(''''''\n    SELECT column_name \n    FROM information_schema.columns \n    WHERE table_name = ''milb_batter_pitches'' \n    ORDER BY ordinal_position\n    LIMIT 20\n'''''')\n\nprint(''Columns in milb_batter_pitches:'')\nfor col in cur.fetchall():\n    print(f''  - {col[0]}'')\n\nconn.close()\n\")"
+      "Bash(npx tsc --noEmit src/components/rankings/ExpandedPlayerRowV2.tsx)",
+      "Bash(npx next build --experimental-build-mode compile)"
     ],
     "deny": [],
     "ask": []

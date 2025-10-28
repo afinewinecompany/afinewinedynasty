@@ -346,7 +346,7 @@ const ExpandedPlayerRowV2 = ({ prospect }: ExpandedPlayerRowProps) => {
                         </div>
                         <div className="flex items-center gap-1">
                           <div className="w-3 h-3 bg-gradient-to-r from-red-400 to-red-500 rounded" />
-                          <span className="text-gray-600">Poor (<25)</span>
+                          <span className="text-gray-600">Poor (&lt;25)</span>
                         </div>
                       </div>
                     </div>
