@@ -654,10 +654,10 @@ class ProspectRankingService:
                 'recent_era': row[19],
                 'recent_games': row[20],
                 'recent_level': row[21],
-                'recent_k_rate': row[22],
-                'recent_bb_rate': row[23],
-                'previous_ops': row[24],
-                'previous_era': row[25]
+                'recent_k_rate': row[22] if len(row) > 22 else None,
+                'recent_bb_rate': row[23] if len(row) > 23 else None,
+                'previous_ops': row[24] if len(row) > 24 else None,
+                'previous_era': row[25] if len(row) > 25 else None
             }
 
             # Calculate composite score
