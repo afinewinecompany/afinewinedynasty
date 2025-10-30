@@ -108,7 +108,8 @@ class ProspectRankingService:
 
         # Try pitch-level data first (preferred method)
         # Use enhanced aggregator if available for more comprehensive metrics
-        use_enhanced = ENHANCED_METRICS_AVAILABLE and os.getenv('USE_ENHANCED_METRICS', 'true').lower() == 'true'
+        # TEMPORARILY DISABLED: Enhanced aggregator has tuple index issues
+        use_enhanced = ENHANCED_METRICS_AVAILABLE and os.getenv('USE_ENHANCED_METRICS', 'false').lower() == 'true'
 
         if use_enhanced:
             logger.info(f"Using enhanced pitch metrics for {prospect_data.get('name')}")
