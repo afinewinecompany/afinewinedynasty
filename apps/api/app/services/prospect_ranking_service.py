@@ -19,6 +19,11 @@ from sqlalchemy import text, select, func, cast, String
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
 from app.services.pitch_data_aggregator import PitchDataAggregator
+try:
+    from app.services.pitch_data_aggregator_enhanced import EnhancedPitchDataAggregator
+    ENHANCED_METRICS_AVAILABLE = True
+except ImportError:
+    ENHANCED_METRICS_AVAILABLE = False
 import logging
 import os
 
@@ -102,7 +107,14 @@ class ProspectRankingService:
             return 0.0, None
 
         # Try pitch-level data first (preferred method)
-        pitch_aggregator = PitchDataAggregator(self.db)
+        # Use enhanced aggregator if available for more comprehensive metrics
+        use_enhanced = ENHANCED_METRICS_AVAILABLE and os.getenv('USE_ENHANCED_METRICS', 'true').lower() == 'true'
+
+        if use_enhanced:
+            logger.info(f"Using enhanced pitch metrics for {prospect_data.get('name')}")
+            pitch_aggregator = EnhancedPitchDataAggregator(self.db)
+        else:
+            pitch_aggregator = PitchDataAggregator(self.db)
 
         try:
             # Skip pitch data aggregation if we're processing many prospects (performance optimization)
@@ -116,16 +128,30 @@ class ProspectRankingService:
                 # Add timeout to prevent slow queries from blocking the entire request
                 import asyncio
                 try:
-                    if is_hitter:
-                        pitch_metrics = await asyncio.wait_for(
-                            pitch_aggregator.get_hitter_pitch_metrics(mlb_player_id, level, days=60),
-                            timeout=2.0  # 2 second timeout per player
-                        )
+                    if use_enhanced:
+                        # Use enhanced metrics with more comprehensive data
+                        if is_hitter:
+                            pitch_metrics = await asyncio.wait_for(
+                                pitch_aggregator.get_enhanced_hitter_metrics(mlb_player_id, level, days=60),
+                                timeout=3.0  # Slightly longer timeout for enhanced metrics
+                            )
+                        else:
+                            pitch_metrics = await asyncio.wait_for(
+                                pitch_aggregator.get_enhanced_pitcher_metrics(mlb_player_id, level, days=60),
+                                timeout=3.0  # Slightly longer timeout for enhanced metrics
+                            )
                     else:
-                        pitch_metrics = await asyncio.wait_for(
-                            pitch_aggregator.get_pitcher_pitch_metrics(mlb_player_id, level, days=60),
-                            timeout=2.0  # 2 second timeout per player
-                        )
+                        # Use standard metrics
+                        if is_hitter:
+                            pitch_metrics = await asyncio.wait_for(
+                                pitch_aggregator.get_hitter_pitch_metrics(mlb_player_id, level, days=60),
+                                timeout=2.0  # 2 second timeout per player
+                            )
+                        else:
+                            pitch_metrics = await asyncio.wait_for(
+                                pitch_aggregator.get_pitcher_pitch_metrics(mlb_player_id, level, days=60),
+                                timeout=2.0  # 2 second timeout per player
+                            )
                 except asyncio.TimeoutError:
                     logger.warning(f"Pitch metrics timeout for {prospect_data.get('name')} - using fallback")
                     pitch_metrics = None
@@ -144,12 +170,20 @@ class ProspectRankingService:
                     k_bb_percentile = await self._estimate_k_bb_percentile(k_minus_bb, level)
 
                 # Calculate weighted composite
-                composite_percentile, contributions = await pitch_aggregator.calculate_weighted_composite(
-                    pitch_metrics['percentiles'],
-                    is_hitter,
-                    ops_percentile=ops_percentile,
-                    k_minus_bb_percentile=k_bb_percentile
-                )
+                if use_enhanced and hasattr(pitch_aggregator, 'calculate_enhanced_composite'):
+                    # Use enhanced composite calculation for more nuanced evaluation
+                    composite_percentile, contributions = await pitch_aggregator.calculate_enhanced_composite(
+                        pitch_metrics['percentiles'],
+                        is_hitter
+                    )
+                else:
+                    # Use standard composite calculation
+                    composite_percentile, contributions = await pitch_aggregator.calculate_weighted_composite(
+                        pitch_metrics['percentiles'],
+                        is_hitter,
+                        ops_percentile=ops_percentile,
+                        k_minus_bb_percentile=k_bb_percentile
+                    )
 
                 # Convert percentile to modifier
                 modifier = pitch_aggregator.percentile_to_modifier(composite_percentile)
@@ -418,12 +452,14 @@ class ProspectRankingService:
         position = prospect_data.get('position', '')
         is_hitter = position not in ['SP', 'RP', 'P', 'RHP', 'LHP']
 
-        # Get recent stats
+        # Get recent stats (full 2025 season)
         recent_stats = {
             'recent_ops': prospect_data.get('recent_ops'),
             'recent_era': prospect_data.get('recent_era'),
             'recent_games': prospect_data.get('recent_games'),
-            'recent_level': prospect_data.get('recent_level')
+            'recent_level': prospect_data.get('recent_level'),
+            'recent_k_rate': prospect_data.get('recent_k_rate'),
+            'recent_bb_rate': prospect_data.get('recent_bb_rate')
         }
 
         previous_stats = {
@@ -548,27 +584,30 @@ class ProspectRankingService:
                 ON p.fg_player_id = pit.fangraphs_player_id
                 AND pit.data_year = 2025
 
-            -- Recent performance (last 60 days)
+            -- Full 2025 season performance (season ended Oct 7, 2025)
             LEFT JOIN LATERAL (
                 SELECT
                     AVG(CASE WHEN at_bats > 0 THEN ops END) as ops,
                     AVG(CASE WHEN innings_pitched > 0 THEN era END) as era,
                     COUNT(*) as games_played,
-                    MAX(level) as level
+                    MAX(level) as level,
+                    -- K rate and BB rate for pitchers
+                    AVG(CASE WHEN innings_pitched > 0 THEN (strikeouts / innings_pitched * 9.0) END) as recent_k_rate,
+                    AVG(CASE WHEN innings_pitched > 0 THEN (walks / innings_pitched * 9.0) END) as recent_bb_rate
                 FROM milb_game_logs
                 WHERE CAST(mlb_player_id AS VARCHAR) = p.mlb_player_id
-                    AND game_date > CURRENT_DATE - INTERVAL '60 days'
+                    AND season = 2025
             ) recent ON true
 
-            -- Previous period (30-60 days ago)
+            -- Last 30 days of season for trend (Sept 8 - Oct 7, 2025)
             LEFT JOIN LATERAL (
                 SELECT
                     AVG(CASE WHEN at_bats > 0 THEN ops END) as ops,
                     AVG(CASE WHEN innings_pitched > 0 THEN era END) as era
                 FROM milb_game_logs
                 WHERE CAST(mlb_player_id AS VARCHAR) = p.mlb_player_id
-                    AND game_date BETWEEN CURRENT_DATE - INTERVAL '90 days'
-                        AND CURRENT_DATE - INTERVAL '60 days'
+                    AND season = 2025
+                    AND game_date >= '2025-09-08'::date
             ) previous ON true
 
             WHERE (h.fv IS NOT NULL OR pit.fv IS NOT NULL)
@@ -613,8 +652,10 @@ class ProspectRankingService:
                 'recent_era': row[19],
                 'recent_games': row[20],
                 'recent_level': row[21],
-                'previous_ops': row[22],
-                'previous_era': row[23]
+                'recent_k_rate': row[22],
+                'recent_bb_rate': row[23],
+                'previous_ops': row[24],
+                'previous_era': row[25]
             }
 
             # Calculate composite score
