@@ -19,6 +19,7 @@ from sqlalchemy import text, select, func, cast, String
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
 from app.services.pitch_data_aggregator import PitchDataAggregator
+from app.services.batch_pitch_aggregator import BatchPitchAggregator
 try:
     from app.services.pitch_data_aggregator_enhanced import EnhancedPitchDataAggregator
     ENHANCED_METRICS_AVAILABLE = True
@@ -520,6 +521,122 @@ class ProspectRankingService:
 
         return result
 
+    async def calculate_composite_score_with_pitch_data(
+        self,
+        prospect_data: Dict,
+        pitch_data: Optional[Dict]
+    ) -> Dict:
+        """
+        Calculate composite score using pre-fetched pitch data.
+
+        Args:
+            prospect_data: Prospect information
+            pitch_data: Pre-fetched pitch metrics (None if unavailable)
+
+        Returns:
+            Dictionary with score breakdown
+        """
+        # Get base FV score
+        base_score = await self.get_base_score(prospect_data)
+
+        if base_score is None:
+            return {
+                'composite_score': 0.0,
+                'base_fv': 0.0,
+                'performance_modifier': 0.0,
+                'trend_adjustment': 0.0,
+                'age_bonus': 0.0,
+                'total_adjustment': 0.0,
+                'note': 'No FanGraphs grade available'
+            }
+
+        # Determine if hitter or pitcher
+        position = prospect_data.get('position', '')
+        is_hitter = position not in ['SP', 'RP', 'P', 'RHP', 'LHP']
+
+        # Calculate performance modifier using pitch data if available
+        if pitch_data:
+            # Use pre-fetched pitch metrics
+            composite_percentile = pitch_data.get('composite_percentile', 50.0)
+            batch_aggregator = BatchPitchAggregator(self.db)
+            performance_mod = batch_aggregator.percentile_to_modifier(composite_percentile)
+
+            performance_breakdown = {
+                'source': 'pitch_data',
+                'composite_percentile': composite_percentile,
+                'sample_size': pitch_data.get('sample_size', 0),
+                'metrics': pitch_data.get('metrics', {}),
+                'percentiles': pitch_data.get('percentiles', {})
+            }
+        else:
+            # Fall back to game logs
+            recent_stats = {
+                'recent_ops': prospect_data.get('recent_ops'),
+                'recent_era': prospect_data.get('recent_era'),
+                'recent_games': prospect_data.get('recent_games'),
+                'recent_level': prospect_data.get('recent_level'),
+                'recent_k_rate': prospect_data.get('recent_k_rate'),
+                'recent_bb_rate': prospect_data.get('recent_bb_rate')
+            }
+
+            performance_mod, performance_breakdown = await self.calculate_performance_modifier(
+                prospect_data, recent_stats, is_hitter
+            )
+
+        # Calculate trend and age adjustments
+        previous_stats = {
+            'previous_ops': prospect_data.get('previous_ops'),
+            'previous_era': prospect_data.get('previous_era')
+        }
+
+        recent_stats_for_trend = {
+            'recent_ops': prospect_data.get('recent_ops'),
+            'recent_era': prospect_data.get('recent_era')
+        }
+
+        trend_mod = await self.calculate_trend_adjustment(
+            recent_stats_for_trend, previous_stats, is_hitter
+        )
+
+        level = prospect_data.get('current_level') or prospect_data.get('recent_level')
+        age_adjustment = await self.calculate_age_adjustment(
+            prospect_data.get('age'),
+            level
+        )
+
+        # Calculate weighted composite
+        composite = (
+            base_score +
+            (performance_mod * 0.5) +
+            (trend_mod * 0.3) +
+            (age_adjustment * 0.2)
+        )
+
+        # Apply adjustment cap (±10 points max)
+        total_adjustment = composite - base_score
+
+        if total_adjustment > 10:
+            composite = base_score + 10
+            total_adjustment = 10.0
+        elif total_adjustment < -10:
+            composite = base_score - 10
+            total_adjustment = -10.0
+
+        result = {
+            'composite_score': round(composite, 1),
+            'base_fv': round(base_score, 1),
+            'performance_modifier': round(performance_mod, 1),
+            'trend_adjustment': round(trend_mod, 1),
+            'age_bonus': round(age_adjustment, 1),
+            'total_adjustment': round(total_adjustment, 1)
+        }
+
+        # Add detailed breakdown if available
+        if performance_breakdown:
+            result['performance_details'] = performance_breakdown
+
+        return result
+
     async def generate_prospect_rankings(
         self,
         position_filter: Optional[str] = None,
@@ -627,11 +744,15 @@ class ProspectRankingService:
         result = await self.db.execute(query)
         prospects_data = result.fetchall()
 
-        # Calculate composite scores for each prospect
-        ranked_prospects = []
+        logger.info(f"Fetched {len(prospects_data)} prospects, preparing batch pitch metrics...")
+
+        # OPTIMIZATION: Use batch processing for pitch metrics
+        # Separate hitters and pitchers for batch queries
+        prospect_dicts = []
+        hitters = []
+        pitchers = []
 
         for row in prospects_data:
-            # Convert row to dictionary
             prospect_dict = {
                 'id': row[0],
                 'name': row[1],
@@ -660,12 +781,51 @@ class ProspectRankingService:
                 'previous_ops': row[24] if len(row) > 24 else None,
                 'previous_era': row[25] if len(row) > 25 else None
             }
+            prospect_dicts.append(prospect_dict)
 
-            # Calculate composite score
-            scores = await self.calculate_composite_score(prospect_dict)
+            # Categorize by position
+            is_pitcher = prospect_dict['position'] in ['SP', 'RP', 'P', 'RHP', 'LHP']
+            if is_pitcher:
+                pitchers.append(prospect_dict)
+            else:
+                hitters.append(prospect_dict)
+
+        # Fetch pitch metrics in batch (MAJOR OPTIMIZATION)
+        batch_aggregator = BatchPitchAggregator(self.db)
+
+        hitter_metrics = {}
+        pitcher_metrics = {}
+
+        if hitters:
+            logger.info(f"Fetching batch pitch metrics for {len(hitters)} hitters...")
+            hitter_metrics = await batch_aggregator.get_batch_hitter_metrics(hitters)
+            logger.info(f"Got pitch data for {len(hitter_metrics)} hitters")
+
+        if pitchers:
+            logger.info(f"Fetching batch pitch metrics for {len(pitchers)} pitchers...")
+            pitcher_metrics = await batch_aggregator.get_batch_pitcher_metrics(pitchers)
+            logger.info(f"Got pitch data for {len(pitcher_metrics)} pitchers")
+
+        # Now calculate composite scores with pre-fetched pitch metrics
+        ranked_prospects = []
+
+        for prospect_dict in prospect_dicts:
+            mlb_player_id = prospect_dict['mlb_player_id']
+            is_pitcher = prospect_dict['position'] in ['SP', 'RP', 'P', 'RHP', 'LHP']
+
+            # Get pre-fetched pitch metrics
+            pitch_data = None
+            if is_pitcher and mlb_player_id in pitcher_metrics:
+                pitch_data = pitcher_metrics[mlb_player_id]
+            elif not is_pitcher and mlb_player_id in hitter_metrics:
+                pitch_data = hitter_metrics[mlb_player_id]
+
+            # Calculate composite score with pitch data
+            scores = await self.calculate_composite_score_with_pitch_data(
+                prospect_dict, pitch_data
+            )
 
             # Build result object
-            # Use recent_level if current_level is not available
             level_display = prospect_dict.get('current_level') or prospect_dict.get('recent_level')
 
             ranked_prospects.append({
