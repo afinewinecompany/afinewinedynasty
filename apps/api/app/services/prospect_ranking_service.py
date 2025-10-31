@@ -633,7 +633,7 @@ class ProspectRankingService:
 
         # Add detailed breakdown if available
         if performance_breakdown:
-            result['performance_details'] = performance_breakdown
+            result['performance_breakdown'] = performance_breakdown
 
         return result
 
