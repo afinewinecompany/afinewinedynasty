@@ -120,7 +120,8 @@ class ProspectRankingService:
         try:
             # Skip pitch data aggregation if we're processing many prospects (performance optimization)
             # TODO: Implement batch processing for pitch metrics
-            # TEMPORARY: Skipping all pitch metrics by default to fix tuple index error
+            # NOTE: Standard pitch aggregator works in isolation, but causes timeout when generating
+            # full rankings due to 2-second timeout per prospect. Re-enable for small batches only.
             if os.getenv('SKIP_PITCH_METRICS', 'true').lower() == 'true':
                 logger.info(f"Skipping pitch metrics for {prospect_data.get('name')} (performance mode)")
                 pitch_metrics = None

@@ -1,10 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx tsc --noEmit src/components/rankings/ExpandedPlayerRowV2.tsx)",
-      "Bash(npx next build --experimental-build-mode compile)",
-      "Bash(timeout 30 python test_leo_de_vries_metrics.py)",
-      "Bash(timeout 60 python investigate_partial_stats.py)"
+      "Bash(psql \"postgresql://postgres:BVQjtsVwITqJKqdwOhgRLQwaWdeTXKgp@nozomi.proxy.rlwy.net:39235/railway\" -c \"SELECT COUNT(*) as total, COUNT(launch_speed) as with_launch_speed, COUNT(CASE WHEN launch_speed IS NOT NULL THEN 1 END) * 100.0 / COUNT(*) as pct_with_data FROM milb_batter_pitches WHERE season = 2025 AND mlb_batter_id IN (805811, 804606, 701350, 692225)\")",
+      "Bash(timeout 60 python test_ranking_with_pitch_data.py)",
+      "Bash(psql \"postgresql://postgres:BVQjtsVwITqJKqdwOhgRLQwaWdeTXKgp@nozomi.proxy.rlwy.net:39235/railway\" -c \"\nSELECT \n    p.name, \n    p.mlb_player_id,\n    COUNT(DISTINCT bp.game_pk) as games_with_pitches,\n    COUNT(*) as total_pitches,\n    MIN(bp.game_date) as first_date,\n    MAX(bp.game_date) as last_date\nFROM prospects p\nLEFT JOIN milb_batter_pitches bp ON p.mlb_player_id::integer = bp.mlb_batter_id\nWHERE p.name ILIKE ''%made%'' OR p.name ILIKE ''%jesus%''\nGROUP BY p.name, p.mlb_player_id\nORDER BY p.name;\n\")",
+      "Bash(timeout 60 python test_standard_pitch_aggregator.py)"
     ],
     "deny": [],
     "ask": []
