@@ -22,6 +22,7 @@ from app.services.pitch_data_aggregator import PitchDataAggregator
 from app.services.batch_pitch_aggregator import BatchPitchAggregator
 try:
     from app.services.pitch_data_aggregator_enhanced import EnhancedPitchDataAggregator
+    from app.services.pitch_data_aggregator_with_batted_balls import BattedBallPitchDataAggregator
     ENHANCED_METRICS_AVAILABLE = True
 except ImportError:
     ENHANCED_METRICS_AVAILABLE = False
@@ -108,13 +109,12 @@ class ProspectRankingService:
             return 0.0, None
 
         # Try pitch-level data first (preferred method)
-        # Use enhanced aggregator if available for more comprehensive metrics
-        # TEMPORARILY DISABLED: Enhanced aggregator has tuple index issues
+        # Use enhanced aggregator with batted ball data if available for most comprehensive metrics
         use_enhanced = ENHANCED_METRICS_AVAILABLE and os.getenv('USE_ENHANCED_METRICS', 'false').lower() == 'true'
 
         if use_enhanced:
-            logger.info(f"Using enhanced pitch metrics for {prospect_data.get('name')}")
-            pitch_aggregator = EnhancedPitchDataAggregator(self.db)
+            logger.info(f"Using comprehensive pitch metrics with batted ball data for {prospect_data.get('name')}")
+            pitch_aggregator = BattedBallPitchDataAggregator(self.db)
         else:
             pitch_aggregator = PitchDataAggregator(self.db)
 
@@ -133,16 +133,19 @@ class ProspectRankingService:
                 import asyncio
                 try:
                     if use_enhanced:
-                        # Use enhanced metrics with more comprehensive data
+                        # Use comprehensive metrics with batted ball data for hitters
                         if is_hitter:
                             pitch_metrics = await asyncio.wait_for(
-                                pitch_aggregator.get_enhanced_hitter_metrics(mlb_player_id, level, days=60),
-                                timeout=3.0  # Slightly longer timeout for enhanced metrics
+                                pitch_aggregator.get_comprehensive_hitter_metrics(mlb_player_id, level, days=60),
+                                timeout=3.0  # Slightly longer timeout for comprehensive metrics
                             )
                         else:
+                            # For pitchers, fall back to standard enhanced metrics
+                            # (BattedBallPitchDataAggregator doesn't have pitcher methods yet)
+                            enhanced_aggregator = EnhancedPitchDataAggregator(self.db)
                             pitch_metrics = await asyncio.wait_for(
-                                pitch_aggregator.get_enhanced_pitcher_metrics(mlb_player_id, level, days=60),
-                                timeout=3.0  # Slightly longer timeout for enhanced metrics
+                                enhanced_aggregator.get_enhanced_pitcher_metrics(mlb_player_id, level, days=60),
+                                timeout=3.0
                             )
                     else:
                         # Use standard metrics
@@ -174,8 +177,14 @@ class ProspectRankingService:
                     k_bb_percentile = await self._estimate_k_bb_percentile(k_minus_bb, level)
 
                 # Calculate weighted composite
-                if use_enhanced and hasattr(pitch_aggregator, 'calculate_enhanced_composite'):
-                    # Use enhanced composite calculation for more nuanced evaluation
+                if use_enhanced and hasattr(pitch_aggregator, 'calculate_comprehensive_composite'):
+                    # Use comprehensive composite calculation with batted ball data
+                    composite_percentile, contributions = await pitch_aggregator.calculate_comprehensive_composite(
+                        pitch_metrics['percentiles'],
+                        is_hitter
+                    )
+                elif use_enhanced and hasattr(pitch_aggregator, 'calculate_enhanced_composite'):
+                    # Use enhanced composite calculation for pitchers
                     composite_percentile, contributions = await pitch_aggregator.calculate_enhanced_composite(
                         pitch_metrics['percentiles'],
                         is_hitter

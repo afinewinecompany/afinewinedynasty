@@ -435,6 +435,30 @@ class BattedBallPitchDataAggregator:
                 balance = 100 - (max_pct - min_pct)
                 metrics['spray_ability'] = balance
 
+            # Calculate power score (composite of power indicators)
+            # Combines hard hit rate, fly ball rate, and pull fly ball rate
+            power_components = []
+            weights_sum = 0
+
+            if metrics.get('hard_hit_rate') is not None:
+                # Hard hit rate is most important (50% weight)
+                power_components.append(metrics['hard_hit_rate'] * 0.50)
+                weights_sum += 0.50
+
+            if metrics.get('fly_ball_rate') is not None:
+                # Fly ball rate indicates loft ability (25% weight)
+                power_components.append(metrics['fly_ball_rate'] * 0.25)
+                weights_sum += 0.25
+
+            if metrics.get('pull_fly_ball_rate') is not None:
+                # Pull fly balls are most likely to be home runs (25% weight)
+                power_components.append(metrics['pull_fly_ball_rate'] * 0.25)
+                weights_sum += 0.25
+
+            if power_components and weights_sum > 0:
+                # Normalize by actual weights used
+                metrics['power_score'] = sum(power_components) / weights_sum
+
             # Log available metrics
             available_metrics = [k for k, v in metrics.items() if v is not None]
             logger.info(f"Available comprehensive metrics for {mlb_player_id}: {len(available_metrics)} metrics")
@@ -556,6 +580,12 @@ class BattedBallPitchDataAggregator:
             # Pull fly balls indicate power potential
             percentiles['pull_fly_ball_rate'] = self._estimate_percentile(
                 metrics['pull_fly_ball_rate'], [15, 25, 35, 45, 55], higher_is_better=True
+            )
+
+        if metrics.get('power_score') is not None:
+            # Power score composite - higher is better
+            percentiles['power_score'] = self._estimate_percentile(
+                metrics['power_score'], [8, 12, 16, 22, 30], higher_is_better=True
             )
 
         # First pitch and count leverage

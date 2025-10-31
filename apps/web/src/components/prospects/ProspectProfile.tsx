@@ -11,6 +11,7 @@ import { MLPredictionExplanation } from './MLPredictionExplanation';
 import { MLBExpectationPrediction } from './MLBExpectationPrediction';
 import { ScoutingRadar } from './ScoutingRadar';
 import { PerformanceTrends } from './PerformanceTrends';
+import { PitchMetricsDisplay } from './PitchMetricsDisplay';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -369,6 +370,18 @@ function StatisticsTab({ prospect }: StatisticsTabProps) {
 
   return (
     <div className="space-y-6">
+      {/* Pitch-Level Performance Metrics */}
+      {prospect.pitch_metrics && (
+        <PitchMetricsDisplay
+          metrics={prospect.pitch_metrics.metrics}
+          percentiles={prospect.pitch_metrics.percentiles}
+          sampleSize={prospect.pitch_metrics.sample_size}
+          level={prospect.pitch_metrics.level}
+          comprehensiveMetrics={prospect.pitch_metrics.comprehensive_metrics}
+          battedBallData={prospect.pitch_metrics.batted_ball_data}
+        />
+      )}
+
       {/* Current Season Summary */}
       <Card>
         <CardHeader>

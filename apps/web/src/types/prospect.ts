@@ -58,6 +58,39 @@ export interface ProspectProfile extends Prospect {
     field?: number;
     arm?: number;
   };
+  pitch_metrics?: {
+    metrics: {
+      contact_rate?: number;
+      whiff_rate?: number;
+      in_play_rate?: number;
+      productive_swing_rate?: number;
+      chase_rate?: number;
+      two_strike_contact_rate?: number;
+      first_pitch_swing_rate?: number;
+      ahead_swing_rate?: number;
+      behind_contact_rate?: number;
+      discipline_score?: number;
+      power_score?: number;
+      line_drive_rate?: number;
+      ground_ball_rate?: number;
+      fly_ball_rate?: number;
+      hard_hit_rate?: number;
+      pull_rate?: number;
+      center_rate?: number;
+      oppo_rate?: number;
+      pull_fly_ball_rate?: number;
+      spray_ability?: number;
+    };
+    percentiles: Record<string, number>;
+    sample_size: number;
+    level: string;
+    comprehensive_metrics?: boolean;
+    batted_ball_data?: {
+      with_trajectory: number;
+      with_hardness: number;
+      with_hit_location: number;
+    };
+  };
 }
 
 export interface ProspectListParams {
