@@ -406,7 +406,7 @@ class BatchPitchAggregator:
 
     async def _preload_hitter_percentiles(self, levels: set):
         """Pre-load and cache hitter percentile distributions for multiple levels."""
-        levels_to_load = [level for level in levels if level and level not in self._percentile_cache]
+        levels_to_load = [str(level) for level in levels if level and level not in self._percentile_cache]
 
         if not levels_to_load:
             return
@@ -425,7 +425,7 @@ class BatchPitchAggregator:
         """)
 
         try:
-            result = await self.db.execute(query, {'levels': list(levels_to_load)})
+            result = await self.db.execute(query, {'levels': levels_to_load})
             rows = result.fetchall()
 
             for row in rows:
@@ -444,7 +444,7 @@ class BatchPitchAggregator:
 
     async def _preload_pitcher_percentiles(self, levels: set):
         """Pre-load and cache pitcher percentile distributions for multiple levels."""
-        levels_to_load = [level for level in levels if level and level not in self._percentile_cache]
+        levels_to_load = [str(level) for level in levels if level and level not in self._percentile_cache]
 
         if not levels_to_load:
             return
@@ -463,7 +463,7 @@ class BatchPitchAggregator:
         """)
 
         try:
-            result = await self.db.execute(query, {'levels': list(levels_to_load)})
+            result = await self.db.execute(query, {'levels': levels_to_load})
             rows = result.fetchall()
 
             for row in rows:

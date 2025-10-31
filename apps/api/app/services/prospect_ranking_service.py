@@ -627,7 +627,7 @@ class ProspectRankingService:
             'base_fv': round(base_score, 1),
             'performance_modifier': round(performance_mod, 1),
             'trend_adjustment': round(trend_mod, 1),
-            'age_bonus': round(age_adjustment, 1),
+            'age_adjustment': round(age_adjustment, 1),
             'total_adjustment': round(total_adjustment, 1)
         }
 
