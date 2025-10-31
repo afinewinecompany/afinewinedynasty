@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(timeout 30 python test_pitch_data_in_rankings.py)"
+      "Bash(timeout 30 python test_pitch_data_in_rankings.py)",
+      "Bash(timeout 60 python test_api_response.py)"
     ],
     "deny": [],
     "ask": []
