@@ -118,12 +118,12 @@ class ProspectRankingService:
             pitch_aggregator = PitchDataAggregator(self.db)
 
         try:
-            # Skip pitch data aggregation if we're processing many prospects (performance optimization)
-            # TODO: Implement batch processing for pitch metrics
-            # NOTE: Standard pitch aggregator works in isolation, but causes timeout when generating
-            # full rankings due to 2-second timeout per prospect. Re-enable for small batches only.
-            if os.getenv('SKIP_PITCH_METRICS', 'true').lower() == 'true':
-                logger.info(f"Skipping pitch metrics for {prospect_data.get('name')} (performance mode)")
+            # Pitch data aggregation with smart defaults
+            # - Enabled by default for better accuracy
+            # - Uses 2-second timeout per prospect to prevent slowdowns
+            # - Set SKIP_PITCH_METRICS='true' to disable if needed
+            if os.getenv('SKIP_PITCH_METRICS', 'false').lower() == 'true':
+                logger.info(f"Skipping pitch metrics for {prospect_data.get('name')} (disabled via env var)")
                 pitch_metrics = None
             else:
                 logger.info(f"Attempting to fetch pitch data for {prospect_data.get('name')} (ID: {mlb_player_id}, Level: {level})")
@@ -148,12 +148,12 @@ class ProspectRankingService:
                         if is_hitter:
                             pitch_metrics = await asyncio.wait_for(
                                 pitch_aggregator.get_hitter_pitch_metrics(mlb_player_id, level, days=60),
-                                timeout=2.0  # 2 second timeout per player
+                                timeout=1.5  # 1.5 second timeout per player (reasonable for individual queries)
                             )
                         else:
                             pitch_metrics = await asyncio.wait_for(
                                 pitch_aggregator.get_pitcher_pitch_metrics(mlb_player_id, level, days=60),
-                                timeout=2.0  # 2 second timeout per player
+                                timeout=1.5  # 1.5 second timeout per player
                             )
                 except asyncio.TimeoutError:
                     logger.warning(f"Pitch metrics timeout for {prospect_data.get('name')} - using fallback")
