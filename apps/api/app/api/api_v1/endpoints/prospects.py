@@ -829,40 +829,39 @@ async def get_prospect_profile(
         "confidence_level": dynasty_score['confidence_level']
     }
 
-    # Add pitch-level performance metrics if available
+    # Add pitch-level performance metrics - always use enhanced metrics for best data
     try:
         from app.services.pitch_data_aggregator_with_batted_balls import BattedBallPitchDataAggregator
         from app.services.pitch_data_aggregator_enhanced import EnhancedPitchDataAggregator
-        import os
 
         # Determine if prospect is a hitter
         is_hitter = prospect.position not in ['SP', 'RP', 'P']
 
-        if os.getenv('USE_ENHANCED_METRICS', 'false').lower() == 'true':
-            if is_hitter:
-                aggregator = BattedBallPitchDataAggregator(db)
-                pitch_metrics = await aggregator.get_comprehensive_hitter_metrics(
-                    str(prospect.mlb_id),
-                    prospect.level,
-                    days=60
-                )
-            else:
-                aggregator = EnhancedPitchDataAggregator(db)
-                pitch_metrics = await aggregator.get_enhanced_pitcher_metrics(
-                    str(prospect.mlb_id),
-                    prospect.level,
-                    days=60
-                )
+        # Always use comprehensive metrics for best analysis
+        if is_hitter:
+            aggregator = BattedBallPitchDataAggregator(db)
+            pitch_metrics = await aggregator.get_comprehensive_hitter_metrics(
+                str(prospect.mlb_id),
+                prospect.level,
+                days=60
+            )
+        else:
+            aggregator = EnhancedPitchDataAggregator(db)
+            pitch_metrics = await aggregator.get_enhanced_pitcher_metrics(
+                str(prospect.mlb_id),
+                prospect.level,
+                days=60
+            )
 
-            if pitch_metrics:
-                profile["pitch_metrics"] = {
-                    "metrics": pitch_metrics.get("metrics", {}),
-                    "percentiles": pitch_metrics.get("percentiles", {}),
-                    "sample_size": pitch_metrics.get("sample_size", 0),
-                    "level": pitch_metrics.get("level"),
-                    "comprehensive_metrics": pitch_metrics.get("comprehensive_metrics", False),
-                    "batted_ball_data": pitch_metrics.get("batted_ball_data", {})
-                }
+        if pitch_metrics:
+            profile["pitch_metrics"] = {
+                "metrics": pitch_metrics.get("metrics", {}),
+                "percentiles": pitch_metrics.get("percentiles", {}),
+                "sample_size": pitch_metrics.get("sample_size", 0),
+                "level": pitch_metrics.get("level"),
+                "comprehensive_metrics": pitch_metrics.get("comprehensive_metrics", False),
+                "batted_ball_data": pitch_metrics.get("batted_ball_data", {})
+            }
     except Exception as e:
         logger.warning(f"Could not fetch pitch metrics for prospect {prospect_id}: {e}")
         # Continue without pitch metrics

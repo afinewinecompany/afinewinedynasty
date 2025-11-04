@@ -108,31 +108,27 @@ class ProspectRankingService:
             logger.warning(f"Missing level or player ID for {prospect_data.get('name')}")
             return 0.0, None
 
-        # Try pitch-level data first (preferred method)
-        # Use enhanced aggregator with batted ball data if available for most comprehensive metrics
-        use_enhanced = ENHANCED_METRICS_AVAILABLE and os.getenv('USE_ENHANCED_METRICS', 'false').lower() == 'true'
-
-        if use_enhanced:
+        # Always use enhanced metrics with batted ball data for comprehensive analysis
+        # This provides discipline score, power score, and all advanced metrics
+        if ENHANCED_METRICS_AVAILABLE:
             logger.info(f"Using comprehensive pitch metrics with batted ball data for {prospect_data.get('name')}")
             pitch_aggregator = BattedBallPitchDataAggregator(self.db)
+            use_enhanced = True
         else:
+            logger.info(f"Using standard pitch metrics for {prospect_data.get('name')}")
             pitch_aggregator = PitchDataAggregator(self.db)
+            use_enhanced = False
 
         try:
-            # Pitch data aggregation with smart defaults
+            # Always process pitch data for comprehensive metrics
             # - Enabled by default for better accuracy
-            # - Uses 2-second timeout per prospect to prevent slowdowns
-            # - Set SKIP_PITCH_METRICS='true' to disable if needed
-            if os.getenv('SKIP_PITCH_METRICS', 'false').lower() == 'true':
-                logger.info(f"Skipping pitch metrics for {prospect_data.get('name')} (disabled via env var)")
-                pitch_metrics = None
-            else:
-                logger.info(f"Attempting to fetch pitch data for {prospect_data.get('name')} (ID: {mlb_player_id}, Level: {level})")
+            # - Uses timeout to prevent slowdowns
+            logger.info(f"Attempting to fetch pitch data for {prospect_data.get('name')} (ID: {mlb_player_id}, Level: {level})")
 
-                # Add timeout to prevent slow queries from blocking the entire request
-                import asyncio
-                try:
-                    if use_enhanced:
+            # Add timeout to prevent slow queries from blocking the entire request
+            import asyncio
+            try:
+                if use_enhanced:
                         # Use comprehensive metrics with batted ball data for hitters
                         if is_hitter:
                             pitch_metrics = await asyncio.wait_for(
