@@ -85,6 +85,8 @@ export default function PerformanceBreakdown({ prospect, compact = false }: Perf
 
   const formatMetricName = (metric: string) => {
     const names: Record<string, string> = {
+      discipline_score: 'Discipline Score',
+      power_score: 'Power Score',
       exit_velo_90th: 'Exit Velo (90th %ile)',
       hard_hit_rate: 'Hard Hit Rate',
       contact_rate: 'Contact Rate',
@@ -95,16 +97,24 @@ export default function PerformanceBreakdown({ prospect, compact = false }: Perf
       hard_contact_rate: 'Hard Contact Allowed',
       ops: 'OPS',
       k_minus_bb: 'K% - BB%',
+      line_drive_rate: 'Line Drive Rate',
+      ground_ball_rate: 'Ground Ball Rate',
+      fly_ball_rate: 'Fly Ball Rate',
+      pull_rate: 'Pull Rate',
+      spray_ability: 'Spray Ability',
+      two_strike_contact_rate: 'Two Strike Contact',
+      productive_swing_rate: 'Productive Swing Rate',
+      in_play_rate: 'In Play Rate',
     };
     return names[metric] || metric;
   };
 
   const isPitcher = prospect.position === 'SP' || prospect.position === 'RP' || prospect.position === 'P';
 
-  // Compact version - just show source badge and composite percentile
+  // Compact version - show source badge, composite percentile, and key scores
   if (compact) {
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         <span className={`px-2 py-0.5 text-xs font-medium rounded border ${getSourceColor(breakdown.source)}`}>
           {getSourceLabel(breakdown.source)}
         </span>
@@ -120,6 +130,43 @@ export default function PerformanceBreakdown({ prospect, compact = false }: Perf
                 <p className="text-xs text-popover-foreground">
                   Performance vs level peers
                   {breakdown.sample_size && ` (${breakdown.sample_size} pitches)`}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+        {/* Show Discipline and Power scores if available */}
+        {breakdown.percentiles?.discipline_score !== undefined && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${
+                  breakdown.percentiles.discipline_score >= 60 ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'
+                }`}>
+                  D: {breakdown.percentiles.discipline_score.toFixed(0)}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent className="bg-popover border-border">
+                <p className="text-xs text-popover-foreground">
+                  Discipline Score: {breakdown.metrics?.discipline_score?.toFixed(1)} ({breakdown.percentiles.discipline_score.toFixed(0)}%ile)
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+        {breakdown.percentiles?.power_score !== undefined && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${
+                  breakdown.percentiles.power_score >= 60 ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600'
+                }`}>
+                  P: {breakdown.percentiles.power_score.toFixed(0)}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent className="bg-popover border-border">
+                <p className="text-xs text-popover-foreground">
+                  Power Score: {breakdown.metrics?.power_score?.toFixed(1)} ({breakdown.percentiles.power_score.toFixed(0)}%ile)
                 </p>
               </TooltipContent>
             </Tooltip>
@@ -178,16 +225,56 @@ export default function PerformanceBreakdown({ prospect, compact = false }: Perf
         </div>
       )}
 
+      {/* Key Composite Scores */}
+      {breakdown.metrics && breakdown.percentiles && (
+        <>
+          {/* Discipline and Power Scores - Highlighted */}
+          {(breakdown.metrics.discipline_score !== undefined || breakdown.metrics.power_score !== undefined) && (
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              {breakdown.metrics.discipline_score !== undefined && breakdown.percentiles.discipline_score !== undefined && (
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="text-xs font-medium text-blue-700 mb-1">Discipline Score</div>
+                  <div className="flex items-end justify-between">
+                    <div className="text-2xl font-bold text-blue-900">
+                      {breakdown.metrics.discipline_score.toFixed(1)}
+                    </div>
+                    <div className={`text-sm font-semibold ${getPercentileColor(breakdown.percentiles.discipline_score)}`}>
+                      {breakdown.percentiles.discipline_score.toFixed(0)}%ile
+                    </div>
+                  </div>
+                  {getPercentileBar(breakdown.percentiles.discipline_score)}
+                </div>
+              )}
+              {breakdown.metrics.power_score !== undefined && breakdown.percentiles.power_score !== undefined && (
+                <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                  <div className="text-xs font-medium text-purple-700 mb-1">Power Score</div>
+                  <div className="flex items-end justify-between">
+                    <div className="text-2xl font-bold text-purple-900">
+                      {breakdown.metrics.power_score.toFixed(1)}
+                    </div>
+                    <div className={`text-sm font-semibold ${getPercentileColor(breakdown.percentiles.power_score)}`}>
+                      {breakdown.percentiles.power_score.toFixed(0)}%ile
+                    </div>
+                  </div>
+                  {getPercentileBar(breakdown.percentiles.power_score)}
+                </div>
+              )}
+            </div>
+          )}
+        </>
+      )}
+
       {/* Metrics breakdown */}
       {breakdown.metrics && breakdown.percentiles && (
         <div>
           <h5 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1">
             <TrendingUp className="w-4 h-4" />
-            Metric Breakdown
+            Detailed Metrics
           </h5>
           <div className="space-y-3">
             {Object.entries(breakdown.percentiles)
               .filter(([metric]) => breakdown.metrics?.[metric] !== undefined)
+              .filter(([metric]) => metric !== 'discipline_score' && metric !== 'power_score') // Don't show these again
               .map(([metric, percentile]) => {
                 const rawValue = breakdown.metrics?.[metric];
                 const contribution = breakdown.weighted_contributions?.[metric];
