@@ -686,7 +686,7 @@ async def get_prospect_profile(
     include_predictions: bool = True,
     include_comparisons: bool = True,
     include_scouting: bool = True,
-    current_user: User = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db)
 ) -> Dict[str, Any]:
     """
