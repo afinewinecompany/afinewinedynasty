@@ -16,6 +16,7 @@ from app.services.dynasty_ranking_service import DynastyRankingService
 from app.services.prospect_search_service import ProspectSearchService
 from app.services.prospect_stats_service import ProspectStatsService
 from app.services.prospect_comparisons_service import ProspectComparisonsService
+from app.services.statline_ranking_service import StatlineRankingService
 from app.core.cache_manager import cache_manager
 from app.core.rate_limiter import limiter
 
@@ -872,6 +873,68 @@ async def get_prospect_profile(
     )
 
     return profile
+
+
+@router.get("/rankings/statline")
+async def get_statline_rankings(
+    level: Optional[str] = Query(None, description="Filter by level (AAA, AA, A+, A, ROK)"),
+    min_pa: int = Query(100, description="Minimum plate appearances to qualify"),
+    season: int = Query(2025, description="Season year"),
+    include_pitch_data: bool = Query(True, description="Include pitch-level metrics"),
+    current_user: Optional[User] = Depends(get_current_user_optional),
+    db: AsyncSession = Depends(get_db)
+) -> Dict[str, Any]:
+    """
+    Get in-season statistical rankings (Statline).
+
+    Returns prospects ranked by actual performance with skill bucket scores,
+    age adjustments, and peer comparisons.
+    """
+    try:
+        # Use cache key
+        cache_key = f"statline:{level or 'all'}:{season}:{min_pa}:{include_pitch_data}"
+
+        # Try to get from cache first
+        cached = await cache_manager.get(cache_key)
+        if cached:
+            logger.info(f"Returning cached statline rankings for key: {cache_key}")
+            return cached
+
+        # Initialize ranking service
+        ranking_service = StatlineRankingService(db)
+
+        # Calculate rankings
+        rankings = await ranking_service.calculate_statline_rankings(
+            level=level,
+            min_plate_appearances=min_pa,
+            season=season,
+            include_pitch_data=include_pitch_data
+        )
+
+        # Format response
+        response = {
+            "rankings": rankings,
+            "metadata": {
+                "total_players": len(rankings),
+                "level": level or "all",
+                "season": season,
+                "min_plate_appearances": min_pa,
+                "includes_pitch_data": include_pitch_data,
+                "last_updated": datetime.utcnow().isoformat()
+            }
+        }
+
+        # Cache for 1 hour
+        await cache_manager.set(cache_key, response, ttl=3600)
+
+        return response
+
+    except Exception as e:
+        logger.error(f"Error calculating statline rankings: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to calculate statline rankings"
+        )
 
 
 @router.get("/{prospect_id}/stats")

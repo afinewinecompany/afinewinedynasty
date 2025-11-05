@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Search, User, Zap, Menu, Wine, Brain, TrendingUp, Trophy, BarChart3 } from 'lucide-react';
+import { Search, User, Zap, Menu, Wine, Brain, TrendingUp, Trophy, BarChart3, Activity } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from './button';
 
@@ -18,6 +18,7 @@ const Header: React.FC = () => {
     { href: '/', label: 'Dashboard' },
     ...(user?.subscriptionTier === 'premium' ? [{ href: '/my-league', label: 'My League', icon: 'trophy' }] : []),
     { href: '/prospects', label: 'Prospects' },
+    { href: '/statline', label: 'Statline', icon: 'activity', badge: 'New' },
     { href: '/hype', label: 'HYPE', icon: 'trending' },
     { href: '/predictions', label: 'ML Predictions', icon: 'brain' },
     { href: '/projections', label: 'Projections', icon: 'chart', badge: 'Beta' },
@@ -55,6 +56,7 @@ const Header: React.FC = () => {
                 {link.icon === 'trending' && <TrendingUp className="w-4 h-4" />}
                 {link.icon === 'trophy' && <Trophy className="w-4 h-4" />}
                 {link.icon === 'chart' && <BarChart3 className="w-4 h-4" />}
+                {link.icon === 'activity' && <Activity className="w-4 h-4" />}
                 {link.label}
                 {link.badge && (
                   <span className="ml-1 px-1.5 py-0.5 text-xs font-semibold rounded bg-yellow-500/20 text-yellow-300 border border-yellow-500/30">
@@ -140,6 +142,7 @@ const Header: React.FC = () => {
                 {link.icon === 'trending' && <TrendingUp className="w-4 h-4" />}
                 {link.icon === 'trophy' && <Trophy className="w-4 h-4" />}
                 {link.icon === 'chart' && <BarChart3 className="w-4 h-4" />}
+                {link.icon === 'activity' && <Activity className="w-4 h-4" />}
                 {link.label}
                 {link.badge && (
                   <span className="ml-auto px-1.5 py-0.5 text-xs font-semibold rounded bg-yellow-500/20 text-yellow-300 border border-yellow-500/30">
