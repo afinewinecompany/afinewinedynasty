@@ -185,36 +185,36 @@ class StatlineRankingService:
                 p.level,
                 ps.games_played as games,
                 -- Estimate PAs from ABs (assuming ~1.1 PA per AB)
-                CAST(ps.at_bats * 1.1 AS INT) as total_pa,
-                ps.at_bats as total_ab,
-                ps.hits as total_hits,
-                ps.home_runs as total_hr,
-                ps.rbi as total_rbi,
-                ps.batting_avg,
-                ps.on_base_pct,
-                ps.slugging_pct,
-                ps.woba,
-                ps.wrc_plus,
+                CAST(COALESCE(ps.at_bats, 0) * 1.1 AS INT) as total_pa,
+                COALESCE(ps.at_bats, 0) as total_ab,
+                COALESCE(ps.hits, 0) as total_hits,
+                COALESCE(ps.home_runs, 0) as total_hr,
+                COALESCE(ps.rbi, 0) as total_rbi,
+                COALESCE(ps.batting_avg, 0.0) as batting_avg,
+                COALESCE(ps.on_base_pct, 0.0) as on_base_pct,
+                COALESCE(ps.slugging_pct, 0.0) as slugging_pct,
+                COALESCE(ps.woba, 0.0) as woba,
+                COALESCE(ps.wrc_plus, 0) as wrc_plus,
                 -- Calculate additional stats
-                CAST(ps.hits - ps.home_runs AS FLOAT) * 0.15 as total_2b, -- Estimate doubles
-                CAST(ps.hits - ps.home_runs AS FLOAT) * 0.03 as total_3b, -- Estimate triples
-                CAST(ps.at_bats * 0.08 AS INT) as total_bb, -- Estimate walks from typical BB rate
-                CAST(ps.at_bats * 0.22 AS INT) as total_k,  -- Estimate strikeouts
+                CAST(GREATEST(COALESCE(ps.hits, 0) - COALESCE(ps.home_runs, 0), 0) AS FLOAT) * 0.15 as total_2b, -- Estimate doubles
+                CAST(GREATEST(COALESCE(ps.hits, 0) - COALESCE(ps.home_runs, 0), 0) AS FLOAT) * 0.03 as total_3b, -- Estimate triples
+                CAST(COALESCE(ps.at_bats, 0) * 0.08 AS INT) as total_bb, -- Estimate walks from typical BB rate
+                CAST(COALESCE(ps.at_bats, 0) * 0.22 AS INT) as total_k,  -- Estimate strikeouts
                 0 as total_sb, -- No SB data available
                 0 as total_cs,
                 0 as total_hbp,
-                ps.on_base_pct as obp,
-                ps.slugging_pct as slg,
-                (ps.on_base_pct + ps.slugging_pct) as ops,
+                COALESCE(ps.on_base_pct, 0.0) as obp,
+                COALESCE(ps.slugging_pct, 0.0) as slg,
+                COALESCE(ps.on_base_pct, 0.0) + COALESCE(ps.slugging_pct, 0.0) as ops,
                 p.level as levels_played,
                 ps.date_recorded as last_game,
                 ROW_NUMBER() OVER (PARTITION BY ps.prospect_id ORDER BY ps.date_recorded DESC) as rn
             FROM prospect_stats ps
             JOIN prospects p ON p.id = ps.prospect_id
             WHERE
-                EXTRACT(YEAR FROM ps.date_recorded) = :season
+                ps.at_bats IS NOT NULL
                 {level_filter}
-                AND ps.at_bats >= :min_pa  -- Using at_bats as proxy for PAs
+                AND COALESCE(ps.at_bats, 0) >= CAST(:min_pa / 1.1 AS INT)  -- Convert PA threshold to AB threshold
         )
         SELECT
             prospect_id,
@@ -250,7 +250,7 @@ class StatlineRankingService:
         level_filter = f"AND p.level = :level" if level else ""
         query = base_query.replace("{level_filter}", level_filter)
 
-        params = {"season": season, "min_pa": min_pa}
+        params = {"min_pa": min_pa}  # Removed season parameter since we're using latest data
         if level:
             params["level"] = level
 
