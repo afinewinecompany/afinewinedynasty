@@ -213,8 +213,8 @@ class StatlineRankingService:
             JOIN prospects p ON p.id = ps.prospect_id
             WHERE
                 ps.at_bats IS NOT NULL
+                AND ps.at_bats > 0
                 {level_filter}
-                AND COALESCE(ps.at_bats, 0) >= CAST(:min_pa / 1.1 AS INT)  -- Convert PA threshold to AB threshold
         )
         SELECT
             prospect_id,
@@ -250,20 +250,22 @@ class StatlineRankingService:
         level_filter = f"AND p.level = :level" if level else ""
         query = base_query.replace("{level_filter}", level_filter)
 
-        params = {"min_pa": min_pa}  # Removed season parameter since we're using latest data
+        params = {}
         if level:
             params["level"] = level
 
         result = await self.db.execute(text(query), params)
         rows = result.fetchall()
 
-        # Convert to dictionaries
+        # Convert to dictionaries and filter by min_pa
         players = []
         for row in rows:
             player = dict(row._mapping)
-            players.append(player)
+            # Apply the min_pa filter after query
+            if player.get('total_pa', 0) >= min_pa:
+                players.append(player)
 
-        logger.info(f"Found {len(players)} qualified players")
+        logger.info(f"Found {len(players)} qualified players (min_pa={min_pa})")
         return players
 
     async def _get_pitch_metrics_for_players(
