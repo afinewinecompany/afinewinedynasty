@@ -173,48 +173,41 @@ class StatlineRankingService:
     ) -> List[Dict]:
         """Get players who meet minimum plate appearance threshold."""
 
-        # Build the query for aggregate season stats using prospect_stats table
+        # Build the query for aggregate season stats using milb_game_logs table
         base_query = """
-        WITH latest_stats AS (
+        WITH player_stats AS (
             SELECT
-                ps.prospect_id,
-                p.mlb_player_id,
+                gl.prospect_id,
+                gl.mlb_player_id,
                 p.name,
                 p.position,
                 p.age,
                 p.level,
-                ps.games_played as games,
-                -- Estimate PAs from ABs (assuming ~1.1 PA per AB)
-                CAST(COALESCE(ps.at_bats, 0) * 1.1 AS INT) as total_pa,
-                COALESCE(ps.at_bats, 0) as total_ab,
-                COALESCE(ps.hits, 0) as total_hits,
-                COALESCE(ps.home_runs, 0) as total_hr,
-                COALESCE(ps.rbi, 0) as total_rbi,
-                COALESCE(ps.batting_avg, 0.0) as batting_avg,
-                COALESCE(ps.on_base_pct, 0.0) as on_base_pct,
-                COALESCE(ps.slugging_pct, 0.0) as slugging_pct,
-                COALESCE(ps.woba, 0.0) as woba,
-                COALESCE(ps.wrc_plus, 0) as wrc_plus,
-                -- Calculate additional stats
-                CAST(GREATEST(COALESCE(ps.hits, 0) - COALESCE(ps.home_runs, 0), 0) AS FLOAT) * 0.15 as total_2b, -- Estimate doubles
-                CAST(GREATEST(COALESCE(ps.hits, 0) - COALESCE(ps.home_runs, 0), 0) AS FLOAT) * 0.03 as total_3b, -- Estimate triples
-                CAST(COALESCE(ps.at_bats, 0) * 0.08 AS INT) as total_bb, -- Estimate walks from typical BB rate
-                CAST(COALESCE(ps.at_bats, 0) * 0.22 AS INT) as total_k,  -- Estimate strikeouts
-                0 as total_sb, -- No SB data available
-                0 as total_cs,
-                0 as total_hbp,
-                COALESCE(ps.on_base_pct, 0.0) as obp,
-                COALESCE(ps.slugging_pct, 0.0) as slg,
-                COALESCE(ps.on_base_pct, 0.0) + COALESCE(ps.slugging_pct, 0.0) as ops,
-                p.level as levels_played,
-                ps.date_recorded as last_game,
-                ROW_NUMBER() OVER (PARTITION BY ps.prospect_id ORDER BY ps.date_recorded DESC) as rn
-            FROM prospect_stats ps
-            JOIN prospects p ON p.id = ps.prospect_id
+                COUNT(DISTINCT gl.game_pk) as games,
+                SUM(COALESCE(gl.plate_appearances, 0)) as total_pa,
+                SUM(COALESCE(gl.at_bats, 0)) as total_ab,
+                SUM(COALESCE(gl.hits, 0)) as total_hits,
+                SUM(COALESCE(gl.doubles, 0)) as total_2b,
+                SUM(COALESCE(gl.triples, 0)) as total_3b,
+                SUM(COALESCE(gl.home_runs, 0)) as total_hr,
+                SUM(COALESCE(gl.rbi, 0)) as total_rbi,
+                SUM(COALESCE(gl.walks, 0)) as total_bb,
+                SUM(COALESCE(gl.strikeouts, 0)) as total_k,
+                SUM(COALESCE(gl.stolen_bases, 0)) as total_sb,
+                SUM(COALESCE(gl.caught_stealing, 0)) as total_cs,
+                SUM(COALESCE(gl.hit_by_pitch, 0)) as total_hbp,
+                STRING_AGG(DISTINCT p.level, ',') as levels_played,
+                MAX(gl.game_date) as last_game
+            FROM milb_game_logs gl
+            JOIN prospects p ON p.id = gl.prospect_id
             WHERE
-                ps.at_bats IS NOT NULL
-                AND ps.at_bats > 0
+                gl.game_type = 'R'  -- Regular season only
+                AND gl.season = :season
                 {level_filter}
+            GROUP BY
+                gl.prospect_id, gl.mlb_player_id,
+                p.name, p.position, p.age, p.level
+            HAVING SUM(COALESCE(gl.plate_appearances, 0)) > 0
         )
         SELECT
             prospect_id,
@@ -233,24 +226,29 @@ class StatlineRankingService:
             total_rbi,
             total_bb,
             total_k,
-            batting_avg,
-            on_base_pct as on_base_pct,
-            slugging_pct as slugging_pct,
+            total_sb,
+            total_cs,
+            CAST(total_hits AS FLOAT) / NULLIF(total_ab, 0) as batting_avg,
+            CAST(total_hits + total_bb + total_hbp AS FLOAT) /
+                NULLIF(total_pa, 0) as on_base_pct,
+            CAST(total_hits + total_2b + 2*total_3b + 3*total_hr AS FLOAT) /
+                NULLIF(total_ab, 0) as slugging_pct,
             CAST(total_bb AS FLOAT) / NULLIF(total_pa, 0) as walk_rate,
             CAST(total_k AS FLOAT) / NULLIF(total_pa, 0) as strikeout_rate,
             CAST(total_hr AS FLOAT) / NULLIF(total_ab, 0) as home_run_rate,
             -- ISO (Isolated Power)
-            (slugging_pct - batting_avg) as iso,
-            levels_played
-        FROM latest_stats
-        WHERE rn = 1  -- Get only the latest stats for each player
-        ORDER BY ops DESC
+            (CAST(total_2b + 2*total_3b + 3*total_hr AS FLOAT) / NULLIF(total_ab, 0)) -
+            (CAST(total_hits AS FLOAT) / NULLIF(total_ab, 0)) as iso,
+            levels_played,
+            0 as total_hbp
+        FROM player_stats
+        ORDER BY total_pa DESC
         """
 
         level_filter = f"AND p.level = :level" if level else ""
         query = base_query.replace("{level_filter}", level_filter)
 
-        params = {}
+        params = {"season": season}
         if level:
             params["level"] = level
 
@@ -387,13 +385,19 @@ class StatlineRankingService:
         elif metric_name == "obp":
             return player.get('on_base_pct')
         elif metric_name == "stolen_base_rate":
-            # We don't have SB data, return 0
+            # Calculate SB rate: SB / (1B + BB + HBP)
+            singles = player.get('total_hits', 0) - player.get('total_2b', 0) - \
+                     player.get('total_3b', 0) - player.get('total_hr', 0)
+            opportunities = singles + player.get('total_bb', 0) + player.get('total_hbp', 0)
+            if opportunities > 0:
+                return player.get('total_sb', 0) / opportunities
             return 0.0
         elif metric_name == "sb_success_rate":
-            # We don't have SB data, return 0
+            attempts = player.get('total_sb', 0) + player.get('total_cs', 0)
+            if attempts > 0:
+                return player.get('total_sb', 0) / attempts
             return 0.0
         elif metric_name == "triples_rate":
-            # Use estimated triples
             ab = player.get('total_ab', 0)
             if ab > 0:
                 return player.get('total_3b', 0) / ab
