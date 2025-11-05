@@ -93,7 +93,15 @@ export class APIClient {
 
     // Only set timeout if we're managing our own controller
     const timeoutId = controller
-      ? setTimeout(() => controller.abort(), timeout)
+      ? setTimeout(() => {
+          // Provide a reason when aborting to avoid "aborted without reason" error
+          if ('abort' in controller && controller.abort.length > 0) {
+            // Node 16+ and modern browsers support abort reason
+            controller.abort(`Request timeout after ${timeout}ms`);
+          } else {
+            controller.abort();
+          }
+        }, timeout)
       : null;
 
     // Combine signals: external signal takes precedence
@@ -152,8 +160,16 @@ export class APIClient {
       }
 
       return data;
-    } catch (error) {
+    } catch (error: any) {
       if (timeoutId) clearTimeout(timeoutId);
+
+      // Handle abort errors with better messaging
+      if (error.name === 'AbortError') {
+        const timeoutMessage = error.message || `Request timeout after ${timeout}ms`;
+        console.error('[APIClient] Request aborted:', timeoutMessage);
+        throw new Error(timeoutMessage);
+      }
+
       throw error;
     }
   }

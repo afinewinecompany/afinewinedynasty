@@ -399,10 +399,21 @@ export default function StatlinePage() {
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
-    fetchRankings();
+    const controller = new AbortController();
+
+    const fetchRankingsWithAbort = async () => {
+      await fetchRankings(controller.signal);
+    };
+
+    fetchRankingsWithAbort();
+
+    // Cleanup function to abort request if component unmounts
+    return () => {
+      controller.abort('Component unmounted');
+    };
   }, [level, minPA, includePitchData]);
 
-  const fetchRankings = async () => {
+  const fetchRankings = async (signal?: AbortSignal) => {
     setLoading(true);
     setError(null);
 
@@ -417,11 +428,21 @@ export default function StatlinePage() {
         params.append('level', level);
       }
 
-      const response = await api.get(`/prospects/rankings/statline?${params}`);
+      // Use longer timeout for complex statline queries
+      const response = await api.get(
+        `/prospects/rankings/statline?${params}`,
+        undefined, // no caching
+        { timeout: 60000, signal } // 60 seconds timeout with abort signal
+      );
       setRankings(response.data.rankings || []);
     } catch (err: any) {
+      // Don't show error if request was aborted due to component unmount
+      if (err.name === 'AbortError' || err.message?.includes('Component unmounted')) {
+        return;
+      }
+
       console.error('Error fetching statline rankings:', err);
-      setError(err.response?.data?.detail || 'Failed to load rankings');
+      setError(err.response?.data?.detail || err.message || 'Failed to load rankings');
     } finally {
       setLoading(false);
     }
