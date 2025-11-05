@@ -894,11 +894,14 @@ async def get_statline_rankings(
         # Use cache key
         cache_key = f"statline:{level or 'all'}:{season}:{min_pa}:{include_pitch_data}"
 
-        # Try to get from cache first
-        cached = await cache_manager.get(cache_key)
-        if cached:
-            logger.info(f"Returning cached statline rankings for key: {cache_key}")
-            return cached
+        # Try to get from cache first (skip if Redis is not available)
+        try:
+            cached = await cache_manager.get_cached_features(cache_key)
+            if cached:
+                logger.info(f"Returning cached statline rankings for key: {cache_key}")
+                return cached
+        except Exception as cache_error:
+            logger.warning(f"Cache lookup failed, continuing without cache: {cache_error}")
 
         # Initialize ranking service
         ranking_service = StatlineRankingService(db)
@@ -924,8 +927,11 @@ async def get_statline_rankings(
             }
         }
 
-        # Cache for 1 hour
-        await cache_manager.set(cache_key, response, ttl=3600)
+        # Cache for 1 hour (skip if Redis is not available)
+        try:
+            await cache_manager.cache_features(cache_key, response, ttl=3600)
+        except Exception as cache_error:
+            logger.warning(f"Cache write failed, continuing without caching: {cache_error}")
 
         return response
 
