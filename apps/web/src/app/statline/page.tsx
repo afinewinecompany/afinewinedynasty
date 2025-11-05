@@ -434,7 +434,7 @@ export default function StatlinePage() {
         undefined, // no caching
         { timeout: 60000, signal } // 60 seconds timeout with abort signal
       );
-      setRankings(response.data.rankings || []);
+      setRankings(response.rankings || []);
     } catch (err: any) {
       // Don't show error if request was aborted due to component unmount
       if (err.name === 'AbortError' || err.message?.includes('Component unmounted')) {
