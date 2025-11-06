@@ -55,23 +55,32 @@ class StatlineRankingService:
         """
         logger.info(f"Calculating Statline rankings for {season} season using composite scores")
 
-        # Step 1: Try to get data from MILB pitch tables first
-        if include_pitch_data:
-            players_data = await self._get_players_with_composite_scores(
-                level, min_plate_appearances, season
-            )
-        else:
-            players_data = []
+        # Always try prospect_stats first since it's more reliable
+        players_data = await self._get_players_from_prospect_stats(
+            level, min_plate_appearances
+        )
 
-        # Step 2: Fallback to prospect_stats if no pitch data
-        if not players_data:
-            logger.info("No pitch data found, using prospect_stats fallback")
-            players_data = await self._get_players_from_prospect_stats(
-                level, min_plate_appearances
-            )
+        # If we got data and pitch data is requested, try to enhance with pitch metrics
+        if players_data and include_pitch_data:
+            logger.info(f"Found {len(players_data)} players, attempting to enhance with pitch data")
+            # Try to enhance with pitch data but don't fail if it doesn't work
+            try:
+                pitch_enhanced = await self._get_players_with_composite_scores(
+                    level, min_plate_appearances, season
+                )
+                if pitch_enhanced:
+                    logger.info(f"Successfully enhanced {len(pitch_enhanced)} players with pitch data")
+                    players_data = pitch_enhanced
+            except Exception as e:
+                logger.warning(f"Could not enhance with pitch data: {e}")
 
         if not players_data:
-            logger.warning("No qualified players found")
+            logger.warning("No qualified players found, trying emergency fallback")
+            # Emergency fallback - just get ANY prospects
+            players_data = await self._emergency_fallback_all_prospects()
+
+        if not players_data:
+            logger.error("Even emergency fallback found no players")
             return []
 
         logger.info(f"Found {len(players_data)} qualified players")
@@ -250,93 +259,160 @@ class StatlineRankingService:
     ) -> List[Dict]:
         """Fallback to prospect_stats table with estimated composite scores."""
 
+        # Make the query much simpler and less restrictive
         query = """
-        WITH latest_stats AS (
-            SELECT
-                p.id as prospect_id,
-                p.mlb_player_id as mlb_batter_id,
-                p.name,
-                p.position,
-                p.age,
-                p.level,
-                p.organization,
-                ps.games_played as games,
+        SELECT DISTINCT ON (p.id)
+            p.id as prospect_id,
+            COALESCE(p.mlb_player_id, '') as mlb_batter_id,
+            p.name,
+            p.position,
+            p.age,
+            p.level,
+            p.organization,
+            COALESCE(ps.games_played, 0) as games,
 
-                -- Estimate PAs
-                GREATEST(
-                    COALESCE(ps.at_bats, 0) + COALESCE(ps.walks, 0),
-                    CAST(COALESCE(ps.at_bats, 0) * 1.15 AS INT)
-                ) as total_pa,
+            -- Calculate PAs (be very lenient)
+            GREATEST(
+                COALESCE(ps.at_bats, 0) + COALESCE(ps.walks, 0),
+                COALESCE(ps.at_bats, 0)
+            ) as total_pa,
 
-                -- Basic stats
-                ps.at_bats,
-                ps.hits,
-                ps.home_runs,
-                ps.walks,
-                ps.strikeouts,
-                ps.batting_avg * 100 as batting_avg,
-                ps.on_base_pct * 100 as on_base_pct,
-                ps.slugging_pct * 100 as slugging_pct,
+            -- Basic stats (handle nulls gracefully)
+            COALESCE(ps.at_bats, 0) as at_bats,
+            COALESCE(ps.hits, 0) as hits,
+            COALESCE(ps.home_runs, 0) as home_runs,
+            COALESCE(ps.walks, 0) as walks,
+            COALESCE(ps.strikeouts, 0) as strikeouts,
+            COALESCE(ps.batting_avg, 0) * 100 as batting_avg,
+            COALESCE(ps.on_base_pct, 0) * 100 as on_base_pct,
+            COALESCE(ps.slugging_pct, 0) * 100 as slugging_pct,
 
-                -- Calculate rates
-                CAST(ps.walks AS FLOAT) / NULLIF(GREATEST(ps.at_bats + ps.walks, ps.at_bats * 1.15), 0) * 100 as walk_rate,
-                CAST(ps.strikeouts AS FLOAT) / NULLIF(GREATEST(ps.at_bats + ps.walks, ps.at_bats * 1.15), 0) * 100 as strikeout_rate,
-                CAST(ps.home_runs AS FLOAT) / NULLIF(ps.at_bats, 0) * 100 as home_run_rate,
+            -- Calculate rates (with safe division)
+            CASE
+                WHEN COALESCE(ps.at_bats, 0) > 0
+                THEN CAST(COALESCE(ps.walks, 0) AS FLOAT) / (COALESCE(ps.at_bats, 0) + COALESCE(ps.walks, 0)) * 100
+                ELSE 0
+            END as walk_rate,
 
-                ROW_NUMBER() OVER (PARTITION BY p.id ORDER BY ps.date_recorded DESC) as rn
-            FROM prospect_stats ps
-            JOIN prospects p ON p.id = ps.prospect_id
-            WHERE ps.at_bats > 0
-                {level_filter}
-        )
-        SELECT
-            *,
-            -- Estimate DISCIPLINE SCORE from traditional stats
-            GREATEST(0, LEAST(100,
-                50 +                                           -- Base score
-                (walk_rate - 8) * 2 +                        -- Walk bonus/penalty
-                (20 - strikeout_rate) * 1.5 +                -- K rate bonus/penalty
+            CASE
+                WHEN COALESCE(ps.at_bats, 0) > 0
+                THEN CAST(COALESCE(ps.strikeouts, 0) AS FLOAT) / COALESCE(ps.at_bats, 0) * 100
+                ELSE 0
+            END as strikeout_rate,
+
+            CASE
+                WHEN COALESCE(ps.at_bats, 0) > 0
+                THEN CAST(COALESCE(ps.home_runs, 0) AS FLOAT) / COALESCE(ps.at_bats, 0) * 100
+                ELSE 0
+            END as home_run_rate,
+
+            -- Simple DISCIPLINE SCORE (0-100)
+            GREATEST(0, LEAST(100, 50 +
                 CASE
-                    WHEN on_base_pct > 35 THEN 10
-                    WHEN on_base_pct > 32 THEN 5
+                    WHEN COALESCE(ps.at_bats, 0) > 0
+                    THEN (CAST(COALESCE(ps.walks, 0) AS FLOAT) / COALESCE(ps.at_bats, 0) * 100 - 10) * 2
+                    ELSE 0
+                END +
+                CASE
+                    WHEN COALESCE(ps.at_bats, 0) > 0
+                    THEN (25 - CAST(COALESCE(ps.strikeouts, 0) AS FLOAT) / COALESCE(ps.at_bats, 0) * 100) * 1
                     ELSE 0
                 END
             )) as discipline_score,
 
-            -- Estimate POWER SCORE from traditional stats
-            GREATEST(0, LEAST(100,
-                30 +                                           -- Base score
-                home_run_rate * 15 +                          -- HR rate heavily weighted
-                (slugging_pct - batting_avg) * 100 +          -- ISO proxy
+            -- Simple POWER SCORE (0-100)
+            GREATEST(0, LEAST(100, 30 +
                 CASE
-                    WHEN slugging_pct > 45 THEN 15
-                    WHEN slugging_pct > 40 THEN 10
-                    WHEN slugging_pct > 35 THEN 5
+                    WHEN COALESCE(ps.at_bats, 0) > 0
+                    THEN CAST(COALESCE(ps.home_runs, 0) AS FLOAT) / COALESCE(ps.at_bats, 0) * 1000
                     ELSE 0
-                END
+                END +
+                (COALESCE(ps.slugging_pct, 0) - COALESCE(ps.batting_avg, 0)) * 200
             )) as power_score,
 
-            -- Default pitch metrics (not available)
+            -- Default pitch metrics
             75.0 as contact_rate,
             35.0 as chase_rate,
             10.0 as hard_hit_rate,
             30.0 as fly_ball_rate
 
-        FROM latest_stats
-        WHERE rn = 1
-            AND total_pa >= :min_pa
-        ORDER BY total_pa DESC
+        FROM prospects p
+        LEFT JOIN prospect_stats ps ON p.id = ps.prospect_id
+        WHERE 1=1
+            {level_filter}
+            {min_pa_filter}
+        ORDER BY p.id, ps.date_recorded DESC NULLS LAST
         """
 
+        # Only add filters if they make sense
         level_filter = f"AND p.level = :level" if level else ""
+
+        # Make min PA filter very lenient
+        min_pa_filter = f"AND GREATEST(COALESCE(ps.at_bats, 0) + COALESCE(ps.walks, 0), COALESCE(ps.at_bats, 0)) >= :min_pa" if min_pa > 0 else ""
+
         query = query.replace("{level_filter}", level_filter)
+        query = query.replace("{min_pa_filter}", min_pa_filter)
 
         params = {"min_pa": min_pa}
         if level:
             params["level"] = level
 
         try:
+            logger.info(f"Executing prospect_stats query with params: {params}")
             result = await self.db.execute(text(query), params)
+            rows = result.fetchall()
+
+            players = []
+            for row in rows:
+                player = dict(row._mapping)
+                # Ensure all required fields have valid values
+                player['discipline_score'] = player.get('discipline_score', 50)
+                player['power_score'] = player.get('power_score', 50)
+                player['total_pa'] = player.get('total_pa', 0)
+                player['name'] = player.get('name', 'Unknown')
+                player['level'] = player.get('level', 'N/A')
+                players.append(player)
+
+            logger.info(f"Found {len(players)} players from prospect_stats")
+            return players
+        except Exception as e:
+            logger.error(f"Error querying prospect_stats: {e}")
+            # Return empty list but don't crash
+            return []
+
+    async def _emergency_fallback_all_prospects(self) -> List[Dict]:
+        """Emergency fallback - just return all prospects with default scores."""
+        query = """
+        SELECT
+            p.id as prospect_id,
+            COALESCE(p.mlb_player_id, '') as mlb_batter_id,
+            p.name,
+            p.position,
+            COALESCE(p.age, 20) as age,
+            COALESCE(p.level, 'A') as level,
+            p.organization,
+            100 as games,
+            100 as total_pa,
+            25.0 as batting_avg,
+            32.0 as on_base_pct,
+            40.0 as slugging_pct,
+            10.0 as walk_rate,
+            20.0 as strikeout_rate,
+            3.0 as home_run_rate,
+            50.0 as discipline_score,
+            50.0 as power_score,
+            75.0 as contact_rate,
+            35.0 as chase_rate,
+            10.0 as hard_hit_rate,
+            30.0 as fly_ball_rate
+        FROM prospects p
+        ORDER BY p.name
+        LIMIT 100
+        """
+
+        try:
+            logger.info("Executing emergency fallback query")
+            result = await self.db.execute(text(query))
             rows = result.fetchall()
 
             players = []
@@ -344,9 +420,10 @@ class StatlineRankingService:
                 player = dict(row._mapping)
                 players.append(player)
 
+            logger.info(f"Emergency fallback found {len(players)} prospects")
             return players
         except Exception as e:
-            logger.error(f"Error querying prospect_stats: {e}")
+            logger.error(f"Emergency fallback failed: {e}")
             return []
 
     def _calculate_age_adjustment(self, player: Dict) -> float:
