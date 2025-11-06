@@ -50,38 +50,43 @@ import {
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 
-interface SkillScore {
-  score: number;
-  percentile: number;
-  display_name: string;
-  icon: string;
-  details: Record<string, { value: number; percentile: number }>;
-}
-
 interface StatlinePlayer {
   rank: number;
-  prospect_id: number;
-  mlb_player_id: number;
+  prospect_id?: number;
+  mlb_batter_id: number;
   name: string;
-  position: string;
-  age: number;
+  position?: string;
+  age?: number;
   level: string;
-  levels_played: string;
-  games: number;
+  games?: number;
   total_pa: number;
-  batting_avg: number;
-  on_base_pct: number;
-  slugging_pct: number;
-  iso: number;
-  walk_rate: number;
-  strikeout_rate: number;
-  home_run_rate: number;
-  skill_scores: Record<string, SkillScore>;
+  batting_avg?: number;
+  on_base_pct?: number;
+  slugging_pct?: number;
+  walk_rate?: number;
+  strikeout_rate?: number;
+  home_run_rate?: number;
+
+  // Composite scores
+  discipline_score: number;
+  power_score: number;
   overall_score: number;
-  overall_percentile: number;
-  age_adjustment: number;
   adjusted_score: number;
-  adjusted_percentile: number;
+
+  // Letter grades
+  discipline_grade?: string;
+  power_grade?: string;
+  overall_grade?: string;
+
+  // Additional metrics
+  contact_rate?: number;
+  chase_rate?: number;
+  hard_hit_rate?: number;
+  fly_ball_rate?: number;
+  age_adjustment?: number;
+
+  // Legacy fields (for backward compatibility)
+  skill_scores?: Record<string, any>;
   pitch_metrics?: any;
 }
 
@@ -93,48 +98,40 @@ const SKILL_COLORS: Record<string, string> = {
   approach: '#8b5cf6'     // purple
 };
 
-function SkillBadge({ skill, score }: { skill: string; score: SkillScore }) {
-  const getGrade = (percentile: number) => {
-    if (percentile >= 90) return 'A+';
-    if (percentile >= 80) return 'A';
-    if (percentile >= 70) return 'B+';
-    if (percentile >= 60) return 'B';
-    if (percentile >= 50) return 'C+';
-    if (percentile >= 40) return 'C';
-    return 'D';
+function CompositeBadge({
+  label,
+  score,
+  grade,
+  color
+}: {
+  label: string;
+  score: number;
+  grade?: string;
+  color: string;
+}) {
+  const getColorFromScore = (score: number) => {
+    if (score >= 80) return '#22c55e';  // green
+    if (score >= 60) return '#3b82f6';  // blue
+    if (score >= 40) return '#f59e0b';  // yellow
+    return '#ef4444';  // red
   };
-
-  const getColor = (percentile: number) => {
-    if (percentile >= 80) return '#22c55e';
-    if (percentile >= 60) return '#3b82f6';
-    if (percentile >= 40) return '#f59e0b';
-    return '#ef4444';
-  };
-
-  const IconComponent = {
-    power: PowerIcon,
-    discipline: DisciplineIcon,
-    contact: ContactIcon,
-    speed: SpeedIcon,
-    approach: ApproachIcon
-  }[skill] || StarIcon;
 
   return (
     <Tooltip
       title={
         <Box>
-          <Typography variant="body2">{score.display_name}</Typography>
+          <Typography variant="body2">{label}</Typography>
           <Typography variant="caption">
-            {score.percentile.toFixed(0)}th percentile
+            Score: {score.toFixed(1)}
           </Typography>
         </Box>
       }
     >
       <Badge
-        badgeContent={getGrade(score.percentile)}
+        badgeContent={grade || `${Math.round(score)}`}
         sx={{
           '& .MuiBadge-badge': {
-            backgroundColor: getColor(score.percentile),
+            backgroundColor: getColorFromScore(score),
             color: 'white',
             fontWeight: 'bold',
             fontSize: '0.6rem',
@@ -180,7 +177,10 @@ function PlayerRow({ player, onExpand, expanded }: {
   };
 
   const formatTripleSlash = () => {
-    return `${player.batting_avg.toFixed(3)}/${player.on_base_pct.toFixed(3)}/${player.slugging_pct.toFixed(3)}`;
+    const avg = player.batting_avg ? (player.batting_avg / 100).toFixed(3) : '.000';
+    const obp = player.on_base_pct ? (player.on_base_pct / 100).toFixed(3) : '.000';
+    const slg = player.slugging_pct ? (player.slugging_pct / 100).toFixed(3) : '.000';
+    return `${avg}/${obp}/${slg}`;
   };
 
   return (
@@ -197,17 +197,17 @@ function PlayerRow({ player, onExpand, expanded }: {
               variant="body1"
               fontWeight="medium"
               sx={{
-                cursor: 'pointer',
-                '&:hover': { color: 'primary.main', textDecoration: 'underline' }
+                cursor: player.prospect_id ? 'pointer' : 'default',
+                '&:hover': player.prospect_id ? { color: 'primary.main', textDecoration: 'underline' } : {}
               }}
-              onClick={() => router.push(`/prospects/${player.prospect_id}`)}
+              onClick={() => player.prospect_id && router.push(`/prospects/${player.prospect_id}`)}
             >
               {player.name}
             </Typography>
             {getAgeIndicator()}
           </Box>
           <Typography variant="caption" color="textSecondary">
-            {player.position} | Age {player.age} | {player.level}
+            {player.position || 'N/A'} | Age {player.age || 'N/A'} | {player.level}
           </Typography>
         </TableCell>
         <TableCell>
@@ -215,20 +215,29 @@ function PlayerRow({ player, onExpand, expanded }: {
             {formatTripleSlash()}
           </Typography>
           <Typography variant="caption" color="textSecondary">
-            {player.games}G / {player.total_pa}PA
+            {player.games || 0}G / {player.total_pa}PA
           </Typography>
         </TableCell>
         <TableCell>
           <Stack direction="row" spacing={1}>
-            {Object.entries(player.skill_scores).map(([skill, score]) => (
-              <SkillBadge key={skill} skill={skill} score={score} />
-            ))}
+            <CompositeBadge
+              label="Discipline"
+              score={player.discipline_score}
+              grade={player.discipline_grade}
+              color={SKILL_COLORS.discipline}
+            />
+            <CompositeBadge
+              label="Power"
+              score={player.power_score}
+              grade={player.power_grade}
+              color={SKILL_COLORS.power}
+            />
           </Stack>
         </TableCell>
         <TableCell align="center">
           <Box>
             <Typography variant="h5" fontWeight="bold" color="primary">
-              {player.adjusted_percentile.toFixed(0)}
+              {player.overall_grade || Math.round(player.adjusted_score)}
             </Typography>
             <Typography variant="caption" color="textSecondary">
               Overall
@@ -246,50 +255,102 @@ function PlayerRow({ player, onExpand, expanded }: {
           <Collapse in={expanded} timeout="auto" unmountOnExit>
             <Box sx={{ p: 3 }}>
               <Grid container spacing={3}>
-                {/* Skill Details */}
+                {/* Composite Scores */}
                 <Grid item xs={12} md={6}>
                   <Card variant="outlined">
                     <CardContent>
                       <Typography variant="h6" gutterBottom>
-                        Skill Breakdown
+                        Composite Scores
                       </Typography>
-                      {Object.entries(player.skill_scores).map(([skill, score]) => (
-                        <Box key={skill} mb={2}>
-                          <Box display="flex" justifyContent="space-between" mb={0.5}>
-                            <Typography variant="body2" fontWeight="medium">
-                              {score.display_name}
-                            </Typography>
-                            <Typography variant="body2" color="primary" fontWeight="bold">
-                              {score.percentile.toFixed(0)}%
-                            </Typography>
-                          </Box>
-                          <LinearProgress
-                            variant="determinate"
-                            value={score.percentile}
-                            sx={{
-                              height: 10,
-                              borderRadius: 5,
-                              backgroundColor: '#e0e0e0',
-                              '& .MuiLinearProgress-bar': {
-                                borderRadius: 5,
-                                background: `linear-gradient(90deg, ${SKILL_COLORS[skill]}88, ${SKILL_COLORS[skill]})`
-                              }
-                            }}
-                          />
-                          {/* Show top contributing metrics */}
-                          {score.details && (
-                            <Box mt={1}>
-                              {Object.entries(score.details)
-                                .slice(0, 2)
-                                .map(([metric, data]) => (
-                                  <Typography key={metric} variant="caption" color="textSecondary">
-                                    {metric.replace(/_/g, ' ')}: {data.percentile.toFixed(0)}%
-                                  </Typography>
-                                ))}
-                            </Box>
-                          )}
+
+                      {/* Discipline Score */}
+                      <Box mb={3}>
+                        <Box display="flex" justifyContent="space-between" mb={0.5}>
+                          <Typography variant="body2" fontWeight="medium">
+                            Discipline
+                          </Typography>
+                          <Typography variant="body2" color="primary" fontWeight="bold">
+                            {player.discipline_grade} ({player.discipline_score.toFixed(0)})
+                          </Typography>
                         </Box>
-                      ))}
+                        <LinearProgress
+                          variant="determinate"
+                          value={player.discipline_score}
+                          sx={{
+                            height: 10,
+                            borderRadius: 5,
+                            backgroundColor: '#e0e0e0',
+                            '& .MuiLinearProgress-bar': {
+                              borderRadius: 5,
+                              background: `linear-gradient(90deg, ${SKILL_COLORS.discipline}88, ${SKILL_COLORS.discipline})`
+                            }
+                          }}
+                        />
+                        <Box mt={1}>
+                          <Typography variant="caption" color="textSecondary">
+                            Contact: {player.contact_rate?.toFixed(0) || 'N/A'}% |
+                            Chase: {player.chase_rate?.toFixed(0) || 'N/A'}% |
+                            Walk: {player.walk_rate?.toFixed(1) || 'N/A'}%
+                          </Typography>
+                        </Box>
+                      </Box>
+
+                      {/* Power Score */}
+                      <Box mb={3}>
+                        <Box display="flex" justifyContent="space-between" mb={0.5}>
+                          <Typography variant="body2" fontWeight="medium">
+                            Power
+                          </Typography>
+                          <Typography variant="body2" color="primary" fontWeight="bold">
+                            {player.power_grade} ({player.power_score.toFixed(0)})
+                          </Typography>
+                        </Box>
+                        <LinearProgress
+                          variant="determinate"
+                          value={player.power_score}
+                          sx={{
+                            height: 10,
+                            borderRadius: 5,
+                            backgroundColor: '#e0e0e0',
+                            '& .MuiLinearProgress-bar': {
+                              borderRadius: 5,
+                              background: `linear-gradient(90deg, ${SKILL_COLORS.power}88, ${SKILL_COLORS.power})`
+                            }
+                          }}
+                        />
+                        <Box mt={1}>
+                          <Typography variant="caption" color="textSecondary">
+                            Hard Hit: {player.hard_hit_rate?.toFixed(0) || 'N/A'}% |
+                            Fly Ball: {player.fly_ball_rate?.toFixed(0) || 'N/A'}% |
+                            HR Rate: {player.home_run_rate?.toFixed(1) || 'N/A'}%
+                          </Typography>
+                        </Box>
+                      </Box>
+
+                      {/* Overall Score */}
+                      <Box>
+                        <Box display="flex" justifyContent="space-between" mb={0.5}>
+                          <Typography variant="body2" fontWeight="medium">
+                            Overall (Age Adjusted)
+                          </Typography>
+                          <Typography variant="body2" color="primary" fontWeight="bold">
+                            {player.overall_grade} ({player.adjusted_score.toFixed(0)})
+                          </Typography>
+                        </Box>
+                        <LinearProgress
+                          variant="determinate"
+                          value={player.adjusted_score}
+                          sx={{
+                            height: 10,
+                            borderRadius: 5,
+                            backgroundColor: '#e0e0e0',
+                            '& .MuiLinearProgress-bar': {
+                              borderRadius: 5,
+                              background: 'linear-gradient(90deg, #6366f188, #6366f1)'
+                            }
+                          }}
+                        />
+                      </Box>
                     </CardContent>
                   </Card>
                 </Grid>
@@ -305,10 +366,30 @@ function PlayerRow({ player, onExpand, expanded }: {
                         <Grid item xs={6}>
                           <Box mb={2}>
                             <Typography variant="caption" color="textSecondary">
-                              ISO (Power)
+                              Batting Avg
                             </Typography>
                             <Typography variant="h6">
-                              {player.iso.toFixed(3)}
+                              {player.batting_avg ? (player.batting_avg / 100).toFixed(3) : '.000'}
+                            </Typography>
+                          </Box>
+                        </Grid>
+                        <Grid item xs={6}>
+                          <Box mb={2}>
+                            <Typography variant="caption" color="textSecondary">
+                              OBP
+                            </Typography>
+                            <Typography variant="h6">
+                              {player.on_base_pct ? (player.on_base_pct / 100).toFixed(3) : '.000'}
+                            </Typography>
+                          </Box>
+                        </Grid>
+                        <Grid item xs={6}>
+                          <Box mb={2}>
+                            <Typography variant="caption" color="textSecondary">
+                              SLG
+                            </Typography>
+                            <Typography variant="h6">
+                              {player.slugging_pct ? (player.slugging_pct / 100).toFixed(3) : '.000'}
                             </Typography>
                           </Box>
                         </Grid>
@@ -318,7 +399,7 @@ function PlayerRow({ player, onExpand, expanded }: {
                               Walk Rate
                             </Typography>
                             <Typography variant="h6">
-                              {(player.walk_rate * 100).toFixed(1)}%
+                              {player.walk_rate?.toFixed(1) || '0.0'}%
                             </Typography>
                           </Box>
                         </Grid>
@@ -328,7 +409,7 @@ function PlayerRow({ player, onExpand, expanded }: {
                               K Rate
                             </Typography>
                             <Typography variant="h6">
-                              {(player.strikeout_rate * 100).toFixed(1)}%
+                              {player.strikeout_rate?.toFixed(1) || '0.0'}%
                             </Typography>
                           </Box>
                         </Grid>
@@ -338,38 +419,11 @@ function PlayerRow({ player, onExpand, expanded }: {
                               HR Rate
                             </Typography>
                             <Typography variant="h6">
-                              {(player.home_run_rate * 100).toFixed(1)}%
+                              {player.home_run_rate?.toFixed(1) || '0.0'}%
                             </Typography>
                           </Box>
                         </Grid>
                       </Grid>
-
-                      {/* Pitch metrics if available */}
-                      {player.pitch_metrics && (
-                        <>
-                          <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
-                            Pitch-Level Data
-                          </Typography>
-                          <Grid container spacing={2}>
-                            <Grid item xs={6}>
-                              <Typography variant="caption" color="textSecondary">
-                                Discipline Score
-                              </Typography>
-                              <Typography variant="body1" fontWeight="bold">
-                                {player.pitch_metrics.discipline_score?.toFixed(0) || 'N/A'}
-                              </Typography>
-                            </Grid>
-                            <Grid item xs={6}>
-                              <Typography variant="caption" color="textSecondary">
-                                Power Score
-                              </Typography>
-                              <Typography variant="body1" fontWeight="bold">
-                                {player.pitch_metrics.power_score?.toFixed(0) || 'N/A'}
-                              </Typography>
-                            </Grid>
-                          </Grid>
-                        </>
-                      )}
                     </CardContent>
                   </Card>
                 </Grid>
