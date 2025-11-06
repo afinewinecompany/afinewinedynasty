@@ -1,7 +1,7 @@
 """
 Statline Ranking Service
 
-Provides in-season statistical rankings using game logs and pitch-level data.
+Provides in-season statistical rankings using MILB pitch-level data.
 Implements age-to-level adjustments and peer comparison logic.
 """
 
@@ -19,18 +19,19 @@ logger = logging.getLogger(__name__)
 class StatlineRankingService:
     """
     Service for calculating in-season prospect rankings based on actual performance.
-    Combines traditional stats, pitch-level metrics, and age adjustments.
+    Uses MILB pitch-level data for advanced metrics and age adjustments.
     """
 
     # Skill bucket definitions for hitters
     HITTER_SKILL_BUCKETS = {
         "power": {
             "metrics": {
-                "home_run_rate": 0.25,      # HR/AB
-                "iso": 0.25,                 # SLG - AVG
+                "home_run_rate": 0.15,      # HR/AB
+                "iso": 0.20,                 # SLG - AVG
                 "slg": 0.15,                 # Slugging %
-                "hard_hit_rate": 0.20,       # From pitch data
-                "pull_fly_ball_rate": 0.15   # From pitch data
+                "hard_hit_rate": 0.25,       # From pitch data
+                "pull_fly_ball_rate": 0.15,  # From pitch data
+                "exit_velo_90th": 0.10       # 90th percentile exit velo
             },
             "weight": 0.20,
             "display_name": "Power",
@@ -39,8 +40,8 @@ class StatlineRankingService:
         "discipline": {
             "metrics": {
                 "walk_rate": 0.25,           # BB/PA
-                "strikeout_rate": 0.25,      # K/PA (inverted)
-                "chase_rate": 0.20,          # From pitch data (inverted)
+                "strikeout_rate": 0.20,      # K/PA (inverted)
+                "chase_rate": 0.25,          # From pitch data (inverted)
                 "discipline_score": 0.30     # From pitch data
             },
             "weight": 0.20,
@@ -49,10 +50,11 @@ class StatlineRankingService:
         },
         "contact": {
             "metrics": {
-                "batting_avg": 0.25,         # H/AB
+                "batting_avg": 0.20,         # H/AB
                 "contact_rate": 0.30,        # From pitch data
                 "whiff_rate": 0.25,          # From pitch data (inverted)
-                "line_drive_rate": 0.20      # From pitch data
+                "line_drive_rate": 0.15,     # From pitch data
+                "two_strike_contact": 0.10   # From pitch data
             },
             "weight": 0.20,
             "display_name": "Contact",
@@ -63,7 +65,7 @@ class StatlineRankingService:
                 "stolen_base_rate": 0.35,    # SB/(1B+BB+HBP)
                 "sb_success_rate": 0.30,     # SB/(SB+CS)
                 "triples_rate": 0.20,        # 3B/AB
-                "ground_speed": 0.15         # Placeholder for sprint speed
+                "ground_speed": 0.15         # Sprint speed if available
             },
             "weight": 0.15,
             "display_name": "Speed",
@@ -73,7 +75,7 @@ class StatlineRankingService:
             "metrics": {
                 "obp": 0.25,                         # On-base %
                 "productive_swing_rate": 0.25,       # From pitch data
-                "two_strike_contact": 0.25,          # From pitch data
+                "in_play_rate": 0.25,                # From pitch data
                 "spray_ability": 0.25                # From pitch data
             },
             "weight": 0.15,
@@ -91,12 +93,6 @@ class StatlineRankingService:
         "ROK": {"avg_age": 18.5, "factor": -0.15}   # Younger level, more penalty
     }
 
-    # Multi-level weighting (when player played multiple levels)
-    MULTI_LEVEL_WEIGHTS = {
-        "plate_appearances": 0.7,  # Weight by PA
-        "recency": 0.3             # Weight by how recent
-    }
-
     def __init__(self, db: AsyncSession):
         """Initialize the ranking service."""
         self.db = db
@@ -109,7 +105,7 @@ class StatlineRankingService:
         include_pitch_data: bool = True
     ) -> List[Dict]:
         """
-        Calculate comprehensive statline rankings for prospects.
+        Calculate comprehensive statline rankings for prospects using MILB pitch data.
 
         Args:
             level: Optional level filter (AAA, AA, A+, A, ROK)
@@ -120,28 +116,20 @@ class StatlineRankingService:
         Returns:
             List of ranked prospects with skill scores
         """
-        logger.info(f"Calculating Statline rankings for {season} season")
+        logger.info(f"Calculating Statline rankings for {season} season using MILB pitch data")
 
-        # Step 1: Get qualified players with their stats
-        players_data = await self._get_qualified_players(
+        # Step 1: Get qualified players with stats from milb_batter_pitches
+        players_data = await self._get_qualified_players_from_pitch_data(
             level, min_plate_appearances, season
         )
 
         if not players_data:
-            logger.warning("No qualified players found")
+            logger.warning("No qualified players found in MILB pitch data")
             return []
 
-        # Step 2: Get pitch-level metrics if requested
-        if include_pitch_data:
-            pitch_metrics = await self._get_pitch_metrics_for_players(
-                [p['mlb_player_id'] for p in players_data],
-                season
-            )
-            # Merge pitch metrics
-            for player in players_data:
-                player['pitch_metrics'] = pitch_metrics.get(player['mlb_player_id'], {})
+        logger.info(f"Found {len(players_data)} qualified players from pitch data")
 
-        # Step 3: Calculate skill bucket scores
+        # Step 2: Calculate skill bucket scores
         scored_players = []
         for player in players_data:
             skill_scores = self._calculate_skill_scores(player, players_data)
@@ -155,7 +143,7 @@ class StatlineRankingService:
 
             scored_players.append(player)
 
-        # Step 4: Calculate percentiles and rank
+        # Step 3: Calculate percentiles and rank
         scored_players = self._calculate_percentiles(scored_players)
         scored_players.sort(key=lambda x: x['adjusted_score'], reverse=True)
 
@@ -165,137 +153,247 @@ class StatlineRankingService:
 
         return scored_players
 
-    async def _get_qualified_players(
+    async def _get_qualified_players_from_pitch_data(
         self,
         level: Optional[str],
         min_pa: int,
         season: int
     ) -> List[Dict]:
-        """Get players who meet minimum plate appearance threshold."""
+        """Get players who meet minimum PA threshold from MILB pitch data."""
 
-        # Build the query using prospect_stats table (milb_game_logs doesn't exist in production)
+        # Build comprehensive query using milb_batter_pitches table
         base_query = """
-        WITH latest_stats AS (
+        WITH player_stats AS (
             SELECT
-                ps.prospect_id,
-                p.mlb_player_id,
-                p.name,
-                p.position,
-                p.age,
-                p.level,
-                COALESCE(ps.games_played, 0) as games,
-                -- Calculate estimated PAs from at_bats and walks
-                CAST(GREATEST(
-                    COALESCE(ps.at_bats, 0) + COALESCE(ps.walks, 0),
-                    COALESCE(ps.at_bats, 0) * 1.15
-                ) AS INT) as total_pa,
-                COALESCE(ps.at_bats, 0) as total_ab,
-                COALESCE(ps.hits, 0) as total_hits,
-                -- Estimate doubles and triples
-                CAST(GREATEST(COALESCE(ps.hits, 0) - COALESCE(ps.home_runs, 0), 0) * 0.20 AS INT) as total_2b,
-                CAST(GREATEST(COALESCE(ps.hits, 0) - COALESCE(ps.home_runs, 0), 0) * 0.02 AS INT) as total_3b,
-                COALESCE(ps.home_runs, 0) as total_hr,
-                COALESCE(ps.rbi, 0) as total_rbi,
-                COALESCE(ps.walks, 0) as total_bb,
-                COALESCE(ps.strikeouts, 0) as total_k,
-                COALESCE(ps.stolen_bases, 0) as total_sb,
-                0 as total_cs,
-                0 as total_hbp,
-                p.level as levels_played,
-                ps.date_recorded as last_game,
-                COALESCE(ps.batting_avg, 0.0) as batting_avg,
-                COALESCE(ps.on_base_pct, 0.0) as on_base_pct,
-                COALESCE(ps.slugging_pct, 0.0) as slugging_pct,
-                ROW_NUMBER() OVER (PARTITION BY ps.prospect_id ORDER BY ps.date_recorded DESC) as rn
-            FROM prospect_stats ps
-            JOIN prospects p ON p.id = ps.prospect_id
-            WHERE ps.at_bats IS NOT NULL
-                AND ps.at_bats > 0
+                bp.mlb_batter_id,
+                bp.mlb_batter_name as name,
+                bp.level,
+                COUNT(DISTINCT bp.game_id) as games,
+                COUNT(*) as total_pitches,
+
+                -- Plate appearances and at-bats
+                COUNT(DISTINCT CASE
+                    WHEN bp.event_result IS NOT NULL
+                    THEN CONCAT(bp.game_id, '_', bp.pa_of_inning)
+                END) as total_pa,
+                COUNT(DISTINCT CASE
+                    WHEN bp.event_result NOT IN ('walk', 'hit_by_pitch', 'sac_fly', 'sac_bunt')
+                    AND bp.event_result IS NOT NULL
+                    THEN CONCAT(bp.game_id, '_', bp.pa_of_inning)
+                END) as total_ab,
+
+                -- Hits breakdown
+                COUNT(*) FILTER (WHERE bp.event_result IN ('single', 'double', 'triple', 'home_run')) as total_hits,
+                COUNT(*) FILTER (WHERE bp.event_result = 'single') as total_1b,
+                COUNT(*) FILTER (WHERE bp.event_result = 'double') as total_2b,
+                COUNT(*) FILTER (WHERE bp.event_result = 'triple') as total_3b,
+                COUNT(*) FILTER (WHERE bp.event_result = 'home_run') as total_hr,
+
+                -- Other counting stats
+                COUNT(*) FILTER (WHERE bp.event_result = 'walk') as total_bb,
+                COUNT(*) FILTER (WHERE bp.event_result = 'strikeout') as total_k,
+                COUNT(*) FILTER (WHERE bp.event_result = 'hit_by_pitch') as total_hbp,
+
+                -- Advanced pitch metrics
+                AVG(CASE WHEN bp.swing = TRUE THEN 1.0 ELSE 0.0 END) * 100 as swing_rate,
+                AVG(CASE WHEN bp.contact = TRUE AND bp.swing = TRUE THEN 1.0 ELSE 0.0 END) * 100 as contact_rate,
+                AVG(CASE WHEN bp.swing_and_miss = TRUE THEN 1.0 ELSE 0.0 END) * 100 as whiff_rate,
+                AVG(CASE WHEN bp.swing = TRUE AND bp.zone > 9 THEN 1.0 ELSE 0.0 END) * 100 as chase_rate,
+
+                -- Batted ball metrics
+                COUNT(*) FILTER (WHERE bp.trajectory = 'line_drive') * 100.0 /
+                    NULLIF(COUNT(*) FILTER (WHERE bp.trajectory IS NOT NULL), 0) as line_drive_rate,
+                COUNT(*) FILTER (WHERE bp.trajectory = 'fly_ball') * 100.0 /
+                    NULLIF(COUNT(*) FILTER (WHERE bp.trajectory IS NOT NULL), 0) as fly_ball_rate,
+                COUNT(*) FILTER (WHERE bp.trajectory = 'ground_ball') * 100.0 /
+                    NULLIF(COUNT(*) FILTER (WHERE bp.trajectory IS NOT NULL), 0) as ground_ball_rate,
+
+                -- Contact quality
+                COUNT(*) FILTER (WHERE bp.hardness = 'hard') * 100.0 /
+                    NULLIF(COUNT(*) FILTER (WHERE bp.hardness IS NOT NULL), 0) as hard_hit_rate,
+                AVG(bp.exit_velocity) FILTER (WHERE bp.exit_velocity IS NOT NULL) as avg_exit_velo,
+                PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY bp.exit_velocity)
+                    FILTER (WHERE bp.exit_velocity IS NOT NULL) as exit_velo_90th,
+
+                -- In-play and productive swings
+                COUNT(*) FILTER (WHERE bp.contact = TRUE AND bp.foul = FALSE) * 100.0 /
+                    NULLIF(COUNT(*), 0) as in_play_rate,
+                COUNT(*) FILTER (WHERE bp.contact = TRUE AND bp.foul = FALSE) * 100.0 /
+                    NULLIF(COUNT(*) FILTER (WHERE bp.swing = TRUE), 0) as productive_swing_rate,
+
+                -- Two strike approach
+                COUNT(*) FILTER (WHERE bp.contact = TRUE AND bp.strikes = 2) * 100.0 /
+                    NULLIF(COUNT(*) FILTER (WHERE bp.swing = TRUE AND bp.strikes = 2), 0) as two_strike_contact,
+
+                -- Pull fly balls (power indicator)
+                COUNT(*) FILTER (WHERE bp.trajectory = 'fly_ball' AND bp.hit_location IN (7, 78)) * 100.0 /
+                    NULLIF(COUNT(*) FILTER (WHERE bp.trajectory = 'fly_ball'), 0) as pull_fly_ball_rate,
+
+                -- Spray chart for balance
+                CASE
+                    WHEN COUNT(*) FILTER (WHERE bp.hit_location IS NOT NULL) > 20 THEN
+                        100 - GREATEST(
+                            ABS(33 - COUNT(*) FILTER (WHERE bp.hit_location IN (7, 78, 4, 1)) * 100.0 /
+                                NULLIF(COUNT(*) FILTER (WHERE bp.hit_location IS NOT NULL), 0)),
+                            ABS(33 - COUNT(*) FILTER (WHERE bp.hit_location IN (8, 5, 2)) * 100.0 /
+                                NULLIF(COUNT(*) FILTER (WHERE bp.hit_location IS NOT NULL), 0)),
+                            ABS(33 - COUNT(*) FILTER (WHERE bp.hit_location IN (9, 89, 6, 3)) * 100.0 /
+                                NULLIF(COUNT(*) FILTER (WHERE bp.hit_location IS NOT NULL), 0))
+                        )
+                    ELSE 50
+                END as spray_ability,
+
+                -- Discipline score calculation
+                (
+                    COALESCE(
+                        AVG(CASE WHEN bp.contact = TRUE AND bp.swing = TRUE THEN 1.0 ELSE 0.0 END) * 100, 75
+                    ) * 0.30 +
+                    (100 - COALESCE(
+                        AVG(CASE WHEN bp.swing_and_miss = TRUE THEN 1.0 ELSE 0.0 END) * 100, 25
+                    )) * 0.30 +
+                    (100 - COALESCE(
+                        AVG(CASE WHEN bp.swing = TRUE AND bp.zone > 9 THEN 1.0 ELSE 0.0 END) * 100, 35
+                    )) * 0.40
+                ) as discipline_score
+
+            FROM milb_batter_pitches bp
+            WHERE bp.season = :season
                 {level_filter}
+            GROUP BY bp.mlb_batter_id, bp.mlb_batter_name, bp.level
+            HAVING COUNT(DISTINCT CASE
+                WHEN bp.event_result IS NOT NULL
+                THEN CONCAT(bp.game_id, '_', bp.pa_of_inning)
+            END) >= :min_pa
+        ),
+        prospect_info AS (
+            -- Join with prospects table to get age and position
+            SELECT
+                ps.*,
+                p.id as prospect_id,
+                p.age,
+                p.position,
+                p.organization,
+                -- Calculate traditional stats
+                CAST(ps.total_hits AS FLOAT) / NULLIF(ps.total_ab, 0) as batting_avg,
+                CAST(ps.total_hits + ps.total_bb + ps.total_hbp AS FLOAT) /
+                    NULLIF(ps.total_pa, 0) as on_base_pct,
+                (CAST(ps.total_1b AS FLOAT) + ps.total_2b * 2 + ps.total_3b * 3 + ps.total_hr * 4) /
+                    NULLIF(ps.total_ab, 0) as slugging_pct,
+                CAST(ps.total_bb AS FLOAT) / NULLIF(ps.total_pa, 0) as walk_rate,
+                CAST(ps.total_k AS FLOAT) / NULLIF(ps.total_pa, 0) as strikeout_rate,
+                CAST(ps.total_hr AS FLOAT) / NULLIF(ps.total_ab, 0) as home_run_rate
+            FROM player_stats ps
+            LEFT JOIN prospects p ON CAST(p.mlb_player_id AS INTEGER) = ps.mlb_batter_id
         )
         SELECT
-            prospect_id,
-            mlb_player_id,
-            name,
-            position,
-            age,
-            level,
-            games,
-            total_pa,
-            total_ab,
-            total_hits,
-            total_2b,
-            total_3b,
-            total_hr,
-            total_rbi,
-            total_bb,
-            total_k,
-            total_sb,
-            total_cs,
-            batting_avg,
-            on_base_pct,
-            slugging_pct,
-            CAST(total_bb AS FLOAT) / NULLIF(total_pa, 0) as walk_rate,
-            CAST(total_k AS FLOAT) / NULLIF(total_pa, 0) as strikeout_rate,
-            CAST(total_hr AS FLOAT) / NULLIF(total_ab, 0) as home_run_rate,
+            *,
             (slugging_pct - batting_avg) as iso,
-            levels_played,
-            total_hbp
-        FROM latest_stats
-        WHERE rn = 1  -- Get only latest stats for each player
+            -- Power score (composite of hard hit, fly ball, and pull fly ball rates)
+            COALESCE(hard_hit_rate * 0.50, 0) +
+            COALESCE(fly_ball_rate * 0.25, 0) +
+            COALESCE(pull_fly_ball_rate * 0.25, 0) as power_score
+        FROM prospect_info
         ORDER BY total_pa DESC
         """
 
-        level_filter = f"AND p.level = :level" if level else ""
+        level_filter = f"AND bp.level = :level" if level else ""
         query = base_query.replace("{level_filter}", level_filter)
 
-        params = {}
+        params = {"season": season, "min_pa": min_pa}
+        if level:
+            params["level"] = level
+
+        try:
+            result = await self.db.execute(text(query), params)
+            rows = result.fetchall()
+
+            # Convert to dictionaries
+            players = []
+            for row in rows:
+                player = dict(row._mapping)
+                players.append(player)
+
+            logger.info(f"Found {len(players)} qualified players from MILB pitch data (min_pa={min_pa})")
+            return players
+
+        except Exception as e:
+            logger.error(f"Error querying MILB pitch data: {e}")
+            # Fall back to prospect_stats if milb_batter_pitches doesn't exist or has no data
+            return await self._get_qualified_players_fallback(level, min_pa, season)
+
+    async def _get_qualified_players_fallback(
+        self,
+        level: Optional[str],
+        min_pa: int,
+        season: int
+    ) -> List[Dict]:
+        """Fallback to prospect_stats table if MILB pitch data unavailable."""
+
+        logger.info("Falling back to prospect_stats table")
+
+        # Simplified query using prospect_stats
+        query = """
+        SELECT
+            p.id as prospect_id,
+            p.mlb_player_id as mlb_batter_id,
+            p.name,
+            p.position,
+            p.age,
+            p.level,
+            ps.games_played as games,
+            GREATEST(
+                COALESCE(ps.at_bats, 0) + COALESCE(ps.walks, 0),
+                CAST(COALESCE(ps.at_bats, 0) * 1.15 AS INT)
+            ) as total_pa,
+            ps.at_bats as total_ab,
+            ps.hits as total_hits,
+            ps.home_runs as total_hr,
+            ps.walks as total_bb,
+            ps.strikeouts as total_k,
+            ps.batting_avg,
+            ps.on_base_pct,
+            ps.slugging_pct,
+            CAST(ps.walks AS FLOAT) / NULLIF(GREATEST(ps.at_bats + ps.walks, ps.at_bats * 1.15), 0) as walk_rate,
+            CAST(ps.strikeouts AS FLOAT) / NULLIF(GREATEST(ps.at_bats + ps.walks, ps.at_bats * 1.15), 0) as strikeout_rate,
+            CAST(ps.home_runs AS FLOAT) / NULLIF(ps.at_bats, 0) as home_run_rate,
+            (ps.slugging_pct - ps.batting_avg) as iso,
+            -- Default values for advanced metrics not in prospect_stats
+            75.0 as contact_rate,
+            25.0 as whiff_rate,
+            35.0 as chase_rate,
+            65.0 as discipline_score,
+            20.0 as line_drive_rate,
+            15.0 as in_play_rate,
+            35.0 as productive_swing_rate,
+            70.0 as two_strike_contact,
+            50.0 as spray_ability,
+            10.0 as hard_hit_rate,
+            30.0 as pull_fly_ball_rate,
+            50.0 as power_score
+        FROM prospect_stats ps
+        JOIN prospects p ON p.id = ps.prospect_id
+        WHERE ps.at_bats > 0
+            AND GREATEST(ps.at_bats + ps.walks, CAST(ps.at_bats * 1.15 AS INT)) >= :min_pa
+            {level_filter}
+        ORDER BY ps.at_bats DESC
+        """
+
+        level_filter = f"AND p.level = :level" if level else ""
+        query = query.replace("{level_filter}", level_filter)
+
+        params = {"min_pa": min_pa}
         if level:
             params["level"] = level
 
         result = await self.db.execute(text(query), params)
         rows = result.fetchall()
 
-        # Convert to dictionaries and filter by min_pa
         players = []
         for row in rows:
             player = dict(row._mapping)
-            # Apply the min_pa filter after query
-            if player.get('total_pa', 0) >= min_pa:
-                players.append(player)
+            players.append(player)
 
-        logger.info(f"Found {len(players)} qualified players (min_pa={min_pa})")
         return players
-
-    async def _get_pitch_metrics_for_players(
-        self,
-        player_ids: List[int],
-        season: int
-    ) -> Dict[int, Dict]:
-        """Get pitch-level metrics for a list of players."""
-
-        from .pitch_data_aggregator_with_batted_balls import BattedBallPitchDataAggregator
-
-        metrics = {}
-        aggregator = BattedBallPitchDataAggregator(self.db)
-
-        for player_id in player_ids:
-            try:
-                # Get comprehensive metrics including discipline and power scores
-                player_metrics = await aggregator.get_comprehensive_hitter_metrics(
-                    str(player_id),
-                    level=None,  # Will get all levels
-                    days=365     # Full season
-                )
-
-                if player_metrics:
-                    metrics[player_id] = player_metrics
-            except Exception as e:
-                logger.warning(f"Failed to get pitch metrics for player {player_id}: {e}")
-                continue
-
-        logger.info(f"Retrieved pitch metrics for {len(metrics)} players")
-        return metrics
 
     def _calculate_skill_scores(
         self,
@@ -340,72 +438,45 @@ class StatlineRankingService:
     def _get_metric_value(self, player: Dict, metric_name: str) -> Optional[float]:
         """Get a metric value from player data."""
 
-        # Check if it's from pitch data
-        if metric_name in ["contact_rate", "whiff_rate", "chase_rate",
-                          "discipline_score", "hard_hit_rate", "pull_fly_ball_rate",
-                          "line_drive_rate", "productive_swing_rate",
-                          "two_strike_contact", "spray_ability"]:
-            pitch_metrics = player.get('pitch_metrics', {})
+        # Direct mapping from query results
+        metric_map = {
+            "contact_rate": "contact_rate",
+            "whiff_rate": "whiff_rate",
+            "chase_rate": "chase_rate",
+            "discipline_score": "discipline_score",
+            "hard_hit_rate": "hard_hit_rate",
+            "pull_fly_ball_rate": "pull_fly_ball_rate",
+            "line_drive_rate": "line_drive_rate",
+            "productive_swing_rate": "productive_swing_rate",
+            "two_strike_contact": "two_strike_contact",
+            "spray_ability": "spray_ability",
+            "in_play_rate": "in_play_rate",
+            "exit_velo_90th": "exit_velo_90th",
+            "home_run_rate": "home_run_rate",
+            "iso": "iso",
+            "slg": "slugging_pct",
+            "walk_rate": "walk_rate",
+            "strikeout_rate": "strikeout_rate",
+            "batting_avg": "batting_avg",
+            "obp": "on_base_pct"
+        }
 
-            if metric_name == "discipline_score":
-                return pitch_metrics.get('discipline_score')
-            elif metric_name == "hard_hit_rate":
-                return pitch_metrics.get('hard_hit_rate')
-            elif metric_name == "pull_fly_ball_rate":
-                return pitch_metrics.get('pull_fly_ball_rate')
-            elif metric_name == "line_drive_rate":
-                return pitch_metrics.get('line_drive_rate')
-            elif metric_name == "contact_rate":
-                return pitch_metrics.get('contact_rate')
-            elif metric_name == "whiff_rate":
-                return pitch_metrics.get('whiff_rate')
-            elif metric_name == "chase_rate":
-                return pitch_metrics.get('chase_rate')
-            elif metric_name == "productive_swing_rate":
-                return pitch_metrics.get('productive_swing_rate')
-            elif metric_name == "two_strike_contact":
-                return pitch_metrics.get('two_strike_contact')
-            elif metric_name == "spray_ability":
-                return pitch_metrics.get('spray_balance_score')
-            # Return None if pitch metrics not available
-            return None
+        if metric_name in metric_map:
+            return player.get(metric_map[metric_name])
 
-        # Game log stats
-        elif metric_name == "home_run_rate":
-            return player.get('home_run_rate', 0.0)
-        elif metric_name == "iso":
-            return player.get('iso', 0.0)
-        elif metric_name == "slg":
-            return player.get('slugging_pct')
-        elif metric_name == "walk_rate":
-            return player.get('walk_rate')
-        elif metric_name == "strikeout_rate":
-            return player.get('strikeout_rate')
-        elif metric_name == "batting_avg":
-            return player.get('batting_avg')
-        elif metric_name == "obp":
-            return player.get('on_base_pct')
-        elif metric_name == "stolen_base_rate":
-            # Calculate SB rate: SB / (1B + BB + HBP)
-            singles = player.get('total_hits', 0) - player.get('total_2b', 0) - \
-                     player.get('total_3b', 0) - player.get('total_hr', 0)
-            opportunities = singles + player.get('total_bb', 0) + player.get('total_hbp', 0)
-            if opportunities > 0:
-                return player.get('total_sb', 0) / opportunities
+        # Calculate derived metrics
+        if metric_name == "stolen_base_rate":
+            # We don't have stolen base data in pitch table, return default
             return 0.0
         elif metric_name == "sb_success_rate":
-            attempts = player.get('total_sb', 0) + player.get('total_cs', 0)
-            if attempts > 0:
-                return player.get('total_sb', 0) / attempts
-            return 0.0
+            return 0.75  # Default success rate
         elif metric_name == "triples_rate":
             ab = player.get('total_ab', 0)
             if ab > 0:
                 return player.get('total_3b', 0) / ab
             return 0.0
         elif metric_name == "ground_speed":
-            # No ground speed data available
-            return 0.0
+            return 0.0  # No sprint speed available
 
         return None
 
