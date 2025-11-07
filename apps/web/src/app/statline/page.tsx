@@ -102,12 +102,14 @@ function CompositeBadge({
   label,
   score,
   grade,
-  color
+  color,
+  icon: Icon
 }: {
   label: string;
   score: number;
   grade?: string;
   color: string;
+  icon: React.ElementType;
 }) {
   const getColorFromScore = (score: number) => {
     if (score >= 80) return '#22c55e';  // green
@@ -140,10 +142,10 @@ function CompositeBadge({
           }
         }}
       >
-        <IconComponent
+        <Icon
           sx={{
             fontSize: '1.2rem',
-            color: SKILL_COLORS[skill]
+            color: color
           }}
         />
       </Badge>
@@ -225,12 +227,14 @@ function PlayerRow({ player, onExpand, expanded }: {
               score={player.discipline_score}
               grade={player.discipline_grade}
               color={SKILL_COLORS.discipline}
+              icon={DisciplineIcon}
             />
             <CompositeBadge
               label="Power"
               score={player.power_score}
               grade={player.power_grade}
               color={SKILL_COLORS.power}
+              icon={PowerIcon}
             />
           </Stack>
         </TableCell>
@@ -658,10 +662,10 @@ export default function StatlinePage() {
               <TableBody>
                 {rankings.map((player) => (
                   <PlayerRow
-                    key={player.mlb_player_id}
+                    key={player.mlb_batter_id}
                     player={player}
-                    expanded={expandedRows.has(player.mlb_player_id)}
-                    onExpand={() => toggleRowExpanded(player.mlb_player_id)}
+                    expanded={expandedRows.has(player.mlb_batter_id)}
+                    onExpand={() => toggleRowExpanded(player.mlb_batter_id)}
                   />
                 ))}
               </TableBody>
