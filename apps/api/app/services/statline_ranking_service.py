@@ -101,19 +101,20 @@ class StatlineRankingService:
 
         # Step 3: Calculate rankings based on composite scores
         for player in players_data:
-            # Get all three component scores
-            discipline = player.get('discipline_score', 50)
-            power = player.get('power_score', 50)
-            contact = player.get('contact_score', 50)
+            # Get all three component scores (convert to float to handle Decimal types)
+            discipline = float(player.get('discipline_score', 50))
+            power = float(player.get('power_score', 50))
+            contact = float(player.get('contact_score', 50))
 
             # Calculate overall score with all three components
             # Discipline: 40%, Power: 35%, Contact: 25%
-            player['overall_score'] = (discipline * 0.40) + (power * 0.35) + (contact * 0.25)
+            overall = (discipline * 0.40) + (power * 0.35) + (contact * 0.25)
+            player['overall_score'] = float(overall)
 
             # Add age adjustment
-            age_adj = self._calculate_age_adjustment(player)
+            age_adj = float(self._calculate_age_adjustment(player))
             player['age_adjustment'] = age_adj
-            player['adjusted_score'] = player['overall_score'] * (1 + age_adj)
+            player['adjusted_score'] = float(player['overall_score'] * (1 + age_adj))
 
         # Step 4: Sort and rank
         players_data.sort(key=lambda x: x['adjusted_score'], reverse=True)
@@ -121,11 +122,11 @@ class StatlineRankingService:
         for i, player in enumerate(players_data):
             player['rank'] = i + 1
 
-            # Add letter grades for visual display
-            player['discipline_grade'] = self._score_to_grade(player.get('discipline_score', 50))
-            player['power_grade'] = self._score_to_grade(player.get('power_score', 50))
-            player['contact_grade'] = self._score_to_grade(player.get('contact_score', 50))
-            player['overall_grade'] = self._score_to_grade(player['overall_score'])
+            # Add letter grades for visual display (convert to float for Decimal handling)
+            player['discipline_grade'] = self._score_to_grade(float(player.get('discipline_score', 50)))
+            player['power_grade'] = self._score_to_grade(float(player.get('power_score', 50)))
+            player['contact_grade'] = self._score_to_grade(float(player.get('contact_score', 50)))
+            player['overall_grade'] = self._score_to_grade(float(player['overall_score']))
 
         return players_data
 
@@ -227,7 +228,7 @@ class StatlineRankingService:
             pps.line_drive_rate,
             pps.ground_ball_rate,
             p.id as prospect_id,
-            COALESCE(p.age, 20) as age,
+            CAST(COALESCE(p.age, 20) AS FLOAT) as age,
             COALESCE(p.position, 'UTIL') as position,
             p.organization,
 
@@ -238,19 +239,19 @@ class StatlineRankingService:
             COALESCE(home_runs * 100.0 / NULLIF(total_pa, 0), 0) as home_run_rate,
 
             -- Calculate DISCIPLINE SCORE (0-100) - focus on plate approach
-            GREATEST(0, LEAST(100,
+            CAST(GREATEST(0, LEAST(100,
                 COALESCE(contact_rate, 75) * 0.25 +                    -- 25% weight on contact ability
                 (100 - COALESCE(chase_rate, 35)) * 0.25 +              -- 25% weight on not chasing
                 COALESCE(zone_swing_rate, 65) * 0.15 +                 -- 15% weight on swinging at strikes
                 (100 - COALESCE(whiff_rate, 25)) * 0.15 +              -- 15% weight on not whiffing
-                COALESCE(walk_rate, 8) * 2.5 +                         -- 20% weight on walks (scaled)
+                COALESCE((walks * 100.0 / NULLIF(total_pa, 0)), 8) * 2.5 +  -- 20% weight on walks (scaled)
                 0
-            )) as discipline_score,
+            )) AS FLOAT) as discipline_score,
 
             -- Calculate POWER SCORE (0-100) - focus on impact potential
-            GREATEST(0, LEAST(100,
+            CAST(GREATEST(0, LEAST(100,
                 COALESCE(hard_hit_rate, 30) * 1.0 +                    -- 30% weight on hard contact
-                COALESCE(home_run_rate, 3) * 10.0 +                    -- 30% weight on HR rate (scaled)
+                COALESCE((home_runs * 100.0 / NULLIF(total_pa, 0)), 3) * 10.0 +  -- 30% weight on HR rate (scaled)
                 COALESCE(fly_ball_rate + line_drive_rate, 50) * 0.6 +  -- 30% weight on elevated balls
                 CASE
                     WHEN doubles + triples + home_runs > 0
@@ -258,15 +259,15 @@ class StatlineRankingService:
                     ELSE 0
                 END +                                                    -- 10% weight on extra bases
                 0
-            )) as power_score,
+            )) AS FLOAT) as power_score,
 
             -- Calculate CONTACT SCORE (0-100) - focus on bat-to-ball skills
-            GREATEST(0, LEAST(100,
+            CAST(GREATEST(0, LEAST(100,
                 COALESCE(contact_rate, 75) * 0.40 +                    -- 40% weight on overall contact
-                COALESCE(batting_avg, 25) * 2.0 +                      -- 50% weight on batting avg (scaled)
-                (100 - COALESCE(strikeout_rate, 20)) * 0.10 +          -- 10% weight on avoiding Ks
+                COALESCE((hits * 100.0 / NULLIF(total_pa - walks, 0)), 25) * 2.0 +  -- 50% weight on batting avg (scaled)
+                (100 - COALESCE((strikeouts * 100.0 / NULLIF(total_pa, 0)), 20)) * 0.10 +  -- 10% weight on avoiding Ks
                 0
-            )) as contact_score
+            )) AS FLOAT) as contact_score
 
         FROM player_pitch_stats pps
         LEFT JOIN prospects p ON CAST(p.mlb_player_id AS INTEGER) = pps.mlb_batter_id
@@ -287,10 +288,24 @@ class StatlineRankingService:
             players = []
             for row in rows:
                 player = dict(row._mapping)
-                # Ensure all scores are present
-                player['discipline_score'] = player.get('discipline_score', 50)
-                player['power_score'] = player.get('power_score', 50)
-                player['contact_score'] = player.get('contact_score', 50)
+
+                # Convert all numeric fields to float to avoid Decimal type issues
+                numeric_fields = ['discipline_score', 'power_score', 'contact_score',
+                                 'age', 'batting_avg', 'walk_rate', 'strikeout_rate',
+                                 'home_run_rate', 'zone_rate', 'swing_rate', 'chase_rate',
+                                 'contact_rate', 'whiff_rate', 'hard_hit_rate',
+                                 'fly_ball_rate', 'line_drive_rate', 'ground_ball_rate',
+                                 'zone_swing_rate']
+
+                for field in numeric_fields:
+                    if field in player and player[field] is not None:
+                        player[field] = float(player[field])
+
+                # Ensure all scores are present with default values
+                player['discipline_score'] = float(player.get('discipline_score', 50))
+                player['power_score'] = float(player.get('power_score', 50))
+                player['contact_score'] = float(player.get('contact_score', 50))
+
                 players.append(player)
 
             return players
@@ -319,7 +334,7 @@ class StatlineRankingService:
                 COUNT(*) as total_pitches,
                 COUNT(DISTINCT CASE
                     WHEN bp.pa_result IS NOT NULL
-                    THEN bp.game_id || '_' || bp.at_bat_index
+                    THEN bp.game_pk || '_' || bp.at_bat_index
                 END) as total_pa,
                 -- Basic counting stats
                 SUM(CASE WHEN bp.pa_result IN ('single', 'double', 'triple', 'home_run') THEN 1 ELSE 0 END) as hits,
@@ -332,7 +347,7 @@ class StatlineRankingService:
             GROUP BY bp.mlb_batter_id, bp.level
             HAVING COUNT(DISTINCT CASE
                 WHEN bp.pa_result IS NOT NULL
-                THEN bp.game_id || '_' || bp.at_bat_index
+                THEN bp.game_pk || '_' || bp.at_bat_index
             END) >= :min_pa
         ),
         player_metrics AS (
@@ -575,7 +590,7 @@ class StatlineRankingService:
             COALESCE(p.mlb_player_id, '') as mlb_batter_id,
             p.name,
             p.position,
-            COALESCE(p.age, 20) as age,
+            CAST(COALESCE(p.age, 20) AS FLOAT) as age,
             COALESCE(p.level, 'A') as level,
             p.organization,
             100 as games,
@@ -616,7 +631,7 @@ class StatlineRankingService:
     def _calculate_age_adjustment(self, player: Dict) -> float:
         """Calculate age-based adjustment factor."""
 
-        age = player.get('age', 0)
+        age = float(player.get('age', 0)) if player.get('age') else 0
         level = player.get('level')
 
         if not age or not level or level not in self.AGE_LEVEL_ADJUSTMENTS:
@@ -627,15 +642,18 @@ class StatlineRankingService:
         factor = level_data["factor"]
 
         # Calculate age difference from level average
-        age_diff = age - avg_age
+        age_diff = float(age - avg_age)
 
         # Apply adjustment (negative diff = younger = bonus)
-        adjustment = age_diff * factor
+        adjustment = float(age_diff * factor)
 
-        return adjustment
+        return float(adjustment)
 
     def _score_to_grade(self, score: float) -> str:
         """Convert numeric score to letter grade."""
+
+        # Ensure score is a float to handle Decimal types
+        score = float(score)
 
         if score >= 95:
             return "A+"

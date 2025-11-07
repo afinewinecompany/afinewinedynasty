@@ -14,7 +14,9 @@
       "Bash(python check_milb_data_structure.py)",
       "Bash(curl -s \"http://localhost:8000/api/v1/prospects/rankings/statline?min_pa=5\")",
       "Bash(curl -s \"http://localhost:8000/api/v1/prospects/rankings/statline?min_pa=1\")",
-      "Bash(git commit -m \"fix: Update statline queries to use correct column names (game_pk, pa_result, is_final_pitch)\")"
+      "Bash(git commit -m \"fix: Update statline queries to use correct column names (game_pk, pa_result, is_final_pitch)\")",
+      "Bash(python test_milb_2025_data.py)",
+      "Bash(python check_milb_tables.py)"
     ],
     "deny": [],
     "ask": []
