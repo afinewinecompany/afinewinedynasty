@@ -8,7 +8,13 @@
       "Bash(python -m json.tool)",
       "Bash(curl -s \"http://localhost:8000/api/v1/prospects/rankings/statline?min_pa=25\")",
       "Bash(curl -s \"http://localhost:8000/api/v1/prospects/rankings/statline?min_pa=10\")",
-      "Bash(git add -A)"
+      "Bash(git add -A)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfix: Comprehensive fix for statline rankings to show all 2025 MILB players\n\nMajor Changes:\n1. Fixed SQL queries to properly use milb_batter_pitches table columns\n   - Removed non-existent mlb_batter_name column references\n   - Fixed GROUP BY clauses to match available columns\n   - Added proper JOIN with prospects table to get player names\n\n2. Implemented three-component scoring system from pitch data:\n   - Discipline Score (40% weight): zone awareness, contact, chase rate, walks\n   - Power Score (35% weight): hard hit rate, home runs, fly balls/line drives\n   - Contact Score (25% weight): contact rate, batting average, strikeout avoidance\n\n3. Made queries maximally inclusive:\n   - Reduced default min PA from 100 to 50\n   - Cut PA requirements in half for primary query\n   - Added comprehensive NULL handling with COALESCE\n   - Used LEFT JOINs to include all players\n\n4. Improved fallback strategy:\n   - Primary: All players with 2025 MILB pitch data\n   - Fallback 1: Enhanced composite scores query\n   - Fallback 2: prospect_stats table\n   - Fallback 3: Emergency - all prospects with default scores\n\n5. Added data export and debugging utilities:\n   - Scripts to export MILB data to CSV\n   - Debug script to check database tables\n   - Test script to validate rankings\n\nThe statline rankings page will now show ALL players with 2025 MILB pitch data,\nwith meaningful skill-based rankings using actual pitch-level metrics.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push origin DM)",
+      "Bash(python check_milb_data_structure.py)",
+      "Bash(curl -s \"http://localhost:8000/api/v1/prospects/rankings/statline?min_pa=5\")",
+      "Bash(curl -s \"http://localhost:8000/api/v1/prospects/rankings/statline?min_pa=1\")",
+      "Bash(git commit -m \"fix: Update statline queries to use correct column names (game_pk, pa_result, is_final_pitch)\")"
     ],
     "deny": [],
     "ask": []

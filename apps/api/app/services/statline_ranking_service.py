@@ -145,23 +145,24 @@ class StatlineRankingService:
                 bp.mlb_batter_id,
                 bp.mlb_batter_id as name,  -- Use ID for now, will join with prospects table
                 bp.level,
-                COUNT(DISTINCT bp.game_id) as games,
+                COUNT(DISTINCT bp.game_pk) as games,
                 COUNT(*) as total_pitches,
 
-                -- Calculate plate appearances (unique game + PA combinations)
+                -- Calculate plate appearances (unique game + at_bat combinations)
                 COUNT(DISTINCT CASE
-                    WHEN bp.event_result IS NOT NULL
-                    THEN bp.game_id || '_' || bp.pa_of_inning
+                    WHEN bp.is_final_pitch = true
+                    THEN bp.game_pk || '_' || bp.at_bat_index
                 END) as total_pa,
 
-                -- Basic counting stats for traditional metrics
-                SUM(CASE WHEN bp.event_result IN ('single', 'double', 'triple', 'home_run') THEN 1 ELSE 0 END) as hits,
-                SUM(CASE WHEN bp.event_result IN ('single') THEN 1 ELSE 0 END) as singles,
-                SUM(CASE WHEN bp.event_result IN ('double') THEN 1 ELSE 0 END) as doubles,
-                SUM(CASE WHEN bp.event_result IN ('triple') THEN 1 ELSE 0 END) as triples,
-                SUM(CASE WHEN bp.event_result = 'home_run' THEN 1 ELSE 0 END) as home_runs,
-                SUM(CASE WHEN bp.event_result = 'walk' THEN 1 ELSE 0 END) as walks,
-                SUM(CASE WHEN bp.event_result = 'strikeout' THEN 1 ELSE 0 END) as strikeouts,
+                -- Basic counting stats using pa_result descriptions
+                SUM(CASE WHEN bp.is_final_pitch AND LOWER(bp.pa_result) LIKE '%single%' THEN 1 ELSE 0 END) as singles,
+                SUM(CASE WHEN bp.is_final_pitch AND LOWER(bp.pa_result) LIKE '%double%' THEN 1 ELSE 0 END) as doubles,
+                SUM(CASE WHEN bp.is_final_pitch AND LOWER(bp.pa_result) LIKE '%triple%' THEN 1 ELSE 0 END) as triples,
+                SUM(CASE WHEN bp.is_final_pitch AND LOWER(bp.pa_result) LIKE '%home%run%' THEN 1 ELSE 0 END) as home_runs,
+                SUM(CASE WHEN bp.is_final_pitch AND (LOWER(bp.pa_result) LIKE '%single%' OR LOWER(bp.pa_result) LIKE '%double%'
+                    OR LOWER(bp.pa_result) LIKE '%triple%' OR LOWER(bp.pa_result) LIKE '%home%run%') THEN 1 ELSE 0 END) as hits,
+                SUM(CASE WHEN bp.is_final_pitch AND LOWER(bp.pa_result) LIKE '%walk%' THEN 1 ELSE 0 END) as walks,
+                SUM(CASE WHEN bp.is_final_pitch AND LOWER(bp.pa_result) LIKE '%strikeout%' THEN 1 ELSE 0 END) as strikeouts,
 
                 -- Discipline metrics (pitch-level)
                 AVG(CASE WHEN bp.zone <= 9 THEN 100.0 ELSE 0.0 END) as zone_rate,
@@ -197,8 +198,8 @@ class StatlineRankingService:
             GROUP BY bp.mlb_batter_id, bp.level
             -- Very lenient PA filter or none at all
             HAVING COUNT(DISTINCT CASE
-                WHEN bp.event_result IS NOT NULL
-                THEN bp.game_id || '_' || bp.pa_of_inning
+                WHEN bp.is_final_pitch = true
+                THEN bp.game_pk || '_' || bp.at_bat_index
             END) >= GREATEST(1, :min_pa / 2)  -- Cut min PA in half to be more inclusive
         )
         SELECT
@@ -314,24 +315,24 @@ class StatlineRankingService:
                 bp.mlb_batter_id,
                 bp.mlb_batter_id as name,  -- Use ID for now, will join with prospects table
                 bp.level,
-                COUNT(DISTINCT bp.game_id) as games,
+                COUNT(DISTINCT bp.game_pk) as games,
                 COUNT(*) as total_pitches,
                 COUNT(DISTINCT CASE
-                    WHEN bp.event_result IS NOT NULL
-                    THEN bp.game_id || '_' || bp.pa_of_inning
+                    WHEN bp.pa_result IS NOT NULL
+                    THEN bp.game_id || '_' || bp.at_bat_index
                 END) as total_pa,
                 -- Basic counting stats
-                SUM(CASE WHEN bp.event_result IN ('single', 'double', 'triple', 'home_run') THEN 1 ELSE 0 END) as hits,
-                SUM(CASE WHEN bp.event_result = 'home_run' THEN 1 ELSE 0 END) as home_runs,
-                SUM(CASE WHEN bp.event_result = 'walk' THEN 1 ELSE 0 END) as walks,
-                SUM(CASE WHEN bp.event_result = 'strikeout' THEN 1 ELSE 0 END) as strikeouts
+                SUM(CASE WHEN bp.pa_result IN ('single', 'double', 'triple', 'home_run') THEN 1 ELSE 0 END) as hits,
+                SUM(CASE WHEN bp.pa_result = 'home_run' THEN 1 ELSE 0 END) as home_runs,
+                SUM(CASE WHEN bp.pa_result = 'walk' THEN 1 ELSE 0 END) as walks,
+                SUM(CASE WHEN bp.pa_result = 'strikeout' THEN 1 ELSE 0 END) as strikeouts
             FROM milb_batter_pitches bp
             WHERE bp.season = :season
                 {level_filter}
             GROUP BY bp.mlb_batter_id, bp.level
             HAVING COUNT(DISTINCT CASE
-                WHEN bp.event_result IS NOT NULL
-                THEN bp.game_id || '_' || bp.pa_of_inning
+                WHEN bp.pa_result IS NOT NULL
+                THEN bp.game_id || '_' || bp.at_bat_index
             END) >= :min_pa
         ),
         player_metrics AS (
