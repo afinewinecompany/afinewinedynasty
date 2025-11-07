@@ -55,44 +55,60 @@ class StatlineRankingService:
         """
         logger.info(f"Calculating Statline rankings for {season} season using composite scores")
 
-        # Always try prospect_stats first since it's more reliable
-        players_data = await self._get_players_from_prospect_stats(
-            level, min_plate_appearances
-        )
-
-        # If we got data and pitch data is requested, try to enhance with pitch metrics
-        if players_data and include_pitch_data:
-            logger.info(f"Found {len(players_data)} players, attempting to enhance with pitch data")
-            # Try to enhance with pitch data but don't fail if it doesn't work
+        # Primary approach: Get all players with 2025 MILB pitch data
+        players_data = []
+        if include_pitch_data:
+            logger.info("Primary: Fetching all players with 2025 MILB pitch data")
             try:
-                pitch_enhanced = await self._get_players_with_composite_scores(
+                players_data = await self._get_all_players_with_pitch_data(
                     level, min_plate_appearances, season
                 )
-                if pitch_enhanced:
-                    logger.info(f"Successfully enhanced {len(pitch_enhanced)} players with pitch data")
-                    players_data = pitch_enhanced
+                logger.info(f"Found {len(players_data)} players with pitch data")
             except Exception as e:
-                logger.warning(f"Could not enhance with pitch data: {e}")
+                logger.error(f"Error fetching pitch data: {e}")
 
+        # Fallback 1: Try enhanced composite scores query
         if not players_data:
-            logger.warning("No qualified players found, trying emergency fallback")
-            # Emergency fallback - just get ANY prospects
+            logger.info("Fallback 1: Trying enhanced composite scores query")
+            try:
+                players_data = await self._get_players_with_composite_scores(
+                    level, min_plate_appearances, season
+                )
+                if players_data:
+                    logger.info(f"Found {len(players_data)} players with composite scores")
+            except Exception as e:
+                logger.warning(f"Could not get composite scores: {e}")
+
+        # Fallback 2: Try prospect_stats table
+        if not players_data:
+            logger.info("Fallback 2: Trying prospect_stats table")
+            players_data = await self._get_players_from_prospect_stats(
+                level, min_plate_appearances
+            )
+            if players_data:
+                logger.info(f"Found {len(players_data)} players from prospect_stats")
+
+        # Fallback 3: Emergency - get ANY prospects
+        if not players_data:
+            logger.warning("Fallback 3: Emergency - getting all prospects with default scores")
             players_data = await self._emergency_fallback_all_prospects()
 
         if not players_data:
-            logger.error("Even emergency fallback found no players")
+            logger.error("All approaches failed - no players found")
             return []
 
         logger.info(f"Found {len(players_data)} qualified players")
 
         # Step 3: Calculate rankings based on composite scores
         for player in players_data:
-            # Calculate overall score (weighted average of discipline and power)
+            # Get all three component scores
             discipline = player.get('discipline_score', 50)
             power = player.get('power_score', 50)
+            contact = player.get('contact_score', 50)
 
-            # Weight discipline slightly more for overall ranking
-            player['overall_score'] = (discipline * 0.55) + (power * 0.45)
+            # Calculate overall score with all three components
+            # Discipline: 40%, Power: 35%, Contact: 25%
+            player['overall_score'] = (discipline * 0.40) + (power * 0.35) + (contact * 0.25)
 
             # Add age adjustment
             age_adj = self._calculate_age_adjustment(player)
@@ -108,9 +124,179 @@ class StatlineRankingService:
             # Add letter grades for visual display
             player['discipline_grade'] = self._score_to_grade(player.get('discipline_score', 50))
             player['power_grade'] = self._score_to_grade(player.get('power_score', 50))
+            player['contact_grade'] = self._score_to_grade(player.get('contact_score', 50))
             player['overall_grade'] = self._score_to_grade(player['overall_score'])
 
         return players_data
+
+    async def _get_all_players_with_pitch_data(
+        self,
+        level: Optional[str],
+        min_pa: int,
+        season: int
+    ) -> List[Dict]:
+        """Get ALL players with 2025 MILB pitch data - maximally inclusive."""
+
+        # Very inclusive query - get EVERYONE with pitch data
+        base_query = """
+        WITH player_pitch_stats AS (
+            -- Get all players who have ANY pitch data in 2025
+            SELECT
+                bp.mlb_batter_id,
+                bp.mlb_batter_id as name,  -- Use ID for now, will join with prospects table
+                bp.level,
+                COUNT(DISTINCT bp.game_id) as games,
+                COUNT(*) as total_pitches,
+
+                -- Calculate plate appearances (unique game + PA combinations)
+                COUNT(DISTINCT CASE
+                    WHEN bp.event_result IS NOT NULL
+                    THEN bp.game_id || '_' || bp.pa_of_inning
+                END) as total_pa,
+
+                -- Basic counting stats for traditional metrics
+                SUM(CASE WHEN bp.event_result IN ('single', 'double', 'triple', 'home_run') THEN 1 ELSE 0 END) as hits,
+                SUM(CASE WHEN bp.event_result IN ('single') THEN 1 ELSE 0 END) as singles,
+                SUM(CASE WHEN bp.event_result IN ('double') THEN 1 ELSE 0 END) as doubles,
+                SUM(CASE WHEN bp.event_result IN ('triple') THEN 1 ELSE 0 END) as triples,
+                SUM(CASE WHEN bp.event_result = 'home_run' THEN 1 ELSE 0 END) as home_runs,
+                SUM(CASE WHEN bp.event_result = 'walk' THEN 1 ELSE 0 END) as walks,
+                SUM(CASE WHEN bp.event_result = 'strikeout' THEN 1 ELSE 0 END) as strikeouts,
+
+                -- Discipline metrics (pitch-level)
+                AVG(CASE WHEN bp.zone <= 9 THEN 100.0 ELSE 0.0 END) as zone_rate,
+                AVG(CASE WHEN bp.swing = true THEN 100.0 ELSE 0.0 END) as swing_rate,
+                AVG(CASE WHEN bp.zone <= 9 AND bp.swing = true THEN 100.0
+                        WHEN bp.zone <= 9 THEN 0.0
+                        ELSE NULL END) as zone_swing_rate,
+                AVG(CASE WHEN bp.zone > 9 AND bp.swing = true THEN 100.0
+                        WHEN bp.zone > 9 THEN 0.0
+                        ELSE NULL END) as chase_rate,
+
+                -- Contact metrics
+                AVG(CASE WHEN bp.swing = true AND bp.contact = true THEN 100.0
+                        WHEN bp.swing = true THEN 0.0
+                        ELSE NULL END) as contact_rate,
+                AVG(CASE WHEN bp.swing = true AND bp.contact = false THEN 100.0
+                        WHEN bp.swing = true THEN 0.0
+                        ELSE NULL END) as whiff_rate,
+
+                -- Power metrics (batted ball data)
+                COUNT(*) FILTER (WHERE bp.hardness = 'hard' AND bp.contact = true AND bp.foul = false) * 100.0 /
+                    NULLIF(COUNT(*) FILTER (WHERE bp.hardness IS NOT NULL AND bp.contact = true AND bp.foul = false), 0) as hard_hit_rate,
+                COUNT(*) FILTER (WHERE bp.trajectory = 'fly_ball' AND bp.contact = true AND bp.foul = false) * 100.0 /
+                    NULLIF(COUNT(*) FILTER (WHERE bp.trajectory IS NOT NULL AND bp.contact = true AND bp.foul = false), 0) as fly_ball_rate,
+                COUNT(*) FILTER (WHERE bp.trajectory = 'line_drive' AND bp.contact = true AND bp.foul = false) * 100.0 /
+                    NULLIF(COUNT(*) FILTER (WHERE bp.trajectory IS NOT NULL AND bp.contact = true AND bp.foul = false), 0) as line_drive_rate,
+                COUNT(*) FILTER (WHERE bp.trajectory = 'ground_ball' AND bp.contact = true AND bp.foul = false) * 100.0 /
+                    NULLIF(COUNT(*) FILTER (WHERE bp.trajectory IS NOT NULL AND bp.contact = true AND bp.foul = false), 0) as ground_ball_rate
+
+            FROM milb_batter_pitches bp
+            WHERE bp.season = :season
+                {level_filter}
+            GROUP BY bp.mlb_batter_id, bp.level
+            -- Very lenient PA filter or none at all
+            HAVING COUNT(DISTINCT CASE
+                WHEN bp.event_result IS NOT NULL
+                THEN bp.game_id || '_' || bp.pa_of_inning
+            END) >= GREATEST(1, :min_pa / 2)  -- Cut min PA in half to be more inclusive
+        )
+        SELECT
+            pps.mlb_batter_id,
+            COALESCE(p.name, CAST(pps.mlb_batter_id AS VARCHAR)) as name,  -- Get real name from prospects
+            pps.level,
+            pps.games,
+            pps.total_pitches,
+            pps.total_pa,
+            pps.hits,
+            pps.singles,
+            pps.doubles,
+            pps.triples,
+            pps.home_runs,
+            pps.walks,
+            pps.strikeouts,
+            pps.zone_rate,
+            pps.swing_rate,
+            pps.zone_swing_rate,
+            pps.chase_rate,
+            pps.contact_rate,
+            pps.whiff_rate,
+            pps.hard_hit_rate,
+            pps.fly_ball_rate,
+            pps.line_drive_rate,
+            pps.ground_ball_rate,
+            p.id as prospect_id,
+            COALESCE(p.age, 20) as age,
+            COALESCE(p.position, 'UTIL') as position,
+            p.organization,
+
+            -- Traditional stats
+            COALESCE(hits * 100.0 / NULLIF(total_pa - walks, 0), 0) as batting_avg,
+            COALESCE(walks * 100.0 / NULLIF(total_pa, 0), 0) as walk_rate,
+            COALESCE(strikeouts * 100.0 / NULLIF(total_pa, 0), 0) as strikeout_rate,
+            COALESCE(home_runs * 100.0 / NULLIF(total_pa, 0), 0) as home_run_rate,
+
+            -- Calculate DISCIPLINE SCORE (0-100) - focus on plate approach
+            GREATEST(0, LEAST(100,
+                COALESCE(contact_rate, 75) * 0.25 +                    -- 25% weight on contact ability
+                (100 - COALESCE(chase_rate, 35)) * 0.25 +              -- 25% weight on not chasing
+                COALESCE(zone_swing_rate, 65) * 0.15 +                 -- 15% weight on swinging at strikes
+                (100 - COALESCE(whiff_rate, 25)) * 0.15 +              -- 15% weight on not whiffing
+                COALESCE(walk_rate, 8) * 2.5 +                         -- 20% weight on walks (scaled)
+                0
+            )) as discipline_score,
+
+            -- Calculate POWER SCORE (0-100) - focus on impact potential
+            GREATEST(0, LEAST(100,
+                COALESCE(hard_hit_rate, 30) * 1.0 +                    -- 30% weight on hard contact
+                COALESCE(home_run_rate, 3) * 10.0 +                    -- 30% weight on HR rate (scaled)
+                COALESCE(fly_ball_rate + line_drive_rate, 50) * 0.6 +  -- 30% weight on elevated balls
+                CASE
+                    WHEN doubles + triples + home_runs > 0
+                    THEN (doubles + triples * 2 + home_runs * 3) * 100.0 / NULLIF(total_pa, 0) * 2.5
+                    ELSE 0
+                END +                                                    -- 10% weight on extra bases
+                0
+            )) as power_score,
+
+            -- Calculate CONTACT SCORE (0-100) - focus on bat-to-ball skills
+            GREATEST(0, LEAST(100,
+                COALESCE(contact_rate, 75) * 0.40 +                    -- 40% weight on overall contact
+                COALESCE(batting_avg, 25) * 2.0 +                      -- 50% weight on batting avg (scaled)
+                (100 - COALESCE(strikeout_rate, 20)) * 0.10 +          -- 10% weight on avoiding Ks
+                0
+            )) as contact_score
+
+        FROM player_pitch_stats pps
+        LEFT JOIN prospects p ON CAST(p.mlb_player_id AS INTEGER) = pps.mlb_batter_id
+        ORDER BY total_pa DESC
+        """
+
+        level_filter = f"AND bp.level = :level" if level else ""
+        query = base_query.replace("{level_filter}", level_filter)
+
+        params = {"season": season, "min_pa": min_pa}
+        if level:
+            params["level"] = level
+
+        try:
+            result = await self.db.execute(text(query), params)
+            rows = result.fetchall()
+
+            players = []
+            for row in rows:
+                player = dict(row._mapping)
+                # Ensure all scores are present
+                player['discipline_score'] = player.get('discipline_score', 50)
+                player['power_score'] = player.get('power_score', 50)
+                player['contact_score'] = player.get('contact_score', 50)
+                players.append(player)
+
+            return players
+
+        except Exception as e:
+            logger.error(f"Error in _get_all_players_with_pitch_data: {e}")
+            return []
 
     async def _get_players_with_composite_scores(
         self,
@@ -126,7 +312,7 @@ class StatlineRankingService:
             -- First, get basic player info and check if they have enough PAs
             SELECT
                 bp.mlb_batter_id,
-                bp.mlb_batter_name as name,
+                bp.mlb_batter_id as name,  -- Use ID for now, will join with prospects table
                 bp.level,
                 COUNT(DISTINCT bp.game_id) as games,
                 COUNT(*) as total_pitches,
@@ -142,7 +328,7 @@ class StatlineRankingService:
             FROM milb_batter_pitches bp
             WHERE bp.season = :season
                 {level_filter}
-            GROUP BY bp.mlb_batter_id, bp.mlb_batter_name, bp.level
+            GROUP BY bp.mlb_batter_id, bp.level
             HAVING COUNT(DISTINCT CASE
                 WHEN bp.event_result IS NOT NULL
                 THEN bp.game_id || '_' || bp.pa_of_inning

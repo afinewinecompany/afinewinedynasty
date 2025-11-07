@@ -878,7 +878,7 @@ async def get_prospect_profile(
 @router.get("/rankings/statline")
 async def get_statline_rankings(
     level: Optional[str] = Query(None, description="Filter by level (AAA, AA, A+, A, ROK)"),
-    min_pa: int = Query(100, description="Minimum plate appearances to qualify"),
+    min_pa: int = Query(50, description="Minimum plate appearances to qualify"),
     season: int = Query(2025, description="Season year"),
     include_pitch_data: bool = Query(True, description="Include pitch-level metrics"),
     current_user: Optional[User] = Depends(get_current_user_optional),

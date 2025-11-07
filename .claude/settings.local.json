@@ -1,16 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git add apps/web/src/app/statline/page.tsx)",
-      "Bash(python check_prospect_stats_data.py)",
-      "Bash(git commit -m \"$(cat <<''EOF''\nfix: Fix statline SQL query to return results\n\nFixed the issue where statline rankings were returning no results:\n\n1. Removed EXTRACT(YEAR) filter that was looking for non-existent 2025 data\n2. Changed to use latest available data regardless of year\n3. Added COALESCE to handle NULL values properly\n4. Fixed PA to AB conversion (divide by 1.1 instead of direct comparison)\n5. Used GREATEST to avoid negative values in calculations\n\nThe query now:\n- Uses the most recent stats for each player\n- Converts min_pa threshold to at_bats properly\n- Handles NULL values gracefully\n- Returns all players meeting the criteria\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
-      "Bash(python test_statline_data.py)",
-      "Bash(export DATABASE_URL=\"postgresql+asyncpg://postgres:NGvvYlzjGRfwJQbSlCmHQJmAwqnlqRQZ@autorack.proxy.rlwy.net:24426/railway\")",
-      "Bash(git commit -m \"$(cat <<''EOF''\nfix: Simplify statline query to actually return data\n\nSimplified the SQL query to ensure data is returned:\n\n1. Removed the min_pa filter from SQL WHERE clause\n2. Now retrieves ALL players with any at_bats > 0\n3. Filters by min_pa AFTER the query in Python\n4. This ensures we get data even if thresholds don''t match exactly\n\nThe issue was the SQL query was too restrictive. Now it:\n- Gets all players with any at-bats\n- Filters by plate appearances in application logic\n- Should return rankings for all active players\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
-      "Bash(python comprehensive_statline_test.py)",
-      "Bash(git commit -m \"$(cat <<''EOF''\nfix: Use correct milb_game_logs table for statline rankings\n\nReverted to use the correct milb_game_logs table instead of prospect_stats:\n\n1. The milb_game_logs table contains the actual game-by-game data\n2. Updated query to aggregate stats from individual games\n3. Calculates proper batting average, OBP, SLG from raw totals\n4. Now includes stolen bases and caught stealing data\n5. Uses correct season filtering and game_type=''R'' for regular season\n\nThe previous \"fix\" was using the wrong table (prospect_stats) which \nwas causing no results. Now using milb_game_logs which contains the \nactual MILB pitch data needed for statline rankings.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
-      "Bash(python test_statline_debug.py)",
-      "Bash(git commit -m \"$(cat <<''EOF''\nfix: Use prospect_stats table instead of non-existent milb_game_logs\n\nFixed the root cause of empty statline rankings:\n\n1. The milb_game_logs table doesn''t exist in production (migration exists but no model)\n2. Changed query to use prospect_stats table which actually exists\n3. Adapted calculations for available columns in prospect_stats\n4. Removed season parameter as prospect_stats uses date_recorded instead\n5. Estimates plate appearances from at_bats and walks\n6. Uses latest stats for each player (ROW_NUMBER with date ordering)\n\nThe statline rankings should now finally return data from the existing\nprospect_stats table rather than trying to query a non-existent table.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(python test_statline_fix.py)",
+      "Bash(npm run dev)",
+      "Bash(uvicorn app.main:app --reload --port 8000)",
+      "Bash(curl -s \"http://localhost:8000/api/v1/prospects/rankings/statline?min_pa=25&include_pitch_data=true\")",
+      "Bash(python -m json.tool)",
+      "Bash(curl -s \"http://localhost:8000/api/v1/prospects/rankings/statline?min_pa=25\")",
+      "Bash(curl -s \"http://localhost:8000/api/v1/prospects/rankings/statline?min_pa=10\")",
       "Bash(git add -A)"
     ],
     "deny": [],

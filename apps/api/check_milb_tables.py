@@ -1,109 +1,138 @@
-"""
-Check MiLB related tables in Railway database
-"""
-import os
-import sys
-from pathlib import Path
-from dotenv import load_dotenv
-from sqlalchemy import create_engine, text
+"""Check MILB tables and data availability."""
 
-# Add parent directory to path
-sys.path.insert(0, str(Path(__file__).parent))
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
-# Load .env file
-load_dotenv()
+DATABASE_URL = "postgresql://postgres:NGvvYlzjGRfwJQbSlCmHQJmAwqnlqRQZ@autorack.proxy.rlwy.net:24426/railway"
 
-# Get database URL
-db_url = os.getenv('SQLALCHEMY_DATABASE_URI')
-if 'postgresql+asyncpg://' in db_url:
-    db_url = db_url.replace('postgresql+asyncpg://', 'postgresql://')
+def check_milb_data():
+    try:
+        conn = psycopg2.connect(DATABASE_URL)
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-engine = create_engine(db_url)
+        print("\n=== Checking MILB Tables ===")
 
-print("=" * 70)
-print("MiLB DATA TABLES CHECK")
-print("=" * 70)
-print()
+        # List all MILB-related tables
+        cursor.execute("""
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_schema = 'public'
+            AND table_name LIKE '%milb%'
+            ORDER BY table_name
+        """)
+        tables = cursor.fetchall()
 
-with engine.connect() as conn:
-    # Find all MiLB related tables
-    result = conn.execute(text("""
-        SELECT table_name
-        FROM information_schema.tables
-        WHERE table_schema = 'public'
-        AND (
-            table_name LIKE '%milb%'
-            OR table_name LIKE '%play%'
-            OR table_name LIKE '%pbp%'
-            OR table_name LIKE '%game%'
-            OR table_name LIKE '%plate%'
-            OR table_name LIKE '%appearance%'
-        )
-        ORDER BY table_name
-    """))
+        print("\nMILB-related tables found:")
+        for table in tables:
+            print(f"  - {table['table_name']}")
 
-    print("MiLB/Play-by-play related tables:")
-    tables = []
-    for row in result:
-        tables.append(row[0])
-        print(f"  - {row[0]}")
-
-    print()
-
-    # Check each table for record counts
-    for table in tables:
-        try:
-            result = conn.execute(text(f"SELECT COUNT(*) FROM {table}"))
-            count = result.fetchone()[0]
-            print(f"{table}: {count:,} records")
-        except Exception as e:
-            print(f"{table}: Error - {e}")
-
-    print()
-    print("=" * 70)
-
-    # Check specifically for plate appearances data for 2021-2025
-    if 'milb_plate_appearances' in tables:
-        print("MiLB Plate Appearances by Season:")
-        result = conn.execute(text("""
+        # Check milb_batter_pitches data for 2025
+        print("\n=== Checking milb_batter_pitches for 2025 ===")
+        cursor.execute("""
             SELECT
-                season,
-                COUNT(*) as records,
-                COUNT(DISTINCT mlb_player_id) as players,
-                COUNT(DISTINCT game_pk) as games
-            FROM milb_plate_appearances
-            WHERE season IN (2021, 2022, 2023, 2024, 2025)
-            GROUP BY season
-            ORDER BY season DESC
-        """))
+                COUNT(*) as total_rows,
+                COUNT(DISTINCT mlb_batter_id) as unique_batters,
+                COUNT(DISTINCT game_id) as unique_games,
+                COUNT(DISTINCT level) as unique_levels,
+                MIN(game_date) as first_game,
+                MAX(game_date) as last_game
+            FROM milb_batter_pitches
+            WHERE season = 2025
+        """)
+        stats = cursor.fetchone()
 
-        for row in result:
-            print(f"  {row[0]}: {row[1]:,} records, {row[2]} players, {row[3]} games")
+        print(f"\n2025 milb_batter_pitches stats:")
+        print(f"  Total pitch records: {stats['total_rows']:,}")
+        print(f"  Unique batters: {stats['unique_batters']:,}")
+        print(f"  Unique games: {stats['unique_games']:,}")
+        print(f"  Unique levels: {stats['unique_levels']:,}")
+        print(f"  Date range: {stats['first_game']} to {stats['last_game']}")
 
-    # Check for game logs
-    if 'milb_game_logs' in tables:
-        print()
-        print("MiLB Game Logs by Season:")
-        result = conn.execute(text("""
+        # Show sample of players with most data
+        print("\n=== Top 10 Players by Pitch Count (2025) ===")
+        cursor.execute("""
             SELECT
-                season,
-                COUNT(*) as records,
-                COUNT(DISTINCT mlb_player_id) as players
-            FROM milb_game_logs
-            WHERE season IN (2021, 2022, 2023, 2024, 2025)
-            GROUP BY season
-            ORDER BY season DESC
-        """))
+                mlb_batter_id,
+                mlb_batter_name,
+                level,
+                COUNT(*) as pitch_count,
+                COUNT(DISTINCT game_id) as games,
+                COUNT(DISTINCT CASE
+                    WHEN event_result IS NOT NULL
+                    THEN game_id || '_' || pa_of_inning
+                END) as plate_appearances
+            FROM milb_batter_pitches
+            WHERE season = 2025
+            GROUP BY mlb_batter_id, mlb_batter_name, level
+            ORDER BY pitch_count DESC
+            LIMIT 10
+        """)
 
-        for row in result:
-            print(f"  {row[0]}: {row[1]:,} records, {row[2]} players")
+        players = cursor.fetchall()
+        for i, player in enumerate(players, 1):
+            print(f"{i:2}. {player['mlb_batter_name']:<25} (ID: {player['mlb_batter_id']}) - "
+                  f"Level: {player['level']}, Pitches: {player['pitch_count']:,}, "
+                  f"Games: {player['games']}, PAs: {player['plate_appearances']}")
 
-    # Check prospects table
-    result = conn.execute(text("""
-        SELECT COUNT(*) as total_prospects,
-               COUNT(DISTINCT organization) as orgs
-        FROM prospects
-    """))
-    row = result.fetchone()
-    print()
-    print(f"Prospects: {row[0]:,} players from {row[1]} organizations")
+        # Check for discipline/power metrics availability
+        print("\n=== Checking Available Pitch Metrics ===")
+        cursor.execute("""
+            SELECT
+                COUNT(*) FILTER (WHERE zone IS NOT NULL) as has_zone,
+                COUNT(*) FILTER (WHERE swing IS NOT NULL) as has_swing,
+                COUNT(*) FILTER (WHERE contact IS NOT NULL) as has_contact,
+                COUNT(*) FILTER (WHERE hardness IS NOT NULL) as has_hardness,
+                COUNT(*) FILTER (WHERE trajectory IS NOT NULL) as has_trajectory,
+                COUNT(*) FILTER (WHERE event_result IS NOT NULL) as has_result,
+                COUNT(*) as total
+            FROM milb_batter_pitches
+            WHERE season = 2025
+            LIMIT 10000
+        """)
+
+        metrics = cursor.fetchone()
+        print(f"\nData completeness (sample of 10,000 pitches):")
+        for key, value in metrics.items():
+            if key != 'total':
+                pct = (value / metrics['total'] * 100) if metrics['total'] > 0 else 0
+                print(f"  {key}: {value:,} ({pct:.1f}%)")
+
+        # Check levels distribution
+        print("\n=== 2025 Data by Level ===")
+        cursor.execute("""
+            SELECT
+                level,
+                COUNT(DISTINCT mlb_batter_id) as unique_batters,
+                COUNT(DISTINCT game_id) as games,
+                COUNT(*) as pitches
+            FROM milb_batter_pitches
+            WHERE season = 2025
+            GROUP BY level
+            ORDER BY
+                CASE level
+                    WHEN 'AAA' THEN 1
+                    WHEN 'AA' THEN 2
+                    WHEN 'A+' THEN 3
+                    WHEN 'A' THEN 4
+                    WHEN 'ROK' THEN 5
+                    ELSE 6
+                END
+        """)
+
+        levels = cursor.fetchall()
+        for level in levels:
+            print(f"  {level['level']:<5} - Batters: {level['unique_batters']:,}, "
+                  f"Games: {level['games']:,}, Pitches: {level['pitches']:,}")
+
+        cursor.close()
+        conn.close()
+
+        print("\n=== Check Complete ===")
+
+    except Exception as e:
+        print(f"\nERROR: {e}")
+        import traceback
+        traceback.print_exc()
+
+if __name__ == "__main__":
+    check_milb_data()
